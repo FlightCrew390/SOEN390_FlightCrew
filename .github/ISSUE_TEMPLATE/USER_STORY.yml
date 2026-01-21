@@ -1,0 +1,56 @@
+name: User Story
+description: Document a new user story for a feature or improvement.
+title: "[STORY] As a <user description>, I want to <functionality>, so that <goal/benefit>"
+labels: ["User Story"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## User Story
+        Please fill in the details of the user story below.
+
+  - type: input
+    id: role
+    attributes:
+      label: As a (Role)
+      description: Who is the user or persona?
+      placeholder: "e.g., staff, visitors, ..."
+    validations:
+      required: true
+
+  - type: input
+    id: action
+    attributes:
+      label: I want (Action/Goal)
+      description: What do they want to achieve?
+      placeholder: "e.g., to create an account, view my order history"
+    validations:
+      required: true
+
+  - type: input
+    id: benefit
+    attributes:
+      label: So that (Benefit/Value)
+      description: Why is this important to them or the business?
+      placeholder: "e.g., I can save my preferences, the team can track progress"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Define the conditions that must be met for the story to be considered complete.
+      value: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+        - [ ] Criterion 3
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-details
+    attributes:
+      label: Additional Details/Notes
+      description: Any extra context, mockups, or related links.
+      placeholder: "Add any relevant details here."

@@ -16,11 +16,13 @@ jobs:
         - name: Run springboot Tests
           uses: actions/setup-java@v3
           with:
-            distribution: "JDK"
-            java-version: latest
-        
+            distribution: "temurin"
+            java-version: "17"
+            cache: maven
+
         - name: Run Spring Boot tests
           run: mvn test -Dspring.profiles.active=test
+          working-directory: ./backend
 
     mobile-test:
         runs-on: ubuntu-latest

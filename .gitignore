@@ -34,6 +34,7 @@ Thumbs.db
 
 # dependencies
 mobile/node_modules/
+mobile/package-lock.json
 
 # Expo
 mobile/.expo/

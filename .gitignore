@@ -72,4 +72,6 @@ mobile/android/
 # Backend (Spring Boot)
 # ===========================
 # (Backend patterns will be added when backend is set up)
+Backend/target/
+
 

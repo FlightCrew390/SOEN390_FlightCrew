@@ -9,7 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest",
-    "lint": "expo lint"
+    "lint": "expo lint --fix && npx tsc --noEmit"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",

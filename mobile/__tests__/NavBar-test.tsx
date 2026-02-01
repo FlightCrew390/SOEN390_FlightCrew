@@ -4,6 +4,10 @@ import { act, render, screen, userEvent } from "@testing-library/react-native";
 
 import NavBar from "../src/components/NavBar/NavBar";
 
+jest.mock("@expo/vector-icons", () => ({
+  Ionicons: "",
+}));
+
 jest.useFakeTimers();
 
 test("Initial screen is Home", () => {

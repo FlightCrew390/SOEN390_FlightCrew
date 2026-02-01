@@ -68,6 +68,9 @@ mobile/*.tsbuildinfo
 mobile/ios/
 mobile/android/
 
+# testing
+mobile/coverage/
+
 # ===========================
 # Backend (Spring Boot)
 # ===========================

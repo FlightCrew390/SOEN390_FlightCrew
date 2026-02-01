@@ -1,21 +1,14 @@
 import { StyleSheet, ViewStyle } from "react-native";
 
 const styles = StyleSheet.create({
-  screen: {
+  container: {
     flex: 1,
-    backgroundColor: "#fff",
-  },
-  textContainer: {
-    flex: 1,
+    alignItems: "stretch",
     justifyContent: "center",
-    alignItems: "center",
   },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  mapWrapper: {
+  map: {
     flex: 1,
+    width: "100%",
   },
 });
 

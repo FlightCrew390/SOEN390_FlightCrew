@@ -9,6 +9,7 @@ import org.springframework.web.client.RestTemplate;
 public class Backend {
 
     public static void main(String[] args) {
+        io.github.cdimascio.dotenv.Dotenv.configure().ignoreIfMissing().systemProperties().load();
         SpringApplication.run(Backend.class, args);
     }
 

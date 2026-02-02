@@ -22,6 +22,9 @@ jobs:
       - name: Run Spring Boot tests
         run: mvn test -Dspring.profiles.active=test
         working-directory: ./Backend
+        env:
+          EXTERNAL_API_KEY: ${{ secrets.CONCORDIA_API_KEY }}
+          EXTERNAL_API_USER: ${{ secrets.CONCORDIA_API_USER }}
 
   mobile-test:
     runs-on: ubuntu-latest

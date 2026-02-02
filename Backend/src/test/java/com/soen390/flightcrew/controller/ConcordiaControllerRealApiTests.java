@@ -1,6 +1,7 @@
 package com.soen390.flightcrew.controller;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
@@ -8,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import com.soen390.flightcrew.model.Building;
 import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,6 +23,31 @@ import static org.assertj.core.api.Assertions.assertThat;
         "external.api.url=${EXTERNAL_API_URL:https://opendata.concordia.ca/API/v1}"
 })
 public class ConcordiaControllerRealApiTests {
+
+    @BeforeAll
+    public static void setup() {
+        try {
+            java.nio.file.Path envPath = Paths.get(".env");
+            if (Files.exists(envPath)) {
+                Files.lines(envPath).forEach(line -> {
+                    if (line.trim().length() > 0 && !line.startsWith("#") && line.contains("=")) {
+                        String[] parts = line.split("=", 2);
+                        String key = parts[0].trim();
+                        String value = parts[1].trim();
+                        // Remove surrounding quotes if present
+                        if (value.startsWith("\"") && value.endsWith("\"") && value.length() > 1) {
+                            value = value.substring(1, value.length() - 1);
+                        } else if (value.startsWith("'") && value.endsWith("'") && value.length() > 1) {
+                            value = value.substring(1, value.length() - 1);
+                        }
+                        System.setProperty(key, value);
+                    }
+                });
+            }
+        } catch (IOException e) {
+            System.err.println("Could not load .env file: " + e.getMessage());
+        }
+    }
 
     @Autowired
     private ConcordiaController concordiaController;

@@ -18,6 +18,14 @@ export const COLORS = {
 // API Configuration
 export const API_CONFIG = {
   getBaseUrl: () => {
+    const backendIp = process.env.EXPO_PUBLIC_BACKEND_IP;
+
+    // If we have an IP in .env, use it for ALL platforms (iOS, Android, etc.)
+    if (backendIp) {
+      return `http://${backendIp}:9090/api`;
+    }
+
+    // Fallback if .env is missing
     return Platform.OS === "android"
       ? "http://10.0.2.2:9090/api"
       : "http://localhost:9090/api";

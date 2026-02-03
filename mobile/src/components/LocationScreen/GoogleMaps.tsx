@@ -16,7 +16,7 @@ export default function GoogleMaps() {
     if (mapRef.current && Platform.OS === "android") {
       mapRef.current.setMapBoundaries(
         campusBoundary.northEast,
-        campusBoundary.southWest
+        campusBoundary.southWest,
       );
     }
   };

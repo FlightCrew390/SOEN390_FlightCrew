@@ -10,7 +10,7 @@ type CampusBoundary = {
 
 const campusBoundary: CampusBoundary = {
   northEast: { latitude: 45.5049, longitude: -73.5612 },
-  southWest: { latitude: 45.4510, longitude: -73.6530 },
+  southWest: { latitude: 45.451, longitude: -73.653 },
 };
 
 export { campusBoundary, CampusBoundary, Coordinate };

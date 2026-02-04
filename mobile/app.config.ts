@@ -1,7 +1,7 @@
 import { ExpoConfig, ConfigContext } from "expo/config";
 import "dotenv/config";
 
-export default ({ config }: ConfigContext): ExpoConfig => ({
+const appConfig = ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "mobile",
   slug: "mobile",
@@ -51,3 +51,5 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     favicon: "./assets/favicon.png",
   },
 });
+
+export default appConfig;

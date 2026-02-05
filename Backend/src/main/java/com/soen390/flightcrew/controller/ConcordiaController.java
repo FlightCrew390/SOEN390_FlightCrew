@@ -35,7 +35,8 @@ public class ConcordiaController {
     @Value("${external.api.user}")
     private String apiUser;
 
-    private static final String CACHE_FILE = "buildings_cache.json";
+    @Value("${app.cache.file:buildings_cache.json}")
+    private String cacheFileName;
 
     private final RestTemplate restTemplate;
     private final GoogleMapsService googleMapsService;
@@ -52,7 +53,7 @@ public class ConcordiaController {
     public ResponseEntity<List<Building>> getBuildingList() {
 
         // Check for cached file
-        File cacheFile = new File(CACHE_FILE);
+        File cacheFile = new File(cacheFileName);
         if (cacheFile.exists()) {
             try {
                 List<Building> cachedBuildings = objectMapper.readValue(cacheFile, new TypeReference<List<Building>>() {

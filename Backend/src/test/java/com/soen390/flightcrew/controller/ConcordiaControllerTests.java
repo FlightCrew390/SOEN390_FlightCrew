@@ -1,6 +1,9 @@
 package com.soen390.flightcrew.controller;
 
 import com.soen390.flightcrew.model.Building;
+import java.io.File;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,6 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
@@ -20,11 +24,13 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @TestPropertySource(properties = {
         "external.api.url=http://mock-api.com",
         "external.api.user=testUser",
         "external.api.key=testKey",
-        "google.api.key=testGoogleKey"
+        "google.api.key=testGoogleKey",
+        "app.cache.file=non_existent_cache.json"
 })
 public class ConcordiaControllerTests {
 
@@ -43,6 +49,15 @@ public class ConcordiaControllerTests {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @BeforeEach
+    @AfterEach
+    public void cleanup() {
+        File file = new File("non_existent_cache.json");
+        if (file.exists()) {
+            file.delete();
+        }
+    }
 
     @Test
     public void getBuildingList_ReturnsBuildingList() {

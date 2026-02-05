@@ -22,6 +22,22 @@ export class BuildingDataService {
         address: building.Address,
         latitude: building.Latitude,
         longitude: building.Longitude,
+        polygon: building.Google_Place_Info?.displayPolygon?.coordinates?.[0]
+          ?.map((coord: any) => {
+            if (
+              Array.isArray(coord) &&
+              coord.length >= 2 &&
+              typeof coord[0] === "number" &&
+              typeof coord[1] === "number"
+            ) {
+              return {
+                latitude: coord[1],
+                longitude: coord[0],
+              };
+            }
+            return null;
+          })
+          .filter((p: any) => p !== null),
       }));
     } catch (error) {
       console.error("Error fetching buildings:", error);

@@ -63,12 +63,12 @@ test("calls onCampusChange callback with correct campus name", async () => {
   await user.press(rightChevron);
   act(() => jest.runAllTimers());
 
-  expect(mockOnCampusChange).toHaveBeenCalledWith("Loyola Campus");
+  expect(mockOnCampusChange).toHaveBeenCalledWith("LOYOLA");
 
   // Navigate back
   await user.press(leftChevron);
   act(() => jest.runAllTimers());
 
   expect(mockOnCampusChange).toHaveBeenCalledTimes(2);
-  expect(mockOnCampusChange).toHaveBeenLastCalledWith("SGW Campus");
+  expect(mockOnCampusChange).toHaveBeenLastCalledWith("SGW");
 });

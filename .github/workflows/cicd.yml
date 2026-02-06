@@ -63,13 +63,13 @@ jobs:
         run: npm run lint:ci
 
       - name: Run tests
-        if: github.event_name != 'pull_request'
         working-directory: ./mobile
-        run: npm test
+        run: npx jest --coverage
 
       - name: Jest Coverage Report
         if: github.event_name == 'pull_request'
-        uses: ArtiomTr/jest-coverage-report-action@v2
+        uses: davelosert/vitest-coverage-report-action@v2
         with:
-          working-directory: mobile
-          skip-step: install
+          name: Mobile Coverage
+          json-summary-path: mobile/coverage/coverage-summary.json
+          json-final-path: mobile/coverage/coverage-final.json

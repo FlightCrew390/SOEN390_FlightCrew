@@ -20,7 +20,12 @@
     "setupFilesAfterEnv": [
       "<rootDir>/jest/setup.ts"
     ],
-    "coverageReporters": ["json-summary", "json", "text", "lcov"]
+    "coverageReporters": [
+      "json-summary",
+      "json",
+      "text",
+      "lcov"
+    ]
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",

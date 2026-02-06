@@ -38,7 +38,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: "Coverage Report for Backend"
           update-comment: true
-          min-coverage-overall: 0
+          min-coverage-overall: 80
           min-coverage-changed-files: 80
 
   mobile-test:
@@ -78,3 +78,4 @@ jobs:
           json-final-path: mobile/coverage/coverage-final.json
           vite-config-path: mobile/vitest.config.ts
           file-coverage-mode: changes
+          threshold-icons: "{0: '🔴', 75: '🟠', 80: '🟢'}"

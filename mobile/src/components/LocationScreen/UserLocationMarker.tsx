@@ -53,10 +53,7 @@ export default function UserLocationMarker({
   }, [pulseAnim, opacityAnim]);
 
   return (
-    <Marker
-      coordinate={{ latitude, longitude }}
-      anchor={{ x: 0.5, y: 0.5 }}
-    >
+    <Marker coordinate={{ latitude, longitude }} anchor={{ x: 0.5, y: 0.5 }}>
       <Animated.View
         style={{
           transform: [{ scale: pulseAnim }],

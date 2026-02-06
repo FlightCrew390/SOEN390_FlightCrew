@@ -27,7 +27,8 @@ export const useCurrentLocation = () => {
           setState({
             location: null,
             loading: false,
-            error: "Location permission denied. Please enable location access in settings.",
+            error:
+              "Location permission denied. Please enable location access in settings.",
           });
           return;
         }

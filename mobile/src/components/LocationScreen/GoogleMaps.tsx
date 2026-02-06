@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { ActivityIndicator, Platform, Text, View } from "react-native";
 import MapView, {
   PROVIDER_DEFAULT,
@@ -8,13 +8,54 @@ import MapView, {
 import { MAP_CONFIG } from "../../constants";
 import { campusBoundary } from "../../constants/campusBoundaries";
 import { useBuildingData } from "../../hooks/useBuildingData";
+import { useCurrentLocation } from "../../hooks/useCurrentLocation";
+import { findCurrentBuilding } from "../../utils/buildingDetection";
+import { Building } from "../../types/Building";
 import styles from "../../styles/GoogleMaps";
 import BuildingMarker from "./BuildingMarker";
+import UserLocationMarker from "./UserLocationMarker";
 
 export default function GoogleMaps() {
   const { buildings, loading, error } = useBuildingData();
+  const {
+    location,
+    loading: locationLoading,
+    error: locationError,
+  } = useCurrentLocation();
   const mapRef = useRef<MapView>(null);
   const isCorrectingRef = useRef(false);
+  const [currentBuilding, setCurrentBuilding] = useState<Building | null>(null);
+
+  // Find current building when location or buildings change
+  useEffect(() => {
+    if (location && buildings.length > 0) {
+      const building = findCurrentBuilding(
+        {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        },
+        buildings,
+      );
+      setCurrentBuilding(building);
+    } else {
+      setCurrentBuilding(null);
+    }
+  }, [location, buildings]);
+
+  // Center map on user location when available
+  useEffect(() => {
+    if (location && mapRef.current) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        },
+        1000,
+      );
+    }
+  }, [location]);
 
   const handleMapReady = () => {
     if (mapRef.current && Platform.OS === "android") {
@@ -57,6 +98,10 @@ export default function GoogleMaps() {
     }
   };
 
+  // Determine error message priority
+  const displayError = error || locationError;
+  const isLoading = loading || locationLoading;
+
   return (
     <View style={styles.container}>
       <MapView
@@ -70,22 +115,38 @@ export default function GoogleMaps() {
         }
         style={styles.map}
         initialRegion={MAP_CONFIG.concordiaCenter}
+        showsUserLocation={false}
+        showsMyLocationButton={true}
       >
         {buildings.map((building) => (
-          <BuildingMarker key={building.buildingCode} building={building} />
+          <BuildingMarker
+            key={building.buildingCode}
+            building={building}
+            isCurrentBuilding={
+              currentBuilding?.buildingCode === building.buildingCode
+            }
+          />
         ))}
+        {location && (
+          <UserLocationMarker
+            latitude={location.coords.latitude}
+            longitude={location.coords.longitude}
+          />
+        )}
       </MapView>
 
-      {loading && (
+      {isLoading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#8b2020" />
-          <Text style={styles.loadingText}>Loading buildings...</Text>
+          <Text style={styles.loadingText}>
+            {loading ? "Loading buildings..." : "Getting your location..."}
+          </Text>
         </View>
       )}
 
-      {error && (
+      {displayError && !isLoading && (
         <View style={styles.errorOverlay}>
-          <Text style={styles.errorText}>Error: {error}</Text>
+          <Text style={styles.errorText}>{displayError}</Text>
         </View>
       )}
     </View>

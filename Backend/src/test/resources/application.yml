@@ -6,3 +6,6 @@ external:
     url: "https://opendata.concordia.ca/API/v1"
     key: "${EXTERNAL_API_KEY}"
     user: "${EXTERNAL_API_USER}"
+google:
+  api:
+    key: "${GOOGLE_API_KEY}"

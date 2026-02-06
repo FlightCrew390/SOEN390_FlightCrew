@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useMemo, useRef } from "react";
 import { ActivityIndicator, Platform, Text, View } from "react-native";
 import MapView, {
   PROVIDER_DEFAULT,
@@ -10,6 +10,7 @@ import { campusBoundary } from "../../constants/campusBoundaries";
 import { useBuildingData } from "../../hooks/useBuildingData";
 import styles from "../../styles/GoogleMaps";
 import BuildingMarker from "./BuildingMarker";
+import BuildingPolygon from "./BuildingPolygon";
 
 export default function GoogleMaps() {
   const { buildings, loading, error } = useBuildingData();
@@ -57,6 +58,19 @@ export default function GoogleMaps() {
     }
   };
 
+  const mapElements = useMemo(() => {
+    return buildings.flatMap((building) => [
+      <BuildingPolygon
+        key={`${building.buildingCode}-poly`}
+        building={building}
+      />,
+      <BuildingMarker
+        key={`${building.buildingCode}-marker`}
+        building={building}
+      />,
+    ]);
+  }, [buildings]);
+
   return (
     <View style={styles.container}>
       <MapView
@@ -70,10 +84,9 @@ export default function GoogleMaps() {
         }
         style={styles.map}
         initialRegion={MAP_CONFIG.concordiaCenter}
+        pitchEnabled={false}
       >
-        {buildings.map((building) => (
-          <BuildingMarker key={building.buildingCode} building={building} />
-        ))}
+        {mapElements}
       </MapView>
 
       {loading && (

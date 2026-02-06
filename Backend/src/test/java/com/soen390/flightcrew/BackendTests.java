@@ -8,7 +8,8 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(properties = {
         "external.api.url=http://mock-api.com",
         "external.api.user=testUser",
-        "external.api.key=testKey"
+        "external.api.key=testKey",
+        "google.api.key=testGoogleKey"
 })
 class BackendTests {
 

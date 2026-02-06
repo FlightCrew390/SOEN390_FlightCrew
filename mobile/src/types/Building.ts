@@ -6,6 +6,7 @@ export interface Building {
   address: string;
   latitude: number;
   longitude: number;
+  polygons?: { latitude: number; longitude: number }[][];
 }
 
 export type Campus = "SGW" | "LOY";

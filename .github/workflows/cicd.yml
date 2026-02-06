@@ -25,6 +25,7 @@ jobs:
         env:
           EXTERNAL_API_KEY: ${{ secrets.CONCORDIA_API_KEY }}
           EXTERNAL_API_USER: ${{ secrets.CONCORDIA_API_USER }}
+          GOOGLE_API_KEY: ${{ secrets.MAPS_API_KEY }}
 
   mobile-test:
     runs-on: ubuntu-latest

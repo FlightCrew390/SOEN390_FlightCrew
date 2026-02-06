@@ -12,7 +12,7 @@ const campusIds = Object.keys(CAMPUSES) as CampusId[];
 
 export default function CampusSelection({
   onCampusChange,
-}: CampusSelectionProps) {
+}: Readonly<CampusSelectionProps>) {
   const [campusIndex, setCampusIndex] = useState(0);
 
   const isFirst = campusIndex === 0;

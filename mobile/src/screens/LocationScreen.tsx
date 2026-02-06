@@ -17,7 +17,7 @@ export default function LocationScreen() {
       latitudeDelta: 0.01,
       longitudeDelta: 0.01,
     };
-    if (campus && mapRef.current) {
+    if (mapRef.current) {
       mapRef.current.animateToRegion(region, 1000);
     }
   };

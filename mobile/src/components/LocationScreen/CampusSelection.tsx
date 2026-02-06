@@ -8,11 +8,12 @@ interface CampusSelectionProps {
   onCampusChange?: (campus: CampusId) => void;
 }
 
+const campusIds = Object.keys(CAMPUSES) as CampusId[];
+
 export default function CampusSelection({
   onCampusChange,
 }: CampusSelectionProps) {
   const [campusIndex, setCampusIndex] = useState(0);
-  const campusIds = Object.keys(CAMPUSES) as CampusId[];
 
   const isFirst = campusIndex === 0;
   const isLast = campusIndex === campusIds.length - 1;

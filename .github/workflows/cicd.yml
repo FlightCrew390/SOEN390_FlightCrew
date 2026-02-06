@@ -26,6 +26,17 @@ jobs:
           EXTERNAL_API_KEY: ${{ secrets.CONCORDIA_API_KEY }}
           EXTERNAL_API_USER: ${{ secrets.CONCORDIA_API_USER }}
 
+      - name: JaCoCo Coverage Report
+        if: github.event_name == 'pull_request'
+        uses: madrapps/jacoco-report@v1.7.2
+        with:
+          paths: Backend/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: "Backend Coverage"
+          update-comment: true
+          min-coverage-overall: 0
+          min-coverage-changed-files: 0
+
   mobile-test:
     runs-on: ubuntu-latest
     steps:

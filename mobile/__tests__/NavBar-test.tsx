@@ -8,6 +8,12 @@ jest.mock("@expo/vector-icons", () => ({
   Ionicons: "",
 }));
 
+jest.mock("../src/services/BuildingDataService", () => ({
+  BuildingDataService: {
+    fetchBuildings: jest.fn().mockResolvedValue([]),
+  },
+}));
+
 jest.useFakeTimers();
 
 test("Initial screen is Home", () => {

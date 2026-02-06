@@ -5,6 +5,7 @@ on:
     branches: [main, dev]
   pull_request:
     branches: [main, dev, "feat/**"]
+  workflow_dispatch:
 
 jobs:
   backend-test:

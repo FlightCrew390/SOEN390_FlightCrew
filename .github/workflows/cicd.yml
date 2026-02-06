@@ -6,14 +6,12 @@ on:
   pull_request:
     branches: [main, dev, "feat/**"]
 
-permissions:
-  contents: read
-  pull-requests: write
-  checks: write
-
 jobs:
   backend-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
@@ -37,13 +35,17 @@ jobs:
         with:
           paths: Backend/target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: "Backend Coverage"
+          title: "Coverage Report for Backend"
           update-comment: true
           min-coverage-overall: 0
           min-coverage-changed-files: 80
 
   mobile-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
     steps:
       - uses: actions/checkout@v4
 
@@ -70,7 +72,7 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: davelosert/vitest-coverage-report-action@15b5b41bb7d36796d89f4bf482b09529c53f3446
         with:
-          name: Mobile Coverage
+          name: Mobile
           json-summary-path: mobile/coverage/coverage-summary.json
           json-final-path: mobile/coverage/coverage-final.json
           vite-config-path: mobile/vitest.config.ts

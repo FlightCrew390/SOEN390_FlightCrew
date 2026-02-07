@@ -59,6 +59,7 @@ export default function BuildingMarker({
       title={building.buildingCode}
       description={building.buildingName}
       anchor={{ x: 0.5, y: 1 }}
+      tracksViewChanges={false}
     >
       <CustomMarker isHighlighted={isCurrentBuilding} />
     </Marker>

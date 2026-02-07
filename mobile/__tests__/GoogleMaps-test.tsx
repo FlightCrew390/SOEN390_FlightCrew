@@ -1,4 +1,3 @@
-import { expect, test } from "@jest/globals";
 import { render, screen } from "@testing-library/react-native";
 import React from "react";
 
@@ -85,7 +84,7 @@ test("renders map view", () => {
     error: null,
   });
 
-  const { toJSON } = render(<GoogleMaps />);
+  const { toJSON } = render(<GoogleMaps mapRef={React.createRef()} />);
 
   expect(toJSON()).toBeTruthy();
   expect(JSON.stringify(toJSON())).toContain("MapView");
@@ -98,7 +97,7 @@ test("renders loading indicator when loading", () => {
     error: null,
   });
 
-  render(<GoogleMaps />);
+  render(<GoogleMaps mapRef={React.createRef()} />);
 
   expect(screen.getByText("Loading buildings...")).toBeTruthy();
 });
@@ -110,7 +109,7 @@ test("renders error message when error occurs", () => {
     error: "Failed to fetch buildings",
   });
 
-  render(<GoogleMaps />);
+  render(<GoogleMaps mapRef={React.createRef()} />);
 
   expect(screen.getByText("Failed to fetch buildings")).toBeTruthy();
 });
@@ -122,7 +121,7 @@ test("renders building markers for each building", () => {
     error: null,
   });
 
-  const { toJSON } = render(<GoogleMaps />);
+  const { toJSON } = render(<GoogleMaps mapRef={React.createRef()} />);
   const tree = JSON.stringify(toJSON());
 
   expect(tree).toContain("BuildingMarker");
@@ -136,7 +135,7 @@ test("does not render loading overlay when not loading", () => {
     error: null,
   });
 
-  render(<GoogleMaps />);
+  render(<GoogleMaps mapRef={React.createRef()} />);
 
   expect(screen.queryByText("Loading buildings...")).toBeNull();
 });
@@ -148,7 +147,7 @@ test("does not render error overlay when no error", () => {
     error: null,
   });
 
-  render(<GoogleMaps />);
+  render(<GoogleMaps mapRef={React.createRef()} />);
 
   expect(screen.queryByText(/Error:/)).toBeNull();
 });
@@ -160,7 +159,7 @@ test("renders empty map when no buildings", () => {
     error: null,
   });
 
-  const { toJSON } = render(<GoogleMaps />);
+  const { toJSON } = render(<GoogleMaps mapRef={React.createRef()} />);
   const tree = JSON.stringify(toJSON());
 
   expect(tree).toContain("MapView");
@@ -173,7 +172,7 @@ test("shows both loading and map simultaneously", () => {
     error: null,
   });
 
-  render(<GoogleMaps />);
+  render(<GoogleMaps mapRef={React.createRef()} />);
 
   expect(screen.getByText("Loading buildings...")).toBeTruthy();
 });

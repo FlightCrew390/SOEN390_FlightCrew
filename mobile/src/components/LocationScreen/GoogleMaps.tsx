@@ -15,14 +15,22 @@ import styles from "../../styles/GoogleMaps";
 import BuildingMarker from "./BuildingMarker";
 import UserLocationMarker from "./UserLocationMarker";
 
-export default function GoogleMaps() {
+interface GoogleMapsProps {
+  mapRef: React.RefObject<MapView | null>;
+}
+
+export default function GoogleMaps({
+  mapRef,
+}: Readonly<GoogleMapsProps>): React.ReactElement {
   const { buildings, loading, error } = useBuildingData();
-  const {
-    location,
-    loading: locationLoading,
-    error: locationError,
-  } = useCurrentLocation();
-  const mapRef = useRef<MapView>(null);
+const {
+  location,
+  loading: locationLoading,
+  error: locationError,
+} = useCurrentLocation();
+
+const mapRef = useRef<MapView>(null);
+
   const isCorrectingRef = useRef(false);
   const [currentBuilding, setCurrentBuilding] = useState<Building | null>(null);
 
@@ -97,11 +105,9 @@ export default function GoogleMaps() {
       }, 400);
     }
   };
-
   // Determine error message priority
   const displayError = error || locationError;
   const isLoading = loading || locationLoading;
-
   return (
     <View style={styles.container}>
       <MapView
@@ -115,24 +121,26 @@ export default function GoogleMaps() {
         }
         style={styles.map}
         initialRegion={MAP_CONFIG.concordiaCenter}
-        showsUserLocation={false}
-        showsMyLocationButton={true}
-      >
-        {buildings.map((building) => (
-          <BuildingMarker
-            key={building.buildingCode}
-            building={building}
-            isCurrentBuilding={
-              currentBuilding?.buildingCode === building.buildingCode
-            }
-          />
-        ))}
-        {location && (
-          <UserLocationMarker
-            latitude={location.coords.latitude}
-            longitude={location.coords.longitude}
-          />
-        )}
+showsUserLocation={false}
+showsMyLocationButton={true}
+pitchEnabled={false}
+>
+  {buildings.map((building) => (
+    <BuildingMarker
+      key={building.buildingCode}
+      building={building}
+      isCurrentBuilding={
+        currentBuilding?.buildingCode === building.buildingCode
+      }
+    />
+  ))}
+
+  {location && (
+    <UserLocationMarker
+      latitude={location.coords.latitude}
+      longitude={location.coords.longitude}
+    />
+  )}
       </MapView>
 
       {isLoading && (

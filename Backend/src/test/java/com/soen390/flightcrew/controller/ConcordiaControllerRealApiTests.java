@@ -17,7 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource(properties = {
         "external.api.key=${EXTERNAL_API_KEY:dummyKey}",
         "external.api.user=${EXTERNAL_API_USER:dummyUser}",
-        "external.api.url=${EXTERNAL_API_URL:https://opendata.concordia.ca/API/v1}"
+        "external.api.url=${EXTERNAL_API_URL:https://opendata.concordia.ca/API/v1}",
+        "google.api.key=${GOOGLE_API_KEY:dummyGoogleKey}"
 })
 public class ConcordiaControllerRealApiTests {
 
@@ -44,6 +45,20 @@ public class ConcordiaControllerRealApiTests {
             List<Building> buildings = response.getBody();
             assertThat(buildings).isNotEmpty();
             System.out.println("Successfully retrieved " + buildings.size() + " buildings from real API.");
+
+            // Print the displayPolygon of the 10 first buildings for debugging
+            /*
+             * for (int i = 0; i < Math.min(10, buildings.size()); i++) {
+             * Building b = buildings.get(i);
+             * System.out.println("Building " + b.getBuildingCode() + " - " +
+             * b.getBuildingName() +
+             * " - DisplayPolygon: " +
+             * (b.getGooglePlaceInfo() != null && b.getGooglePlaceInfo().getDisplayPolygon()
+             * != null
+             * ? b.getGooglePlaceInfo().getDisplayPolygon()
+             * : "N/A"));
+             * }
+             */
 
             // Verify specific building exists: AD Building at Loyola
             Building adBuilding = buildings.stream()

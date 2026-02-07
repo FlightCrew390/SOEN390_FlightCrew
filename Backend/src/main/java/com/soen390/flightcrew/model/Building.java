@@ -26,4 +26,7 @@ public class Building {
 
     @JsonProperty("Longitude")
     private Double longitude;
+
+    @JsonProperty("Google_Place_Info")
+    private GoogleGeocodeResponse.PrimaryPlace googlePlaceInfo;
 }

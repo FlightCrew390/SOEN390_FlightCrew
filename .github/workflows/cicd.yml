@@ -5,10 +5,14 @@ on:
     branches: [main, dev]
   pull_request:
     branches: [main, dev, "feat/**"]
+  workflow_dispatch:
 
 jobs:
   backend-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
@@ -25,9 +29,25 @@ jobs:
         env:
           EXTERNAL_API_KEY: ${{ secrets.CONCORDIA_API_KEY }}
           EXTERNAL_API_USER: ${{ secrets.CONCORDIA_API_USER }}
+          GOOGLE_API_KEY: ${{ secrets.MAPS_API_KEY }}
+
+      - name: JaCoCo Coverage Report
+        if: github.event_name == 'pull_request'
+        uses: madrapps/jacoco-report@50d3aff4548aa991e6753342d9ba291084e63848
+        with:
+          paths: Backend/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: "Coverage Report for Backend"
+          update-comment: true
+          min-coverage-overall: 80
+          min-coverage-changed-files: 80
 
   mobile-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
     steps:
       - uses: actions/checkout@v4
 
@@ -48,4 +68,15 @@ jobs:
 
       - name: Run tests
         working-directory: ./mobile
-        run: npm test
+        run: npx jest --coverage
+
+      - name: Jest Coverage Report
+        if: github.event_name == 'pull_request'
+        uses: davelosert/vitest-coverage-report-action@15b5b41bb7d36796d89f4bf482b09529c53f3446
+        with:
+          name: Mobile
+          json-summary-path: mobile/coverage/coverage-summary.json
+          json-final-path: mobile/coverage/coverage-final.json
+          vite-config-path: mobile/vitest.config.ts
+          file-coverage-mode: changes
+          threshold-icons: "{0: '🔴', 75: '🟠', 80: '🟢'}"

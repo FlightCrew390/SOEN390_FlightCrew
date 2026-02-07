@@ -1,4 +1,3 @@
-import { expect, test } from "@jest/globals";
 import { act, renderHook, waitFor } from "@testing-library/react-native";
 
 import { useBuildingData } from "../src/hooks/useBuildingData";

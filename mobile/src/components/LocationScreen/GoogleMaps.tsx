@@ -11,9 +11,14 @@ import { useBuildingData } from "../../hooks/useBuildingData";
 import styles from "../../styles/GoogleMaps";
 import BuildingMarker from "./BuildingMarker";
 
-export default function GoogleMaps() {
+interface GoogleMapsProps {
+  mapRef: React.RefObject<MapView | null>;
+}
+
+export default function GoogleMaps({
+  mapRef,
+}: Readonly<GoogleMapsProps>): React.ReactElement {
   const { buildings, loading, error } = useBuildingData();
-  const mapRef = useRef<MapView>(null);
   const isCorrectingRef = useRef(false);
 
   const handleMapReady = () => {

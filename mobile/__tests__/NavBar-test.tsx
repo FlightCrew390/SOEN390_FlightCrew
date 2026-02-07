@@ -1,4 +1,3 @@
-import { expect, test } from "@jest/globals";
 import { NavigationContainer } from "@react-navigation/native";
 import { act, render, screen, userEvent } from "@testing-library/react-native";
 

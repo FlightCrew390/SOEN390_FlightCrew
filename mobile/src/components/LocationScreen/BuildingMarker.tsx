@@ -9,7 +9,7 @@ interface BuildingMarkerProps {
   readonly isCurrentBuilding?: boolean;
 }
 
-function CustomMarker({ isHighlighted }: { isHighlighted: boolean }) {
+function CustomMarker({ isHighlighted }: Readonly<{ isHighlighted: boolean }>) {
   const { width, height } = MAP_CONFIG.markerSize;
   const markerColor = isHighlighted
     ? COLORS.concordiaBlue
@@ -45,7 +45,7 @@ function CustomMarker({ isHighlighted }: { isHighlighted: boolean }) {
 export default function BuildingMarker({
   building,
   isCurrentBuilding = false,
-}: BuildingMarkerProps) {
+}: Readonly<BuildingMarkerProps>) {
   if (!building.latitude || !building.longitude) {
     return null;
   }

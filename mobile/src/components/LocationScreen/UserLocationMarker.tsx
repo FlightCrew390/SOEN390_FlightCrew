@@ -11,7 +11,7 @@ interface UserLocationMarkerProps {
 export default function UserLocationMarker({
   latitude,
   longitude,
-}: UserLocationMarkerProps) {
+}: Readonly<UserLocationMarkerProps>) {
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const opacityAnim = useRef(new Animated.Value(0.6)).current;
 

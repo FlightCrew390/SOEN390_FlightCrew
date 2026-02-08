@@ -21,6 +21,7 @@ import { findCurrentBuilding } from "../../utils/buildingDetection";
 import { Building } from "../../types/Building";
 import styles from "../../styles/GoogleMaps";
 import BuildingMarker from "./BuildingMarker";
+import BuildingPolygon from "./BuildingPolygon";
 import UserLocationMarker from "./UserLocationMarker";
 
 interface GoogleMapsProps {
@@ -152,15 +153,19 @@ export default function GoogleMaps({
         showsUserLocation={false}
         showsMyLocationButton={false}
       >
-        {buildings.map((building) => (
+        {buildings.flatMap((building) => [
+          <BuildingPolygon
+            key={`${building.buildingCode}-poly`}
+            building={building}
+          />,
           <BuildingMarker
-            key={building.buildingCode}
+            key={`${building.buildingCode}-marker`}
             building={building}
             isCurrentBuilding={
               currentBuilding?.buildingCode === building.buildingCode
             }
-          />
-        ))}
+          />,
+        ])}
         {location && (
           <UserLocationMarker
             latitude={location.coords.latitude}

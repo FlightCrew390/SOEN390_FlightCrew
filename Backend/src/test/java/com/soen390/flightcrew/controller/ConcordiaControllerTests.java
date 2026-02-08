@@ -52,7 +52,7 @@ public class ConcordiaControllerTests {
 
     @BeforeEach
     @AfterEach
-    public void cleanup() {
+    void cleanup() {
         File file = new File("non_existent_cache.json");
         if (file.exists()) {
             file.delete();
@@ -60,7 +60,7 @@ public class ConcordiaControllerTests {
     }
 
     @Test
-    public void getBuildingList_ReturnsBuildingList() {
+    void getBuildingList_ReturnsBuildingList() {
         // Arrange
         MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate).build();
 
@@ -89,7 +89,7 @@ public class ConcordiaControllerTests {
     }
 
     @Test
-    public void getBuildingList_WithCoordinates_EnrichesWithGoogleData() throws Exception {
+    void getBuildingList_WithCoordinates_EnrichesWithGoogleData() throws Exception {
         // Arrange
         MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate).build();
 
@@ -104,17 +104,18 @@ public class ConcordiaControllerTests {
         // Note: The logic in ConcordiaController calls GoogleMapsService which calls
         // the API.
 
-        String googleJson = "{\n" +
-                "  \"destinations\": [\n" +
-                "    {\n" +
-                "      \"primary\": {\n" +
-                "        \"place\": \"places/ChIJPlaceId\",\n" +
-                "        \"displayName\": { \"text\": \"Hall Building\", \"languageCode\": \"en\" },\n" +
-                "        \"formattedAddress\": \"1455 De Maisonneuve Blvd W, Montreal\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}";
+        String googleJson = """
+                {
+                  "destinations": [
+                    {
+                      "primary": {
+                        "place": "places/ChIJPlaceId",
+                        "displayName": { "text": "Hall Building", "languageCode": "en" },
+                        "formattedAddress": "1455 De Maisonneuve Blvd W, Montreal"
+                      }
+                    }
+                  ]
+                }""";
 
         mockServer.expect(requestTo("https://geocode.googleapis.com/v4alpha/geocode/destinations"))
                 .andExpect(method(HttpMethod.POST))

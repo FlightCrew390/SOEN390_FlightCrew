@@ -2,6 +2,7 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import React, { useRef, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  InteractionManager,
   Platform,
   Pressable,
   Text,
@@ -131,16 +132,18 @@ export default function GoogleMaps({
     if (!location || !mapRef.current) return;
     recenterJustTriggeredRef.current = true;
     setShowRecenterButton(false);
-    mapRef.current.animateToRegion(
-      {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
-      },
-      1000,
-    );
     onRecenter?.();
+    const region = {
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+      latitudeDelta: 0.005,
+      longitudeDelta: 0.005,
+    };
+    InteractionManager.runAfterInteractions(() => {
+      if (mapRef.current) {
+        mapRef.current.animateToRegion(region, 1000);
+      }
+    });
   };
 
   const displayError = error || locationError;

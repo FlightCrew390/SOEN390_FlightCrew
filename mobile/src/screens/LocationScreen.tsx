@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { View } from "react-native";
+import { InteractionManager, View } from "react-native";
 import MapView, { Region } from "react-native-maps";
 import CampusSelection from "../components/LocationScreen/CampusSelection";
 import GoogleMaps from "../components/LocationScreen/GoogleMaps";
@@ -26,9 +26,11 @@ export default function LocationScreen() {
       latitudeDelta: 0.01,
       longitudeDelta: 0.01,
     };
-    if (mapRef.current) {
-      mapRef.current.animateToRegion(region, 1000);
-    }
+    InteractionManager.runAfterInteractions(() => {
+      if (mapRef.current) {
+        mapRef.current.animateToRegion(region, 1000);
+      }
+    });
   };
 
   return (

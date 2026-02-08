@@ -8,7 +8,7 @@ import { Building } from "../types/Building";
  * @param lon2 Longitude of second point
  * @returns Distance in meters
  */
-function calculateDistance(
+export function calculateDistance(
   lat1: number,
   lon1: number,
   lat2: number,

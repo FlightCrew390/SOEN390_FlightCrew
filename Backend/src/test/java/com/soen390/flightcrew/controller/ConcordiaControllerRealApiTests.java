@@ -20,10 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
         "external.api.url=${EXTERNAL_API_URL:https://opendata.concordia.ca/API/v1}",
         "google.api.key=${GOOGLE_API_KEY:dummyGoogleKey}"
 })
-public class ConcordiaControllerRealApiTests {
+class ConcordiaControllerRealApiTests {
 
     @BeforeAll
-    public static void setup() {
+    static void setup() {
         io.github.cdimascio.dotenv.Dotenv.configure().ignoreIfMissing().systemProperties().load();
     }
 
@@ -31,7 +31,7 @@ public class ConcordiaControllerRealApiTests {
     private ConcordiaController concordiaController;
 
     @Test
-    public void getBuildingList_FromRealApi_ReturnsBuildings() {
+    void getBuildingList_FromRealApi_ReturnsBuildings() {
         // This test attempts to hit the REAL external API.
         // It requires EXTERNAL_API_KEY and EXTERNAL_API_USER to be set in the
         // environment.
@@ -46,27 +46,13 @@ public class ConcordiaControllerRealApiTests {
             assertThat(buildings).isNotEmpty();
             System.out.println("Successfully retrieved " + buildings.size() + " buildings from real API.");
 
-            // Print the displayPolygon of the 10 first buildings for debugging
-            /*
-             * for (int i = 0; i < Math.min(10, buildings.size()); i++) {
-             * Building b = buildings.get(i);
-             * System.out.println("Building " + b.getBuildingCode() + " - " +
-             * b.getBuildingName() +
-             * " - DisplayPolygon: " +
-             * (b.getGooglePlaceInfo() != null && b.getGooglePlaceInfo().getDisplayPolygon()
-             * != null
-             * ? b.getGooglePlaceInfo().getDisplayPolygon()
-             * : "N/A"));
-             * }
-             */
-
             // Verify specific building exists: AD Building at Loyola
             Building adBuilding = buildings.stream()
                     .filter(b -> "AD".equals(b.getBuildingCode()))
                     .findFirst()
                     .orElse(null);
 
-            assertThat(adBuilding).isNotNull().withFailMessage("Expected building 'AD' not found in response");
+            assertThat(adBuilding).withFailMessage("Expected building 'AD' not found in response").isNotNull();
             assertThat(adBuilding.getCampus()).isEqualTo("LOY");
             assertThat(adBuilding.getBuildingName()).isEqualTo("AD Building");
             assertThat(adBuilding.getBuildingLongName()).isEqualTo("Administration Building");

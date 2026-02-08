@@ -1,6 +1,6 @@
 import { act, render, screen, userEvent } from "@testing-library/react-native";
 
-import CampusSelection from "../src/components/LocationScreen/CampusSelection";
+import CampusSelection from "../../src/components/LocationScreen/CampusSelection";
 
 jest.mock("@expo/vector-icons/Entypo", () => "");
 

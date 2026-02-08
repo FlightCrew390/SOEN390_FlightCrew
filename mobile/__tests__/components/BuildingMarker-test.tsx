@@ -1,8 +1,8 @@
 import { render } from "@testing-library/react-native";
 import React from "react";
 
-import BuildingMarker from "../src/components/LocationScreen/BuildingMarker";
-import { Building } from "../src/types/Building";
+import BuildingMarker from "../../src/components/LocationScreen/BuildingMarker";
+import { Building } from "../../src/types/Building";
 
 jest.mock("react-native-maps", () => ({
   __esModule: true,

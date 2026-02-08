@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react-native";
 import React from "react";
 
-import GoogleMaps from "../src/components/LocationScreen/GoogleMaps";
-import { Building } from "../src/types/Building";
+import GoogleMaps from "../../src/components/LocationScreen/GoogleMaps";
+import { Building } from "../../src/types/Building";
 
 // Mock Platform
 jest.mock("react-native/Libraries/Utilities/Platform", () => ({
@@ -24,20 +24,20 @@ jest.mock("react-native-maps", () => ({
 }));
 
 // Mock BuildingMarker
-jest.mock("../src/components/LocationScreen/BuildingMarker", () => ({
+jest.mock("../../src/components/LocationScreen/BuildingMarker", () => ({
   __esModule: true,
   default: "BuildingMarker",
 }));
 
 // Mock useBuildingData hook
 const mockUseBuildingData = jest.fn();
-jest.mock("../src/hooks/useBuildingData", () => ({
+jest.mock("../../src/hooks/useBuildingData", () => ({
   useBuildingData: () => mockUseBuildingData(),
 }));
 
 // Mock useCurrentLocation hook so tests aren't blocked by location loading
 const mockUseCurrentLocation = jest.fn();
-jest.mock("../src/hooks/useCurrentLocation", () => ({
+jest.mock("../../src/hooks/useCurrentLocation", () => ({
   useCurrentLocation: () => mockUseCurrentLocation(),
 }));
 

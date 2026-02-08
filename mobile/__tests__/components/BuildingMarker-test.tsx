@@ -1,8 +1,8 @@
 import { render } from "@testing-library/react-native";
 import React from "react";
 
-import BuildingMarker from "../src/components/LocationScreen/BuildingMarker";
-import { Building } from "../src/types/Building";
+import BuildingMarker from "../../src/components/LocationScreen/BuildingMarker";
+import { Building } from "../../src/types/Building";
 
 jest.mock("react-native-maps", () => ({
   __esModule: true,
@@ -81,4 +81,14 @@ test("displays building name as description", () => {
 
   expect(tree).toBeTruthy();
   expect(JSON.stringify(tree)).toContain("Engineering Building");
+});
+
+test("renders highlighted marker when isCurrentBuilding is true", () => {
+  const building = createBuilding();
+
+  const { toJSON } = render(
+    <BuildingMarker building={building} isCurrentBuilding={true} />
+  );
+
+  expect(toJSON()).toBeTruthy();
 });

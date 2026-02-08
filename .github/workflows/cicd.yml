@@ -116,7 +116,7 @@ jobs:
 
       - name: Install mobile dependencies
         working-directory: ./mobile
-        run: npm install
+        run: npm install --ignore-scripts
 
       # Generate backend coverage in THIS job
       - name: Run backend tests with coverage
@@ -138,6 +138,6 @@ jobs:
 
       # Now run SonarCloud analysis from repo root so sonar-project.properties (including mobile module) is used
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v6
+        uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

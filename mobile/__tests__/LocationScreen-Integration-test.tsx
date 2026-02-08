@@ -58,6 +58,11 @@ jest.mock("../src/hooks/useBuildingData", () => ({
   useBuildingData: () => mockUseBuildingData(),
 }));
 
+const mockUseCurrentLocation = jest.fn();
+jest.mock("../src/hooks/useCurrentLocation", () => ({
+  useCurrentLocation: () => mockUseCurrentLocation(),
+}));
+
 jest.useFakeTimers();
 
 /* ----------------------------- data ----------------------------- */
@@ -92,6 +97,11 @@ beforeEach(() => {
     loading: false,
     error: null,
     refetch: jest.fn(),
+  });
+  mockUseCurrentLocation.mockReturnValue({
+    location: null,
+    loading: false,
+    error: null,
   });
 });
 

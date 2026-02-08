@@ -32,11 +32,18 @@ export const API_CONFIG = {
   },
 };
 
-// Map Configuration
+// Map Configuration - default open on SGW campus (not user location)
 export const MAP_CONFIG = {
   concordiaCenter: {
     latitude: 45.4971,
     longitude: -73.579,
+    latitudeDelta: 0.01,
+    longitudeDelta: 0.01,
+  },
+  /** Initial map region: SGW campus. App opens here; use recenter to go to user. */
+  defaultCampusRegion: {
+    latitude: 45.4953,
+    longitude: -73.5789,
     latitudeDelta: 0.01,
     longitudeDelta: 0.01,
   },

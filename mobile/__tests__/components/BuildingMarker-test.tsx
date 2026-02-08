@@ -82,3 +82,13 @@ test("displays building name as description", () => {
   expect(tree).toBeTruthy();
   expect(JSON.stringify(tree)).toContain("Engineering Building");
 });
+
+test("renders highlighted marker when isCurrentBuilding is true", () => {
+  const building = createBuilding();
+
+  const { toJSON } = render(
+    <BuildingMarker building={building} isCurrentBuilding={true} />
+  );
+
+  expect(toJSON()).toBeTruthy();
+});

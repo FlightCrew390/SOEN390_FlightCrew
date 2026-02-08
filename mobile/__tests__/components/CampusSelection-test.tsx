@@ -71,3 +71,21 @@ test("calls onCampusChange callback with correct campus name", async () => {
   expect(mockOnCampusChange).toHaveBeenCalledTimes(2);
   expect(mockOnCampusChange).toHaveBeenLastCalledWith("LOYOLA");
 });
+
+test("does not update index when currentCampusId is null", () => {
+  render(<CampusSelection currentCampusId={null} />);
+
+  expect(screen.getByText("Loyola Campus")).toBeTruthy();
+});
+
+test("syncs to currentCampusId when recenterTrigger changes", () => {
+  const { rerender } = render(
+    <CampusSelection currentCampusId="SGW" recenterTrigger={0} />
+  );
+
+  expect(screen.getByText("SGW Campus")).toBeTruthy();
+
+  rerender(<CampusSelection currentCampusId="LOYOLA" recenterTrigger={1} />);
+
+  expect(screen.getByText("Loyola Campus")).toBeTruthy();
+});

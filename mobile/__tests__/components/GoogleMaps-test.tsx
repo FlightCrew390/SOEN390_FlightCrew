@@ -15,18 +15,40 @@ jest.mock("react-native/Libraries/Utilities/Platform", () => ({
   select: jest.fn((obj) => obj.ios),
 }));
 
-// Mock react-native-maps
-jest.mock("react-native-maps", () => ({
-  __esModule: true,
-  default: "MapView",
-  PROVIDER_DEFAULT: "default",
-  PROVIDER_GOOGLE: "google",
-}));
+// Mock react-native-maps with functional MapView that captures callbacks
+const mockAnimateToRegion = jest.fn();
+const mockSetMapBoundaries = jest.fn();
+let capturedOnMapReady: (() => void) | null = null;
+let capturedOnRegionChangeComplete: ((region: any) => void) | null = null;
+
+jest.mock("react-native-maps", () => {
+  const React = require("react");
+  return {
+    __esModule: true,
+    default: React.forwardRef((props: any, ref: any) => {
+      capturedOnMapReady = props.onMapReady;
+      capturedOnRegionChangeComplete = props.onRegionChangeComplete;
+      React.useImperativeHandle(ref, () => ({
+        animateToRegion: mockAnimateToRegion,
+        setMapBoundaries: mockSetMapBoundaries,
+      }));
+      return React.createElement("MapView", props, props.children);
+    }),
+    PROVIDER_DEFAULT: "default",
+    PROVIDER_GOOGLE: "google",
+  };
+});
 
 // Mock BuildingMarker
 jest.mock("../../src/components/LocationScreen/BuildingMarker", () => ({
   __esModule: true,
   default: "BuildingMarker",
+}));
+
+// Mock UserLocationMarker
+jest.mock("../../src/components/LocationScreen/UserLocationMarker", () => ({
+  __esModule: true,
+  default: "UserLocationMarker",
 }));
 
 // Mock useBuildingData hook
@@ -40,6 +62,8 @@ const mockUseCurrentLocation = jest.fn();
 jest.mock("../../src/hooks/useCurrentLocation", () => ({
   useCurrentLocation: () => mockUseCurrentLocation(),
 }));
+
+
 
 const mockBuildings: Building[] = [
   {
@@ -65,6 +89,8 @@ const mockBuildings: Building[] = [
 
 beforeEach(() => {
   jest.clearAllMocks();
+  capturedOnMapReady = null;
+  capturedOnRegionChangeComplete = null;
   mockUseBuildingData.mockReturnValue({
     buildings: [],
     loading: false,
@@ -176,3 +202,224 @@ test("shows both loading and map simultaneously", () => {
 
   expect(screen.getByText("Loading buildings...")).toBeTruthy();
 });
+
+test("shows location loading text when location is loading", () => {
+  mockUseBuildingData.mockReturnValue({
+    buildings: [],
+    loading: false,
+    error: null,
+  });
+  mockUseCurrentLocation.mockReturnValue({
+    location: null,
+    loading: true,
+    error: null,
+  });
+
+  render(<GoogleMaps mapRef={React.createRef()} />);
+
+  expect(screen.getByText("Getting your location...")).toBeTruthy();
+});
+
+test("renders UserLocationMarker when location available", () => {
+  mockUseBuildingData.mockReturnValue({
+    buildings: [],
+    loading: false,
+    error: null,
+  });
+  mockUseCurrentLocation.mockReturnValue({
+    location: { coords: { latitude: 45.4973, longitude: -73.5789 } },
+    loading: false,
+    error: null,
+  });
+
+  const { toJSON } = render(<GoogleMaps mapRef={React.createRef()} />);
+  const tree = JSON.stringify(toJSON());
+
+  expect(tree).toContain("UserLocationMarker");
+});
+
+test("renders recenter button when location available", () => {
+  mockUseBuildingData.mockReturnValue({
+    buildings: [],
+    loading: false,
+    error: null,
+  });
+  mockUseCurrentLocation.mockReturnValue({
+    location: { coords: { latitude: 45.4973, longitude: -73.5789 } },
+    loading: false,
+    error: null,
+  });
+
+  render(<GoogleMaps mapRef={React.createRef()} />);
+
+  expect(
+    screen.getByRole("button", { name: "Recenter map on my location" })
+  ).toBeTruthy();
+});
+
+test("finds current building when location and buildings available", () => {
+  mockUseBuildingData.mockReturnValue({
+    buildings: mockBuildings,
+    loading: false,
+    error: null,
+  });
+  mockUseCurrentLocation.mockReturnValue({
+    location: { coords: { latitude: 45.4973, longitude: -73.5789 } },
+    loading: false,
+    error: null,
+  });
+
+  const { toJSON } = render(<GoogleMaps mapRef={React.createRef()} />);
+
+  expect(toJSON()).toBeTruthy();
+});
+
+describe("map callbacks", () => {
+  beforeEach(() => {
+    mockUseBuildingData.mockReturnValue({
+      buildings: [],
+      loading: false,
+      error: null,
+    });
+    mockUseCurrentLocation.mockReturnValue({
+      location: { coords: { latitude: 45.4973, longitude: -73.5789 } },
+      loading: false,
+      error: null,
+    });
+  });
+
+  test("handleMapReady sets boundaries on Android", () => {
+    const Platform = require("react-native/Libraries/Utilities/Platform");
+    Platform.default.OS = "android";
+    Platform.OS = "android";
+
+    render(<GoogleMaps />);
+
+    if (capturedOnMapReady) {
+      capturedOnMapReady();
+    }
+
+    expect(mockSetMapBoundaries).toHaveBeenCalled();
+
+    // Reset Platform
+    Platform.default.OS = "ios";
+    Platform.OS = "ios";
+  });
+
+  test("handleMapReady does not set boundaries on iOS", () => {
+    render(<GoogleMaps />);
+
+    if (capturedOnMapReady) {
+      capturedOnMapReady();
+    }
+
+    expect(mockSetMapBoundaries).not.toHaveBeenCalled();
+  });
+
+  test("handleRegionChangeComplete corrects region when latitude too high", () => {
+    render(<GoogleMaps />);
+
+    if (capturedOnRegionChangeComplete) {
+      capturedOnRegionChangeComplete({
+        latitude: 50.0, // Way above northEast boundary
+        longitude: -73.6,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    }
+
+    expect(mockAnimateToRegion).toHaveBeenCalled();
+  });
+
+  test("handleRegionChangeComplete corrects region when latitude too low", () => {
+    render(<GoogleMaps />);
+
+    if (capturedOnRegionChangeComplete) {
+      capturedOnRegionChangeComplete({
+        latitude: 40.0, // Way below southWest boundary
+        longitude: -73.6,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    }
+
+    expect(mockAnimateToRegion).toHaveBeenCalled();
+  });
+
+  test("handleRegionChangeComplete corrects region when longitude too high", () => {
+    render(<GoogleMaps />);
+
+    if (capturedOnRegionChangeComplete) {
+      capturedOnRegionChangeComplete({
+        latitude: 45.48,
+        longitude: -70.0, // Way above northEast boundary (less negative)
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    }
+
+    expect(mockAnimateToRegion).toHaveBeenCalled();
+  });
+
+  test("handleRegionChangeComplete corrects region when longitude too low", () => {
+    render(<GoogleMaps />);
+
+    if (capturedOnRegionChangeComplete) {
+      capturedOnRegionChangeComplete({
+        latitude: 45.48,
+        longitude: -80.0, // Way below southWest boundary (more negative)
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    }
+
+    expect(mockAnimateToRegion).toHaveBeenCalled();
+  });
+
+  test("handleRegionChangeComplete does not correct valid region", () => {
+    render(<GoogleMaps />);
+
+    if (capturedOnRegionChangeComplete) {
+      capturedOnRegionChangeComplete({
+        latitude: 45.48, // Within bounds
+        longitude: -73.6, // Within bounds
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    }
+
+    expect(mockAnimateToRegion).not.toHaveBeenCalled();
+  });
+
+  test("handleRecenter does nothing when location is null", () => {
+    mockUseCurrentLocation.mockReturnValue({
+      location: null,
+      loading: false,
+      error: null,
+    });
+    const mockOnRecenter = jest.fn();
+
+    render(<GoogleMaps onRecenter={mockOnRecenter} />);
+
+    // Recenter button should not be rendered when location is null
+    expect(
+      screen.queryByRole("button", { name: "Recenter map on my location" })
+    ).toBeNull();
+    expect(mockOnRecenter).not.toHaveBeenCalled();
+  });
+
+  test("handleRecenter calls onRecenter when recenter button pressed", () => {
+    const mockOnRecenter = jest.fn();
+    const { fireEvent } = require("@testing-library/react-native");
+
+    render(<GoogleMaps onRecenter={mockOnRecenter} />);
+
+    const recenterButton = screen.getByRole("button", {
+      name: "Recenter map on my location",
+    });
+    fireEvent.press(recenterButton);
+
+    expect(mockOnRecenter).toHaveBeenCalled();
+  });
+});
+

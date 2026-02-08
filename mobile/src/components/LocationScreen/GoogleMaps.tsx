@@ -1,11 +1,18 @@
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import React, { useRef, useEffect, useState } from "react";
-import { ActivityIndicator, Platform, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Platform,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 import MapView, {
   PROVIDER_DEFAULT,
   PROVIDER_GOOGLE,
   Region,
 } from "react-native-maps";
-import { MAP_CONFIG } from "../../constants";
+import { COLORS, MAP_CONFIG } from "../../constants";
 import { campusBoundary } from "../../constants/campusBoundaries";
 import { useBuildingData } from "../../hooks/useBuildingData";
 import { useCurrentLocation } from "../../hooks/useCurrentLocation";
@@ -17,10 +24,13 @@ import UserLocationMarker from "./UserLocationMarker";
 
 interface GoogleMapsProps {
   readonly mapRef?: React.RefObject<MapView | null>;
+  /** Called when user taps recenter so parent can sync campus selector to actual location. */
+  readonly onRecenter?: () => void;
 }
 
 export default function GoogleMaps({
   mapRef: mapRefProp,
+  onRecenter,
 }: Readonly<GoogleMapsProps> = {}) {
   const { buildings, loading, error } = useBuildingData();
   const {
@@ -31,7 +41,10 @@ export default function GoogleMaps({
   const internalMapRef = useRef<MapView>(null);
   const mapRef = mapRefProp ?? internalMapRef;
   const isCorrectingRef = useRef(false);
+  const recenterJustTriggeredRef = useRef(false);
+  const hasCenteredOnUserOnceRef = useRef(false);
   const [currentBuilding, setCurrentBuilding] = useState<Building | null>(null);
+  const [showRecenterButton, setShowRecenterButton] = useState(true);
 
   // Find current building when location or buildings change
   useEffect(() => {
@@ -49,21 +62,22 @@ export default function GoogleMaps({
     }
   }, [location, buildings]);
 
-  // Center map on user location when available
+  // When location first loads, center map on user once so they see their position
   useEffect(() => {
-    if (location && mapRef.current) {
-      mapRef.current.animateToRegion(
-        {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-          latitudeDelta: 0.005,
-          longitudeDelta: 0.005,
-        },
-        1000,
-      );
-    }
-    // mapRef is stable; only re-run when location changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!location || !mapRef.current || hasCenteredOnUserOnceRef.current)
+      return;
+    hasCenteredOnUserOnceRef.current = true;
+    recenterJustTriggeredRef.current = true;
+    mapRef.current.animateToRegion(
+      {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      },
+      1000,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mapRef stable; run only when location appears
   }, [location]);
 
   const handleMapReady = () => {
@@ -77,6 +91,12 @@ export default function GoogleMaps({
 
   const handleRegionChangeComplete = (region: Region) => {
     if (!mapRef.current || isCorrectingRef.current) return;
+
+    if (recenterJustTriggeredRef.current) {
+      recenterJustTriggeredRef.current = false;
+      return;
+    }
+    setShowRecenterButton(true);
 
     let needsCorrection = false;
     const correctedRegion = { ...region };
@@ -107,6 +127,22 @@ export default function GoogleMaps({
     }
   };
 
+  const handleRecenter = () => {
+    if (!location || !mapRef.current) return;
+    recenterJustTriggeredRef.current = true;
+    setShowRecenterButton(false);
+    mapRef.current.animateToRegion(
+      {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      },
+      1000,
+    );
+    onRecenter?.();
+  };
+
   const displayError = error || locationError;
   const isLoading = loading || locationLoading;
 
@@ -122,9 +158,9 @@ export default function GoogleMaps({
           Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
         }
         style={styles.map}
-        initialRegion={MAP_CONFIG.concordiaCenter}
+        initialRegion={MAP_CONFIG.defaultCampusRegion}
         showsUserLocation={false}
-        showsMyLocationButton={true}
+        showsMyLocationButton={false}
       >
         {buildings.map((building) => (
           <BuildingMarker
@@ -156,6 +192,22 @@ export default function GoogleMaps({
         <View style={styles.errorOverlay}>
           <Text style={styles.errorText}>{displayError}</Text>
         </View>
+      )}
+
+      {location && showRecenterButton && (
+        <Pressable
+          style={styles.recenterButton}
+          onPress={handleRecenter}
+          accessibilityLabel="Recenter map on my location"
+          accessibilityRole="button"
+        >
+          <FontAwesome5
+            name="location-arrow"
+            size={22}
+            color={COLORS.concordiaMaroon}
+            style={{ transform: [{ rotate: "-45deg" }] }}
+          />
+        </Pressable>
       )}
     </View>
   );

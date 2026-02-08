@@ -42,10 +42,8 @@ export default function GoogleMaps({
   const internalMapRef = useRef<MapView>(null);
   const mapRef = mapRefProp ?? internalMapRef;
   const isCorrectingRef = useRef(false);
-  const recenterJustTriggeredRef = useRef(false);
   const hasCenteredOnUserOnceRef = useRef(false);
   const [currentBuilding, setCurrentBuilding] = useState<Building | null>(null);
-  const [showRecenterButton, setShowRecenterButton] = useState(true);
 
   // Find current building when location or buildings change
   useEffect(() => {
@@ -68,16 +66,15 @@ export default function GoogleMaps({
     if (!location || !mapRef.current || hasCenteredOnUserOnceRef.current)
       return;
     hasCenteredOnUserOnceRef.current = true;
-    recenterJustTriggeredRef.current = true;
-    mapRef.current.animateToRegion(
-      {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
-      },
-      1000,
-    );
+    const region = {
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+      latitudeDelta: 0.005,
+      longitudeDelta: 0.005,
+    };
+    InteractionManager.runAfterInteractions(() => {
+      if (mapRef.current) mapRef.current.animateToRegion(region, 1000);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mapRef stable; run only when location appears
   }, [location]);
 
@@ -92,12 +89,6 @@ export default function GoogleMaps({
 
   const handleRegionChangeComplete = (region: Region) => {
     if (!mapRef.current || isCorrectingRef.current) return;
-
-    if (recenterJustTriggeredRef.current) {
-      recenterJustTriggeredRef.current = false;
-      return;
-    }
-    setShowRecenterButton(true);
 
     let needsCorrection = false;
     const correctedRegion = { ...region };
@@ -129,9 +120,7 @@ export default function GoogleMaps({
   };
 
   const handleRecenter = () => {
-    if (!location || !mapRef.current) return;
-    recenterJustTriggeredRef.current = true;
-    setShowRecenterButton(false);
+    if (location == null || mapRef.current == null) return;
     onRecenter?.();
     const region = {
       latitude: location.coords.latitude,
@@ -140,9 +129,7 @@ export default function GoogleMaps({
       longitudeDelta: 0.005,
     };
     InteractionManager.runAfterInteractions(() => {
-      if (mapRef.current) {
-        mapRef.current.animateToRegion(region, 1000);
-      }
+      if (mapRef.current) mapRef.current.animateToRegion(region, 1000);
     });
   };
 
@@ -197,7 +184,7 @@ export default function GoogleMaps({
         </View>
       )}
 
-      {location && showRecenterButton && (
+      {location != null && (
         <Pressable
           style={styles.recenterButton}
           onPress={handleRecenter}

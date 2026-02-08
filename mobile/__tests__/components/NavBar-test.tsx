@@ -1,13 +1,13 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { act, render, screen, userEvent } from "@testing-library/react-native";
 
-import NavBar from "../src/components/NavBar/NavBar";
+import NavBar from "../../src/components/NavBar/NavBar";
 
 jest.mock("@expo/vector-icons", () => ({
   Ionicons: "",
 }));
 
-jest.mock("../src/services/BuildingDataService", () => ({
+jest.mock("../../src/services/BuildingDataService", () => ({
   BuildingDataService: {
     fetchBuildings: jest.fn().mockResolvedValue([]),
   },

@@ -13,6 +13,12 @@
 		<version>4.0.2</version>
 	</parent>
 
+	<properties>
+  		<sonar.organization>flightcrew390</sonar.organization>
+		<sonar.projectKey>FlightCrew390_SOEN390_FlightCrew</sonar.projectKey>
+		<sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
+	</properties>
+
 	<dependencies>
 
     	<dependency>

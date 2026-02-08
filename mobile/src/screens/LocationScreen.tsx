@@ -15,10 +15,7 @@ export default function LocationScreen() {
 
   const currentCampusId =
     location != null
-      ? getClosestCampusId(
-          location.coords.latitude,
-          location.coords.longitude,
-        )
+      ? getClosestCampusId(location.coords.latitude, location.coords.longitude)
       : null;
 
   const handleCampusChange = (campusId: CampusId) => {

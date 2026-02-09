@@ -1,0 +1,143 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev, "feat/**"]
+  workflow_dispatch:
+
+jobs:
+  backend-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Run Spring Boot tests
+        run: mvn test -Dspring.profiles.active=test
+        working-directory: ./Backend
+        env:
+          EXTERNAL_API_KEY: ${{ secrets.CONCORDIA_API_KEY }}
+          EXTERNAL_API_USER: ${{ secrets.CONCORDIA_API_USER }}
+          GOOGLE_API_KEY: ${{ secrets.MAPS_API_KEY }}
+
+      - name: JaCoCo Coverage Report
+        if: github.event_name == 'pull_request'
+        uses: madrapps/jacoco-report@50d3aff4548aa991e6753342d9ba291084e63848
+        with:
+          paths: Backend/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: "Coverage Report for Backend"
+          update-comment: true
+          min-coverage-overall: 80
+          min-coverage-changed-files: 80
+
+  mobile-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./mobile
+        run: npm ci --ignore-scripts
+
+      - name: Run lint
+        working-directory: ./mobile
+        run: npm run lint:ci
+
+      - name: Run tests
+        working-directory: ./mobile
+        run: npx jest --coverage
+
+      - name: Jest Coverage Report
+        if: github.event_name == 'pull_request'
+        uses: davelosert/vitest-coverage-report-action@15b5b41bb7d36796d89f4bf482b09529c53f3446
+        with:
+          name: Mobile
+          json-summary-path: mobile/coverage/coverage-summary.json
+          json-final-path: mobile/coverage/coverage-final.json
+          vite-config-path: mobile/vitest.config.ts
+          file-coverage-mode: changes
+          threshold-icons: "{0: '🔴', 75: '🟠', 80: '🟢'}"
+
+  sonarqube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+    needs: [backend-test, mobile-test]
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Install mobile dependencies
+        working-directory: ./mobile
+        run: npm install --ignore-scripts
+
+      # Generate backend coverage in THIS job
+      - name: Run backend tests with coverage
+        run: mvn clean verify
+        working-directory: ./Backend
+        env:
+          EXTERNAL_API_KEY: ${{ secrets.CONCORDIA_API_KEY }}
+          EXTERNAL_API_USER: ${{ secrets.CONCORDIA_API_USER }}
+          GOOGLE_API_KEY: ${{ secrets.MAPS_API_KEY }}
+
+      # Generate mobile coverage in THIS job
+      - name: Run mobile tests with coverage
+        working-directory: ./mobile
+        run: npx jest --coverage
+
+      - name: Copy dependencies for SonarCloud
+        working-directory: ./Backend
+        run: mvn dependency:copy-dependencies -DoutputDirectory=target/dependency
+
+      # Now run SonarCloud analysis from repo root so sonar-project.properties (including mobile module) is used
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

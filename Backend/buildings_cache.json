@@ -1,0 +1,2526 @@
+[
+  {
+    "Campus": "LOY",
+    "Building": "AD",
+    "Building_Name": "AD Building",
+    "Building_Long_Name": "Administration Building",
+    "Address": "7141, Sherbrooke West",
+    "Latitude": 45.457984,
+    "Longitude": -73.639834,
+    "Google_Place_Info": {
+      "place": "places/ChIJsaXjk50XyUwR0NQ2S1GkU8o",
+      "displayName": { "text": "RBC Royal Bank ATM", "languageCode": "en" },
+      "primaryType": "atm",
+      "types": ["atm", "finance", "point_of_interest", "establishment"],
+      "formattedAddress": "GAB RBC Banque Royale, 7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.457978999999995, "longitude": -73.6398373 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "B",
+    "Building_Name": "B Building",
+    "Building_Long_Name": "B Annex",
+    "Address": "2160 Bishop Street",
+    "Latitude": 45.497856,
+    "Longitude": -73.579588,
+    "Google_Place_Info": {
+      "place": "places/ChIJZVuHnWoayUwRS8jvER5aWas",
+      "displayName": { "text": "Room 306", "languageCode": "en" },
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "2160 Bishop St Room 306, Montreal, QC H3G 2E9, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4978555, "longitude": -73.5795826 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "BB",
+    "Building_Name": "BB Building",
+    "Building_Long_Name": "BB-BH Annex",
+    "Address": "3502 Bermore Avenue",
+    "Latitude": 45.459793,
+    "Longitude": -73.639174,
+    "Google_Place_Info": {
+      "place": "places/ChIJEXkslDEXyUwRfwbOOWg4yoM",
+      "displayName": null,
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "Montréal, QC H4B 2B9, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.459765399999995, "longitude": -73.6391464 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.6391675956252, 45.4598161640063],
+            [-73.6392438574883, 45.4597248471938],
+            [-73.6391676852224, 45.4596937556834],
+            [-73.6390916906691, 45.4597849641343],
+            [-73.6391675956252, 45.4598161640063]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "BH",
+    "Building_Name": "BH Building",
+    "Building_Long_Name": "BB-BH Annex",
+    "Address": "3500 Bermore Avenue",
+    "Latitude": 45.459819,
+    "Longitude": -73.639152,
+    "Google_Place_Info": {
+      "place": "places/ChIJEXkslDEXyUwRfwbOOWg4yoM",
+      "displayName": null,
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "Montréal, QC H4B 2B9, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.459765399999995, "longitude": -73.6391464 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.6391675956252, 45.4598161640063],
+            [-73.6392438574883, 45.4597248471938],
+            [-73.6391676852224, 45.4596937556834],
+            [-73.6390916906691, 45.4597849641343],
+            [-73.6391675956252, 45.4598161640063]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "CC",
+    "Building_Name": "CC Building",
+    "Building_Long_Name": "Central Building",
+    "Address": "7141 Sherbrooke West",
+    "Latitude": 45.458204,
+    "Longitude": -73.6403,
+    "Google_Place_Info": {
+      "place": "places/ChIJERHb3zEXyUwRPdbqFL-zXAU",
+      "displayName": { "text": "Refectory", "languageCode": "en" },
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "Refectory, Montreal, QC H4B, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4586094, "longitude": -73.64100429999999 },
+      "displayPolygon": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [-73.6408772869513, 45.4585890444863],
+              [-73.6407985119765, 45.4586801381204],
+              [-73.6410434135512, 45.4587656349228],
+              [-73.6410337817405, 45.4587851652835],
+              [-73.6411307292453, 45.4588225485177],
+              [-73.641145397086, 45.4588024297448],
+              [-73.6411619356442, 45.4588079540898],
+              [-73.6412836990154, 45.4586467679607],
+              [-73.6412704836223, 45.4586411413492],
+              [-73.641376403155, 45.4585062439627],
+              [-73.6413154218922, 45.4584840209662],
+              [-73.6412767428744, 45.4585370462476],
+              [-73.6412461196636, 45.4585235554084],
+              [-73.6412288337043, 45.4585453547232],
+              [-73.6411366941731, 45.4585098572153],
+              [-73.6412021937158, 45.4584281724403],
+              [-73.6410774329832, 45.4583815457209],
+              [-73.6410079055759, 45.4584725211565],
+              [-73.6408517473394, 45.458413027044],
+              [-73.6408116759182, 45.4584611281071],
+              [-73.6407504451182, 45.4584372457533],
+              [-73.6407102295275, 45.4584887179595],
+              [-73.6407733946252, 45.4585134741824],
+              [-73.6407529936233, 45.4585395360268],
+              [-73.6408772869513, 45.4585890444863]
+            ]
+          ],
+          [
+            [
+              [-73.640685034277, 45.4585208608007],
+              [-73.6407957736703, 45.4583791494107],
+              [-73.6405590484041, 45.458288067748],
+              [-73.640564372429, 45.4582807370996],
+              [-73.6402606533331, 45.4581655166129],
+              [-73.6402556996114, 45.4581718691469],
+              [-73.6400146981164, 45.4580776515112],
+              [-73.6399947518581, 45.4581036322558],
+              [-73.6399668476527, 45.4580924575034],
+              [-73.6399436219669, 45.4581219391978],
+              [-73.6399074228682, 45.4581082196506],
+              [-73.6399223691219, 45.4580900595336],
+              [-73.6399135855623, 45.4580862631194],
+              [-73.6400076738254, 45.4579642333517],
+              [-73.6400664064559, 45.4579871594348],
+              [-73.6401266871755, 45.4579119371099],
+              [-73.6398312888425, 45.4577985269392],
+              [-73.6397706190755, 45.4578764941739],
+              [-73.6398149533159, 45.4578930300438],
+              [-73.6398066969935, 45.4579036174965],
+              [-73.6398351180342, 45.4579163430144],
+              [-73.6397535448525, 45.4580219205454],
+              [-73.639741129547, 45.4580208358951],
+              [-73.6396715170233, 45.4579983776984],
+              [-73.6396309215869, 45.4580654273612],
+              [-73.6396882783852, 45.4580865293883],
+              [-73.6396887773383, 45.4580898474012],
+              [-73.6396951868686, 45.4580959502411],
+              [-73.6396166169914, 45.4582019689471],
+              [-73.6395811225177, 45.4581898275843],
+              [-73.6395737199856, 45.4581996554648],
+              [-73.6395088037371, 45.4581730191629],
+              [-73.6394429805971, 45.4582552453557],
+              [-73.6397634323295, 45.4583770539877],
+              [-73.639823318343, 45.4582976433774],
+              [-73.6397656937339, 45.458276649559],
+              [-73.6398615938007, 45.4581522303785],
+              [-73.6398702925016, 45.4581551294048],
+              [-73.6398811620684, 45.4581418281119],
+              [-73.63991569451, 45.4581545656232],
+              [-73.6399458518892, 45.4581660710766],
+              [-73.6399018618318, 45.4582187587328],
+              [-73.6401444564348, 45.4583151280049],
+              [-73.6401414600105, 45.4583216203185],
+              [-73.640445805528, 45.45843855574],
+              [-73.6404494963462, 45.4584315753495],
+              [-73.640685034277, 45.4585208608007]
+            ]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "CI",
+    "Building_Name": "CI Building",
+    "Building_Long_Name": "CI Annex",
+    "Address": "2149 Mackay Street",
+    "Latitude": 45.497467,
+    "Longitude": -73.579925,
+    "Google_Place_Info": {
+      "place": "places/ChIJ8XHGm2oayUwRo657rUu4TwQ",
+      "displayName": {
+        "text": "School of Community and Public Affairs, Concordia University",
+        "languageCode": "en"
+      },
+      "primaryType": null,
+      "types": ["point_of_interest", "establishment"],
+      "formattedAddress": "School of Community and Public Affairs, Concordia University, 2149 Mackay St, Montreal, QC H3G 2J2, Canada",
+      "structureType": "POINT",
+      "location": {
+        "latitude": 45.497493399999996,
+        "longitude": -73.57989289999999
+      },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "CJA",
+    "Building_Name": "CJ Building - wing A",
+    "Building_Long_Name": "Communication Studies and Journalism Building",
+    "Address": "7141, Sherbrooke Wes",
+    "Latitude": 45.457478,
+    "Longitude": -73.640354,
+    "Google_Place_Info": {
+      "place": "places/ChIJ-5sJFC4XyUwRw3DB9cV7A00",
+      "displayName": { "text": "405", "languageCode": "en" },
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "7141 Sherbrooke St W #405, Montrã©Al, QC H4B 1R6, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4574747, "longitude": -73.6403244 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "CJN",
+    "Building_Name": "CJ Building - wing N",
+    "Building_Long_Name": "Communication Studies and Journalism Building",
+    "Address": "7141, Sherbrooke Wes",
+    "Latitude": 45.457478,
+    "Longitude": -73.640354,
+    "Google_Place_Info": {
+      "place": "places/ChIJ-5sJFC4XyUwRw3DB9cV7A00",
+      "displayName": { "text": "405", "languageCode": "en" },
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "7141 Sherbrooke St W #405, Montrã©Al, QC H4B 1R6, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4574747, "longitude": -73.6403244 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "CJS",
+    "Building_Name": "CJ Building - wing S",
+    "Building_Long_Name": "Communication Studies and Journalism Building",
+    "Address": "7141, Sherbrooke Wes",
+    "Latitude": 45.457478,
+    "Longitude": -73.640354,
+    "Google_Place_Info": {
+      "place": "places/ChIJ-5sJFC4XyUwRw3DB9cV7A00",
+      "displayName": { "text": "405", "languageCode": "en" },
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "7141 Sherbrooke St W #405, Montrã©Al, QC H4B 1R6, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4574747, "longitude": -73.6403244 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "CL",
+    "Building_Name": "CL Building",
+    "Building_Long_Name": "CL Annex",
+    "Address": "1665 Ste-Catherine W",
+    "Latitude": 45.494259,
+    "Longitude": -73.579007,
+    "Google_Place_Info": {
+      "place": "places/ChIJbYEXvmsayUwR7_9Wa1R9I0w",
+      "displayName": {
+        "text": "1665 Street Catherine West",
+        "languageCode": "en"
+      },
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "1665 Street Catherine West, Montreal, QC H3H 1L9, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4942493, "longitude": -73.5793024 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.5792824716213, 45.4944719367361],
+            [-73.5796573444229, 45.4941650218778],
+            [-73.5793534065794, 45.4939841251503],
+            [-73.5793263535658, 45.4939794012121],
+            [-73.5792912444086, 45.4939897299208],
+            [-73.5792495168289, 45.4940116322906],
+            [-73.5792130578085, 45.4940353443245],
+            [-73.5789361126721, 45.4942607234454],
+            [-73.5792824716213, 45.4944719367361]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "D",
+    "Building_Name": "D Building",
+    "Building_Long_Name": "D Annex",
+    "Address": "2140 Bishop Street",
+    "Latitude": 45.497827,
+    "Longitude": -73.579409,
+    "Google_Place_Info": {
+      "place": "places/ChIJjU46nWoayUwRl3VnMUW8x2k",
+      "displayName": null,
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "Montréal, QC H3G 2E9, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.497746299999996, "longitude": -73.5794727 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.5793852899212, 45.4978841227901],
+            [-73.579634998021, 45.4976269522658],
+            [-73.5795710952769, 45.49759701502],
+            [-73.5794871715002, 45.4976856390671],
+            [-73.579509979305, 45.4976965292006],
+            [-73.5794388447476, 45.4977721255837],
+            [-73.5794009222431, 45.4977542839333],
+            [-73.5793121854624, 45.4978489907935],
+            [-73.5793852899212, 45.4978841227901]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "EN",
+    "Building_Name": "EN Building",
+    "Building_Long_Name": "EN Annex",
+    "Address": "2070 Mackay Street",
+    "Latitude": 45.496944,
+    "Longitude": -73.579555,
+    "Google_Place_Info": {
+      "place": "places/ChIJ5T8fjGoayUwRX1nzPwg9FJ4",
+      "displayName": {
+        "text": "Arts and Science Federation of Associations (ASFA)",
+        "languageCode": "en"
+      },
+      "primaryType": null,
+      "types": ["point_of_interest", "establishment"],
+      "formattedAddress": "Arts and Science Federation of Associations (ASFA), 2070 Mackay St 4th floor, Montreal, QC H3G 2J1, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4969058, "longitude": -73.5795438 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "ER",
+    "Building_Name": "ER Building",
+    "Building_Long_Name": "ER Building",
+    "Address": "2155 Guy Street",
+    "Latitude": 45.496428,
+    "Longitude": -73.57999,
+    "Google_Place_Info": {
+      "place": "places/ChIJ5zkn8moayUwRYIiNdSRrmmA",
+      "displayName": {
+        "text": "RBC Royal Bank of Canada",
+        "languageCode": "en"
+      },
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "RBC Royal Bank of Canada, Montreal, QC, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4964891, "longitude": -73.58004319999999 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.580090767413, 45.4961974565762],
+            [-73.5799956829177, 45.4961642551432],
+            [-73.5799329219036, 45.4962530413227],
+            [-73.5798912265793, 45.4962384830517],
+            [-73.5798042845009, 45.4963613549795],
+            [-73.5797900899922, 45.496356310941],
+            [-73.5796671040144, 45.496530271504],
+            [-73.5800546518386, 45.4966657648606],
+            [-73.5800643240436, 45.4966521304675],
+            [-73.5801354572773, 45.4966770789289],
+            [-73.5803233388934, 45.4964113971129],
+            [-73.5803497916397, 45.4964206092264],
+            [-73.5804408188786, 45.4962918426162],
+            [-73.5801066647163, 45.496174995259],
+            [-73.580090767413, 45.4961974565762]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "ES",
+    "Building_Name": "ES Building",
+    "Building_Long_Name": "ES Building",
+    "Address": "2135 Guy Street",
+    "Latitude": 45.496172,
+    "Longitude": -73.579922,
+    "Google_Place_Info": {
+      "place": "places/ChIJUzxL92oayUwR0b2ZkF3xFz4",
+      "displayName": null,
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "2135 Rue Guy, Montréal, QC H3H 2L9, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4961403, "longitude": -73.579887 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "ET",
+    "Building_Name": "ET Building",
+    "Building_Long_Name": "ET Building",
+    "Address": "2125-2127 Guy Street",
+    "Latitude": 45.496163,
+    "Longitude": -73.579904,
+    "Google_Place_Info": {
+      "place": "places/ChIJUzxL92oayUwR0b2ZkF3xFz4",
+      "displayName": null,
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "2135 Rue Guy, Montréal, QC H3H 2L9, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4961403, "longitude": -73.579887 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "EV",
+    "Building_Name": "EV Building",
+    "Building_Long_Name": "Engineering, Computer Science and Visual Arts Inte",
+    "Address": "1515 Ste-Catherine W",
+    "Latitude": 45.495376,
+    "Longitude": -73.577997,
+    "Google_Place_Info": {
+      "place": "places/ChIJt0NyM2oayUwRSt-nqBgM40U",
+      "displayName": { "text": "Pavillon Ev Building", "languageCode": "en" },
+      "primaryType": "university",
+      "types": ["university", "point_of_interest", "establishment"],
+      "formattedAddress": "Pavillon EV, 1515 Rue Sainte-Catherine O #1428, Montréal, QC H3G 1S6, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.495620599999995, "longitude": -73.5782531 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.5779889059455, 45.4957557901695],
+            [-73.5779883139223, 45.4957554076603],
+            [-73.5780727544157, 45.4956683410232],
+            [-73.5784965718486, 45.4958667623419],
+            [-73.5787630078664, 45.4955950920977],
+            [-73.5780204246687, 45.4952468016307],
+            [-73.5780015309936, 45.4952649822386],
+            [-73.5779153083011, 45.4952472580877],
+            [-73.5779138135529, 45.4952341934041],
+            [-73.577878036755, 45.4952383706326],
+            [-73.5777972129891, 45.495299542054],
+            [-73.5777437803452, 45.4953541196194],
+            [-73.5776971209797, 45.4953559551132],
+            [-73.5776091768804, 45.4954472290693],
+            [-73.5776398360949, 45.4954617860355],
+            [-73.5775549976773, 45.495550565051],
+            [-73.5775303908666, 45.4955392620683],
+            [-73.5772501286848, 45.4958308910287],
+            [-73.5777084350653, 45.4960481288504],
+            [-73.5779889059455, 45.4957557901695]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "FA",
+    "Building_Name": "FA Building",
+    "Building_Long_Name": "FA Annex",
+    "Address": "2060 Mackay Street",
+    "Latitude": 45.496874,
+    "Longitude": -73.579468,
+    "Google_Place_Info": {
+      "place": "places/ChIJfZELi2oayUwRwTj4X8RGrWA",
+      "displayName": { "text": "2050 Mackay", "languageCode": "en" },
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "2050 Mackay, 2070 Mackay St, Montreal, QC H3G 2J1, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4968138, "longitude": -73.5796195 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.5795529388848, 45.4969323095399],
+            [-73.5797842802126, 45.4967000477093],
+            [-73.5797334490531, 45.4966760230819],
+            [-73.5796062706743, 45.4968030078587],
+            [-73.5795734859469, 45.4967875475273],
+            [-73.5794697472717, 45.4968914104079],
+            [-73.5795529388848, 45.4969323095399]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "FB",
+    "Building_Name": "FB Building",
+    "Building_Long_Name": "Faubourg Building",
+    "Address": "1250 Guy Street",
+    "Latitude": 45.494666,
+    "Longitude": -73.577603,
+    "Google_Place_Info": {
+      "place": "places/ChIJpULw0GsayUwRtSBeUV9tK8Q",
+      "displayName": { "text": "Faubourg Tower", "languageCode": "en" },
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "Faubourg Tower, Montreal, QC H3H, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4946158, "longitude": -73.5775898 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.5775201996659, 45.4943969727186],
+            [-73.577218430009, 45.4946547160836],
+            [-73.5772988690161, 45.4947009680424],
+            [-73.5773091761123, 45.4946921522997],
+            [-73.5774522456317, 45.4947746501992],
+            [-73.5774652304452, 45.4947637191802],
+            [-73.5775403695801, 45.4948068278951],
+            [-73.5775498200192, 45.4947987717019],
+            [-73.5776256592136, 45.4948424264324],
+            [-73.5776332083992, 45.4948358617139],
+            [-73.5777043673824, 45.4948770551498],
+            [-73.5777126930623, 45.4948698666555],
+            [-73.5777857883245, 45.4949119359013],
+            [-73.5780392058659, 45.4946956374377],
+            [-73.5776003421639, 45.4944430329004],
+            [-73.5775201996659, 45.4943969727186]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "FC",
+    "Building_Name": "FC Building",
+    "Building_Long_Name": "F.C. Smith Building",
+    "Address": "7141 Sherbrooke West",
+    "Latitude": 45.458493,
+    "Longitude": -73.639287,
+    "Google_Place_Info": {
+      "place": "places/ChIJAcTa3zEXyUwRAHQnQj9LdGg",
+      "displayName": { "text": "Refectory", "languageCode": "en" },
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "Refectory, 7141 Sherbrooke St W, Montreal, QC H4B 1R6, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4585769, "longitude": -73.639326 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.6395707307278, 45.4587524574089],
+            [-73.6396243670305, 45.4587420402227],
+            [-73.6396848840896, 45.4586653764305],
+            [-73.6396643641565, 45.4586246069113],
+            [-73.6395899843982, 45.4585977615507],
+            [-73.6395962141031, 45.4585892363662],
+            [-73.6395746754239, 45.458580765559],
+            [-73.6395944628225, 45.4585550562265],
+            [-73.6395881896347, 45.4585386489181],
+            [-73.6395621909924, 45.4585280486355],
+            [-73.6394412181106, 45.4584833031166],
+            [-73.6394219527025, 45.4585115963593],
+            [-73.6394116206148, 45.4585090475233],
+            [-73.63940530087, 45.4585156420792],
+            [-73.6393640831852, 45.4585007432302],
+            [-73.6393667993793, 45.4584971595996],
+            [-73.6393537769075, 45.4584925934929],
+            [-73.6393505488723, 45.4584956595269],
+            [-73.6393011391218, 45.4584773459625],
+            [-73.6393040147974, 45.4584734907581],
+            [-73.639291259832, 45.4584688164138],
+            [-73.6392885719179, 45.4584726991747],
+            [-73.6392451474402, 45.458456001484],
+            [-73.6392564160759, 45.4584420212414],
+            [-73.6391891767186, 45.4584172560544],
+            [-73.6391802923983, 45.4584309962593],
+            [-73.6391613593123, 45.4584236452531],
+            [-73.639155039517, 45.4584302397788],
+            [-73.6390988318417, 45.4584085685455],
+            [-73.6390861380838, 45.4584270593353],
+            [-73.6390548770209, 45.4584146541332],
+            [-73.6390711975491, 45.458392418394],
+            [-73.6390387070329, 45.4583807176959],
+            [-73.6389334862162, 45.4585182233793],
+            [-73.6389654418592, 45.4585301406129],
+            [-73.6389823772455, 45.4585075525861],
+            [-73.6390145489247, 45.4585197964935],
+            [-73.6390015541737, 45.458537063215],
+            [-73.6390561802114, 45.4585586498975],
+            [-73.6390484301903, 45.4585687218298],
+            [-73.6390633920311, 45.4585751950328],
+            [-73.6390572548322, 45.4585807839344],
+            [-73.6390652535539, 45.4586046716848],
+            [-73.6390958434636, 45.4586168309186],
+            [-73.6391264775006, 45.4586108550832],
+            [-73.639134847366, 45.4586014640797],
+            [-73.6392941475257, 45.4586618646879],
+            [-73.6392878096929, 45.4586702265167],
+            [-73.6393156295101, 45.4586805042116],
+            [-73.6393029821371, 45.4586975270165],
+            [-73.6393145874374, 45.4587027701023],
+            [-73.6392945887863, 45.4587291859564],
+            [-73.6393338776471, 45.4587442442684],
+            [-73.6393537167925, 45.4587180999757],
+            [-73.6393594860284, 45.4587193891809],
+            [-73.6393724574525, 45.4587028564004],
+            [-73.6394123893075, 45.4587178615528],
+            [-73.639418562505, 45.4587087380864],
+            [-73.6394849201245, 45.4587339637691],
+            [-73.6394932513336, 45.4587222071707],
+            [-73.6395707307278, 45.4587524574089]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "FG",
+    "Building_Name": "FG Building",
+    "Building_Long_Name": "Faubourg Ste-Catherine Building",
+    "Address": "1610 Ste-Catherine",
+    "Latitude": 45.494381,
+    "Longitude": -73.578425,
+    "Google_Place_Info": {
+      "place": "places/ChIJnaT6wmsayUwRyMiU1oua_cg",
+      "displayName": {
+        "text": "Le Faubourg Sainte Catherine",
+        "languageCode": "en"
+      },
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "Le Faubourg Sainte Catherine, Montreal, QC H3H, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4941161, "longitude": -73.5783029 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.5790675793437, 45.4938224310594],
+            [-73.5787278267861, 45.4936253317537],
+            [-73.578464404337, 45.4938485663982],
+            [-73.5784404879638, 45.4938347082701],
+            [-73.5783841887415, 45.4938823658608],
+            [-73.5783999809559, 45.49389163144],
+            [-73.578363117757, 45.4939229605407],
+            [-73.5783422413871, 45.493910878984],
+            [-73.5781141243649, 45.4941040322076],
+            [-73.5781260965672, 45.4941111110426],
+            [-73.5780171102815, 45.4942034157231],
+            [-73.5779871135714, 45.4941860040851],
+            [-73.577767934105, 45.4943716169905],
+            [-73.5778036071554, 45.4943922272942],
+            [-73.5777531697142, 45.4944351389261],
+            [-73.5776941232604, 45.4944025217638],
+            [-73.5776357197305, 45.4944086795991],
+            [-73.5776003421639, 45.4944430329004],
+            [-73.5780392058659, 45.4946956374377],
+            [-73.5784295241273, 45.4943622108617],
+            [-73.5784423565512, 45.4943695640644],
+            [-73.5785228036446, 45.4943013994673],
+            [-73.5785104552821, 45.4942942652392],
+            [-73.5790675793437, 45.4938224310594]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "GA",
+    "Building_Name": "GA Building",
+    "Building_Long_Name": "Grey Nuns Annex",
+    "Address": "1211-1215 St-Mathieu",
+    "Latitude": 45.494123,
+    "Longitude": -73.57787,
+    "Google_Place_Info": {
+      "place": "places/ChIJ4Qwd3GsayUwRbthZ9YIe90M",
+      "displayName": null,
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "1211 Rue St Mathieu, Montréal, QC H3H 2S2, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.494200899999996, "longitude": -73.5778033 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.57773680857, 45.4943460666324],
+            [-73.5779846264722, 45.4941184642638],
+            [-73.5778710511044, 45.4940549296101],
+            [-73.5776212512584, 45.4942841586589],
+            [-73.57773680857, 45.4943460666324]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "GE",
+    "Building_Name": "GE Building",
+    "Building_Long_Name": "Centre for Structural and Functional Genomics",
+    "Address": "7141 Sherbrooke W",
+    "Latitude": 45.457017,
+    "Longitude": -73.640432,
+    "Google_Place_Info": {
+      "place": "places/ChIJhwIFcC4XyUwRjjIXKLk338Q",
+      "displayName": {
+        "text": "Centre for Structural and Functional Genomics (GE)",
+        "languageCode": "en"
+      },
+      "primaryType": "university",
+      "types": ["university", "point_of_interest", "establishment"],
+      "formattedAddress": "Centre for Structural and Functional Genomics (GE), 7141 Sherbrooke St W, Montreal, QC H4B 1R6, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.456969, "longitude": -73.6404347 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "GM",
+    "Building_Name": "GM Building",
+    "Building_Long_Name": "Guy-De Maisonneuve Building",
+    "Address": "1550 DeMaisonneuve W",
+    "Latitude": 45.495983,
+    "Longitude": -73.578824,
+    "Google_Place_Info": {
+      "place": "places/ChIJ--2VWmoayUwR3muvlPMsIrc",
+      "displayName": null,
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "1540 Blvd. De Maisonneuve Ouest, Montreal, QC H3G 2J1, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4959987, "longitude": -73.5788707 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "GNA",
+    "Building_Name": "GN Building - wing A",
+    "Building_Long_Name": "Grey Nuns Building",
+    "Address": "1190 Guy Street",
+    "Latitude": 45.493622,
+    "Longitude": -73.577003,
+    "Google_Place_Info": {
+      "place": "places/ChIJV-mGQ2kayUwRT2vvO_XjKtE",
+      "displayName": null,
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "1190 Rue Guy, Montréal, QC H3H 2L4, Canada",
+      "structureType": "POINT",
+      "location": {
+        "latitude": 45.493590399999995,
+        "longitude": -73.57700249999999
+      },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "GNB",
+    "Building_Name": "GN Building - wings B, C, D, E, F, G, P",
+    "Building_Long_Name": "Grey Nuns Building",
+    "Address": "1190 Guy Street",
+    "Latitude": 45.493622,
+    "Longitude": -73.577003,
+    "Google_Place_Info": {
+      "place": "places/ChIJV-mGQ2kayUwRT2vvO_XjKtE",
+      "displayName": null,
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "1190 Rue Guy, Montréal, QC H3H 2L4, Canada",
+      "structureType": "POINT",
+      "location": {
+        "latitude": 45.493590399999995,
+        "longitude": -73.57700249999999
+      },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "GNH",
+    "Building_Name": "GN Building - wings H, I, J, K",
+    "Building_Long_Name": "Grey Nuns Building",
+    "Address": "1190 Guy Street",
+    "Latitude": 45.493622,
+    "Longitude": -73.577003,
+    "Google_Place_Info": {
+      "place": "places/ChIJV-mGQ2kayUwRT2vvO_XjKtE",
+      "displayName": null,
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "1190 Rue Guy, Montréal, QC H3H 2L4, Canada",
+      "structureType": "POINT",
+      "location": {
+        "latitude": 45.493590399999995,
+        "longitude": -73.57700249999999
+      },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "GNL",
+    "Building_Name": "GN Building - wings L, M, N",
+    "Building_Long_Name": "Grey Nuns Building",
+    "Address": "1190 Guy Street",
+    "Latitude": 45.493622,
+    "Longitude": -73.577003,
+    "Google_Place_Info": {
+      "place": "places/ChIJV-mGQ2kayUwRT2vvO_XjKtE",
+      "displayName": null,
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "1190 Rue Guy, Montréal, QC H3H 2L4, Canada",
+      "structureType": "POINT",
+      "location": {
+        "latitude": 45.493590399999995,
+        "longitude": -73.57700249999999
+      },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "GS",
+    "Building_Name": "GS Building",
+    "Building_Long_Name": "Guy-Sherbrooke Building",
+    "Address": "1538, Sherbrooke W",
+    "Latitude": 45.496673,
+    "Longitude": -73.581409,
+    "Google_Place_Info": {
+      "place": "places/ChIJ3eOLxWoayUwRO0wbbFd9VEk",
+      "displayName": {
+        "text": "RocklandMD - Downtown Montreal",
+        "languageCode": "en"
+      },
+      "primaryType": null,
+      "types": ["doctor", "health", "point_of_interest", "establishment"],
+      "formattedAddress": "Clinique médicale RocklandMD - Montréal Centre-Ville, 1538 Rue Sherbrooke O #500, Montréal, QC H3G 1L5, Canada",
+      "structureType": "POINT",
+      "location": {
+        "latitude": 45.496677999999996,
+        "longitude": -73.58137289999999
+      },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "H",
+    "Building_Name": "H Building",
+    "Building_Long_Name": "Henry F. Hall Building",
+    "Address": "1455 DeMaisonneuve W",
+    "Latitude": 45.497092,
+    "Longitude": -73.5788,
+    "Google_Place_Info": {
+      "place": "places/ChIJtd6Zh2oayUwRAu_CnRIfoBw",
+      "displayName": null,
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "1455 Blvd. De Maisonneuve Ouest, Montreal, QC H3G 1M8, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4973223, "longitude": -73.5790288 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.5788489042803, 45.4968299107234],
+            [-73.5783380857457, 45.4973732706121],
+            [-73.5790334928957, 45.4977094511199],
+            [-73.5795441094622, 45.4971650215363],
+            [-73.5788489042803, 45.4968299107234]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "HA",
+    "Building_Name": "HA Building",
+    "Building_Long_Name": "Hingston Hall, wing HA",
+    "Address": "7141 Sherbrooke West",
+    "Latitude": 45.459356,
+    "Longitude": -73.64127,
+    "Google_Place_Info": {
+      "place": "places/ChIJ15NUMzAXyUwRMoIkjm8hhQ4",
+      "displayName": { "text": "Hingston Hall A", "languageCode": "en" },
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "Hingston Hall A, Montreal, QC H4B 1E1, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4593893, "longitude": -73.6411729 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.6408687943941, 45.4595003354675],
+            [-73.6413464049925, 45.4596910748883],
+            [-73.6415474946086, 45.4594416727387],
+            [-73.6414545399991, 45.4594044330773],
+            [-73.6414628242831, 45.4593941442679],
+            [-73.6411511972266, 45.4592697997904],
+            [-73.6411429128496, 45.4592800885425],
+            [-73.6410698874647, 45.459250935449],
+            [-73.6408687943941, 45.4595003354675]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "HB",
+    "Building_Name": "HB Building",
+    "Building_Long_Name": "Hingston Hall, wing HB",
+    "Address": "7141 Sherbrooke West",
+    "Latitude": 45.459308,
+    "Longitude": -73.641849,
+    "Google_Place_Info": {
+      "place": "places/ChIJb5eaYyAXyUwRxHtg38ER_5c",
+      "displayName": { "text": "Hingston Cafe", "languageCode": "en" },
+      "primaryType": "coffee_shop",
+      "types": [
+        "coffee_shop",
+        "cafe",
+        "food_store",
+        "food",
+        "point_of_interest",
+        "store",
+        "establishment"
+      ],
+      "formattedAddress": "Hingston Cafe, 7141 Sherbrooke St W, Montreal, QC H4B 1R6, Canada",
+      "structureType": "POINT",
+      "location": {
+        "latitude": 45.459230700000006,
+        "longitude": -73.64169690000001
+      },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "HC",
+    "Building_Name": "HC Building",
+    "Building_Long_Name": "Hingston Hall, wing HC",
+    "Address": "7141 Sherbrooke West",
+    "Latitude": 45.459663,
+    "Longitude": -73.64208,
+    "Google_Place_Info": {
+      "place": "places/ChIJH9e_OTAXyUwRHXYtNjcDQQU",
+      "displayName": { "text": "Hingston Hall C", "languageCode": "en" },
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "Hingston Hall C, Montreal, QC H4B 2B7, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.459669399999996, "longitude": -73.6420526 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.6418795252247, 45.4597160619138],
+            [-73.6421070482814, 45.4598037268178],
+            [-73.6422443845596, 45.4596271221891],
+            [-73.6420168626765, 45.4595394579799],
+            [-73.6418795252247, 45.4597160619138]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "HU",
+    "Building_Name": "HU Building",
+    "Building_Long_Name": "Applied Science Hub",
+    "Address": "7141, Sherbrooke W",
+    "Latitude": 45.458513,
+    "Longitude": -73.641921,
+    "Google_Place_Info": {
+      "place": "places/ChIJGz0xAAsXyUwRAEJgG33sYjg",
+      "displayName": {
+        "text": "Concordia University - HU Building",
+        "languageCode": "en"
+      },
+      "primaryType": "university",
+      "types": ["university", "point_of_interest", "establishment"],
+      "formattedAddress": "Concordia University - HU Building, 7141 Sherbrooke St W, Montreal, QC H4B 1R6, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4585642, "longitude": -73.6418664 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "JR",
+    "Building_Name": "JR Building",
+    "Building_Long_Name": "Jesuit Residence",
+    "Address": "7141 Sherbrooke West",
+    "Latitude": 45.458432,
+    "Longitude": -73.643235,
+    "Google_Place_Info": {
+      "place": "places/ChIJp3MoHy4XyUwRs6lNreW0-fE",
+      "displayName": { "text": "Jesuit Residence", "languageCode": "en" },
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "Jesuit Residence, 7141 Sherbrooke St W, Montreal, QC H4B 1R6, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4585225, "longitude": -73.6432361 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.6433481748265, 45.4585591499338],
+            [-73.6434014499521, 45.4584941068952],
+            [-73.6433283981106, 45.4584646569441],
+            [-73.6433412642807, 45.4584489935071],
+            [-73.6432425098978, 45.4584091351866],
+            [-73.6432279129406, 45.4584270519682],
+            [-73.6431541101892, 45.458397491732],
+            [-73.643096280091, 45.4584682082598],
+            [-73.6431224663152, 45.4584788351096],
+            [-73.6431130101163, 45.4584904267042],
+            [-73.6430992598496, 45.4584850168532],
+            [-73.643055013337, 45.458538847918],
+            [-73.6431312624657, 45.458569799674],
+            [-73.6431197796985, 45.4585834537778],
+            [-73.6432203324316, 45.4586237236778],
+            [-73.6432354360966, 45.4586052912001],
+            [-73.6433083004756, 45.4586347137707],
+            [-73.6433647183882, 45.4585657070598],
+            [-73.6433481748265, 45.4585591499338]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "K",
+    "Building_Name": "K Building",
+    "Building_Long_Name": "K Annex",
+    "Address": "2150 Bishop Street",
+    "Latitude": 45.497777,
+    "Longitude": -73.579531,
+    "Google_Place_Info": {
+      "place": "places/ChIJk55lnWoayUwRW8qZRcaQPiY",
+      "displayName": null,
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "Montréal, QC H3G 2E9, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4977587, "longitude": -73.5795318 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.5794612989859, 45.4979205685552],
+            [-73.5796355545586, 45.4977404249532],
+            [-73.5795595494702, 45.4977050135195],
+            [-73.5793851819464, 45.4978839592371],
+            [-73.5794612989859, 45.4979205685552]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "LB",
+    "Building_Name": "LB Building",
+    "Building_Long_Name": "J.W. McConnell Building",
+    "Address": "1400 DeMaisonneuve W",
+    "Latitude": 45.49705,
+    "Longitude": -73.578009,
+    "Google_Place_Info": {
+      "place": "places/ChIJN-9RgI0byUwRfSIxvYGihTE",
+      "displayName": {
+        "text": "J.W. McConnell Pavillion",
+        "languageCode": "en"
+      },
+      "primaryType": null,
+      "types": ["point_of_interest", "establishment"],
+      "formattedAddress": "Édifice J.W. McConnell, 1400 Maisonneuve Blvd W, Montréal, QC H3G 1M8, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4968739, "longitude": -73.5780374 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.5785791067169, 45.4967290356968],
+            [-73.5785308839501, 45.4967061329409],
+            [-73.5785665996882, 45.4966684315951],
+            [-73.577698780706, 45.4962551742886],
+            [-73.577464874399, 45.4964959113351],
+            [-73.5776511440844, 45.4965831527425],
+            [-73.5776013590509, 45.4966370883208],
+            [-73.5775564169593, 45.4966155543521],
+            [-73.5772933087358, 45.496892296862],
+            [-73.577538644865, 45.4970083219392],
+            [-73.577567672881, 45.4969774601587],
+            [-73.5776118596604, 45.4969978494418],
+            [-73.5776207950782, 45.4969882404829],
+            [-73.5776310443142, 45.4969937370459],
+            [-73.5775879481697, 45.4970408336724],
+            [-73.5777475406371, 45.4971154337745],
+            [-73.5777925242258, 45.497070682136],
+            [-73.577806886371, 45.4970775229245],
+            [-73.5777993682524, 45.4970854213868],
+            [-73.5778478596577, 45.497108216581],
+            [-73.577816906224, 45.4971413047383],
+            [-73.5780578215289, 45.4972596303715],
+            [-73.578295484113, 45.4970184079805],
+            [-73.5782573500428, 45.4970012731094],
+            [-73.5782954868039, 45.4969646664758],
+            [-73.5782471800773, 45.4969408652714],
+            [-73.5782915948847, 45.4968949963946],
+            [-73.5783299726621, 45.4969127577037],
+            [-73.5783709572706, 45.4968688933457],
+            [-73.5784152833381, 45.496890779169],
+            [-73.5785791067169, 45.4967290356968]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "LC",
+    "Building_Name": "LC Building",
+    "Building_Long_Name": "LC Building",
+    "Address": "1426 Bishop Street",
+    "Latitude": 45.496782,
+    "Longitude": -73.577358,
+    "Google_Place_Info": {
+      "place": "places/ChIJ5brkAqsXtCkRv6DOcDBmlQ0",
+      "displayName": { "text": "MiaSanMontreal", "languageCode": "en" },
+      "primaryType": null,
+      "types": ["point_of_interest", "establishment"],
+      "formattedAddress": "MiaSanMontreal, 1426 Bishop St, Montreal, QC H3G 2E6, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4967572, "longitude": -73.5773351 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "LD",
+    "Building_Name": "LD Building",
+    "Building_Long_Name": "LD Building",
+    "Address": "1424 Bishop Street",
+    "Latitude": 45.496697,
+    "Longitude": -73.577312,
+    "Google_Place_Info": {
+      "place": "places/ChIJ352jE2oayUwRBIqjmLgfesw",
+      "displayName": { "text": "1", "languageCode": "en" },
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "1424 Bishop St #1, Montrã©Al, QC H3G 2E6, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4966997, "longitude": -73.5772641 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "M",
+    "Building_Name": "M Building",
+    "Building_Long_Name": "M Annex",
+    "Address": "2135 Mackay Street",
+    "Latitude": 45.497368,
+    "Longitude": -73.579777,
+    "Google_Place_Info": {
+      "place": "places/ChIJf9KSmmoayUwRNvoDLZmSFR4",
+      "displayName": null,
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "2135 Rue Mackay, Montréal, QC H3G 2J2, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4973576, "longitude": -73.57977439999999 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.5797547280965, 45.4974269652217],
+            [-73.5798549641675, 45.4973273093448],
+            [-73.5797806452151, 45.4972900797127],
+            [-73.5796809452119, 45.4973895191467],
+            [-73.5797547280965, 45.4974269652217]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "MB",
+    "Building_Name": "MB Building",
+    "Building_Long_Name": "John Molson Building",
+    "Address": "1450 Guy Street",
+    "Latitude": 45.495304,
+    "Longitude": -73.579044,
+    "Google_Place_Info": {
+      "place": "places/ChIJF8BztGsayUwRYIE08bzpVxY",
+      "displayName": null,
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "Montréal, QC H3H, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4952955, "longitude": -73.57905819999999 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.57936679236, 45.4953582145817],
+            [-73.5791140655931, 45.4952214724534],
+            [-73.5791709321529, 45.495166957671],
+            [-73.5788237177934, 45.4950053688838],
+            [-73.578790914583, 45.495038478239],
+            [-73.578736668877, 45.4950046494943],
+            [-73.5785253185921, 45.4951866964358],
+            [-73.5789620198379, 45.4954398667409],
+            [-73.5791999148236, 45.4955189127982],
+            [-73.57936679236, 45.4953582145817]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "MI",
+    "Building_Name": "MI Building",
+    "Building_Long_Name": "MI Annex",
+    "Address": "2130 Bishop Street",
+    "Latitude": 45.497807,
+    "Longitude": -73.579261,
+    "Google_Place_Info": {
+      "place": "places/ChIJ67bogmoayUwRHJggbqfgv4A",
+      "displayName": null,
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "2130 R. Bishop, Montréal, QC H3G 2E9, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4977781, "longitude": -73.5793243 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.5793416838473, 45.4977067257788],
+            [-73.5792342402066, 45.4978116691037],
+            [-73.5793121854624, 45.4978489907935],
+            [-73.5794123189956, 45.4977422320955],
+            [-73.5793416838473, 45.4977067257788]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "MK",
+    "Building_Name": "MK Building",
+    "Building_Long_Name": "MK Annex",
+    "Address": "2000-20002 Mackay St",
+    "Latitude": 45.496606,
+    "Longitude": -73.579025,
+    "Google_Place_Info": {
+      "place": "places/ChIJVd1fYGoayUwRlRwsg-nj-Vk",
+      "displayName": null,
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "2010 MacKay, 2002 Mackay St, Montreal, QC H3G 2J1, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4966118, "longitude": -73.5790241 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "MM",
+    "Building_Name": "MM Building",
+    "Building_Long_Name": "MM Annex",
+    "Address": "1209 Guy Street",
+    "Latitude": 45.494665,
+    "Longitude": -73.576365,
+    "Google_Place_Info": {
+      "place": "places/ChIJpQgnemkayUwR5bRdihrToC4",
+      "displayName": null,
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "1209 Rue Guy, Montréal, QC H3H 2L3, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4946529, "longitude": -73.57635 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "MN",
+    "Building_Name": "MN Building",
+    "Building_Long_Name": "MN Annex",
+    "Address": "1205-1207 Guy Street",
+    "Latitude": 45.494568,
+    "Longitude": -73.576315,
+    "Google_Place_Info": {
+      "place": "places/ChIJ6bpxemkayUwRVxQlRdq7Z1k",
+      "displayName": null,
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "1205 Rue Guy, Montréal, QC H3H 2K5, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4945878, "longitude": -73.57627850000002 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "MT",
+    "Building_Name": "MT Building",
+    "Building_Long_Name": "Montefiore Building",
+    "Address": "1195 Guy Street",
+    "Latitude": 45.494442,
+    "Longitude": -73.576108,
+    "Google_Place_Info": {
+      "place": "places/ChIJ-dizcWkayUwRDTzc9NInRVw",
+      "displayName": { "text": "Conference Services", "languageCode": "en" },
+      "primaryType": null,
+      "types": ["point_of_interest", "establishment"],
+      "formattedAddress": "Conference Services, 1195 Guy St, Montreal, QC H3H 2K7, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4944792, "longitude": -73.5760596 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "MU",
+    "Building_Name": "MU Building",
+    "Building_Long_Name": "MU Annex",
+    "Address": "2170 Bishop Street",
+    "Latitude": 45.497963,
+    "Longitude": -73.579506,
+    "Google_Place_Info": {
+      "place": "places/ChIJC_0JJ0AayUwRrVVxeC6JTuo",
+      "displayName": null,
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "2170 R. Bishop, Montréal, QC H3G 2E9, Canada",
+      "structureType": "POINT",
+      "location": {
+        "latitude": 45.49794180000001,
+        "longitude": -73.57950129999999
+      },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "P",
+    "Building_Name": "P Building",
+    "Building_Long_Name": "P Annex",
+    "Address": "2020 Mackay Street",
+    "Latitude": 45.496745,
+    "Longitude": -73.579113,
+    "Google_Place_Info": {
+      "place": "places/ChIJd8A4HAAbyUwRBucBrAMRrXo",
+      "displayName": { "text": "Msa Concordia library", "languageCode": "en" },
+      "primaryType": null,
+      "types": ["point_of_interest", "establishment"],
+      "formattedAddress": "Msa Concordia library, 2030 Mackay St, Montreal, QC H3G 2J1, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4966909, "longitude": -73.5791191 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "PB",
+    "Building_Name": "PB Building",
+    "Building_Long_Name": "PB Building",
+    "Address": "7200 Sherbrooke W",
+    "Latitude": 45.456534,
+    "Longitude": -73.638106,
+    "Google_Place_Info": {
+      "place": "places/ChIJlwLXwC0XyUwRbh6ntzJOzCw",
+      "displayName": null,
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "Montréal, QC H4B 1R2, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4565364, "longitude": -73.6380926 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.6382500474412, 45.4565144204553],
+            [-73.638035904362, 45.4564349086265],
+            [-73.6379579872327, 45.4565380686147],
+            [-73.6381720229457, 45.456617417473],
+            [-73.6382500474412, 45.4565144204553]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "PC",
+    "Building_Name": "PC Building",
+    "Building_Long_Name": "PERFORM centre",
+    "Address": "7200 Sherbrooke W",
+    "Latitude": 45.457088,
+    "Longitude": -73.637683,
+    "Google_Place_Info": {
+      "place": "places/ChIJCcCnNAAXyUwRBgK0p1yk5R4",
+      "displayName": {
+        "text": "PERFORM Gym at Concordia University",
+        "languageCode": "en"
+      },
+      "primaryType": "gym",
+      "types": [
+        "gym",
+        "health",
+        "sports_activity_location",
+        "point_of_interest",
+        "establishment"
+      ],
+      "formattedAddress": "PERFORM Gym at Concordia University, 7200 Sherbrooke St W, Montreal, QC H4B 2A4, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4570815, "longitude": -73.6376986 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "PR",
+    "Building_Name": "PR Building",
+    "Building_Long_Name": "PR Annex",
+    "Address": "2100 Mackay Street",
+    "Latitude": 45.497066,
+    "Longitude": -73.57979,
+    "Google_Place_Info": {
+      "place": "places/ChIJOdZtY2oayUwR8CdYQcbKhZ4",
+      "displayName": { "text": "Concordia University", "languageCode": "en" },
+      "primaryType": null,
+      "types": ["university", "point_of_interest", "establishment"],
+      "formattedAddress": "Université Concordia, 1455 Blvd. De Maisonneuve Ouest, Montréal, QC H3G 1M8, Canada",
+      "structureType": "GROUNDS",
+      "location": { "latitude": 45.494836299999996, "longitude": -73.5779128 },
+      "displayPolygon": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [-73.5737602760451, 45.496236843383],
+              [-73.573787712757, 45.4962107680979],
+              [-73.5742954760848, 45.4957015341414],
+              [-73.5743755161529, 45.4956278466668],
+              [-73.5743278347046, 45.4956057601205],
+              [-73.5737152618411, 45.495288260126],
+              [-73.5732256191441, 45.4957899707547],
+              [-73.5731111191029, 45.4959189642988],
+              [-73.5737602760451, 45.496236843383]
+            ]
+          ],
+          [
+            [
+              [-73.5777203555105, 45.4961651921875],
+              [-73.5776606013522, 45.4962245974082],
+              [-73.5774230032826, 45.4964615421329],
+              [-73.5771644208793, 45.4967191662252],
+              [-73.5770117530275, 45.4968713312678],
+              [-73.5781256854668, 45.4974107771298],
+              [-73.5785004357458, 45.4975849945879],
+              [-73.5790336516288, 45.4978326101834],
+              [-73.5794925102929, 45.4980853619891],
+              [-73.5796994797678, 45.4978691397189],
+              [-73.5797660727541, 45.4978234363584],
+              [-73.5798191038886, 45.4977695339326],
+              [-73.5798727134497, 45.4977198508155],
+              [-73.5798549624347, 45.4977114774957],
+              [-73.579870345864, 45.4976954360196],
+              [-73.5798242461703, 45.4976734369599],
+              [-73.5798388809944, 45.4976583187193],
+              [-73.5801619001503, 45.4973360610267],
+              [-73.579857068432, 45.4971916404463],
+              [-73.5799415350931, 45.4970899571293],
+              [-73.5799820961247, 45.4970485397253],
+              [-73.580090989559, 45.4969373152734],
+              [-73.5801356304982, 45.496887935859],
+              [-73.5801847943216, 45.4968343506622],
+              [-73.5801433690808, 45.4968127454099],
+              [-73.580124720617, 45.4968086692689],
+              [-73.5793150361346, 45.4964361760559],
+              [-73.5792660488461, 45.496424972358],
+              [-73.5791563675535, 45.496549661769],
+              [-73.5790521716038, 45.4966536040602],
+              [-73.5789604708146, 45.496768246028],
+              [-73.578809133388, 45.496696636306],
+              [-73.5777203555105, 45.4961651921875]
+            ]
+          ],
+          [
+            [
+              [-73.5777203555105, 45.4961651921875],
+              [-73.5780787036423, 45.4958367876141],
+              [-73.5781112490799, 45.4958297718567],
+              [-73.578162872156, 45.4958423978959],
+              [-73.5783022645734, 45.4959082615036],
+              [-73.5785522466453, 45.4960264432348],
+              [-73.5787263601359, 45.4961086427817],
+              [-73.5788967895608, 45.4961891181937],
+              [-73.5790944908449, 45.4962826175104],
+              [-73.579184671678, 45.4961327623164],
+              [-73.579217278747, 45.4960507545059],
+              [-73.5792688594984, 45.4958887169427],
+              [-73.5792852867253, 45.4958331152596],
+              [-73.5793095803658, 45.4957773438777],
+              [-73.579349618689, 45.4957014512775],
+              [-73.5793893984155, 45.4956516525944],
+              [-73.5794478485608, 45.4955892503804],
+              [-73.5795282799866, 45.4955089746095],
+              [-73.5796322939108, 45.4954081085243],
+              [-73.5797103815205, 45.4953335408187],
+              [-73.5795642667166, 45.4952641796016],
+              [-73.5792994699028, 45.495115325368],
+              [-73.5792215201417, 45.4951834167867],
+              [-73.5788266321626, 45.4949629838416],
+              [-73.5787692527506, 45.4949313508929],
+              [-73.578702656719, 45.4949909276883],
+              [-73.5782135740319, 45.4947288588572],
+              [-73.5785513928753, 45.494440106536],
+              [-73.5788196301341, 45.4942107866709],
+              [-73.5789229856849, 45.4942691237254],
+              [-73.5792719700834, 45.4944786570304],
+              [-73.579649200305, 45.4941701702321],
+              [-73.5797449394338, 45.4940920048016],
+              [-73.5792760807801, 45.4938209665265],
+              [-73.5788225824026, 45.493549532792],
+              [-73.5787278267861, 45.4936253317537],
+              [-73.578464404337, 45.4938485663982],
+              [-73.5784404879638, 45.4938347082701],
+              [-73.5783841887415, 45.4938823658608],
+              [-73.5783999809559, 45.49389163144],
+              [-73.578363117757, 45.4939229605407],
+              [-73.5783422413871, 45.493910878984],
+              [-73.5781141243649, 45.4941040322076],
+              [-73.5781260965672, 45.4941111110426],
+              [-73.5780171102815, 45.4942034157231],
+              [-73.5779871135714, 45.4941860040851],
+              [-73.577767934105, 45.4943716169905],
+              [-73.5778036071554, 45.4943922272942],
+              [-73.5777531697142, 45.4944351389261],
+              [-73.5776941232604, 45.4944025217638],
+              [-73.5776357197305, 45.4944086795991],
+              [-73.5776003421639, 45.4944430329004],
+              [-73.5775201996659, 45.4943969727186],
+              [-73.5774876468039, 45.4943780031394],
+              [-73.5776040762617, 45.4942709982789],
+              [-73.5775401967815, 45.4942382594999],
+              [-73.5779064384048, 45.4939061622875],
+              [-73.5773001289878, 45.4936148619561],
+              [-73.5772302613546, 45.4935815361921],
+              [-73.5772092578094, 45.493602948245],
+              [-73.5771577311393, 45.4935783779385],
+              [-73.577204633971, 45.4935303699914],
+              [-73.577040318072, 45.4934516812961],
+              [-73.5770103654644, 45.4934785656527],
+              [-73.5769299016946, 45.4934399875484],
+              [-73.5770137003986, 45.4933540128513],
+              [-73.5770366934621, 45.4933649301893],
+              [-73.5772004104861, 45.4931971335641],
+              [-73.5771806977517, 45.4931875854441],
+              [-73.5772625417319, 45.4931035375907],
+              [-73.5774745099595, 45.493205043586],
+              [-73.577570667252, 45.4931064223451],
+              [-73.5777512825235, 45.4929508597838],
+              [-73.5776860019959, 45.4929159961259],
+              [-73.57710672552, 45.4925871981764],
+              [-73.5767484341795, 45.4923820490214],
+              [-73.5766139927343, 45.4922994959024],
+              [-73.5759613243484, 45.4929655304636],
+              [-73.5751164157896, 45.493841080852],
+              [-73.5761452834826, 45.4942805896635],
+              [-73.5759795983712, 45.4944492808362],
+              [-73.5757164453582, 45.4947534601668],
+              [-73.5758806347109, 45.494824752165],
+              [-73.5760071148099, 45.4946781854094],
+              [-73.5761230347451, 45.4947120982703],
+              [-73.5762534167571, 45.4945606442167],
+              [-73.5762168209902, 45.494545064538],
+              [-73.5763571677773, 45.4943711625317],
+              [-73.5771482127044, 45.4947162680425],
+              [-73.5778665878613, 45.495031763641],
+              [-73.5770574839699, 45.4958414811528],
+              [-73.5777203555105, 45.4961651921875]
+            ]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "PS",
+    "Building_Name": "PS Building",
+    "Building_Long_Name": "Physical Services Building",
+    "Address": "7141 Sherbrooke W",
+    "Latitude": 45.459636,
+    "Longitude": -73.639758,
+    "Google_Place_Info": {
+      "place": "places/ChIJhwdpvzEXyUwReUM8wFnsnb8",
+      "displayName": { "text": "Physical Services", "languageCode": "en" },
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "Physical Services, Montreal, QC H4B 2B9, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.459637099999995, "longitude": -73.6397743 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.640201341293, 45.4599882339157],
+            [-73.6402030878094, 45.4599890802148],
+            [-73.640239858259, 45.4598698426124],
+            [-73.6402297881855, 45.4598661523182],
+            [-73.6403408856113, 45.4597144594813],
+            [-73.6401582825607, 45.4596475424707],
+            [-73.640174142253, 45.459624353395],
+            [-73.6396800081021, 45.4594311833373],
+            [-73.6396538594478, 45.4594552221463],
+            [-73.6395474393349, 45.459410694611],
+            [-73.6396001483967, 45.4593483705756],
+            [-73.6394530372725, 45.4592925612444],
+            [-73.6392287121414, 45.4595842736695],
+            [-73.63936036578, 45.4596361924694],
+            [-73.6393286811032, 45.4596790357383],
+            [-73.6396936209979, 45.4598237482288],
+            [-73.6399167215764, 45.4599057544473],
+            [-73.6399217964911, 45.4599075317161],
+            [-73.6399217784911, 45.4599092990249],
+            [-73.6399419907126, 45.4599203776549],
+            [-73.6399458772755, 45.4599203580648],
+            [-73.6399724247668, 45.459927941579],
+            [-73.6399606210943, 45.4599421388314],
+            [-73.6399669924006, 45.459945876309],
+            [-73.6399723887717, 45.4599314761984],
+            [-73.6400688919695, 45.4599651084416],
+            [-73.6400949916417, 45.4599366371958],
+            [-73.6401971847091, 45.4599932287521],
+            [-73.640201341293, 45.4599882339157]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "PT",
+    "Building_Name": "PT Building",
+    "Building_Long_Name": "Oscar Peterson Concert Hall",
+    "Address": "7141 Sherbrooke W",
+    "Latitude": 45.459308,
+    "Longitude": -73.638941,
+    "Google_Place_Info": {
+      "place": "places/ChIJQXsO_bcXyUwRW7XK-Eqmd9g",
+      "displayName": { "text": "Buzz Dining Hall", "languageCode": "zh" },
+      "primaryType": null,
+      "types": ["cafeteria", "point_of_interest", "establishment"],
+      "formattedAddress": "加拿大 Québec, Montréal, Rue Sherbrooke O, Buzz Dining Hall邮政编码: H4B 1R6",
+      "structureType": "POINT",
+      "location": {
+        "latitude": 45.459169200000005,
+        "longitude": -73.63920639999999
+      },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "PY",
+    "Building_Name": "PY Building",
+    "Building_Long_Name": "Psychology Building",
+    "Address": "7141 Sherbrooke W",
+    "Latitude": 45.458938,
+    "Longitude": -73.640467,
+    "Google_Place_Info": {
+      "place": "places/ChIJAcTa3zEXyUwR9_Uj5tJHrmg",
+      "displayName": { "text": "Refectory", "languageCode": "en" },
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "Refectory, Montreal, QC H4B 1R6, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.458970099999995, "longitude": -73.6403749 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.6401547927918, 45.4590605941301],
+            [-73.6405753945147, 45.4592261553974],
+            [-73.640592869029, 45.4592043834532],
+            [-73.6406106680324, 45.4592046356388],
+            [-73.6406330165294, 45.4591766467971],
+            [-73.6406244022924, 45.4591638781537],
+            [-73.6406407038891, 45.4591434090388],
+            [-73.6405981095166, 45.4591266861319],
+            [-73.6405955010691, 45.4591088991508],
+            [-73.6408374201194, 45.4588066437309],
+            [-73.6407597247335, 45.4587760677973],
+            [-73.6407725641732, 45.4587601055038],
+            [-73.6405540081979, 45.4586741971207],
+            [-73.6405353893195, 45.4586975707439],
+            [-73.6404585532031, 45.4586672682077],
+            [-73.6404313024865, 45.4587011743893],
+            [-73.6404200495755, 45.4586967206135],
+            [-73.640233187068, 45.4589302109954],
+            [-73.6402528997302, 45.4589379712364],
+            [-73.6401547927918, 45.4590605941301]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "Q",
+    "Building_Name": "Q Building",
+    "Building_Long_Name": "Q Annex",
+    "Address": "2010 Mackay Street",
+    "Latitude": 45.496648,
+    "Longitude": -73.579094,
+    "Google_Place_Info": {
+      "place": "places/ChIJITNpYGoayUwRwEY2XL2Z2DM",
+      "displayName": null,
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "2010 MacKay, 2008 Mackay St, Montreal, QC H3G 2J1, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4966319, "longitude": -73.5790868 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "R",
+    "Building_Name": "R Building",
+    "Building_Long_Name": "R Annex",
+    "Address": "2050 Mackay Street",
+    "Latitude": 45.496826,
+    "Longitude": -73.579389,
+    "Google_Place_Info": {
+      "place": "places/ChIJAce6i2oayUwRLVNlFl8X3VM",
+      "displayName": null,
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "2040 Mackay, 2050 Mackay St, Montreal, QC H3G 2J1, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4968115, "longitude": -73.5793896 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "RA",
+    "Building_Name": "RA Building",
+    "Building_Long_Name": "Recreation and Athletics Complex",
+    "Address": "7200 Sherbrooke W",
+    "Latitude": 45.456774,
+    "Longitude": -73.63761,
+    "Google_Place_Info": {
+      "place": "places/ChIJz5jeF0AayUwRhq9dZjQi6z0",
+      "displayName": { "text": "Ed Meagher Arena", "languageCode": "en" },
+      "primaryType": "arena",
+      "types": ["arena", "event_venue", "point_of_interest", "establishment"],
+      "formattedAddress": "Aréna Ed Meagher, 7200 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4567234, "longitude": -73.6376183 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "RF",
+    "Building_Name": "RF Building",
+    "Building_Long_Name": "Loyola Jesuit Hall and Conference Centre",
+    "Address": "7141 Sherbrooke W",
+    "Latitude": 45.458489,
+    "Longitude": -73.641028,
+    "Google_Place_Info": {
+      "place": "places/ChIJ5-iCkyQXyUwRsbQ9j4Ylcyw",
+      "displayName": {
+        "text": "Loyola Jesuit Hall and Conference Centre",
+        "languageCode": "en"
+      },
+      "primaryType": "event_venue",
+      "types": ["event_venue", "point_of_interest", "establishment"],
+      "formattedAddress": "Loyola Jesuit Hall and Conference Centre, 7141 Sherbrooke St W, Montreal, QC H4B 1E1, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4586562, "longitude": -73.64099279999999 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "RR",
+    "Building_Name": "RR Building",
+    "Building_Long_Name": "RR Annex",
+    "Address": "2040 Mackay Street",
+    "Latitude": 45.496796,
+    "Longitude": -73.579259,
+    "Google_Place_Info": {
+      "place": "places/ChIJi1JZimoayUwRJK1MvEVZK74",
+      "displayName": null,
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "2040 Rue Mackay, Montréal, QC H3G 2J1, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4967636, "longitude": -73.5792835 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "S",
+    "Building_Name": "S Building",
+    "Building_Long_Name": "S Annex",
+    "Address": "2145 Mackay Street",
+    "Latitude": 45.497423,
+    "Longitude": -73.579851,
+    "Google_Place_Info": {
+      "place": "places/ChIJa5L-mmoayUwR92Wz5qmZBhw",
+      "displayName": { "text": "105", "languageCode": "en" },
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "2145 Mackay St #105, Montreal, QC H3G 2J2, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4974219, "longitude": -73.5797865 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "SB",
+    "Building_Name": "SB Building",
+    "Building_Long_Name": "Samuel Bronfman Building",
+    "Address": "1590 Doctor Penfield",
+    "Latitude": 45.4966,
+    "Longitude": -73.58609,
+    "Google_Place_Info": {
+      "place": "places/ChIJUTVSqhUayUwRFJGgrRDet0c",
+      "displayName": null,
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "1590 Av. du Docteur-Penfield, Montréal, QC H3G 1C5, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4965899, "longitude": -73.5860888 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "SC",
+    "Building_Name": "SC Building",
+    "Building_Long_Name": "Student Centre",
+    "Address": "7141 Sherbrooke W",
+    "Latitude": 45.459131,
+    "Longitude": -73.639251,
+    "Google_Place_Info": {
+      "place": "places/ChIJQXsO_bcXyUwRW7XK-Eqmd9g",
+      "displayName": { "text": "Buzz Dining Hall", "languageCode": "zh" },
+      "primaryType": null,
+      "types": ["cafeteria", "point_of_interest", "establishment"],
+      "formattedAddress": "加拿大 Québec, Montréal, Rue Sherbrooke O, Buzz Dining Hall邮政编码: H4B 1R6",
+      "structureType": "POINT",
+      "location": {
+        "latitude": 45.459169200000005,
+        "longitude": -73.63920639999999
+      },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "SH",
+    "Building_Name": "SH Building",
+    "Building_Long_Name": "Solar House",
+    "Address": "7141 Sherbrooke W",
+    "Latitude": 45.459298,
+    "Longitude": -73.642478,
+    "Google_Place_Info": {
+      "place": "places/ChIJp3MoHy4XyUwRkr_5bwBScNw",
+      "displayName": {
+        "text": "Concordia University - Loyola Campus",
+        "languageCode": "en"
+      },
+      "primaryType": "university",
+      "types": ["university", "point_of_interest", "establishment"],
+      "formattedAddress": "Université Concordia, 7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
+      "structureType": "GROUNDS",
+      "location": { "latitude": 45.4581224, "longitude": -73.6391263 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.6381271818045, 45.4557846248728],
+            [-73.6380536024561, 45.4557994871894],
+            [-73.636208880239, 45.4567597686505],
+            [-73.6341411066633, 45.457834942854],
+            [-73.6372334779691, 45.4591993829292],
+            [-73.640292568733, 45.4603771485435],
+            [-73.6408677147657, 45.459713011552],
+            [-73.642060006275, 45.4600481551817],
+            [-73.6434740271722, 45.4583982684887],
+            [-73.6427175109764, 45.4580393353246],
+            [-73.6429683779838, 45.4575884034688],
+            [-73.6425956568381, 45.4574424183004],
+            [-73.6422968738922, 45.4573264548304],
+            [-73.6420377929268, 45.4572279679512],
+            [-73.6416851029831, 45.4570940635186],
+            [-73.6409411905569, 45.45681130525],
+            [-73.6405322167873, 45.4566607309972],
+            [-73.6402399255206, 45.4565448301885],
+            [-73.6401250420949, 45.4564998004369],
+            [-73.6400171673145, 45.4564574214994],
+            [-73.6399007538177, 45.4564118720125],
+            [-73.6397348204944, 45.456346813532],
+            [-73.639626866361, 45.4563045700864],
+            [-73.6394935351514, 45.4562524077321],
+            [-73.6394103668681, 45.4562197011662],
+            [-73.6393483604083, 45.4561954098272],
+            [-73.6392376135466, 45.4561520187347],
+            [-73.6391509013509, 45.4561180544387],
+            [-73.6390694796498, 45.4560861939191],
+            [-73.6386234301656, 45.4559272218542],
+            [-73.6383069828171, 45.4558142601848],
+            [-73.6382668764906, 45.4558012943045],
+            [-73.638230836223, 45.4557921698541],
+            [-73.6381832735848, 45.4557835664233],
+            [-73.6381271818045, 45.4557846248728]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "SP",
+    "Building_Name": "SP Building",
+    "Building_Long_Name": "Richard J. Renaud Science Complex",
+    "Address": "7141 Sherbrooke W",
+    "Latitude": 45.457881,
+    "Longitude": -73.641565,
+    "Google_Place_Info": {
+      "place": "places/ChIJp_rxOS4XyUwRR0dJdyOlMlY",
+      "displayName": {
+        "text": "Richard J. Renaud Science Complex",
+        "languageCode": "en"
+      },
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "Richard J. Renaud Science Complex, 3475 Rue West Broadway, Montreal, QC H4B 2A7, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4578426, "longitude": -73.6415682 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.6407647736335, 45.4572499976447],
+            [-73.6414723634341, 45.4575244789134],
+            [-73.641169728514, 45.457907931472],
+            [-73.6411318630395, 45.4578932304326],
+            [-73.6410642397323, 45.4579788796594],
+            [-73.6411144047975, 45.4579983354857],
+            [-73.6408610995721, 45.4583161707973],
+            [-73.6409214427859, 45.4583394803179],
+            [-73.6410381860445, 45.458192750888],
+            [-73.6412013573026, 45.4582559285046],
+            [-73.6412619490213, 45.4581791286045],
+            [-73.6413376805619, 45.4582085307675],
+            [-73.641283454495, 45.4582772679952],
+            [-73.6414128960257, 45.4583273835942],
+            [-73.641925074392, 45.4576724722197],
+            [-73.6418446166943, 45.4576410498015],
+            [-73.6420037411084, 45.4574384492673],
+            [-73.6414125410386, 45.4572092219752],
+            [-73.6414323029863, 45.4571842470099],
+            [-73.641391457363, 45.4571683714521],
+            [-73.641382695127, 45.4571794744891],
+            [-73.6413039848223, 45.4571488981991],
+            [-73.6412958089382, 45.4571593498403],
+            [-73.6409931876149, 45.4570419346156],
+            [-73.6410125229322, 45.4570173396417],
+            [-73.6409584909684, 45.4569961366528],
+            [-73.6409358533229, 45.4570249665488],
+            [-73.6408287050145, 45.4569834322577],
+            [-73.6406556646887, 45.45720242332],
+            [-73.6407681839922, 45.4572459260257],
+            [-73.6407647736335, 45.4572499976447]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "T",
+    "Building_Name": "T Building",
+    "Building_Long_Name": "T Annex",
+    "Address": "2030 Mackay Street",
+    "Latitude": 45.49671,
+    "Longitude": -73.57927,
+    "Google_Place_Info": {
+      "place": "places/ChIJuXGXimoayUwRLQlF_Y6DNyY",
+      "displayName": { "text": "1", "languageCode": "en" },
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "2010 MacKay, 2030 Mackay St #1, Montreal, QC H3G 2J1, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.496686200000006, "longitude": -73.5792512 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "TA",
+    "Building_Name": "TA Building",
+    "Building_Long_Name": "Terrebonne Building",
+    "Address": "7079 Terrebonne",
+    "Latitude": 45.459992,
+    "Longitude": -73.640897,
+    "Google_Place_Info": {
+      "place": "places/ChIJ-xNXszEXyUwRNPHfxuF8xAE",
+      "displayName": {
+        "text": "The Centre for Arts in Human Development",
+        "languageCode": "en"
+      },
+      "primaryType": null,
+      "types": ["point_of_interest", "establishment"],
+      "formattedAddress": "The Centre for Arts in Human Development, 7079 Rue de Terrebonne, Montreal, QC H4B 1E1, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4600043, "longitude": -73.6409027 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "TB",
+    "Building_Name": "TB Building",
+    "Building_Long_Name": "TB Annex",
+    "Address": "7075 Terrebonne",
+    "Latitude": 45.460051,
+    "Longitude": -73.640842,
+    "Google_Place_Info": {
+      "place": "places/ChIJPbapSQAXyUwRGm9AytMAD2E",
+      "displayName": {
+        "text": "Sankofa Farming Cooperative - Coopérative Sankofa",
+        "languageCode": "en"
+      },
+      "primaryType": null,
+      "types": ["school", "farm", "point_of_interest", "establishment"],
+      "formattedAddress": "Sankofa Farming Cooperative - Coopérative Sankofa, 7075 Rue de Terrebonne, Montreal, QC H4B 2Z3, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4600341, "longitude": -73.6408462 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "TD",
+    "Building_Name": "TD Building",
+    "Building_Long_Name": "Toronto-Dominion Building",
+    "Address": "1410 Guy Street",
+    "Latitude": 45.495103,
+    "Longitude": -73.578375,
+    "Google_Place_Info": {
+      "place": "places/ChIJN6hPymsayUwRhmRapvEsFFQ",
+      "displayName": null,
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "Montréal, QC H3H 1L8, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.495087, "longitude": -73.5783027 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.5781588337631, 45.4949336841042],
+            [-73.5780557026722, 45.4950271487253],
+            [-73.5784097591447, 45.495179561549],
+            [-73.5784820912087, 45.4951168435512],
+            [-73.5783462248431, 45.4950370321314],
+            [-73.5783232259694, 45.4950559365428],
+            [-73.5782813396289, 45.4950323438368],
+            [-73.5783048225717, 45.4950136584027],
+            [-73.5781588337631, 45.4949336841042]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "TU",
+    "Building_Name": "TU Building",
+    "Building_Long_Name": "TU Tunnel",
+    "Address": "1550 DeMaisonneuve",
+    "Latitude": 45.49648,
+    "Longitude": -73.578918,
+    "Google_Place_Info": {
+      "place": "places/ChIJrXPGXWoayUwRurmMiIcOEog",
+      "displayName": { "text": "Bixi", "languageCode": "fr" },
+      "primaryType": null,
+      "types": ["point_of_interest", "establishment"],
+      "formattedAddress": "Bixi, de Maisonneuve / Mackay, Montréal, QC H3G 2J1, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4964314, "longitude": -73.5788453 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "V",
+    "Building_Name": "V Building",
+    "Building_Long_Name": "V Annex",
+    "Address": "2110 Mackay Street",
+    "Latitude": 45.497101,
+    "Longitude": -73.579907,
+    "Google_Place_Info": {
+      "place": "places/ChIJOdZtY2oayUwR8CdYQcbKhZ4",
+      "displayName": { "text": "Concordia University", "languageCode": "en" },
+      "primaryType": null,
+      "types": ["university", "point_of_interest", "establishment"],
+      "formattedAddress": "Université Concordia, 1455 Blvd. De Maisonneuve Ouest, Montréal, QC H3G 1M8, Canada",
+      "structureType": "GROUNDS",
+      "location": { "latitude": 45.494836299999996, "longitude": -73.5779128 },
+      "displayPolygon": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [-73.5737602760451, 45.496236843383],
+              [-73.573787712757, 45.4962107680979],
+              [-73.5742954760848, 45.4957015341414],
+              [-73.5743755161529, 45.4956278466668],
+              [-73.5743278347046, 45.4956057601205],
+              [-73.5737152618411, 45.495288260126],
+              [-73.5732256191441, 45.4957899707547],
+              [-73.5731111191029, 45.4959189642988],
+              [-73.5737602760451, 45.496236843383]
+            ]
+          ],
+          [
+            [
+              [-73.5777203555105, 45.4961651921875],
+              [-73.5776606013522, 45.4962245974082],
+              [-73.5774230032826, 45.4964615421329],
+              [-73.5771644208793, 45.4967191662252],
+              [-73.5770117530275, 45.4968713312678],
+              [-73.5781256854668, 45.4974107771298],
+              [-73.5785004357458, 45.4975849945879],
+              [-73.5790336516288, 45.4978326101834],
+              [-73.5794925102929, 45.4980853619891],
+              [-73.5796994797678, 45.4978691397189],
+              [-73.5797660727541, 45.4978234363584],
+              [-73.5798191038886, 45.4977695339326],
+              [-73.5798727134497, 45.4977198508155],
+              [-73.5798549624347, 45.4977114774957],
+              [-73.579870345864, 45.4976954360196],
+              [-73.5798242461703, 45.4976734369599],
+              [-73.5798388809944, 45.4976583187193],
+              [-73.5801619001503, 45.4973360610267],
+              [-73.579857068432, 45.4971916404463],
+              [-73.5799415350931, 45.4970899571293],
+              [-73.5799820961247, 45.4970485397253],
+              [-73.580090989559, 45.4969373152734],
+              [-73.5801356304982, 45.496887935859],
+              [-73.5801847943216, 45.4968343506622],
+              [-73.5801433690808, 45.4968127454099],
+              [-73.580124720617, 45.4968086692689],
+              [-73.5793150361346, 45.4964361760559],
+              [-73.5792660488461, 45.496424972358],
+              [-73.5791563675535, 45.496549661769],
+              [-73.5790521716038, 45.4966536040602],
+              [-73.5789604708146, 45.496768246028],
+              [-73.578809133388, 45.496696636306],
+              [-73.5777203555105, 45.4961651921875]
+            ]
+          ],
+          [
+            [
+              [-73.5777203555105, 45.4961651921875],
+              [-73.5780787036423, 45.4958367876141],
+              [-73.5781112490799, 45.4958297718567],
+              [-73.578162872156, 45.4958423978959],
+              [-73.5783022645734, 45.4959082615036],
+              [-73.5785522466453, 45.4960264432348],
+              [-73.5787263601359, 45.4961086427817],
+              [-73.5788967895608, 45.4961891181937],
+              [-73.5790944908449, 45.4962826175104],
+              [-73.579184671678, 45.4961327623164],
+              [-73.579217278747, 45.4960507545059],
+              [-73.5792688594984, 45.4958887169427],
+              [-73.5792852867253, 45.4958331152596],
+              [-73.5793095803658, 45.4957773438777],
+              [-73.579349618689, 45.4957014512775],
+              [-73.5793893984155, 45.4956516525944],
+              [-73.5794478485608, 45.4955892503804],
+              [-73.5795282799866, 45.4955089746095],
+              [-73.5796322939108, 45.4954081085243],
+              [-73.5797103815205, 45.4953335408187],
+              [-73.5795642667166, 45.4952641796016],
+              [-73.5792994699028, 45.495115325368],
+              [-73.5792215201417, 45.4951834167867],
+              [-73.5788266321626, 45.4949629838416],
+              [-73.5787692527506, 45.4949313508929],
+              [-73.578702656719, 45.4949909276883],
+              [-73.5782135740319, 45.4947288588572],
+              [-73.5785513928753, 45.494440106536],
+              [-73.5788196301341, 45.4942107866709],
+              [-73.5789229856849, 45.4942691237254],
+              [-73.5792719700834, 45.4944786570304],
+              [-73.579649200305, 45.4941701702321],
+              [-73.5797449394338, 45.4940920048016],
+              [-73.5792760807801, 45.4938209665265],
+              [-73.5788225824026, 45.493549532792],
+              [-73.5787278267861, 45.4936253317537],
+              [-73.578464404337, 45.4938485663982],
+              [-73.5784404879638, 45.4938347082701],
+              [-73.5783841887415, 45.4938823658608],
+              [-73.5783999809559, 45.49389163144],
+              [-73.578363117757, 45.4939229605407],
+              [-73.5783422413871, 45.493910878984],
+              [-73.5781141243649, 45.4941040322076],
+              [-73.5781260965672, 45.4941111110426],
+              [-73.5780171102815, 45.4942034157231],
+              [-73.5779871135714, 45.4941860040851],
+              [-73.577767934105, 45.4943716169905],
+              [-73.5778036071554, 45.4943922272942],
+              [-73.5777531697142, 45.4944351389261],
+              [-73.5776941232604, 45.4944025217638],
+              [-73.5776357197305, 45.4944086795991],
+              [-73.5776003421639, 45.4944430329004],
+              [-73.5775201996659, 45.4943969727186],
+              [-73.5774876468039, 45.4943780031394],
+              [-73.5776040762617, 45.4942709982789],
+              [-73.5775401967815, 45.4942382594999],
+              [-73.5779064384048, 45.4939061622875],
+              [-73.5773001289878, 45.4936148619561],
+              [-73.5772302613546, 45.4935815361921],
+              [-73.5772092578094, 45.493602948245],
+              [-73.5771577311393, 45.4935783779385],
+              [-73.577204633971, 45.4935303699914],
+              [-73.577040318072, 45.4934516812961],
+              [-73.5770103654644, 45.4934785656527],
+              [-73.5769299016946, 45.4934399875484],
+              [-73.5770137003986, 45.4933540128513],
+              [-73.5770366934621, 45.4933649301893],
+              [-73.5772004104861, 45.4931971335641],
+              [-73.5771806977517, 45.4931875854441],
+              [-73.5772625417319, 45.4931035375907],
+              [-73.5774745099595, 45.493205043586],
+              [-73.577570667252, 45.4931064223451],
+              [-73.5777512825235, 45.4929508597838],
+              [-73.5776860019959, 45.4929159961259],
+              [-73.57710672552, 45.4925871981764],
+              [-73.5767484341795, 45.4923820490214],
+              [-73.5766139927343, 45.4922994959024],
+              [-73.5759613243484, 45.4929655304636],
+              [-73.5751164157896, 45.493841080852],
+              [-73.5761452834826, 45.4942805896635],
+              [-73.5759795983712, 45.4944492808362],
+              [-73.5757164453582, 45.4947534601668],
+              [-73.5758806347109, 45.494824752165],
+              [-73.5760071148099, 45.4946781854094],
+              [-73.5761230347451, 45.4947120982703],
+              [-73.5762534167571, 45.4945606442167],
+              [-73.5762168209902, 45.494545064538],
+              [-73.5763571677773, 45.4943711625317],
+              [-73.5771482127044, 45.4947162680425],
+              [-73.5778665878613, 45.495031763641],
+              [-73.5770574839699, 45.4958414811528],
+              [-73.5777203555105, 45.4961651921875]
+            ]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "VA",
+    "Building_Name": "VA Building",
+    "Building_Long_Name": "Visual Arts Building",
+    "Address": "1395 Rene Levesque W",
+    "Latitude": 45.495543,
+    "Longitude": -73.573795,
+    "Google_Place_Info": {
+      "place": "places/ChIJrQ3XtmkayUwRhIUKi0PSTqg",
+      "displayName": { "text": "DvT Montreal", "languageCode": "fr-CA" },
+      "primaryType": null,
+      "types": ["point_of_interest", "establishment"],
+      "formattedAddress": "DvT Montreal, Pavillon des Beaux Arts, 1395 Boul. René-Lévesque O RM. 212-2, Montréal, QC H3G 2M5, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.495525, "longitude": -73.57379399999999 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "VE",
+    "Building_Name": "VE Building",
+    "Building_Long_Name": "Vanier Extension",
+    "Address": "7141 Sherbrooke W",
+    "Latitude": 45.459026,
+    "Longitude": -73.638606,
+    "Google_Place_Info": {
+      "place": "places/ChIJYbkD3jEXyUwRea_8qmZorvM",
+      "displayName": { "text": "Loyola Quad", "languageCode": "en" },
+      "primaryType": null,
+      "types": ["point_of_interest", "establishment"],
+      "formattedAddress": "Loyola Quad, 7141 Sherbrooke St W, Montreal, QC H4B 1R6, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.459057, "longitude": -73.6386318 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "LOY",
+    "Building": "VL",
+    "Building_Name": "VL Building",
+    "Building_Long_Name": "Vanier Library Building",
+    "Address": "7141 Sherbrooke W",
+    "Latitude": 45.459026,
+    "Longitude": -73.638606,
+    "Google_Place_Info": {
+      "place": "places/ChIJYbkD3jEXyUwRea_8qmZorvM",
+      "displayName": { "text": "Loyola Quad", "languageCode": "en" },
+      "primaryType": null,
+      "types": ["point_of_interest", "establishment"],
+      "formattedAddress": "Loyola Quad, 7141 Sherbrooke St W, Montreal, QC H4B 1R6, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.459057, "longitude": -73.6386318 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "X",
+    "Building_Name": "X Building",
+    "Building_Long_Name": "X Annex",
+    "Address": "2080 Mackay Street",
+    "Latitude": 45.49694,
+    "Longitude": -73.579593,
+    "Google_Place_Info": {
+      "place": "places/ChIJ5T8fjGoayUwRX1nzPwg9FJ4",
+      "displayName": {
+        "text": "Arts and Science Federation of Associations (ASFA)",
+        "languageCode": "en"
+      },
+      "primaryType": null,
+      "types": ["point_of_interest", "establishment"],
+      "formattedAddress": "Arts and Science Federation of Associations (ASFA), 2070 Mackay St 4th floor, Montreal, QC H3G 2J1, Canada",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4969058, "longitude": -73.5795438 },
+      "displayPolygon": null,
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
+    "Building": "Z",
+    "Building_Name": "Z Building",
+    "Building_Long_Name": "Z Annex",
+    "Address": "2090 Mackay Street",
+    "Latitude": 45.496981,
+    "Longitude": -73.579705,
+    "Google_Place_Info": {
+      "place": "places/ChIJW-70jGoayUwRxZdxulZroTU",
+      "displayName": { "text": "2070 Mackay", "languageCode": "en" },
+      "primaryType": "premise",
+      "types": ["premise", "street_address"],
+      "formattedAddress": "2070 Mackay, 2090 Mackay St, Montreal, QC H3G 2J1, Canada",
+      "structureType": "BUILDING",
+      "location": { "latitude": 45.4969207, "longitude": -73.5797469 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.5797414844602, 45.4969862203475],
+            [-73.579816510102, 45.4969106079946],
+            [-73.5797895863551, 45.4968973399696],
+            [-73.5798124906094, 45.4968744342013],
+            [-73.579763431738, 45.496850522994],
+            [-73.5796655016554, 45.4969490409659],
+            [-73.5797414844602, 45.4969862203475]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  }
+]

@@ -68,6 +68,9 @@ mobile/*.tsbuildinfo
 mobile/ios/
 mobile/android/
 
+# testing
+mobile/coverage/
+
 # ===========================
 # Backend (Spring Boot)
 # ===========================
@@ -75,3 +78,6 @@ mobile/android/
 Backend/target/
 
 
+Backend/.tool-versions
+package-lock.json
+node_modules/.package-lock.json

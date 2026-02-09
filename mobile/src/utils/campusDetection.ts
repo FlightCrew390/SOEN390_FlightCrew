@@ -1,4 +1,4 @@
-import { CampusId, CAMPUSES } from "../constants/campuses";
+import { CAMPUSES, CampusId } from "../constants/campuses";
 import { calculateDistance } from "./buildingDetection";
 
 /**

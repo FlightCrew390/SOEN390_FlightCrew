@@ -7,165 +7,189 @@ const mockRequestForegroundPermissionsAsync = jest.fn();
 const mockGetCurrentPositionAsync = jest.fn();
 
 jest.mock("expo-location", () => ({
-    requestForegroundPermissionsAsync: () => mockRequestForegroundPermissionsAsync(),
-    getCurrentPositionAsync: (options: unknown) => mockGetCurrentPositionAsync(options),
-    Accuracy: {
-        Balanced: 3,
-    },
+  requestForegroundPermissionsAsync: () =>
+    mockRequestForegroundPermissionsAsync(),
+  getCurrentPositionAsync: (options: unknown) =>
+    mockGetCurrentPositionAsync(options),
+  Accuracy: {
+    Balanced: 3,
+  },
 }));
 
 const mockLocation = {
-    coords: {
-        latitude: 45.4973,
-        longitude: -73.5789,
-        altitude: 50,
-        accuracy: 10,
-        heading: 0,
-        speed: 0,
-    },
-    timestamp: Date.now(),
+  coords: {
+    latitude: 45.4973,
+    longitude: -73.5789,
+    altitude: 50,
+    accuracy: 10,
+    heading: 0,
+    speed: 0,
+  },
+  timestamp: Date.now(),
 };
 
 beforeEach(() => {
-    jest.clearAllMocks();
+  jest.clearAllMocks();
 });
 
 describe("useCurrentLocation", () => {
-    test("initial state shows loading", () => {
-        mockRequestForegroundPermissionsAsync.mockResolvedValue({ status: "granted" });
-        mockGetCurrentPositionAsync.mockResolvedValue(mockLocation);
+  test("initial state shows loading", () => {
+    mockRequestForegroundPermissionsAsync.mockResolvedValue({
+      status: "granted",
+    });
+    mockGetCurrentPositionAsync.mockResolvedValue(mockLocation);
 
-        const { result } = renderHook(() => useCurrentLocation());
+    const { result } = renderHook(() => useCurrentLocation());
 
-        expect(result.current.loading).toBe(true);
-        expect(result.current.location).toBeNull();
-        expect(result.current.error).toBeNull();
+    expect(result.current.loading).toBe(true);
+    expect(result.current.location).toBeNull();
+    expect(result.current.error).toBeNull();
+  });
+
+  test("loads location successfully when permission granted", async () => {
+    mockRequestForegroundPermissionsAsync.mockResolvedValue({
+      status: "granted",
+    });
+    mockGetCurrentPositionAsync.mockResolvedValue(mockLocation);
+
+    const { result } = renderHook(() => useCurrentLocation());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
     });
 
-    test("loads location successfully when permission granted", async () => {
-        mockRequestForegroundPermissionsAsync.mockResolvedValue({ status: "granted" });
-        mockGetCurrentPositionAsync.mockResolvedValue(mockLocation);
+    expect(result.current.location).toEqual(mockLocation);
+    expect(result.current.error).toBeNull();
+    expect(mockGetCurrentPositionAsync).toHaveBeenCalledWith({ accuracy: 3 });
+  });
 
-        const { result } = renderHook(() => useCurrentLocation());
-
-        await waitFor(() => {
-            expect(result.current.loading).toBe(false);
-        });
-
-        expect(result.current.location).toEqual(mockLocation);
-        expect(result.current.error).toBeNull();
-        expect(mockGetCurrentPositionAsync).toHaveBeenCalledWith({ accuracy: 3 });
+  test("handles permission denied", async () => {
+    mockRequestForegroundPermissionsAsync.mockResolvedValue({
+      status: "denied",
     });
 
-    test("handles permission denied", async () => {
-        mockRequestForegroundPermissionsAsync.mockResolvedValue({ status: "denied" });
+    const { result } = renderHook(() => useCurrentLocation());
 
-        const { result } = renderHook(() => useCurrentLocation());
-
-        await waitFor(() => {
-            expect(result.current.loading).toBe(false);
-        });
-
-        expect(result.current.location).toBeNull();
-        expect(result.current.error).toBe(
-            "Location permission denied. Please enable location access in settings.",
-        );
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
     });
 
-    test("handles Error exceptions", async () => {
-        mockRequestForegroundPermissionsAsync.mockResolvedValue({ status: "granted" });
-        mockGetCurrentPositionAsync.mockRejectedValue(new Error("GPS unavailable"));
+    expect(result.current.location).toBeNull();
+    expect(result.current.error).toBe(
+      "Location permission denied. Please enable location access in settings.",
+    );
+  });
 
-        const { result } = renderHook(() => useCurrentLocation());
+  test("handles Error exceptions", async () => {
+    mockRequestForegroundPermissionsAsync.mockResolvedValue({
+      status: "granted",
+    });
+    mockGetCurrentPositionAsync.mockRejectedValue(new Error("GPS unavailable"));
 
-        await waitFor(() => {
-            expect(result.current.loading).toBe(false);
-        });
+    const { result } = renderHook(() => useCurrentLocation());
 
-        expect(result.current.location).toBeNull();
-        expect(result.current.error).toBe("GPS unavailable");
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
     });
 
-    test("handles non-Error exceptions", async () => {
-        mockRequestForegroundPermissionsAsync.mockResolvedValue({ status: "granted" });
-        mockGetCurrentPositionAsync.mockRejectedValue("Some string error");
+    expect(result.current.location).toBeNull();
+    expect(result.current.error).toBe("GPS unavailable");
+  });
 
-        const { result } = renderHook(() => useCurrentLocation());
+  test("handles non-Error exceptions", async () => {
+    mockRequestForegroundPermissionsAsync.mockResolvedValue({
+      status: "granted",
+    });
+    mockGetCurrentPositionAsync.mockRejectedValue("Some string error");
 
-        await waitFor(() => {
-            expect(result.current.loading).toBe(false);
-        });
+    const { result } = renderHook(() => useCurrentLocation());
 
-        expect(result.current.location).toBeNull();
-        expect(result.current.error).toBe(
-            "Unable to determine your location. Please check your GPS settings.",
-        );
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
     });
 
-    test("does not update state if unmounted before permission resolves", async () => {
-        let resolvePermission: (value: { status: string }) => void;
-        mockRequestForegroundPermissionsAsync.mockImplementation(
-            () => new Promise((resolve) => { resolvePermission = resolve; })
-        );
+    expect(result.current.location).toBeNull();
+    expect(result.current.error).toBe(
+      "Unable to determine your location. Please check your GPS settings.",
+    );
+  });
 
-        const { unmount } = renderHook(() => useCurrentLocation());
+  test("does not update state if unmounted before permission resolves", async () => {
+    let resolvePermission: (value: { status: string }) => void;
+    mockRequestForegroundPermissionsAsync.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolvePermission = resolve;
+        }),
+    );
 
-        // Unmount before permission resolves
-        unmount();
+    const { unmount } = renderHook(() => useCurrentLocation());
 
-        // Now resolve - should not throw or update state
-        resolvePermission!({ status: "granted" });
+    // Unmount before permission resolves
+    unmount();
 
-        // Just verify no errors occurred
-        expect(mockRequestForegroundPermissionsAsync).toHaveBeenCalled();
+    // Now resolve - should not throw or update state
+    resolvePermission!({ status: "granted" });
+
+    // Just verify no errors occurred
+    expect(mockRequestForegroundPermissionsAsync).toHaveBeenCalled();
+  });
+
+  test("does not update state if unmounted before location resolves", async () => {
+    mockRequestForegroundPermissionsAsync.mockResolvedValue({
+      status: "granted",
     });
 
-    test("does not update state if unmounted before location resolves", async () => {
-        mockRequestForegroundPermissionsAsync.mockResolvedValue({ status: "granted" });
+    let resolveLocation: (value: typeof mockLocation) => void;
+    mockGetCurrentPositionAsync.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveLocation = resolve;
+        }),
+    );
 
-        let resolveLocation: (value: typeof mockLocation) => void;
-        mockGetCurrentPositionAsync.mockImplementation(
-            () => new Promise((resolve) => { resolveLocation = resolve; })
-        );
+    const { unmount } = renderHook(() => useCurrentLocation());
 
-        const { unmount } = renderHook(() => useCurrentLocation());
-
-        // Wait for permission to resolve
-        await waitFor(() => {
-            expect(mockGetCurrentPositionAsync).toHaveBeenCalled();
-        });
-
-        // Unmount before location resolves
-        unmount();
-
-        // Now resolve - should not throw or update state
-        resolveLocation!(mockLocation);
-
-        expect(mockGetCurrentPositionAsync).toHaveBeenCalled();
+    // Wait for permission to resolve
+    await waitFor(() => {
+      expect(mockGetCurrentPositionAsync).toHaveBeenCalled();
     });
 
-    test("does not update state if unmounted before error handling", async () => {
-        mockRequestForegroundPermissionsAsync.mockResolvedValue({ status: "granted" });
+    // Unmount before location resolves
+    unmount();
 
-        let rejectLocation: (error: Error) => void;
-        mockGetCurrentPositionAsync.mockImplementation(
-            () => new Promise((_, reject) => { rejectLocation = reject; })
-        );
+    // Now resolve - should not throw or update state
+    resolveLocation!(mockLocation);
 
-        const { unmount } = renderHook(() => useCurrentLocation());
+    expect(mockGetCurrentPositionAsync).toHaveBeenCalled();
+  });
 
-        // Wait for getCurrentPositionAsync to be called
-        await waitFor(() => {
-            expect(mockGetCurrentPositionAsync).toHaveBeenCalled();
-        });
-
-        // Unmount before error resolves
-        unmount();
-
-        // Now reject - should not throw or update state
-        rejectLocation!(new Error("Test error"));
-
-        expect(mockGetCurrentPositionAsync).toHaveBeenCalled();
+  test("does not update state if unmounted before error handling", async () => {
+    mockRequestForegroundPermissionsAsync.mockResolvedValue({
+      status: "granted",
     });
+
+    let rejectLocation: (error: Error) => void;
+    mockGetCurrentPositionAsync.mockImplementation(
+      () =>
+        new Promise((_, reject) => {
+          rejectLocation = reject;
+        }),
+    );
+
+    const { unmount } = renderHook(() => useCurrentLocation());
+
+    // Wait for getCurrentPositionAsync to be called
+    await waitFor(() => {
+      expect(mockGetCurrentPositionAsync).toHaveBeenCalled();
+    });
+
+    // Unmount before error resolves
+    unmount();
+
+    // Now reject - should not throw or update state
+    rejectLocation!(new Error("Test error"));
+
+    expect(mockGetCurrentPositionAsync).toHaveBeenCalled();
+  });
 });
-

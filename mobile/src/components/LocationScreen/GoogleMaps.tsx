@@ -1,8 +1,7 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  InteractionManager,
   Platform,
   Pressable,
   Text,
@@ -17,9 +16,9 @@ import { COLORS, MAP_CONFIG } from "../../constants";
 import { campusBoundary } from "../../constants/campusBoundaries";
 import { useBuildingData } from "../../hooks/useBuildingData";
 import { useCurrentLocation } from "../../hooks/useCurrentLocation";
-import { findCurrentBuilding } from "../../utils/buildingDetection";
-import { Building } from "../../types/Building";
 import styles from "../../styles/GoogleMaps";
+import { Building } from "../../types/Building";
+import { findCurrentBuilding } from "../../utils/buildingDetection";
 import BuildingMarker from "./BuildingMarker";
 import BuildingPolygon from "./BuildingPolygon";
 import UserLocationMarker from "./UserLocationMarker";
@@ -73,7 +72,7 @@ export default function GoogleMaps({
       latitudeDelta: 0.005,
       longitudeDelta: 0.005,
     };
-    InteractionManager.runAfterInteractions(() => {
+    requestIdleCallback(() => {
       if (mapRef.current) mapRef.current.animateToRegion(region, 1000);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mapRef stable; run only when location appears
@@ -129,7 +128,7 @@ export default function GoogleMaps({
       latitudeDelta: 0.005,
       longitudeDelta: 0.005,
     };
-    InteractionManager.runAfterInteractions(() => {
+    requestIdleCallback(() => {
       if (mapRef.current) mapRef.current.animateToRegion(region, 1000);
     });
   };
@@ -143,6 +142,10 @@ export default function GoogleMaps({
         ref={mapRef}
         minZoomLevel={14}
         maxZoomLevel={20}
+        cameraZoomRange={{
+          minCenterCoordinateDistance: 200,
+          maxCenterCoordinateDistance: 20000,
+        }}
         onMapReady={handleMapReady}
         onRegionChangeComplete={handleRegionChangeComplete}
         provider={

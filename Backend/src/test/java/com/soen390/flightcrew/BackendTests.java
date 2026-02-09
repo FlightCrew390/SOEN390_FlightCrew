@@ -15,6 +15,9 @@ class BackendTests {
 
     @Test
     void contextLoads() {
+        // This test will pass if the application context loads successfully with the
+        // provided properties. If there are any issues with the configuration or bean
+        // initialization, this test will fail.
     }
 
 }

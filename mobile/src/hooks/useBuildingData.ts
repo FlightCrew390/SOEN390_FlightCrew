@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Building } from "../types/Building";
+import { useEffect, useState } from "react";
 import { BuildingDataService } from "../services/BuildingDataService";
+import { Building } from "../types/Building";
 
 export const useBuildingData = () => {
   const [buildings, setBuildings] = useState<Building[]>([]);

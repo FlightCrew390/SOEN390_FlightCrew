@@ -17,3 +17,18 @@ beforeAll(() => {
 afterAll(() => {
   console.error = originalError;
 });
+
+// Mock requestIdleCallback for React Native test environment
+globalThis.requestIdleCallback = (callback: IdleRequestCallback) => {
+  const start = Date.now();
+  return setTimeout(() => {
+    callback({
+      didTimeout: false,
+      timeRemaining: () => Math.max(0, 50 - (Date.now() - start)),
+    });
+  }, 1) as unknown as number;
+};
+
+globalThis.cancelIdleCallback = (id: number) => {
+  clearTimeout(id);
+};

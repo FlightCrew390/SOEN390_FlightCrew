@@ -80,7 +80,7 @@ test("does not update index when currentCampusId is null", () => {
 
 test("syncs to currentCampusId when recenterTrigger changes", () => {
   const { rerender } = render(
-    <CampusSelection currentCampusId="SGW" recenterTrigger={0} />
+    <CampusSelection currentCampusId="SGW" recenterTrigger={0} />,
   );
 
   expect(screen.getByText("SGW Campus")).toBeTruthy();

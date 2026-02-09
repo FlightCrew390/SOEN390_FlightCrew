@@ -45,6 +45,12 @@ jest.mock("../../src/components/LocationScreen/BuildingMarker", () => ({
   default: "BuildingMarker",
 }));
 
+// Mock BuildingPolygon
+jest.mock("../../src/components/LocationScreen/BuildingPolygon", () => ({
+  __esModule: true,
+  default: "BuildingPolygon",
+}));
+
 // Mock UserLocationMarker
 jest.mock("../../src/components/LocationScreen/UserLocationMarker", () => ({
   __esModule: true,
@@ -421,5 +427,32 @@ describe("map callbacks", () => {
 
     expect(mockOnRecenter).toHaveBeenCalled();
   });
+
+  test("renders building polygons for each building", () => {
+  mockUseBuildingData.mockReturnValue({
+    buildings: mockBuildings,
+    loading: false,
+    error: null,
+  });
+
+  const { toJSON } = render(<GoogleMaps mapRef={React.createRef()} />);
+  const tree = JSON.stringify(toJSON());
+
+  expect(tree).toContain("BuildingPolygon");
+});
+
+test("renders both polygon and marker for each building", () => {
+  mockUseBuildingData.mockReturnValue({
+    buildings: mockBuildings,
+    loading: false,
+    error: null,
+  });
+
+  const { toJSON } = render(<GoogleMaps mapRef={React.createRef()} />);
+  const tree = JSON.stringify(toJSON());
+
+  expect(tree).toContain("BuildingPolygon");
+  expect(tree).toContain("BuildingMarker");
+});
 });
 

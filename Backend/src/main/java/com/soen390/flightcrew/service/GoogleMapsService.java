@@ -10,15 +10,18 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import java.util.logging.Logger;
 
 @Service
 public class GoogleMapsService {
+
+    Logger logger = Logger.getLogger(GoogleMapsService.class.getName());
 
     @Value("${google.api.key}")
     private String googleApiKey;
 
     private final RestTemplate restTemplate;
-    private final String GOOGLE_GEOCODE_URL = "https://geocode.googleapis.com/v4alpha/geocode/destinations";
+    private static final String GOOGLE_GEOCODE_URL = "https://geocode.googleapis.com/v4alpha/geocode/destinations";
 
     public GoogleMapsService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -48,7 +51,7 @@ public class GoogleMapsService {
                     GoogleGeocodeResponse.class);
             return response.getBody();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.severe("Error fetching geocode info from Google Maps API: " + e.getMessage());
             return null;
         }
     }
@@ -77,7 +80,7 @@ public class GoogleMapsService {
                     GoogleGeocodeResponse.class);
             return response.getBody();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.severe("Error fetching geocode info from Google Maps API: " + e.getMessage());
             return null;
         }
     }

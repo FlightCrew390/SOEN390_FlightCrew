@@ -21,6 +21,8 @@ const appConfig = ({ config }: ConfigContext): ExpoConfig => ({
       NSAppTransportSecurity: {
         NSAllowsArbitraryLoads: true, // Allow HTTP requests, NEED TO BE SECURE IN PRODUCTION //NOSONAR
       },
+      NSLocationWhenInUseUsageDescription:
+        "We need your location to show which building you're currently in.",
     },
     config: {
       googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,

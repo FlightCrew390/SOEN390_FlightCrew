@@ -1,5 +1,5 @@
-import { ExpoConfig, ConfigContext } from "expo/config";
 import "dotenv/config";
+import { ConfigContext, ExpoConfig } from "expo/config";
 
 const appConfig = ({ config }: ConfigContext): ExpoConfig => ({
   ...config,

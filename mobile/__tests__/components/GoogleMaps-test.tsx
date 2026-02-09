@@ -22,18 +22,21 @@ let capturedOnMapReady: (() => void) | null = null;
 let capturedOnRegionChangeComplete: ((region: any) => void) | null = null;
 
 jest.mock("react-native-maps", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const React = require("react");
+  const MapViewMock = React.forwardRef((props: any, ref: any) => {
+    capturedOnMapReady = props.onMapReady;
+    capturedOnRegionChangeComplete = props.onRegionChangeComplete;
+    React.useImperativeHandle(ref, () => ({
+      animateToRegion: mockAnimateToRegion,
+      setMapBoundaries: mockSetMapBoundaries,
+    }));
+    return React.createElement("MapView", props, props.children);
+  });
+  MapViewMock.displayName = "MapView";
   return {
     __esModule: true,
-    default: React.forwardRef((props: any, ref: any) => {
-      capturedOnMapReady = props.onMapReady;
-      capturedOnRegionChangeComplete = props.onRegionChangeComplete;
-      React.useImperativeHandle(ref, () => ({
-        animateToRegion: mockAnimateToRegion,
-        setMapBoundaries: mockSetMapBoundaries,
-      }));
-      return React.createElement("MapView", props, props.children);
-    }),
+    default: MapViewMock,
     PROVIDER_DEFAULT: "default",
     PROVIDER_GOOGLE: "google",
   };
@@ -68,8 +71,6 @@ const mockUseCurrentLocation = jest.fn();
 jest.mock("../../src/hooks/useCurrentLocation", () => ({
   useCurrentLocation: () => mockUseCurrentLocation(),
 }));
-
-
 
 const mockBuildings: Building[] = [
   {
@@ -259,7 +260,7 @@ test("renders recenter button when location available", () => {
   render(<GoogleMaps mapRef={React.createRef()} />);
 
   expect(
-    screen.getByRole("button", { name: "Recenter map on my location" })
+    screen.getByRole("button", { name: "Recenter map on my location" }),
   ).toBeTruthy();
 });
 
@@ -295,6 +296,7 @@ describe("map callbacks", () => {
   });
 
   test("handleMapReady sets boundaries on Android", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const Platform = require("react-native/Libraries/Utilities/Platform");
     Platform.default.OS = "android";
     Platform.OS = "android";
@@ -327,7 +329,7 @@ describe("map callbacks", () => {
 
     if (capturedOnRegionChangeComplete) {
       capturedOnRegionChangeComplete({
-        latitude: 50.0, // Way above northEast boundary
+        latitude: 50, // Way above northEast boundary
         longitude: -73.6,
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
@@ -342,7 +344,7 @@ describe("map callbacks", () => {
 
     if (capturedOnRegionChangeComplete) {
       capturedOnRegionChangeComplete({
-        latitude: 40.0, // Way below southWest boundary
+        latitude: 40, // Way below southWest boundary
         longitude: -73.6,
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
@@ -358,7 +360,7 @@ describe("map callbacks", () => {
     if (capturedOnRegionChangeComplete) {
       capturedOnRegionChangeComplete({
         latitude: 45.48,
-        longitude: -70.0, // Way above northEast boundary (less negative)
+        longitude: -70, // Way above northEast boundary (less negative)
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
       });
@@ -373,7 +375,7 @@ describe("map callbacks", () => {
     if (capturedOnRegionChangeComplete) {
       capturedOnRegionChangeComplete({
         latitude: 45.48,
-        longitude: -80.0, // Way below southWest boundary (more negative)
+        longitude: -80, // Way below southWest boundary (more negative)
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
       });
@@ -409,13 +411,14 @@ describe("map callbacks", () => {
 
     // Recenter button should not be rendered when location is null
     expect(
-      screen.queryByRole("button", { name: "Recenter map on my location" })
+      screen.queryByRole("button", { name: "Recenter map on my location" }),
     ).toBeNull();
     expect(mockOnRecenter).not.toHaveBeenCalled();
   });
 
   test("handleRecenter calls onRecenter when recenter button pressed", () => {
     const mockOnRecenter = jest.fn();
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { fireEvent } = require("@testing-library/react-native");
 
     render(<GoogleMaps onRecenter={mockOnRecenter} />);
@@ -429,30 +432,29 @@ describe("map callbacks", () => {
   });
 
   test("renders building polygons for each building", () => {
-  mockUseBuildingData.mockReturnValue({
-    buildings: mockBuildings,
-    loading: false,
-    error: null,
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+
+    const { toJSON } = render(<GoogleMaps mapRef={React.createRef()} />);
+    const tree = JSON.stringify(toJSON());
+
+    expect(tree).toContain("BuildingPolygon");
   });
 
-  const { toJSON } = render(<GoogleMaps mapRef={React.createRef()} />);
-  const tree = JSON.stringify(toJSON());
+  test("renders both polygon and marker for each building", () => {
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
 
-  expect(tree).toContain("BuildingPolygon");
-});
+    const { toJSON } = render(<GoogleMaps mapRef={React.createRef()} />);
+    const tree = JSON.stringify(toJSON());
 
-test("renders both polygon and marker for each building", () => {
-  mockUseBuildingData.mockReturnValue({
-    buildings: mockBuildings,
-    loading: false,
-    error: null,
+    expect(tree).toContain("BuildingPolygon");
+    expect(tree).toContain("BuildingMarker");
   });
-
-  const { toJSON } = render(<GoogleMaps mapRef={React.createRef()} />);
-  const tree = JSON.stringify(toJSON());
-
-  expect(tree).toContain("BuildingPolygon");
-  expect(tree).toContain("BuildingMarker");
 });
-});
-

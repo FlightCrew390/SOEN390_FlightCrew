@@ -40,6 +40,6 @@ public class GoogleGeocodeRequest {
     @AllArgsConstructor
     public static class AddressQuery {
         @JsonProperty("addressQuery")
-        private String addressQuery;
+        private String address;
     }
 }

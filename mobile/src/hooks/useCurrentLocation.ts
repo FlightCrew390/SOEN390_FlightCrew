@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
 import * as Location from "expo-location";
+import { useEffect, useState } from "react";
 
 interface LocationState {
   location: Location.LocationObject | null;

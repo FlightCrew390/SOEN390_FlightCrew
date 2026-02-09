@@ -87,7 +87,7 @@ test("renders highlighted marker when isCurrentBuilding is true", () => {
   const building = createBuilding();
 
   const { toJSON } = render(
-    <BuildingMarker building={building} isCurrentBuilding={true} />
+    <BuildingMarker building={building} isCurrentBuilding={true} />,
   );
 
   expect(toJSON()).toBeTruthy();

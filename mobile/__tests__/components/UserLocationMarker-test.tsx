@@ -34,9 +34,7 @@ test("renders with negative latitude and longitude", () => {
 });
 
 test("renders with zero latitude and longitude", () => {
-  const { toJSON } = render(
-    <UserLocationMarker latitude={0} longitude={0} />,
-  );
+  const { toJSON } = render(<UserLocationMarker latitude={0} longitude={0} />);
 
   expect(toJSON()).toBeTruthy();
   expect(JSON.stringify(toJSON())).toContain("Marker");
@@ -106,10 +104,7 @@ test("renders correctly with extreme coordinate values", () => {
 
 test("renders correctly with decimal precision coordinates", () => {
   const { toJSON } = render(
-    <UserLocationMarker
-      latitude={45.497123456}
-      longitude={-73.578912345}
-    />,
+    <UserLocationMarker latitude={45.497123456} longitude={-73.578912345} />,
   );
 
   expect(toJSON()).toBeTruthy();

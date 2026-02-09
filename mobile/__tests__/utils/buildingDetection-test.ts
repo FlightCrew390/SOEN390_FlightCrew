@@ -47,7 +47,10 @@ describe("calculateDistance", () => {
 
 describe("findCurrentBuilding", () => {
   test("returns null for empty buildings array", () => {
-    const result = findCurrentBuilding({ latitude: 45.4973, longitude: -73.5789 }, []);
+    const result = findCurrentBuilding(
+      { latitude: 45.4973, longitude: -73.5789 },
+      [],
+    );
     expect(result).toBeNull();
   });
 
@@ -78,7 +81,7 @@ describe("findCurrentBuilding", () => {
 
   test("returns null when user is outside threshold", () => {
     const result = findCurrentBuilding(
-      { latitude: 46.0, longitude: -74.0 },
+      { latitude: 46, longitude: -74 },
       mockBuildings,
       100,
     );
@@ -87,14 +90,22 @@ describe("findCurrentBuilding", () => {
 
   test("uses custom threshold correctly", () => {
     // User is very far from any building
-    const farLocation = { latitude: 46.0, longitude: -74.0 };
+    const farLocation = { latitude: 46, longitude: -74 };
 
     // With a very large threshold, should find nearest
-    const resultLargeThreshold = findCurrentBuilding(farLocation, mockBuildings, 100000);
+    const resultLargeThreshold = findCurrentBuilding(
+      farLocation,
+      mockBuildings,
+      100000,
+    );
     expect(resultLargeThreshold).not.toBeNull();
 
     // With small threshold, should return null
-    const resultSmallThreshold = findCurrentBuilding(farLocation, mockBuildings, 10);
+    const resultSmallThreshold = findCurrentBuilding(
+      farLocation,
+      mockBuildings,
+      10,
+    );
     expect(resultSmallThreshold).toBeNull();
   });
 

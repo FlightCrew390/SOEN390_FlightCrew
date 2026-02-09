@@ -1,5 +1,5 @@
-import { Building } from "../types/Building";
 import { API_CONFIG } from "../constants";
+import { Building } from "../types/Building";
 
 type Coordinate = number[];
 

@@ -1,12 +1,12 @@
 import React, { useRef, useState } from "react";
-import { InteractionManager, View } from "react-native";
+import { View } from "react-native";
 import MapView, { Region } from "react-native-maps";
 import CampusSelection from "../components/LocationScreen/CampusSelection";
 import GoogleMaps from "../components/LocationScreen/GoogleMaps";
 import { CAMPUSES, CampusId } from "../constants/campuses";
 import { useCurrentLocation } from "../hooks/useCurrentLocation";
-import { getClosestCampusId } from "../utils/campusDetection";
 import styles from "../styles/Screen";
+import { getClosestCampusId } from "../utils/campusDetection";
 
 export default function LocationScreen() {
   const mapRef = useRef<MapView | null>(null);
@@ -26,7 +26,7 @@ export default function LocationScreen() {
       latitudeDelta: 0.01,
       longitudeDelta: 0.01,
     };
-    InteractionManager.runAfterInteractions(() => {
+    requestIdleCallback(() => {
       if (mapRef.current) {
         mapRef.current.animateToRegion(region, 1000);
       }

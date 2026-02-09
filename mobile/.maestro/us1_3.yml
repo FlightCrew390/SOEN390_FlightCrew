@@ -3,32 +3,20 @@ appId: com.yourteam.mobile
 - launchApp
 - assertVisible: "Home Screen"
 - tapOn: "Location"
-- waitForAnimationToEnd
 
 - tapOn: "Next campus"
-- waitForAnimationToEnd
-
 - tapOn: "Previous campus"
-- waitForAnimationToEnd
 - swipe:
        start: 55%, 55%
        end: 25%, 70%
-- waitForAnimationToEnd
 - swipe:
        start: 25%, 70%
        end: 50%, 35%
-- waitForAnimationToEnd
-
 - tapOn: "Next campus"
-- waitForAnimationToEnd
 - swipe:
        start: 60%, 50%
        end: 80%, 60%
-- waitForAnimationToEnd
 - swipe:
        start: 80%, 60%
        end: 40%, 30%
-- waitForAnimationToEnd
-
 - tapOn: "Previous campus"
-- waitForAnimationToEnd

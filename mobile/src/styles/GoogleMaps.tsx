@@ -79,6 +79,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 3,
+    zIndex: 11,
+  },
+  searchButtonOpen: {
+    backgroundColor: "transparent",
+    shadowOpacity: 0,
+    elevation: 0,
   },
 });
 

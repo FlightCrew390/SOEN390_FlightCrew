@@ -21,6 +21,7 @@ import { Building } from "../../types/Building";
 import { findCurrentBuilding } from "../../utils/buildingDetection";
 import BuildingMarker from "./BuildingMarker";
 import BuildingPolygon from "./BuildingPolygon";
+import SearchPanel, { LocationType } from "./SearchPanel";
 import UserLocationMarker from "./UserLocationMarker";
 
 interface GoogleMapsProps {
@@ -44,6 +45,7 @@ export default function GoogleMaps({
   const isCorrectingRef = useRef(false);
   const hasCenteredOnUserOnceRef = useRef(false);
   const [currentBuilding, setCurrentBuilding] = useState<Building | null>(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // Find current building when location or buildings change
   useEffect(() => {
@@ -133,6 +135,31 @@ export default function GoogleMaps({
     });
   };
 
+  const handleSearch = (query: string, locationType: LocationType) => {
+    if (!query) return;
+
+    if (locationType === "building") {
+      const q = query.toLowerCase();
+      const match = buildings.find(
+        (b) =>
+          b.buildingName.toLowerCase().includes(q) ||
+          b.buildingLongName.toLowerCase().includes(q) ||
+          b.buildingCode.toLowerCase() === q,
+      );
+      if (match && mapRef.current) {
+        const region = {
+          latitude: match.latitude,
+          longitude: match.longitude,
+          latitudeDelta: 0.003,
+          longitudeDelta: 0.003,
+        };
+        mapRef.current.animateToRegion(region, 800);
+        setIsSearchOpen(false);
+      }
+    }
+    // Restaurant search: placeholder for future data source
+  };
+
   const displayError = error || locationError;
   const isLoading = loading || locationLoading;
 
@@ -192,16 +219,28 @@ export default function GoogleMaps({
         </View>
       )}
 
+      {/* Search panel */}
+      <SearchPanel
+        visible={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onSearch={handleSearch}
+      />
+
       {/* Search button (top left) */}
       <Pressable
-        style={styles.searchButton}
-        onPress={() => {}}
-        accessibilityLabel="Search campus buildings"
+        style={[
+          styles.searchButton,
+          isSearchOpen && styles.searchButtonOpen,
+        ]}
+        onPress={() => setIsSearchOpen((prev) => !prev)}
+        accessibilityLabel={
+          isSearchOpen ? "Close search" : "Search campus buildings"
+        }
         accessibilityRole="button"
       >
         <FontAwesome5
-          name="search"
-          size={28}
+          name={isSearchOpen ? "times" : "search"}
+          size={isSearchOpen ? 30 : 28}
           color={COLORS.concordiaMaroon}
         />
       </Pressable>

@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import styles from "../../styles/SearchPanel";
+import { useBuildingData } from "../../hooks/useBuildingData";
 
 export type LocationType = "building" | "restaurant";
 
@@ -30,6 +31,9 @@ export default function SearchPanel({
   const [locationType, setLocationType] = useState<LocationType>("building");
   const [query, setQuery] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showAutocomplete, setShowAutocomplete] = useState(false);
+  const [autocompleteIdx, setAutocompleteIdx] = useState(-1);
+  const { buildings } = useBuildingData();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(-40)).current;
 
@@ -78,11 +82,39 @@ export default function SearchPanel({
     setLocationType(key);
     setDropdownOpen(false);
     setQuery("");
+    setShowAutocomplete(false);
   };
 
   const handleSearch = () => {
+    setShowAutocomplete(false);
     onSearch(query.trim(), locationType);
   };
+
+  // Autocomplete logic
+  let autocompleteResults: { buildingName: string; buildingCode: string; buildingLongName: string }[] = [];
+  if (locationType === "building" && query.trim().length > 0) {
+    const q = query.trim().toLowerCase();
+    const isPrefixMatch = (field: string) => {
+      // Split on non-word boundaries, check if any word starts with q
+      return field
+        .toLowerCase()
+        .split(/\W+/)
+        .some((word) => word.startsWith(q));
+    };
+    autocompleteResults = buildings.filter((b) => {
+      const gpi = (b as any).Google_Place_Info || {};
+      const displayName = gpi.displayName?.text || "";
+      const formattedAddress = gpi.formattedAddress || "";
+      return (
+        isPrefixMatch(b.buildingName) ||
+        isPrefixMatch(b.buildingLongName) ||
+        isPrefixMatch(b.buildingCode) ||
+        isPrefixMatch(displayName) ||
+        isPrefixMatch(formattedAddress) ||
+        isPrefixMatch(b.address)
+      );
+    });
+  }
 
   return (
     <Animated.View
@@ -93,49 +125,50 @@ export default function SearchPanel({
       accessibilityRole="search"
       pointerEvents="auto"
     >
-        {/* Location type dropdown */}
-        <Text style={styles.label}>Location type</Text>
-        <View style={styles.dropdownMenuWrapper}>
-          <Pressable
-            style={styles.dropdownTrigger}
-            onPress={() => setDropdownOpen((prev) => !prev)}
-            accessibilityLabel="Select location type"
-            accessibilityRole="button"
-          >
-            <Text style={styles.dropdownTriggerText}>{selectedLabel}</Text>
-            <FontAwesome5
-              name={dropdownOpen ? "chevron-up" : "chevron-down"}
-              size={12}
-              color="#666"
-            />
-          </Pressable>
+      {/* Location type dropdown */}
+      <Text style={styles.label}>Location type</Text>
+      <View style={styles.dropdownMenuWrapper}>
+        <Pressable
+          style={styles.dropdownTrigger}
+          onPress={() => setDropdownOpen((prev) => !prev)}
+          accessibilityLabel="Select location type"
+          accessibilityRole="button"
+        >
+          <Text style={styles.dropdownTriggerText}>{selectedLabel}</Text>
+          <FontAwesome5
+            name={dropdownOpen ? "chevron-up" : "chevron-down"}
+            size={12}
+            color="#666"
+          />
+        </Pressable>
 
-          {dropdownOpen && (
-            <View style={styles.dropdownMenu}>
-              {LOCATION_OPTIONS.map((option, idx) => (
-                <React.Fragment key={option.key}>
-                  {idx > 0 && <View style={styles.dropdownDivider} />}
-                  <Pressable
-                    style={[
-                      styles.dropdownOption,
-                      option.key === locationType &&
-                        styles.dropdownOptionSelected,
-                    ]}
-                    onPress={() => handleSelect(option.key)}
-                    accessibilityLabel={option.label}
-                    accessibilityRole="menuitem"
-                  >
-                    <Text style={styles.dropdownOptionText}>
-                      {option.label}
-                    </Text>
-                  </Pressable>
-                </React.Fragment>
-              ))}
-            </View>
-          )}
-        </View>
+        {dropdownOpen && (
+          <View style={styles.dropdownMenu}>
+            {LOCATION_OPTIONS.map((option, idx) => (
+              <React.Fragment key={option.key}>
+                {idx > 0 && <View style={styles.dropdownDivider} />}
+                <Pressable
+                  style={[
+                    styles.dropdownOption,
+                    option.key === locationType &&
+                      styles.dropdownOptionSelected,
+                  ]}
+                  onPress={() => handleSelect(option.key)}
+                  accessibilityLabel={option.label}
+                  accessibilityRole="menuitem"
+                >
+                  <Text style={styles.dropdownOptionText}>
+                    {option.label}
+                  </Text>
+                </Pressable>
+              </React.Fragment>
+            ))}
+          </View>
+        )}
+      </View>
 
-        {/* Search text input */}
+      {/* Search text input */}
+      <View style={{ position: "relative" }}>
         <TextInput
           style={styles.textInput}
           placeholder={placeholderText}
@@ -144,23 +177,49 @@ export default function SearchPanel({
           onChangeText={(text) => {
             setQuery(text);
             setDropdownOpen(false);
+            setShowAutocomplete(true);
+            setAutocompleteIdx(-1);
           }}
           autoCapitalize="none"
           autoCorrect={false}
           returnKeyType="search"
           onSubmitEditing={handleSearch}
           accessibilityLabel={`Search ${placeholderText.toLowerCase()}`}
+          onBlur={() => setTimeout(() => setShowAutocomplete(false), 200)}
+          onFocus={() => setShowAutocomplete(true)}
         />
+        {showAutocomplete && autocompleteResults.length > 0 && (
+          <View style={[styles.dropdownMenu, { top: 48, maxHeight: 180 }]}> 
+            {autocompleteResults.slice(0, 8).map((b, idx) => (
+              <Pressable
+                key={b.buildingCode + b.buildingLongName}
+                style={[
+                  styles.dropdownOption,
+                  idx === autocompleteIdx && styles.dropdownOptionSelected,
+                ]}
+                onPress={() => {
+                  setQuery(b.buildingLongName);
+                  setShowAutocomplete(false);
+                }}
+                accessibilityLabel={b.buildingLongName}
+                accessibilityRole="menuitem"
+              >
+                <Text style={styles.dropdownOptionText}>{b.buildingLongName}</Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
+      </View>
 
-        {/* Search button */}
-        <Pressable
-          style={styles.searchActionButton}
-          onPress={handleSearch}
-          accessibilityLabel="Search"
-          accessibilityRole="button"
-        >
-          <Text style={styles.searchActionButtonText}>Search</Text>
-        </Pressable>
-      </Animated.View>
+      {/* Search button */}
+      <Pressable
+        style={styles.searchActionButton}
+        onPress={handleSearch}
+        accessibilityLabel="Search"
+        accessibilityRole="button"
+      >
+        <Text style={styles.searchActionButtonText}>Search</Text>
+      </Pressable>
+    </Animated.View>
   );
 }

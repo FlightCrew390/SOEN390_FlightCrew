@@ -85,21 +85,14 @@ export default function SearchPanel({
   };
 
   return (
-    <>
-      {/* Transparent backdrop to close dropdown if tapped outside */}
-      <Pressable
-        style={styles.overlay}
-        onPress={onClose}
-        accessibilityLabel="Close search"
-      />
-
-      <Animated.View
-        style={[
-          styles.container,
-          { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
-        ]}
-        accessibilityRole="search"
-      >
+    <Animated.View
+      style={[
+        styles.container,
+        { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+      ]}
+      accessibilityRole="search"
+      pointerEvents="auto"
+    >
         {/* Location type dropdown */}
         <Text style={styles.label}>Location type</Text>
         <View style={styles.dropdownMenuWrapper}>
@@ -169,6 +162,5 @@ export default function SearchPanel({
           <Text style={styles.searchActionButtonText}>Search</Text>
         </Pressable>
       </Animated.View>
-    </>
   );
 }

@@ -93,7 +93,11 @@ export default function SearchPanel({
   };
 
   // Autocomplete logic
-  let autocompleteResults: { buildingName: string; buildingCode: string; buildingLongName: string }[] = [];
+  let autocompleteResults: {
+    buildingName: string;
+    buildingCode: string;
+    buildingLongName: string;
+  }[] = [];
   if (locationType === "building" && query.trim().length > 0) {
     const q = query.trim().toLowerCase();
     const queryWords = q.split(/\s+/).filter((w) => w.length > 0);
@@ -101,7 +105,7 @@ export default function SearchPanel({
       const fieldWords = field.toLowerCase().split(/\W+/);
       // Every query word must prefix-match at least one field word
       return queryWords.every((qw) =>
-        fieldWords.some((fw) => fw.startsWith(qw))
+        fieldWords.some((fw) => fw.startsWith(qw)),
       );
     };
     autocompleteResults = buildings.filter((b) => {
@@ -132,7 +136,10 @@ export default function SearchPanel({
       <Text style={styles.label}>Location type</Text>
       <View style={styles.dropdownMenuWrapper}>
         <Pressable
-          style={[styles.dropdownTrigger, dropdownOpen && styles.dropdownTriggerOpen]}
+          style={[
+            styles.dropdownTrigger,
+            dropdownOpen && styles.dropdownTriggerOpen,
+          ]}
           onPress={() => setDropdownOpen((prev) => !prev)}
           accessibilityLabel="Select location type"
           accessibilityRole="button"
@@ -154,15 +161,13 @@ export default function SearchPanel({
                   style={[
                     styles.dropdownOption,
                     option.key === locationType &&
-                    styles.dropdownOptionSelected,
+                      styles.dropdownOptionSelected,
                   ]}
                   onPress={() => handleSelect(option.key)}
                   accessibilityLabel={option.label}
                   accessibilityRole="menuitem"
                 >
-                  <Text style={styles.dropdownOptionText}>
-                    {option.label}
-                  </Text>
+                  <Text style={styles.dropdownOptionText}>{option.label}</Text>
                 </Pressable>
               </React.Fragment>
             ))}
@@ -171,7 +176,15 @@ export default function SearchPanel({
       </View>
 
       {/* Search text input */}
-      <View style={[styles.textInputWrapper, showAutocomplete && locationType === "building" && query.trim().length > 0 && styles.textInputWrapperOpen]}>
+      <View
+        style={[
+          styles.textInputWrapper,
+          showAutocomplete &&
+            locationType === "building" &&
+            query.trim().length > 0 &&
+            styles.textInputWrapperOpen,
+        ]}
+      >
         <TextInput
           style={styles.textInputInner}
           placeholder={placeholderText}
@@ -208,52 +221,60 @@ export default function SearchPanel({
       </View>
 
       {/* Autocomplete results */}
-      {showAutocomplete && locationType === "building" && query.trim().length > 0 && (
-        <ScrollView
-          style={styles.autocompleteList}
-          nestedScrollEnabled
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator
-        >
-          {autocompleteResults.length === 0 ? (
-            <View style={styles.dropdownOption}>
-              <Text style={styles.noResultsText}>No buildings found.</Text>
-            </View>
-          ) : (
-            autocompleteResults.slice(0, 8).map((b, idx) => (
-              <Pressable
-                key={b.buildingCode + b.buildingLongName}
-                style={[
-                  styles.dropdownOption,
-                  idx === autocompleteIdx && styles.dropdownOptionSelected,
-                ]}
-                onPress={() => {
-                  setQuery(b.buildingLongName);
-                  setShowAutocomplete(false);
-                  setHasSelectedResult(true);
-                }}
-                accessibilityLabel={b.buildingLongName}
-                accessibilityRole="menuitem"
-              >
-                <Text style={styles.dropdownOptionText}>{b.buildingLongName}</Text>
-              </Pressable>
-            ))
-          )}
-        </ScrollView>
-      )}
+      {showAutocomplete &&
+        locationType === "building" &&
+        query.trim().length > 0 && (
+          <ScrollView
+            style={styles.autocompleteList}
+            nestedScrollEnabled
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator
+          >
+            {autocompleteResults.length === 0 ? (
+              <View style={styles.dropdownOption}>
+                <Text style={styles.noResultsText}>No buildings found.</Text>
+              </View>
+            ) : (
+              autocompleteResults.slice(0, 8).map((b, idx) => (
+                <Pressable
+                  key={b.buildingCode + b.buildingLongName}
+                  style={[
+                    styles.dropdownOption,
+                    idx === autocompleteIdx && styles.dropdownOptionSelected,
+                  ]}
+                  onPress={() => {
+                    setQuery(b.buildingLongName);
+                    setShowAutocomplete(false);
+                    setHasSelectedResult(true);
+                  }}
+                  accessibilityLabel={b.buildingLongName}
+                  accessibilityRole="menuitem"
+                >
+                  <Text style={styles.dropdownOptionText}>
+                    {b.buildingLongName}
+                  </Text>
+                </Pressable>
+              ))
+            )}
+          </ScrollView>
+        )}
 
       {/* Search button */}
       <Pressable
         style={[
           styles.searchActionButton,
           (query.trim().length === 0 ||
-            (locationType === "building" && autocompleteResults.length === 0 && !hasSelectedResult)) &&
-          styles.searchActionButtonDisabled,
+            (locationType === "building" &&
+              autocompleteResults.length === 0 &&
+              !hasSelectedResult)) &&
+            styles.searchActionButtonDisabled,
         ]}
         onPress={handleSearch}
         disabled={
           query.trim().length === 0 ||
-          (locationType === "building" && autocompleteResults.length === 0 && !hasSelectedResult)
+          (locationType === "building" &&
+            autocompleteResults.length === 0 &&
+            !hasSelectedResult)
         }
         accessibilityLabel="Search"
         accessibilityRole="button"

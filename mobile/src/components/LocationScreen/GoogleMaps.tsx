@@ -46,7 +46,9 @@ export default function GoogleMaps({
   const hasCenteredOnUserOnceRef = useRef(false);
   const [currentBuilding, setCurrentBuilding] = useState<Building | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null);
+  const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(
+    null,
+  );
 
   // Find current building when location or buildings change
   useEffect(() => {
@@ -236,10 +238,7 @@ export default function GoogleMaps({
 
       {/* Search button (top left) */}
       <Pressable
-        style={[
-          styles.searchButton,
-          isSearchOpen && styles.searchButtonOpen,
-        ]}
+        style={[styles.searchButton, isSearchOpen && styles.searchButtonOpen]}
         onPress={() => setIsSearchOpen((prev) => !prev)}
         accessibilityLabel={
           isSearchOpen ? "Close search" : "Search campus buildings"

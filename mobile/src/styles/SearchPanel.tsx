@@ -91,16 +91,32 @@ const styles = StyleSheet.create({
   },
 
   /* Text input */
-  textInput: {
+  textInputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#b0b0b0",
+    marginBottom: 12,
+    paddingRight: 4,
+  },
+  textInputInner: {
+    flex: 1,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
     color: COLORS.textPrimary,
-    marginBottom: 12,
+  },
+  clearButton: {
+    padding: 6,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  clearButtonText: {
+    fontSize: 16,
+    color: "#999",
+    fontWeight: "700",
   },
 
   /* Autocomplete results list (in-flow, not absolute) */

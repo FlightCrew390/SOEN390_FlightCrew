@@ -169,25 +169,40 @@ export default function SearchPanel({
       </View>
 
       {/* Search text input */}
-      <TextInput
-        style={styles.textInput}
-        placeholder={placeholderText}
-        placeholderTextColor="#999"
-        value={query}
-        onChangeText={(text) => {
-          setQuery(text);
-          setDropdownOpen(false);
-          setShowAutocomplete(true);
-          setAutocompleteIdx(-1);
-        }}
-        autoCapitalize="none"
-        autoCorrect={false}
-        returnKeyType="search"
-        onSubmitEditing={handleSearch}
-        accessibilityLabel={`Search ${placeholderText.toLowerCase()}`}
-        onBlur={() => setTimeout(() => setShowAutocomplete(false), 200)}
-        onFocus={() => setShowAutocomplete(true)}
-      />
+      <View style={styles.textInputWrapper}>
+        <TextInput
+          style={styles.textInputInner}
+          placeholder={placeholderText}
+          placeholderTextColor="#999"
+          value={query}
+          onChangeText={(text) => {
+            setQuery(text);
+            setDropdownOpen(false);
+            setShowAutocomplete(true);
+            setAutocompleteIdx(-1);
+          }}
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="search"
+          onSubmitEditing={handleSearch}
+          accessibilityLabel={`Search ${placeholderText.toLowerCase()}`}
+          onBlur={() => setTimeout(() => setShowAutocomplete(false), 200)}
+          onFocus={() => setShowAutocomplete(true)}
+        />
+        {query.length > 0 && (
+          <Pressable
+            onPress={() => {
+              setQuery("");
+              setShowAutocomplete(false);
+            }}
+            accessibilityLabel="Clear search"
+            accessibilityRole="button"
+            style={styles.clearButton}
+          >
+            <Text style={styles.clearButtonText}>×</Text>
+          </Pressable>
+        )}
+      </View>
 
       {/* Autocomplete results */}
       {showAutocomplete && autocompleteResults.length > 0 && (

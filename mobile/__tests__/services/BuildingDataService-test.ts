@@ -95,3 +95,85 @@ test("throws network error with helpful message", async () => {
         "Cannot connect to server",
     );
 });
+
+test("parses Polygon displayPolygon into polygons array", async () => {
+    const apiBuilding = createApiBuilding({
+        Google_Place_Info: {
+            displayPolygon: {
+                type: "Polygon",
+                coordinates: [[[-73.58, 45.49], [-73.57, 45.49], [-73.57, 45.50], [-73.58, 45.49]]],
+            },
+        },
+    });
+    mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => [apiBuilding],
+    });
+
+    const result = await BuildingDataService.fetchBuildings();
+
+    expect(result[0].polygons).toHaveLength(1);
+    expect(result[0].polygons![0]).toEqual([
+        { latitude: 45.49, longitude: -73.58 },
+        { latitude: 45.49, longitude: -73.57 },
+        { latitude: 45.50, longitude: -73.57 },
+        { latitude: 45.49, longitude: -73.58 },
+    ]);
+});
+
+test("parses MultiPolygon displayPolygon into polygons array", async () => {
+    const apiBuilding = createApiBuilding({
+        Google_Place_Info: {
+            displayPolygon: {
+                type: "MultiPolygon",
+                coordinates: [
+                    [[[-73.58, 45.49], [-73.57, 45.49]]],
+                    [[[-73.56, 45.50], [-73.55, 45.50]]],
+                ],
+            },
+        },
+    });
+    mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => [apiBuilding],
+    });
+
+    const result = await BuildingDataService.fetchBuildings();
+
+    expect(result[0].polygons).toHaveLength(2);
+});
+
+test("filters out invalid coordinates in polygon ring", async () => {
+    const apiBuilding = createApiBuilding({
+        Google_Place_Info: {
+            displayPolygon: {
+                type: "Polygon",
+                coordinates: [[[-73.58, 45.49], "invalid", [null, 45.49], [-73.57, 45.50]]],
+            },
+        },
+    });
+    mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => [apiBuilding],
+    });
+
+    const result = await BuildingDataService.fetchBuildings();
+
+    // Only the two valid coordinates should remain
+    expect(result[0].polygons![0]).toHaveLength(2);
+});
+
+test("returns empty polygons when no displayPolygon", async () => {
+    const apiBuilding = createApiBuilding({
+        Google_Place_Info: { displayName: { text: "Test" } },
+    });
+    mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => [apiBuilding],
+    });
+
+    const result = await BuildingDataService.fetchBuildings();
+
+    expect(result[0].polygons).toEqual([]);
+});
+

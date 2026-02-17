@@ -46,6 +46,7 @@ export default function GoogleMaps({
   const hasCenteredOnUserOnceRef = useRef(false);
   const [currentBuilding, setCurrentBuilding] = useState<Building | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null);
 
   // Find current building when location or buildings change
   useEffect(() => {
@@ -154,6 +155,7 @@ export default function GoogleMaps({
           longitudeDelta: 0.003,
         };
         mapRef.current.animateToRegion(region, 800);
+        setSelectedBuilding(match);
         setIsSearchOpen(false);
       }
     }
@@ -182,6 +184,7 @@ export default function GoogleMaps({
         initialRegion={MAP_CONFIG.defaultCampusRegion}
         showsUserLocation={false}
         showsMyLocationButton={false}
+        onPress={() => setSelectedBuilding(null)}
       >
         {buildings.flatMap((building) => [
           <BuildingPolygon
@@ -194,6 +197,11 @@ export default function GoogleMaps({
             isCurrentBuilding={
               currentBuilding?.buildingCode === building.buildingCode
             }
+            isSelected={
+              selectedBuilding?.buildingCode === building.buildingCode
+            }
+            onSelect={() => setSelectedBuilding(building)}
+            onDeselect={() => setSelectedBuilding(null)}
           />,
         ])}
         {location && (

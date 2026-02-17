@@ -34,6 +34,7 @@ export default function SearchPanel({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [autocompleteIdx, setAutocompleteIdx] = useState(-1);
+  const [hasSelectedResult, setHasSelectedResult] = useState(false);
   const { buildings } = useBuildingData();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(-40)).current;
@@ -95,24 +96,25 @@ export default function SearchPanel({
   let autocompleteResults: { buildingName: string; buildingCode: string; buildingLongName: string }[] = [];
   if (locationType === "building" && query.trim().length > 0) {
     const q = query.trim().toLowerCase();
-    const isPrefixMatch = (field: string) => {
-      // Split on non-word boundaries, check if any word starts with q
-      return field
-        .toLowerCase()
-        .split(/\W+/)
-        .some((word) => word.startsWith(q));
+    const queryWords = q.split(/\s+/).filter((w) => w.length > 0);
+    const isWordMatch = (field: string) => {
+      const fieldWords = field.toLowerCase().split(/\W+/);
+      // Every query word must prefix-match at least one field word
+      return queryWords.every((qw) =>
+        fieldWords.some((fw) => fw.startsWith(qw))
+      );
     };
     autocompleteResults = buildings.filter((b) => {
       const gpi = (b as any).Google_Place_Info || {};
       const displayName = gpi.displayName?.text || "";
       const formattedAddress = gpi.formattedAddress || "";
       return (
-        isPrefixMatch(b.buildingName) ||
-        isPrefixMatch(b.buildingLongName) ||
-        isPrefixMatch(b.buildingCode) ||
-        isPrefixMatch(displayName) ||
-        isPrefixMatch(formattedAddress) ||
-        isPrefixMatch(b.address)
+        isWordMatch(b.buildingName) ||
+        isWordMatch(b.buildingLongName) ||
+        isWordMatch(b.buildingCode) ||
+        isWordMatch(displayName) ||
+        isWordMatch(formattedAddress) ||
+        isWordMatch(b.address)
       );
     });
   }
@@ -169,7 +171,7 @@ export default function SearchPanel({
       </View>
 
       {/* Search text input */}
-      <View style={[styles.textInputWrapper, showAutocomplete && autocompleteResults.length > 0 && styles.textInputWrapperOpen]}>
+      <View style={[styles.textInputWrapper, showAutocomplete && locationType === "building" && query.trim().length > 0 && styles.textInputWrapperOpen]}>
         <TextInput
           style={styles.textInputInner}
           placeholder={placeholderText}
@@ -180,6 +182,7 @@ export default function SearchPanel({
             setDropdownOpen(false);
             setShowAutocomplete(true);
             setAutocompleteIdx(-1);
+            setHasSelectedResult(false);
           }}
           autoCapitalize="none"
           autoCorrect={false}
@@ -205,37 +208,53 @@ export default function SearchPanel({
       </View>
 
       {/* Autocomplete results */}
-      {showAutocomplete && autocompleteResults.length > 0 && (
+      {showAutocomplete && locationType === "building" && query.trim().length > 0 && (
         <ScrollView
           style={styles.autocompleteList}
           nestedScrollEnabled
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator
         >
-          {autocompleteResults.slice(0, 8).map((b, idx) => (
-            <Pressable
-              key={b.buildingCode + b.buildingLongName}
-              style={[
-                styles.dropdownOption,
-                idx === autocompleteIdx && styles.dropdownOptionSelected,
-              ]}
-              onPress={() => {
-                setQuery(b.buildingLongName);
-                setShowAutocomplete(false);
-              }}
-              accessibilityLabel={b.buildingLongName}
-              accessibilityRole="menuitem"
-            >
-              <Text style={styles.dropdownOptionText}>{b.buildingLongName}</Text>
-            </Pressable>
-          ))}
+          {autocompleteResults.length === 0 ? (
+            <View style={styles.dropdownOption}>
+              <Text style={styles.noResultsText}>No buildings found.</Text>
+            </View>
+          ) : (
+            autocompleteResults.slice(0, 8).map((b, idx) => (
+              <Pressable
+                key={b.buildingCode + b.buildingLongName}
+                style={[
+                  styles.dropdownOption,
+                  idx === autocompleteIdx && styles.dropdownOptionSelected,
+                ]}
+                onPress={() => {
+                  setQuery(b.buildingLongName);
+                  setShowAutocomplete(false);
+                  setHasSelectedResult(true);
+                }}
+                accessibilityLabel={b.buildingLongName}
+                accessibilityRole="menuitem"
+              >
+                <Text style={styles.dropdownOptionText}>{b.buildingLongName}</Text>
+              </Pressable>
+            ))
+          )}
         </ScrollView>
       )}
 
       {/* Search button */}
       <Pressable
-        style={styles.searchActionButton}
+        style={[
+          styles.searchActionButton,
+          (query.trim().length === 0 ||
+            (locationType === "building" && autocompleteResults.length === 0 && !hasSelectedResult)) &&
+          styles.searchActionButtonDisabled,
+        ]}
         onPress={handleSearch}
+        disabled={
+          query.trim().length === 0 ||
+          (locationType === "building" && autocompleteResults.length === 0 && !hasSelectedResult)
+        }
         accessibilityLabel="Search"
         accessibilityRole="button"
       >

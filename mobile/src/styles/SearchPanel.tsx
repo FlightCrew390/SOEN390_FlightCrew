@@ -90,6 +90,11 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: "#d0d0d0",
   },
+  noResultsText: {
+    fontSize: 14,
+    color: "#999",
+    fontStyle: "italic",
+  },
 
   /* Text input */
   textInputWrapper: {
@@ -148,6 +153,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: "center",
     justifyContent: "center",
+  },
+  searchActionButtonDisabled: {
+    opacity: 0.4,
   },
   searchActionButtonText: {
     color: COLORS.white,

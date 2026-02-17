@@ -64,6 +64,22 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 3,
   },
+  searchButton: {
+    position: "absolute",
+    top: 48, // Lower to avoid status bar
+    left: 12,
+    width: 56, // Bigger than recenter
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: COLORS.white,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
+  },
 });
 
 export default styles;

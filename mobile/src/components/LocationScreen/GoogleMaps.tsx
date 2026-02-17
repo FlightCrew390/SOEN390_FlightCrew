@@ -192,6 +192,21 @@ export default function GoogleMaps({
         </View>
       )}
 
+      {/* Search button (top left) */}
+      <Pressable
+        style={styles.searchButton}
+        onPress={() => {}}
+        accessibilityLabel="Search campus buildings"
+        accessibilityRole="button"
+      >
+        <FontAwesome5
+          name="search"
+          size={28}
+          color={COLORS.concordiaMaroon}
+        />
+      </Pressable>
+
+      {/* Recenter button (bottom right) */}
       {location != null && (
         <Pressable
           style={styles.recenterButton}

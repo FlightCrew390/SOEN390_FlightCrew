@@ -60,6 +60,22 @@ jest.mock("../../src/components/LocationScreen/UserLocationMarker", () => ({
   default: "UserLocationMarker",
 }));
 
+// Mock SearchPanel
+let capturedSearchProps: any = null;
+jest.mock("../../src/components/LocationScreen/SearchPanel", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const React = require("react");
+  const SearchPanelMock = (props: any) => {
+    capturedSearchProps = props;
+    return React.createElement("SearchPanel", props);
+  };
+  SearchPanelMock.displayName = "SearchPanel";
+  return {
+    __esModule: true,
+    default: SearchPanelMock,
+  };
+});
+
 // Mock useBuildingData hook
 const mockUseBuildingData = jest.fn();
 jest.mock("../../src/hooks/useBuildingData", () => ({
@@ -98,6 +114,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   capturedOnMapReady = null;
   capturedOnRegionChangeComplete = null;
+  capturedSearchProps = null;
   mockUseBuildingData.mockReturnValue({
     buildings: [],
     loading: false,
@@ -456,5 +473,63 @@ describe("map callbacks", () => {
 
     expect(tree).toContain("BuildingPolygon");
     expect(tree).toContain("BuildingMarker");
+  });
+
+  test("renders search button", () => {
+    render(<GoogleMaps mapRef={React.createRef()} />);
+
+    expect(
+      screen.getByRole("button", { name: "Search campus buildings" }),
+    ).toBeTruthy();
+  });
+
+  test("pressing search button toggles search panel", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { fireEvent } = require("@testing-library/react-native");
+
+    render(<GoogleMaps mapRef={React.createRef()} />);
+
+    // Initially closed
+    expect(capturedSearchProps.visible).toBe(false);
+
+    // Open
+    const btn = screen.getByRole("button", { name: "Search campus buildings" });
+    fireEvent.press(btn);
+    expect(capturedSearchProps.visible).toBe(true);
+  });
+
+  test("handleSearch animates to matching building", () => {
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+
+    render(<GoogleMaps mapRef={React.createRef()} />);
+
+    // Call onSearch captured from SearchPanel mock
+    capturedSearchProps.onSearch("Hall", "building");
+
+    expect(mockAnimateToRegion).toHaveBeenCalledWith(
+      expect.objectContaining({
+        latitude: 45.4973,
+        longitude: -73.5789,
+      }),
+      800,
+    );
+  });
+
+  test("handleSearch does nothing for empty query", () => {
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+
+    render(<GoogleMaps mapRef={React.createRef()} />);
+
+    capturedSearchProps.onSearch("", "building");
+
+    expect(mockAnimateToRegion).not.toHaveBeenCalled();
   });
 });

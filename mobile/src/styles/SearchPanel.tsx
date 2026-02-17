@@ -50,6 +50,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginBottom: 10,
   },
+  dropdownTriggerOpen: {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    borderBottomWidth: 0,
+    marginBottom: 0,
+  },
   dropdownTriggerText: {
     fontSize: 14,
     color: COLORS.textPrimary,
@@ -57,23 +63,18 @@ const styles = StyleSheet.create({
 
   /* Dropdown menu */
   dropdownMenu: {
-    position: "absolute",
-    top: 44,
-    left: 0,
-    right: 0,
     backgroundColor: COLORS.white,
-    borderRadius: 8,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
     borderWidth: 1,
+    borderTopWidth: 0,
     borderColor: "#b0b0b0",
-    zIndex: 20,
-    elevation: 8,
+    marginBottom: 10,
     overflow: "hidden",
   },
-  dropdownMenuWrapper: {
-    position: "relative",
-    zIndex: 15,
-    marginBottom: 10,
-  },
+  dropdownMenuWrapper: {},
   dropdownOption: {
     paddingHorizontal: 12,
     paddingVertical: 10,

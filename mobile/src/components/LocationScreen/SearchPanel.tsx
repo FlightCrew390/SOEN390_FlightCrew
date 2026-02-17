@@ -130,7 +130,7 @@ export default function SearchPanel({
       <Text style={styles.label}>Location type</Text>
       <View style={styles.dropdownMenuWrapper}>
         <Pressable
-          style={styles.dropdownTrigger}
+          style={[styles.dropdownTrigger, dropdownOpen && styles.dropdownTriggerOpen]}
           onPress={() => setDropdownOpen((prev) => !prev)}
           accessibilityLabel="Select location type"
           accessibilityRole="button"

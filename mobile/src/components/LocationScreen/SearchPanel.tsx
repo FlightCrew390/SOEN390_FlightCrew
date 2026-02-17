@@ -3,6 +3,7 @@ import React, { useRef, useState } from "react";
 import {
   Animated,
   Pressable,
+  ScrollView,
   Text,
   TextInput,
   View,
@@ -151,7 +152,7 @@ export default function SearchPanel({
                   style={[
                     styles.dropdownOption,
                     option.key === locationType &&
-                      styles.dropdownOptionSelected,
+                    styles.dropdownOptionSelected,
                   ]}
                   onPress={() => handleSelect(option.key)}
                   accessibilityLabel={option.label}
@@ -168,48 +169,53 @@ export default function SearchPanel({
       </View>
 
       {/* Search text input */}
-      <View style={{ position: "relative" }}>
-        <TextInput
-          style={styles.textInput}
-          placeholder={placeholderText}
-          placeholderTextColor="#999"
-          value={query}
-          onChangeText={(text) => {
-            setQuery(text);
-            setDropdownOpen(false);
-            setShowAutocomplete(true);
-            setAutocompleteIdx(-1);
-          }}
-          autoCapitalize="none"
-          autoCorrect={false}
-          returnKeyType="search"
-          onSubmitEditing={handleSearch}
-          accessibilityLabel={`Search ${placeholderText.toLowerCase()}`}
-          onBlur={() => setTimeout(() => setShowAutocomplete(false), 200)}
-          onFocus={() => setShowAutocomplete(true)}
-        />
-        {showAutocomplete && autocompleteResults.length > 0 && (
-          <View style={[styles.dropdownMenu, { top: 48, maxHeight: 180 }]}> 
-            {autocompleteResults.slice(0, 8).map((b, idx) => (
-              <Pressable
-                key={b.buildingCode + b.buildingLongName}
-                style={[
-                  styles.dropdownOption,
-                  idx === autocompleteIdx && styles.dropdownOptionSelected,
-                ]}
-                onPress={() => {
-                  setQuery(b.buildingLongName);
-                  setShowAutocomplete(false);
-                }}
-                accessibilityLabel={b.buildingLongName}
-                accessibilityRole="menuitem"
-              >
-                <Text style={styles.dropdownOptionText}>{b.buildingLongName}</Text>
-              </Pressable>
-            ))}
-          </View>
-        )}
-      </View>
+      <TextInput
+        style={styles.textInput}
+        placeholder={placeholderText}
+        placeholderTextColor="#999"
+        value={query}
+        onChangeText={(text) => {
+          setQuery(text);
+          setDropdownOpen(false);
+          setShowAutocomplete(true);
+          setAutocompleteIdx(-1);
+        }}
+        autoCapitalize="none"
+        autoCorrect={false}
+        returnKeyType="search"
+        onSubmitEditing={handleSearch}
+        accessibilityLabel={`Search ${placeholderText.toLowerCase()}`}
+        onBlur={() => setTimeout(() => setShowAutocomplete(false), 200)}
+        onFocus={() => setShowAutocomplete(true)}
+      />
+
+      {/* Autocomplete results */}
+      {showAutocomplete && autocompleteResults.length > 0 && (
+        <ScrollView
+          style={styles.autocompleteList}
+          nestedScrollEnabled
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator
+        >
+          {autocompleteResults.slice(0, 8).map((b, idx) => (
+            <Pressable
+              key={b.buildingCode + b.buildingLongName}
+              style={[
+                styles.dropdownOption,
+                idx === autocompleteIdx && styles.dropdownOptionSelected,
+              ]}
+              onPress={() => {
+                setQuery(b.buildingLongName);
+                setShowAutocomplete(false);
+              }}
+              accessibilityLabel={b.buildingLongName}
+              accessibilityRole="menuitem"
+            >
+              <Text style={styles.dropdownOptionText}>{b.buildingLongName}</Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+      )}
 
       {/* Search button */}
       <Pressable

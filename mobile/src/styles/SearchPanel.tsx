@@ -103,6 +103,16 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 
+  /* Autocomplete results list (in-flow, not absolute) */
+  autocompleteList: {
+    maxHeight: 180,
+    backgroundColor: COLORS.white,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#b0b0b0",
+    marginBottom: 12,
+  },
+
   /* Search action button */
   searchActionButton: {
     backgroundColor: COLORS.concordiaMaroon,

@@ -169,7 +169,7 @@ export default function SearchPanel({
       </View>
 
       {/* Search text input */}
-      <View style={styles.textInputWrapper}>
+      <View style={[styles.textInputWrapper, showAutocomplete && autocompleteResults.length > 0 && styles.textInputWrapperOpen]}>
         <TextInput
           style={styles.textInputInner}
           placeholder={placeholderText}

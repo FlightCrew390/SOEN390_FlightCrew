@@ -101,6 +101,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingRight: 4,
   },
+  textInputWrapperOpen: {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    borderBottomWidth: 0,
+    marginBottom: 0,
+  },
   textInputInner: {
     flex: 1,
     paddingHorizontal: 12,
@@ -110,21 +116,26 @@ const styles = StyleSheet.create({
   },
   clearButton: {
     padding: 6,
+    marginRight: 2,
     justifyContent: "center",
     alignItems: "center",
   },
   clearButtonText: {
-    fontSize: 16,
-    color: "#999",
-    fontWeight: "700",
+    fontSize: 18,
+    color: "#666",
+    fontWeight: "600",
   },
 
-  /* Autocomplete results list (in-flow, not absolute) */
+  /* Autocomplete results list (connected to input) */
   autocompleteList: {
     maxHeight: 180,
     backgroundColor: COLORS.white,
-    borderRadius: 8,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
     borderWidth: 1,
+    borderTopWidth: 0,
     borderColor: "#b0b0b0",
     marginBottom: 12,
   },

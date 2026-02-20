@@ -168,7 +168,7 @@ export default function SearchPanel({
                   style={[
                     styles.dropdownOption,
                     option.key === locationType &&
-                    styles.dropdownOptionSelected,
+                      styles.dropdownOptionSelected,
                   ]}
                   onPress={() => handleSelect(option.key)}
                   accessibilityLabel={option.label}
@@ -187,9 +187,9 @@ export default function SearchPanel({
         style={[
           styles.textInputWrapper,
           showAutocomplete &&
-          locationType === "building" &&
-          query.trim().length > 0 &&
-          styles.textInputWrapperOpen,
+            locationType === "building" &&
+            query.trim().length > 0 &&
+            styles.textInputWrapperOpen,
         ]}
       >
         <TextInput
@@ -274,7 +274,7 @@ export default function SearchPanel({
             (locationType === "building" &&
               autocompleteResults.length === 0 &&
               !selectedResult)) &&
-          styles.searchActionButtonDisabled,
+            styles.searchActionButtonDisabled,
         ]}
         onPress={handleSearch}
         disabled={

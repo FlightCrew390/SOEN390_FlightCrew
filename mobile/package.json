@@ -9,8 +9,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest --coverage",
-    "lint": "expo lint --fix && npx tsc --noEmit",
-    "lint:ci": "expo lint && npx tsc --noEmit"
+    "lint": "expo lint src App.tsx index.ts app.config.ts --fix && npx tsc --noEmit",
+    "lint:ci": "expo lint src App.tsx index.ts app.config.ts && npx tsc --noEmit"
   },
   "jest": {
     "preset": "jest-expo",

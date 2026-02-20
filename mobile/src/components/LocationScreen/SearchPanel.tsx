@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import styles from "../../styles/SearchPanel";
 import { useBuildingData } from "../../hooks/useBuildingData";
+import { Building } from "../../types/Building";
 
 export type LocationType = "building" | "restaurant";
 
@@ -17,6 +18,7 @@ interface SearchPanelProps {
   readonly visible: boolean;
   readonly onClose: () => void;
   readonly onSearch: (query: string, locationType: LocationType) => void;
+  readonly onSelectBuilding: (building: Building) => void;
 }
 
 const LOCATION_OPTIONS: { key: LocationType; label: string }[] = [
@@ -28,13 +30,14 @@ export default function SearchPanel({
   visible,
   onClose,
   onSearch,
+  onSelectBuilding,
 }: Readonly<SearchPanelProps>) {
   const [locationType, setLocationType] = useState<LocationType>("building");
   const [query, setQuery] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [autocompleteIdx, setAutocompleteIdx] = useState(-1);
-  const [hasSelectedResult, setHasSelectedResult] = useState(false);
+  const [selectedResult, setSelectedResult] = useState<Building | null>(null);
   const { buildings } = useBuildingData();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(-40)).current;
@@ -89,7 +92,11 @@ export default function SearchPanel({
 
   const handleSearch = () => {
     setShowAutocomplete(false);
-    onSearch(query.trim(), locationType);
+    if (selectedResult) {
+      onSelectBuilding(selectedResult);
+    } else {
+      onSearch(query.trim(), locationType);
+    }
   };
 
   // Autocomplete logic
@@ -161,7 +168,7 @@ export default function SearchPanel({
                   style={[
                     styles.dropdownOption,
                     option.key === locationType &&
-                      styles.dropdownOptionSelected,
+                    styles.dropdownOptionSelected,
                   ]}
                   onPress={() => handleSelect(option.key)}
                   accessibilityLabel={option.label}
@@ -180,9 +187,9 @@ export default function SearchPanel({
         style={[
           styles.textInputWrapper,
           showAutocomplete &&
-            locationType === "building" &&
-            query.trim().length > 0 &&
-            styles.textInputWrapperOpen,
+          locationType === "building" &&
+          query.trim().length > 0 &&
+          styles.textInputWrapperOpen,
         ]}
       >
         <TextInput
@@ -195,7 +202,7 @@ export default function SearchPanel({
             setDropdownOpen(false);
             setShowAutocomplete(true);
             setAutocompleteIdx(-1);
-            setHasSelectedResult(false);
+            setSelectedResult(null);
           }}
           autoCapitalize="none"
           autoCorrect={false}
@@ -243,9 +250,9 @@ export default function SearchPanel({
                     idx === autocompleteIdx && styles.dropdownOptionSelected,
                   ]}
                   onPress={() => {
+                    setSelectedResult(b as Building);
                     setQuery(b.buildingLongName);
                     setShowAutocomplete(false);
-                    setHasSelectedResult(true);
                   }}
                   accessibilityLabel={b.buildingLongName}
                   accessibilityRole="menuitem"
@@ -266,15 +273,15 @@ export default function SearchPanel({
           (query.trim().length === 0 ||
             (locationType === "building" &&
               autocompleteResults.length === 0 &&
-              !hasSelectedResult)) &&
-            styles.searchActionButtonDisabled,
+              !selectedResult)) &&
+          styles.searchActionButtonDisabled,
         ]}
         onPress={handleSearch}
         disabled={
           query.trim().length === 0 ||
           (locationType === "building" &&
             autocompleteResults.length === 0 &&
-            !hasSelectedResult)
+            !selectedResult)
         }
         accessibilityLabel="Search"
         accessibilityRole="button"

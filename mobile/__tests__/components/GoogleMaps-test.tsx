@@ -532,4 +532,25 @@ describe("map callbacks", () => {
 
     expect(mockAnimateToRegion).not.toHaveBeenCalled();
   });
+
+  test("handleSelectBuilding animates to building directly", () => {
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+
+    render(<GoogleMaps mapRef={React.createRef()} />);
+
+    // Call onSelectBuilding captured from SearchPanel mock
+    capturedSearchProps.onSelectBuilding(mockBuildings[0]);
+
+    expect(mockAnimateToRegion).toHaveBeenCalledWith(
+      expect.objectContaining({
+        latitude: 45.4973,
+        longitude: -73.5789,
+      }),
+      800,
+    );
+  });
 });

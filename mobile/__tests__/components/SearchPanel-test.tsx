@@ -38,6 +38,7 @@ const defaultProps = {
     visible: true,
     onClose: jest.fn(),
     onSearch: jest.fn(),
+    onSelectBuilding: jest.fn(),
 };
 
 beforeEach(() => {
@@ -101,9 +102,10 @@ test("selecting autocomplete result fills query", () => {
     expect(input.props.value).toBe("Henry F. Hall Building");
 });
 
-test("pressing Search button calls onSearch", () => {
+test("pressing Search after autocomplete pick calls onSelectBuilding", () => {
     const onSearch = jest.fn();
-    render(<SearchPanel {...defaultProps} onSearch={onSearch} />);
+    const onSelectBuilding = jest.fn();
+    render(<SearchPanel {...defaultProps} onSearch={onSearch} onSelectBuilding={onSelectBuilding} />);
 
     const input = screen.getByLabelText("Search building name");
     fireEvent.changeText(input, "Hall");
@@ -116,7 +118,32 @@ test("pressing Search button calls onSearch", () => {
     const searchBtn = screen.getByRole("button", { name: "Search" });
     fireEvent.press(searchBtn);
 
-    expect(onSearch).toHaveBeenCalledWith("Henry F. Hall Building", "building");
+    expect(onSearch).not.toHaveBeenCalled();
+    expect(onSelectBuilding).toHaveBeenCalledWith(
+        expect.objectContaining({
+            buildingCode: "H",
+            buildingLongName: "Henry F. Hall Building",
+            latitude: 45.4973,
+            longitude: -73.5789,
+        }),
+    );
+});
+
+test("pressing Search without autocomplete pick calls onSearch with string", () => {
+    const onSearch = jest.fn();
+    const onSelectBuilding = jest.fn();
+    render(<SearchPanel {...defaultProps} onSearch={onSearch} onSelectBuilding={onSelectBuilding} />);
+
+    const input = screen.getByLabelText("Search building name");
+    fireEvent.changeText(input, "Hall");
+    fireEvent(input, "focus");
+
+    // Press Search without picking from autocomplete
+    const searchBtn = screen.getByRole("button", { name: "Search" });
+    fireEvent.press(searchBtn);
+
+    expect(onSearch).toHaveBeenCalledWith("Hall", "building");
+    expect(onSelectBuilding).not.toHaveBeenCalled();
 });
 
 test("search button is disabled when query is empty", () => {

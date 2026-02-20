@@ -164,6 +164,19 @@ export default function GoogleMaps({
     // Restaurant search: placeholder for future data source
   };
 
+  const handleSelectBuilding = (building: Building) => {
+    if (!mapRef.current) return;
+    const region = {
+      latitude: building.latitude,
+      longitude: building.longitude,
+      latitudeDelta: 0.003,
+      longitudeDelta: 0.003,
+    };
+    mapRef.current.animateToRegion(region, 800);
+    setSelectedBuilding(building);
+    setIsSearchOpen(false);
+  };
+
   const displayError = error || locationError;
   const isLoading = loading || locationLoading;
 
@@ -234,6 +247,7 @@ export default function GoogleMaps({
         visible={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
         onSearch={handleSearch}
+        onSelectBuilding={handleSelectBuilding}
       />
 
       {/* Search button (top left) */}

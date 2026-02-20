@@ -138,32 +138,6 @@ export default function GoogleMaps({
     });
   };
 
-  const handleSearch = (query: string, locationType: LocationType) => {
-    if (!query) return;
-
-    if (locationType === "building") {
-      const q = query.toLowerCase();
-      const match = buildings.find(
-        (b) =>
-          b.buildingName.toLowerCase().includes(q) ||
-          b.buildingLongName.toLowerCase().includes(q) ||
-          b.buildingCode.toLowerCase() === q,
-      );
-      if (match && mapRef.current) {
-        const region = {
-          latitude: match.latitude,
-          longitude: match.longitude,
-          latitudeDelta: 0.003,
-          longitudeDelta: 0.003,
-        };
-        mapRef.current.animateToRegion(region, 800);
-        setSelectedBuilding(match);
-        setIsSearchOpen(false);
-      }
-    }
-    // Restaurant search: placeholder for future data source
-  };
-
   const handleSelectBuilding = (building: Building) => {
     if (!mapRef.current) return;
     const region = {
@@ -175,6 +149,22 @@ export default function GoogleMaps({
     mapRef.current.animateToRegion(region, 800);
     setSelectedBuilding(building);
     setIsSearchOpen(false);
+  };
+
+  const handleSearch = (query: string, locationType: LocationType) => {
+    if (!query) return;
+
+    if (locationType === "building") {
+      const q = query.toLowerCase();
+      const match = buildings.find(
+        (b) =>
+          b.buildingName.toLowerCase().includes(q) ||
+          b.buildingLongName.toLowerCase().includes(q) ||
+          b.buildingCode.toLowerCase() === q,
+      );
+      if (match) handleSelectBuilding(match);
+    }
+    // Restaurant search: placeholder for future data source
   };
 
   const displayError = error || locationError;

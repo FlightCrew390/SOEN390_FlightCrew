@@ -21,6 +21,7 @@ import { Building } from "../../types/Building";
 import { findCurrentBuilding } from "../../utils/buildingDetection";
 import BuildingMarker from "./BuildingMarker";
 import BuildingPolygon from "./BuildingPolygon";
+import SearchPanel, { LocationType } from "./SearchPanel";
 import UserLocationMarker from "./UserLocationMarker";
 
 interface GoogleMapsProps {
@@ -44,6 +45,10 @@ export default function GoogleMaps({
   const isCorrectingRef = useRef(false);
   const hasCenteredOnUserOnceRef = useRef(false);
   const [currentBuilding, setCurrentBuilding] = useState<Building | null>(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(
+    null,
+  );
 
   // Find current building when location or buildings change
   useEffect(() => {
@@ -133,6 +138,35 @@ export default function GoogleMaps({
     });
   };
 
+  const handleSelectBuilding = (building: Building) => {
+    if (!mapRef.current) return;
+    const region = {
+      latitude: building.latitude,
+      longitude: building.longitude,
+      latitudeDelta: 0.003,
+      longitudeDelta: 0.003,
+    };
+    mapRef.current.animateToRegion(region, 800);
+    setSelectedBuilding(building);
+    setIsSearchOpen(false);
+  };
+
+  const handleSearch = (query: string, locationType: LocationType) => {
+    if (!query) return;
+
+    if (locationType === "building") {
+      const q = query.toLowerCase();
+      const match = buildings.find(
+        (b) =>
+          b.buildingName.toLowerCase().includes(q) ||
+          b.buildingLongName.toLowerCase().includes(q) ||
+          b.buildingCode.toLowerCase() === q,
+      );
+      if (match) handleSelectBuilding(match);
+    }
+    // Restaurant search: placeholder for future data source
+  };
+
   const displayError = error || locationError;
   const isLoading = loading || locationLoading;
 
@@ -155,6 +189,7 @@ export default function GoogleMaps({
         initialRegion={MAP_CONFIG.defaultCampusRegion}
         showsUserLocation={false}
         showsMyLocationButton={false}
+        onPress={() => setSelectedBuilding(null)}
       >
         {buildings.flatMap((building) => [
           <BuildingPolygon
@@ -167,6 +202,11 @@ export default function GoogleMaps({
             isCurrentBuilding={
               currentBuilding?.buildingCode === building.buildingCode
             }
+            isSelected={
+              selectedBuilding?.buildingCode === building.buildingCode
+            }
+            onSelect={() => setSelectedBuilding(building)}
+            onDeselect={() => setSelectedBuilding(null)}
           />,
         ])}
         {location && (
@@ -192,6 +232,31 @@ export default function GoogleMaps({
         </View>
       )}
 
+      {/* Search panel */}
+      <SearchPanel
+        visible={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onSearch={handleSearch}
+        onSelectBuilding={handleSelectBuilding}
+      />
+
+      {/* Search button (top left) */}
+      <Pressable
+        style={[styles.searchButton, isSearchOpen && styles.searchButtonOpen]}
+        onPress={() => setIsSearchOpen((prev) => !prev)}
+        accessibilityLabel={
+          isSearchOpen ? "Close search" : "Search campus buildings"
+        }
+        accessibilityRole="button"
+      >
+        <FontAwesome5
+          name={isSearchOpen ? "times" : "search"}
+          size={isSearchOpen ? 30 : 28}
+          color={COLORS.concordiaMaroon}
+        />
+      </Pressable>
+
+      {/* Recenter button (bottom right) */}
       {location != null && (
         <Pressable
           style={styles.recenterButton}

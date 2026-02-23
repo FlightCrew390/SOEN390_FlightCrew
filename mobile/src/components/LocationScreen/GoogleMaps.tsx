@@ -21,6 +21,7 @@ import { Building } from "../../types/Building";
 import { findCurrentBuilding } from "../../utils/buildingDetection";
 import BuildingMarker from "./BuildingMarker";
 import BuildingPolygon from "./BuildingPolygon";
+import DirectionPanel from "./DirectionPanel";
 import SearchPanel, { LocationType } from "./SearchPanel";
 import UserLocationMarker from "./UserLocationMarker";
 
@@ -46,9 +47,17 @@ export default function GoogleMaps({
   const hasCenteredOnUserOnceRef = useRef(false);
   const [currentBuilding, setCurrentBuilding] = useState<Building | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isDirectionOpen, setIsDirectionOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(
     null,
   );
+
+  // Auto-close direction panel when selected building is cleared
+  useEffect(() => {
+    if (!selectedBuilding && isDirectionOpen) {
+      setIsDirectionOpen(false);
+    }
+  }, [selectedBuilding, isDirectionOpen]);
 
   // Find current building when location or buildings change
   useEffect(() => {
@@ -207,6 +216,11 @@ export default function GoogleMaps({
             }
             onSelect={() => setSelectedBuilding(building)}
             onDeselect={() => setSelectedBuilding(null)}
+            onDirectionPress={() => {
+              setSelectedBuilding(building);
+              setIsDirectionOpen(true);
+              setIsSearchOpen(false);
+            }}
           />,
         ])}
         {location && (
@@ -232,6 +246,13 @@ export default function GoogleMaps({
         </View>
       )}
 
+      {/* Direction panel */}
+      <DirectionPanel
+        visible={isDirectionOpen}
+        building={selectedBuilding}
+        onClose={() => setIsDirectionOpen(false)}
+      />
+
       {/* Search panel */}
       <SearchPanel
         visible={isSearchOpen}
@@ -240,21 +261,26 @@ export default function GoogleMaps({
         onSelectBuilding={handleSelectBuilding}
       />
 
-      {/* Search button (top left) */}
-      <Pressable
-        style={[styles.searchButton, isSearchOpen && styles.searchButtonOpen]}
-        onPress={() => setIsSearchOpen((prev) => !prev)}
-        accessibilityLabel={
-          isSearchOpen ? "Close search" : "Search campus buildings"
-        }
-        accessibilityRole="button"
-      >
-        <FontAwesome5
-          name={isSearchOpen ? "times" : "search"}
-          size={isSearchOpen ? 30 : 28}
-          color={COLORS.concordiaMaroon}
-        />
-      </Pressable>
+      {/* Search button (top left) — hidden when direction panel is open */}
+      {!isDirectionOpen && (
+        <Pressable
+          style={[styles.searchButton, isSearchOpen && styles.searchButtonOpen]}
+          onPress={() => {
+            setIsSearchOpen((prev) => !prev);
+            setIsDirectionOpen(false);
+          }}
+          accessibilityLabel={
+            isSearchOpen ? "Close search" : "Search campus buildings"
+          }
+          accessibilityRole="button"
+        >
+          <FontAwesome5
+            name={isSearchOpen ? "times" : "search"}
+            size={isSearchOpen ? 30 : 28}
+            color={COLORS.concordiaMaroon}
+          />
+        </Pressable>
+      )}
 
       {/* Recenter button (bottom right) */}
       {location != null && (

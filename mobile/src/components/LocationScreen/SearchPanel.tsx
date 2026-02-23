@@ -104,10 +104,7 @@ export default function SearchPanel({
 
   return (
     <Animated.View
-      style={[
-        styles.container,
-        animatedStyle,
-      ]}
+      style={[styles.container, animatedStyle]}
       accessibilityRole="search"
       pointerEvents="auto"
     >

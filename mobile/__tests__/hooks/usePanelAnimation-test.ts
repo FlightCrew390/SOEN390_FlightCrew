@@ -30,7 +30,7 @@ test("does not throw when visible is true", () => {
 });
 
 test("does not throw when visible toggles", () => {
-  const { rerender } = renderHook(({ visible }) => usePanelAnimation(visible), {
+  const { rerender } = renderHook(({ visible }: { visible: boolean }) => usePanelAnimation(visible), {
     initialProps: { visible: false },
   });
 

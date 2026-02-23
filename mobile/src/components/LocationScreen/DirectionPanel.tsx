@@ -34,10 +34,7 @@ export default function DirectionPanel({
       </Pressable>
 
       <Animated.View
-        style={[
-          styles.container,
-          animatedStyle,
-        ]}
+        style={[styles.container, animatedStyle]}
         pointerEvents="auto"
       >
         {/* Header */}

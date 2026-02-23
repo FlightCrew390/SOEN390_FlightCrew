@@ -1,5 +1,5 @@
-import React from "react";
-import { Marker } from "react-native-maps";
+import React, { useEffect, useRef } from "react";
+import { Marker, MapMarker } from "react-native-maps";
 import Svg, { Circle, Path } from "react-native-svg";
 import { COLORS, MAP_CONFIG } from "../../constants";
 import { Building } from "../../types/Building";
@@ -7,6 +7,9 @@ import { Building } from "../../types/Building";
 interface BuildingMarkerProps {
   readonly building: Building;
   readonly isCurrentBuilding?: boolean;
+  readonly isSelected?: boolean;
+  readonly onSelect?: () => void;
+  readonly onDeselect?: () => void;
 }
 
 function CustomMarker({ isHighlighted }: Readonly<{ isHighlighted: boolean }>) {
@@ -45,13 +48,30 @@ function CustomMarker({ isHighlighted }: Readonly<{ isHighlighted: boolean }>) {
 export default function BuildingMarker({
   building,
   isCurrentBuilding = false,
+  isSelected = false,
+  onSelect,
+  onDeselect,
 }: Readonly<BuildingMarkerProps>) {
+  const markerRef = useRef<MapMarker>(null);
+
+  // Programmatically show callout when selected via search
+  useEffect(() => {
+    if (isSelected && markerRef.current) {
+      // Small delay to ensure the map has finished animating
+      const timer = setTimeout(() => {
+        markerRef.current?.showCallout();
+      }, 900);
+      return () => clearTimeout(timer);
+    }
+  }, [isSelected]);
+
   if (!building.latitude || !building.longitude) {
     return null;
   }
 
   return (
     <Marker
+      ref={markerRef}
       coordinate={{
         latitude: building.latitude,
         longitude: building.longitude,
@@ -59,8 +79,10 @@ export default function BuildingMarker({
       title={building.buildingCode}
       description={building.buildingName}
       anchor={{ x: 0.5, y: 1 }}
+      onPress={onSelect}
+      onCalloutPress={onDeselect}
     >
-      <CustomMarker isHighlighted={isCurrentBuilding} />
+      <CustomMarker isHighlighted={isCurrentBuilding || isSelected} />
     </Marker>
   );
 }

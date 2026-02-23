@@ -69,6 +69,7 @@ export class BuildingDataService {
           latitude: building.Latitude,
           longitude: building.Longitude,
           polygons: polygons,
+          Google_Place_Info: building.Google_Place_Info,
         };
       });
     } catch (error) {

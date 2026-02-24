@@ -7,8 +7,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useRoute, RouteProp } from "@react-navigation/native";
 import { useBuildingData } from "../hooks/useBuildingData";
 import { useCurrentLocation } from "../hooks/useCurrentLocation";
 import { findCurrentBuilding } from "../utils/buildingDetection";
@@ -17,10 +16,8 @@ import { Building } from "../types/Building";
 import { COLORS } from "../constants";
 
 type POIDetailRouteProp = RouteProp<RootStackParamList, "POIDetail">;
-type POIDetailNavProp = NativeStackNavigationProp<RootStackParamList, "POIDetail">;
 
 export default function POIDetailScreen() {
-  const navigation = useNavigation<POIDetailNavProp>();
   const route = useRoute<POIDetailRouteProp>();
   const { building: destinationBuilding } = route.params;
   const { location } = useCurrentLocation();
@@ -77,10 +74,22 @@ export default function POIDetailScreen() {
         <Text style={{ fontSize: 12, color: COLORS.textTertiary }}>
           Destination
         </Text>
-        <Text style={{ fontSize: 20, fontWeight: "600", color: COLORS.textPrimary }}>
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "600",
+            color: COLORS.textPrimary,
+          }}
+        >
           {destinationBuilding.buildingName}
         </Text>
-        <Text style={{ fontSize: 14, color: COLORS.textSecondary, marginTop: 4 }}>
+        <Text
+          style={{
+            fontSize: 14,
+            color: COLORS.textSecondary,
+            marginTop: 4,
+          }}
+        >
           {destinationBuilding.address}
         </Text>
       </View>
@@ -90,16 +99,29 @@ export default function POIDetailScreen() {
           Starting from
         </Text>
         <Text
-          style={{ fontSize: 18, fontWeight: "600", color: COLORS.textPrimary, marginTop: 4 }}
+          style={{
+            fontSize: 18,
+            fontWeight: "600",
+            color: COLORS.textPrimary,
+            marginTop: 4,
+          }}
           testID="starting-point-label"
         >
           {displayStartingLabel}
         </Text>
-        {detectedBuilding != null && displayStartingPoint?.buildingCode === detectedBuilding.buildingCode && (
-          <Text style={{ fontSize: 12, color: COLORS.concordiaMaroon, marginTop: 4 }}>
-            Detected building confirmed
-          </Text>
-        )}
+        {detectedBuilding != null &&
+          displayStartingPoint?.buildingCode ===
+            detectedBuilding.buildingCode && (
+            <Text
+              style={{
+                fontSize: 12,
+                color: COLORS.concordiaMaroon,
+                marginTop: 4,
+              }}
+            >
+              Detected building confirmed
+            </Text>
+          )}
 
         <Pressable
           testID="use-current-location"
@@ -111,7 +133,13 @@ export default function POIDetailScreen() {
             borderRadius: 8,
           }}
         >
-          <Text style={{ color: COLORS.white, fontWeight: "600", textAlign: "center" }}>
+          <Text
+            style={{
+              color: COLORS.white,
+              fontWeight: "600",
+              textAlign: "center",
+            }}
+          >
             Use Current Location
           </Text>
         </Pressable>
@@ -128,7 +156,13 @@ export default function POIDetailScreen() {
             borderColor: "#ccc",
           }}
         >
-          <Text style={{ color: COLORS.textPrimary, fontWeight: "600", textAlign: "center" }}>
+          <Text
+            style={{
+              color: COLORS.textPrimary,
+              fontWeight: "600",
+              textAlign: "center",
+            }}
+          >
             Change starting point
           </Text>
         </Pressable>
@@ -182,7 +216,11 @@ export default function POIDetailScreen() {
                     setShowChangeOriginModal(false);
                     setOriginSearch("");
                   }}
-                  style={{ padding: 12, borderBottomWidth: 1, borderBottomColor: "#eee" }}
+                  style={{
+                    padding: 12,
+                    borderBottomWidth: 1,
+                    borderBottomColor: "#eee",
+                  }}
                 >
                   <Text style={{ fontWeight: "600" }}>{b.buildingName}</Text>
                   <Text style={{ fontSize: 12, color: COLORS.textSecondary }}>
@@ -195,7 +233,12 @@ export default function POIDetailScreen() {
               onPress={() => setShowChangeOriginModal(false)}
               style={{ marginTop: 12, padding: 12 }}
             >
-              <Text style={{ color: COLORS.concordiaMaroon, textAlign: "center" }}>
+              <Text
+                style={{
+                  color: COLORS.concordiaMaroon,
+                  textAlign: "center",
+                }}
+              >
                 Cancel
               </Text>
             </Pressable>

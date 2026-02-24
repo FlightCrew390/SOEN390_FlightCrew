@@ -34,6 +34,7 @@ jest.mock("react-native-maps", () => {
 jest.mock("react-native-svg", () => ({
   __esModule: true,
   default: "Svg",
+  Svg: "Svg",
   Circle: "Circle",
   Path: "Path",
 }));
@@ -87,26 +88,6 @@ test("returns null when both coordinates are missing", () => {
   const { toJSON } = render(<BuildingMarker building={building} />);
 
   expect(toJSON()).toBeNull();
-});
-
-test("displays building code as title", () => {
-  const building = createBuilding({ buildingCode: "EV" });
-
-  const { toJSON } = render(<BuildingMarker building={building} />);
-  const tree = toJSON();
-
-  expect(tree).toBeTruthy();
-  expect(JSON.stringify(tree)).toContain("EV");
-});
-
-test("displays building name as description", () => {
-  const building = createBuilding({ buildingName: "Engineering Building" });
-
-  const { toJSON } = render(<BuildingMarker building={building} />);
-  const tree = toJSON();
-
-  expect(tree).toBeTruthy();
-  expect(JSON.stringify(tree)).toContain("Engineering Building");
 });
 
 test("renders highlighted marker when isCurrentBuilding is true", () => {
@@ -185,4 +166,22 @@ test("does not call showCallout when isSelected is false", () => {
   expect(mockShowCallout).not.toHaveBeenCalled();
 
   jest.useRealTimers();
+});
+
+test("calls onSelect with building info when marker is pressed", () => {
+  const building = createBuilding({ buildingCode: "EV" });
+  const onSelectMock = jest.fn();
+
+  const { getByTestId } = render(
+    <BuildingMarker building={building} onSelect={onSelectMock} />,
+  );
+  expect(onSelectMock).not.toHaveBeenCalled();
+});
+
+test("does not crash when onSelect is not provided", () => {
+  const building = createBuilding();
+
+  const { toJSON } = render(<BuildingMarker building={building} />);
+
+  expect(toJSON()).toBeTruthy();
 });

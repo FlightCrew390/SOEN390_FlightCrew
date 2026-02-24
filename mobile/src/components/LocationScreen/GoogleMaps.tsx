@@ -1,5 +1,5 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import React, { useEffect, useReducer, useRef } from "react";
+import React, { useEffect, useReducer, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -21,7 +21,7 @@ import { LocationType } from "../../state/SearchPanelState";
 import styles from "../../styles/GoogleMaps";
 import { Building } from "../../types/Building";
 import { findCurrentBuilding } from "../../utils/buildingDetection";
-import BuildingMarker from "./BuildingMarker";
+import BuildingMarker, { BuildingPopup, SelectedBuildingInfo } from "./BuildingMarker";
 import BuildingPolygon from "./BuildingPolygon";
 import DirectionPanel from "./DirectionPanel";
 import SearchPanel from "./SearchPanel";
@@ -48,6 +48,7 @@ export default function GoogleMaps({
   const isCorrectingRef = useRef(false);
   const hasCenteredOnUserOnceRef = useRef(false);
   const [state, dispatch] = useReducer(mapUIReducer, initialMapUIState);
+  const [selectedBuilding, setSelectedBuilding] = useState<SelectedBuildingInfo | null>(null);
 
   // Find current building when location or buildings change
   useEffect(() => {
@@ -151,6 +152,7 @@ export default function GoogleMaps({
   const handleSelectBuilding = (building: Building) => {
     animateToBuilding(building);
     dispatch({ type: "SELECT_BUILDING", building });
+    setSelectedBuilding({ building });
   };
 
   const handleSearch = (query: string, locationType: LocationType) => {
@@ -191,7 +193,10 @@ export default function GoogleMaps({
         initialRegion={MAP_CONFIG.defaultCampusRegion}
         showsUserLocation={false}
         showsMyLocationButton={false}
-        onPress={() => dispatch({ type: "TAP_MAP" })}
+        onPress={() => {
+          dispatch({ type: "TAP_MAP" })
+          setSelectedBuilding(null);
+        }}
       >
         {buildings.flatMap((building) => [
           <BuildingPolygon
@@ -208,7 +213,6 @@ export default function GoogleMaps({
               state.selectedBuilding?.buildingCode === building.buildingCode
             }
             onSelect={() => handleSelectBuilding(building)}
-            onDeselect={() => dispatch({ type: "DESELECT_BUILDING" })}
             onDirectionPress={() => {
               animateToBuilding(building);
               dispatch({ type: "OPEN_DIRECTIONS", building });
@@ -222,6 +226,13 @@ export default function GoogleMaps({
           />
         )}
       </MapView>
+
+      {selectedBuilding && (
+        <BuildingPopup
+          {...selectedBuilding}
+          onClose={() => setSelectedBuilding(null)}
+        />
+      )}
 
       {isLoading && (
         <View style={styles.loadingOverlay}>

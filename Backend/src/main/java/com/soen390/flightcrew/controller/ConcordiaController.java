@@ -7,10 +7,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import com.soen390.flightcrew.model.Building;
+import com.soen390.flightcrew.model.DirectionsResponse;
 import com.soen390.flightcrew.model.GoogleGeocodeResponse;
 import com.soen390.flightcrew.service.GoogleMapsService;
 import java.util.List;
@@ -49,6 +51,28 @@ public class ConcordiaController {
         this.restTemplate = restTemplate;
         this.googleMapsService = googleMapsService;
         this.objectMapper = objectMapper;
+    }
+
+    @GetMapping("/directions")
+    public ResponseEntity<DirectionsResponse> getDirections(
+            @RequestParam String origin,
+            @RequestParam String destination,
+            @RequestParam(defaultValue = "walking") String mode) {
+        String[] o = origin.split(",");
+        String[] d = destination.split(",");
+        if (o.length != 2 || d.length != 2) {
+            return ResponseEntity.badRequest().build();
+        }
+        try {
+            double oLat = Double.parseDouble(o[0].trim());
+            double oLng = Double.parseDouble(o[1].trim());
+            double dLat = Double.parseDouble(d[0].trim());
+            double dLng = Double.parseDouble(d[1].trim());
+            DirectionsResponse resp = googleMapsService.getDirections(oLat, oLng, dLat, dLng, mode);
+            return resp != null ? ResponseEntity.ok(resp) : ResponseEntity.notFound().build();
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/facilities/buildinglist")

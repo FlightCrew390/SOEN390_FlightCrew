@@ -41,18 +41,20 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-test("renders null when not visible", () => {
-  const { toJSON } = render(
+test("is non-interactive when not visible", () => {
+  const { getByTestId, queryByRole } = render(
     <DirectionPanel visible={false} building={building} onClose={jest.fn()} />,
   );
-  expect(toJSON()).toBeNull();
+  // Close button should not be rendered when hidden
+  expect(queryByRole("button", { name: "Close direction panel" })).toBeNull();
 });
 
-test("renders null when building is null", () => {
-  const { toJSON } = render(
+test("renders empty panel when building is null", () => {
+  const { queryByText } = render(
     <DirectionPanel visible={true} building={null} onClose={jest.fn()} />,
   );
-  expect(toJSON()).toBeNull();
+  // Content should not be present when building is null
+  expect(queryByText("Directions")).toBeNull();
 });
 
 test("renders building long name and address when visible", () => {

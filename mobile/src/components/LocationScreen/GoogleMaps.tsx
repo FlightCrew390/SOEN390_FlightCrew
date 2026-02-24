@@ -52,13 +52,6 @@ export default function GoogleMaps({
     null,
   );
 
-  // Auto-close direction panel when selected building is cleared
-  useEffect(() => {
-    if (!selectedBuilding && isDirectionOpen) {
-      setIsDirectionOpen(false);
-    }
-  }, [selectedBuilding, isDirectionOpen]);
-
   // Find current building when location or buildings change
   useEffect(() => {
     if (location && buildings.length > 0) {
@@ -198,7 +191,7 @@ export default function GoogleMaps({
         initialRegion={MAP_CONFIG.defaultCampusRegion}
         showsUserLocation={false}
         showsMyLocationButton={false}
-        onPress={() => setSelectedBuilding(null)}
+        onPress={() => { if (!isDirectionOpen) setSelectedBuilding(null); }}
       >
         {buildings.flatMap((building) => [
           <BuildingPolygon

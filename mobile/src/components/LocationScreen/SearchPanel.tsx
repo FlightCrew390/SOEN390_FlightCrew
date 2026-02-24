@@ -47,8 +47,6 @@ export default function SearchPanel({
     if (!visible) setDropdownOpen(false);
   }, [visible]);
 
-  if (!visible) return null;
-
   const selectedLabel =
     LOCATION_OPTIONS.find((o) => o.key === locationType)?.label ?? "";
 
@@ -106,7 +104,7 @@ export default function SearchPanel({
     <Animated.View
       style={[styles.container, animatedStyle]}
       accessibilityRole="search"
-      pointerEvents="auto"
+      pointerEvents={visible ? "auto" : "none"}
     >
       {/* Location type dropdown */}
       <Text style={styles.label}>Location type</Text>

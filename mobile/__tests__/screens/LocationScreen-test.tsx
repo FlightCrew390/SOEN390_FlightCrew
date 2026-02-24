@@ -38,17 +38,14 @@ jest.mock("../../src/components/LocationScreen/CampusSelection", () => {
   const { View, TouchableOpacity, Text } = require("react-native");
   return function MockCampusSelection({
     onCampusChange,
-    currentCampusId,
-    recenterTrigger,
+    activeCampusId,
   }: {
     onCampusChange: (id: string) => void;
-    currentCampusId: string | null;
-    recenterTrigger: number;
+    activeCampusId: string;
   }) {
     return (
       <View testID="mock-campus-selection">
-        <Text testID="current-campus">{currentCampusId}</Text>
-        <Text testID="recenter-trigger">{recenterTrigger}</Text>
+        <Text testID="current-campus">{activeCampusId}</Text>
         <TouchableOpacity
           testID="change-campus-button"
           onPress={() => onCampusChange("LOYOLA")}
@@ -90,13 +87,15 @@ describe("LocationScreen", () => {
     expect(getByTestId("current-campus").props.children).toBe("SGW");
   });
 
-  test("recenter trigger increments when onRecenter is called", () => {
+  test("recenter updates activeCampusId when onRecenter is called", () => {
     const { getByTestId } = render(<LocationScreen />);
 
-    expect(getByTestId("recenter-trigger").props.children).toBe(0);
+    // Initial campus is SGW (from getClosestCampusId mock)
+    expect(getByTestId("current-campus").props.children).toBe("SGW");
 
+    // Press recenter - should reset to closest campus (SGW)
     fireEvent.press(getByTestId("recenter-button"));
 
-    expect(getByTestId("recenter-trigger").props.children).toBe(1);
+    expect(getByTestId("current-campus").props.children).toBe("SGW");
   });
 });

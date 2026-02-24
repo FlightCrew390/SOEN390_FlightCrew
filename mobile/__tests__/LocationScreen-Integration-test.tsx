@@ -116,7 +116,7 @@ test("renders LocationScreen base UI", () => {
 
   expect(screen.getByTestId("location-screen")).toBeTruthy();
   expect(screen.getByText("Select a Campus")).toBeTruthy();
-  expect(screen.getByText("Loyola Campus")).toBeTruthy();
+  expect(screen.getByText("SGW Campus")).toBeTruthy();
   expect(screen.getByTestId("map-view")).toBeTruthy();
 });
 
@@ -134,28 +134,31 @@ test("campus navigation updates UI and animates map correctly", async () => {
   const left = screen.getByRole("button", { name: "Previous campus" });
   const right = screen.getByRole("button", { name: "Next campus" });
 
-  expect(screen.getByText("Loyola Campus")).toBeTruthy();
-  expect(left.props.accessibilityState?.disabled).toBe(true);
-  expect(right.props.accessibilityState?.disabled).toBe(false);
+  // Default campus is SGW (no location → defaults to SGW)
+  expect(screen.getByText("SGW Campus")).toBeTruthy();
+  expect(left.props.accessibilityState?.disabled).toBe(false);
+  expect(right.props.accessibilityState?.disabled).toBe(true);
 
-  await user.press(right);
+  // Navigate left to Loyola
+  await user.press(left);
   act(() => jest.runAllTimers());
 
-  expect(screen.getByText(" SGW Campus")).toBeTruthy();
+  expect(screen.getByText("Loyola Campus")).toBeTruthy();
   expect(mockAnimateToRegion).toHaveBeenCalledWith(
     {
-      latitude: CAMPUSES.SGW.location.latitude,
-      longitude: CAMPUSES.SGW.location.longitude,
+      latitude: CAMPUSES.LOYOLA.location.latitude,
+      longitude: CAMPUSES.LOYOLA.location.longitude,
       latitudeDelta: 0.01,
       longitudeDelta: 0.01,
     },
     1000,
   );
 
-  await user.press(left);
+  // Navigate right back to SGW
+  await user.press(right);
   act(() => jest.runAllTimers());
 
-  expect(screen.getByText("Loyola Campus")).toBeTruthy();
+  expect(screen.getByText("SGW Campus")).toBeTruthy();
   expect(mockAnimateToRegion).toHaveBeenCalledTimes(2);
 });
 

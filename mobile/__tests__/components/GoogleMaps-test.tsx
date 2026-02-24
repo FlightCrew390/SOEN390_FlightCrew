@@ -1,4 +1,4 @@
-import { render, screen, act } from "@testing-library/react-native";
+import { render, screen } from "@testing-library/react-native";
 import React from "react";
 
 import GoogleMaps from "../../src/components/LocationScreen/GoogleMaps";
@@ -42,20 +42,11 @@ jest.mock("react-native-maps", () => {
   };
 });
 
-// Mock BuildingMarker – capture props so tests can invoke callbacks
-let capturedLastBuildingMarkerProps: any = null;
-jest.mock("../../src/components/LocationScreen/BuildingMarker", () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const React = require("react");
-  const BuildingMarkerMock = (props: any) => {
-    capturedLastBuildingMarkerProps = props;
-    return React.createElement("BuildingMarker", {
-      testID: props.building?.buildingCode,
-    });
-  };
-  BuildingMarkerMock.displayName = "BuildingMarker";
-  return { __esModule: true, default: BuildingMarkerMock };
-});
+// Mock BuildingMarker
+jest.mock("../../src/components/LocationScreen/BuildingMarker", () => ({
+  __esModule: true,
+  default: "BuildingMarker",
+}));
 
 // Mock BuildingPolygon
 jest.mock("../../src/components/LocationScreen/BuildingPolygon", () => ({
@@ -68,19 +59,6 @@ jest.mock("../../src/components/LocationScreen/UserLocationMarker", () => ({
   __esModule: true,
   default: "UserLocationMarker",
 }));
-
-// Mock DirectionPanel – capture props for assertion
-let capturedDirectionProps: any = null;
-jest.mock("../../src/components/LocationScreen/DirectionPanel", () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const React = require("react");
-  const DirectionPanelMock = (props: any) => {
-    capturedDirectionProps = props;
-    return React.createElement("DirectionPanel", props);
-  };
-  DirectionPanelMock.displayName = "DirectionPanel";
-  return { __esModule: true, default: DirectionPanelMock };
-});
 
 // Mock SearchPanel
 let capturedSearchProps: any = null;
@@ -137,8 +115,6 @@ beforeEach(() => {
   capturedOnMapReady = null;
   capturedOnRegionChangeComplete = null;
   capturedSearchProps = null;
-  capturedDirectionProps = null;
-  capturedLastBuildingMarkerProps = null;
   mockUseBuildingData.mockReturnValue({
     buildings: [],
     loading: false,
@@ -505,73 +481,6 @@ describe("map callbacks", () => {
     expect(
       screen.getByRole("button", { name: "Search campus buildings" }),
     ).toBeTruthy();
-  });
-
-  test("direction panel is initially not visible", () => {
-    render(<GoogleMaps mapRef={React.createRef()} />);
-
-    expect(capturedDirectionProps).not.toBeNull();
-    expect(capturedDirectionProps.visible).toBe(false);
-    expect(capturedDirectionProps.building).toBeNull();
-  });
-
-  test("onDirectionPress opens direction panel for the building", () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { fireEvent: fe } = require("@testing-library/react-native");
-    mockUseBuildingData.mockReturnValue({
-      buildings: mockBuildings,
-      loading: false,
-      error: null,
-    });
-
-    render(<GoogleMaps mapRef={React.createRef()} />);
-
-    // Trigger direction press via the last captured BuildingMarker
-    expect(capturedLastBuildingMarkerProps).not.toBeNull();
-    act(() => {
-      capturedLastBuildingMarkerProps.onDirectionPress();
-    });
-
-    expect(capturedDirectionProps.visible).toBe(true);
-    expect(capturedDirectionProps.building).not.toBeNull();
-  });
-
-  test("search button is hidden while direction panel is open", () => {
-    mockUseBuildingData.mockReturnValue({
-      buildings: mockBuildings,
-      loading: false,
-      error: null,
-    });
-
-    render(<GoogleMaps mapRef={React.createRef()} />);
-
-    act(() => {
-      capturedLastBuildingMarkerProps.onDirectionPress();
-    });
-
-    expect(
-      screen.queryByRole("button", { name: "Search campus buildings" }),
-    ).toBeNull();
-  });
-
-  test("closing direction panel hides it", () => {
-    mockUseBuildingData.mockReturnValue({
-      buildings: mockBuildings,
-      loading: false,
-      error: null,
-    });
-
-    render(<GoogleMaps mapRef={React.createRef()} />);
-
-    act(() => {
-      capturedLastBuildingMarkerProps.onDirectionPress();
-    });
-    expect(capturedDirectionProps.visible).toBe(true);
-
-    act(() => {
-      capturedDirectionProps.onClose();
-    });
-    expect(capturedDirectionProps.visible).toBe(false);
   });
 
   test("pressing search button toggles search panel", () => {

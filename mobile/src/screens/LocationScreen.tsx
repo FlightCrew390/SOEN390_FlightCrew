@@ -1,3 +1,4 @@
+import { useNavigation } from "@react-navigation/native";
 import React, { useRef, useState } from "react";
 import { View } from "react-native";
 import MapView, { Region } from "react-native-maps";
@@ -5,13 +6,20 @@ import CampusSelection from "../components/LocationScreen/CampusSelection";
 import GoogleMaps from "../components/LocationScreen/GoogleMaps";
 import { CAMPUSES, CampusId } from "../constants/campuses";
 import { useCurrentLocation } from "../hooks/useCurrentLocation";
+import { Building } from "../types/Building";
 import styles from "../styles/Screen";
 import { getClosestCampusId } from "../utils/campusDetection";
 
 export default function LocationScreen() {
+  const navigation = useNavigation();
   const mapRef = useRef<MapView | null>(null);
   const [recenterTrigger, setRecenterTrigger] = useState(0);
   const { location } = useCurrentLocation();
+
+  const handleBuildingPress = (building: Building) => {
+    const root = navigation.getParent();
+    root?.navigate("POIDetail" as never, { building } as never);
+  };
 
   const currentCampusId =
     location == null
@@ -39,6 +47,7 @@ export default function LocationScreen() {
         <GoogleMaps
           mapRef={mapRef}
           onRecenter={() => setRecenterTrigger((t) => t + 1)}
+          onBuildingPress={handleBuildingPress}
         />
       </View>
       <CampusSelection

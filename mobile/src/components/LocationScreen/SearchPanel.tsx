@@ -1,5 +1,5 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Animated,
   Pressable,
@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import styles from "../../styles/SearchPanel";
 import { useBuildingData } from "../../hooks/useBuildingData";
-import { usePanelAnimation } from "../../hooks/usePanelAnimation";
 import { Building } from "../../types/Building";
 
 export type LocationType = "building" | "restaurant";
@@ -40,12 +39,43 @@ export default function SearchPanel({
   const [autocompleteIdx, setAutocompleteIdx] = useState(-1);
   const [selectedResult, setSelectedResult] = useState<Building | null>(null);
   const { buildings } = useBuildingData();
-  const { animatedStyle } = usePanelAnimation(visible);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(-40)).current;
 
-  // Reset dropdown when closing
+  // Animate in/out
   React.useEffect(() => {
-    if (!visible) setDropdownOpen(false);
-  }, [visible]);
+    if (visible) {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: -40,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+      ]).start();
+      // Reset state when closing
+      setDropdownOpen(false);
+    }
+  }, [visible, fadeAnim, slideAnim]);
+
+  if (!visible) return null;
 
   const selectedLabel =
     LOCATION_OPTIONS.find((o) => o.key === locationType)?.label ?? "";
@@ -102,9 +132,12 @@ export default function SearchPanel({
 
   return (
     <Animated.View
-      style={[styles.container, animatedStyle]}
+      style={[
+        styles.container,
+        { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+      ]}
       accessibilityRole="search"
-      pointerEvents={visible ? "auto" : "none"}
+      pointerEvents="auto"
     >
       {/* Location type dropdown */}
       <Text style={styles.label}>Location type</Text>

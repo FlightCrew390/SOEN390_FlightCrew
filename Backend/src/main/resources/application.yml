@@ -9,4 +9,5 @@ external:
 
 google:
   api:
-    key: "${GOOGLE_API_KEY}"
+    # Optional: set GOOGLE_API_KEY in env or .env for geocoding; app starts without it for building list.
+    key: "${GOOGLE_API_KEY:}"

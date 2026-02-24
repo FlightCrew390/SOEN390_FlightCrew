@@ -50,12 +50,10 @@ beforeEach(() => {
     });
 });
 
-test("is non-interactive when visible is false", () => {
-    const { UNSAFE_getByProps } = render(<SearchPanel {...defaultProps} visible={false} />);
+test("returns null when visible is false", () => {
+    const { toJSON } = render(<SearchPanel {...defaultProps} visible={false} />);
 
-    // Panel stays mounted for animation; pointerEvents blocks interaction
-    const panel = UNSAFE_getByProps({ accessibilityRole: "search" });
-    expect(panel.props.pointerEvents).toBe("none");
+    expect(toJSON()).toBeNull();
 });
 
 test("renders panel content when visible", () => {

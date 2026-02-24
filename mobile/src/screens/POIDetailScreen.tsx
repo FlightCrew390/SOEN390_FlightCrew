@@ -60,7 +60,7 @@ export default function POIDetailScreen() {
             lat: currentBuilding.latitude,
             lng: currentBuilding.longitude,
           }
-      : location != null
+        : location != null
           ? {
               lat: location.coords.latitude,
               lng: location.coords.longitude,

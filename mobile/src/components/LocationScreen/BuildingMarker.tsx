@@ -31,7 +31,7 @@ interface BuildingMarkerProps {
   readonly building: Building;
   readonly isCurrentBuilding?: boolean;
   readonly isSelected?: boolean;
-  readonly onSelect?: () => void;
+  readonly onSelect?: (info: SelectedBuildingInfo) => void;
   readonly onDeselect?: () => void;
   readonly onDirectionPress?: () => void;
 }
@@ -103,8 +103,8 @@ export default function BuildingMarker({
       }}
       anchor={{ x: 0.5, y: 1 }}
       tracksViewChanges={false}
-      onPress={onSelect}
-      onCalloutPress={onDirectionPress}
+      onPress={() => onSelect?.({ building })}
+      onCalloutPress={onDeselect}
     >
       <CustomMarker isHighlighted={isCurrentBuilding || isSelected} />
     </Marker>

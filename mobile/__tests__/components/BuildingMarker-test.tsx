@@ -115,58 +115,14 @@ test("renders highlighted marker when isCurrentBuilding is true", () => {
   expect(toJSON()).toBeTruthy();
 });
 
-test("renders highlighted marker when isSelected is true", () => {
+test("calls onPress with building when marker is pressed", () => {
   const building = createBuilding();
+  const onPress = jest.fn();
 
-  const { toJSON } = render(
-    <BuildingMarker building={building} isSelected={true} />,
-  );
+  render(<BuildingMarker building={building} onPress={onPress} />);
 
-  expect(toJSON()).toBeTruthy();
-});
-
-test("calls onSelect when marker is pressed", () => {
-  const building = createBuilding();
-  const onSelect = jest.fn();
-
-  render(<BuildingMarker building={building} onSelect={onSelect} />);
-
-  expect(capturedMarkerProps.onPress).toBe(onSelect);
+  expect(capturedMarkerProps.onPress).toBeDefined();
   capturedMarkerProps.onPress();
-  expect(onSelect).toHaveBeenCalledTimes(1);
-});
-
-test("calls onDeselect when callout is pressed", () => {
-  const building = createBuilding();
-  const onDeselect = jest.fn();
-
-  render(<BuildingMarker building={building} onDeselect={onDeselect} />);
-
-  expect(capturedMarkerProps.onCalloutPress).toBe(onDeselect);
-  capturedMarkerProps.onCalloutPress();
-  expect(onDeselect).toHaveBeenCalledTimes(1);
-});
-
-test("calls showCallout when isSelected becomes true", () => {
-  jest.useFakeTimers();
-  const building = createBuilding();
-
-  render(<BuildingMarker building={building} isSelected={true} />);
-
-  jest.advanceTimersByTime(900);
-  expect(mockShowCallout).toHaveBeenCalled();
-
-  jest.useRealTimers();
-});
-
-test("does not call showCallout when isSelected is false", () => {
-  jest.useFakeTimers();
-  const building = createBuilding();
-
-  render(<BuildingMarker building={building} isSelected={false} />);
-
-  jest.advanceTimersByTime(1000);
-  expect(mockShowCallout).not.toHaveBeenCalled();
-
-  jest.useRealTimers();
+  expect(onPress).toHaveBeenCalledTimes(1);
+  expect(onPress).toHaveBeenCalledWith(building);
 });

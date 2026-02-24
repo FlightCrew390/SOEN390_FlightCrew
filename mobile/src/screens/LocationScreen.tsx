@@ -1,4 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { useRef, useState } from "react";
 import { View } from "react-native";
 import MapView, { Region } from "react-native-maps";
@@ -6,9 +7,15 @@ import CampusSelection from "../components/LocationScreen/CampusSelection";
 import GoogleMaps from "../components/LocationScreen/GoogleMaps";
 import { CAMPUSES, CampusId } from "../constants/campuses";
 import { useCurrentLocation } from "../hooks/useCurrentLocation";
+import { RootStackParamList } from "../types/NavBar";
 import { Building } from "../types/Building";
 import styles from "../styles/Screen";
 import { getClosestCampusId } from "../utils/campusDetection";
+
+type RootStackNavProp = NativeStackNavigationProp<
+  RootStackParamList,
+  keyof RootStackParamList
+>;
 
 export default function LocationScreen() {
   const navigation = useNavigation();
@@ -17,8 +24,8 @@ export default function LocationScreen() {
   const { location } = useCurrentLocation();
 
   const handleBuildingPress = (building: Building) => {
-    const root = navigation.getParent();
-    root?.navigate("POIDetail" as never, { building } as never);
+    const root = navigation.getParent<RootStackNavProp>();
+    root?.navigate("POIDetail", { building });
   };
 
   const currentCampusId =

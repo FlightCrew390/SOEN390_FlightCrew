@@ -1,7 +1,26 @@
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { fireEvent, render } from "@testing-library/react-native";
 import React from "react";
 
 import LocationScreen from "../../src/screens/LocationScreen";
+
+const Stack = createNativeStackNavigator();
+
+function EmptyScreen() {
+  return null;
+}
+
+function renderWithNavigation() {
+  return render(
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Location" component={LocationScreen} />
+        <Stack.Screen name="POIDetail" component={EmptyScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>,
+  );
+}
 
 // Mock useCurrentLocation hook
 const mockLocation = {
@@ -77,7 +96,7 @@ describe("LocationScreen", () => {
   });
 
   test("renders location screen with child components", () => {
-    const { getByTestId } = render(<LocationScreen />);
+    const { getByTestId } = renderWithNavigation();
 
     expect(getByTestId("location-screen")).toBeTruthy();
     expect(getByTestId("mock-google-maps")).toBeTruthy();
@@ -85,13 +104,13 @@ describe("LocationScreen", () => {
   });
 
   test("passes currentCampusId to CampusSelection", () => {
-    const { getByTestId } = render(<LocationScreen />);
+    const { getByTestId } = renderWithNavigation();
 
     expect(getByTestId("current-campus").props.children).toBe("SGW");
   });
 
   test("recenter trigger increments when onRecenter is called", () => {
-    const { getByTestId } = render(<LocationScreen />);
+    const { getByTestId } = renderWithNavigation();
 
     expect(getByTestId("recenter-trigger").props.children).toBe(0);
 

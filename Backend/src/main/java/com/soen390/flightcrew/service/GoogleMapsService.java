@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -105,10 +106,10 @@ public class GoogleMapsService {
         String originStr = originLat + "," + originLng;
         String destStr = destLat + "," + destLng;
         String modeStr = mode != null && !mode.isEmpty() ? mode : "walking";
-        String url = GOOGLE_DIRECTIONS_URL + "?origin=" + java.net.URLEncoder.encode(originStr, "UTF-8")
-                + "&destination=" + java.net.URLEncoder.encode(destStr, "UTF-8")
-                + "&mode=" + java.net.URLEncoder.encode(modeStr, "UTF-8")
-                + "&key=" + java.net.URLEncoder.encode(googleApiKey, "UTF-8");
+        String url = GOOGLE_DIRECTIONS_URL + "?origin=" + java.net.URLEncoder.encode(originStr, StandardCharsets.UTF_8)
+                + "&destination=" + java.net.URLEncoder.encode(destStr, StandardCharsets.UTF_8)
+                + "&mode=" + java.net.URLEncoder.encode(modeStr, StandardCharsets.UTF_8)
+                + "&key=" + java.net.URLEncoder.encode(googleApiKey, StandardCharsets.UTF_8);
         try {
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
             if (response.getBody() == null) {

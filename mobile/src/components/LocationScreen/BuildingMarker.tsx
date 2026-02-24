@@ -10,6 +10,7 @@ interface BuildingMarkerProps {
   readonly isSelected?: boolean;
   readonly onSelect?: () => void;
   readonly onDeselect?: () => void;
+  readonly onDirectionPress?: () => void;
 }
 
 function CustomMarker({ isHighlighted }: Readonly<{ isHighlighted: boolean }>) {
@@ -51,6 +52,7 @@ export default function BuildingMarker({
   isSelected = false,
   onSelect,
   onDeselect,
+  onDirectionPress,
 }: Readonly<BuildingMarkerProps>) {
   const markerRef = useRef<MapMarker>(null);
 
@@ -80,7 +82,7 @@ export default function BuildingMarker({
       description={building.buildingName}
       anchor={{ x: 0.5, y: 1 }}
       onPress={onSelect}
-      onCalloutPress={onDeselect}
+      onCalloutPress={onDirectionPress}
     >
       <CustomMarker isHighlighted={isCurrentBuilding || isSelected} />
     </Marker>

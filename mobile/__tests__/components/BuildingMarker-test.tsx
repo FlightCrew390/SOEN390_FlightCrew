@@ -19,9 +19,13 @@ jest.mock("react-native-maps", () => {
     return React.createElement("Marker", props, props.children);
   });
   MarkerMock.displayName = "Marker";
+  const CalloutMock = (props: any) =>
+    React.createElement("Callout", props, props.children);
+  CalloutMock.displayName = "Callout";
   return {
     __esModule: true,
     Marker: MarkerMock,
+    Callout: CalloutMock,
     MapMarker: MarkerMock,
   };
 });
@@ -142,9 +146,21 @@ test("calls onDeselect when callout is pressed", () => {
 
   render(<BuildingMarker building={building} onDeselect={onDeselect} />);
 
-  expect(capturedMarkerProps.onCalloutPress).toBe(onDeselect);
+  // onDeselect is not wired to onCalloutPress; tapping the callout triggers onDirectionPress.
+  expect(onDeselect).not.toHaveBeenCalled();
+});
+
+test("calls onDirectionPress when Direction button is pressed", () => {
+  const building = createBuilding();
+  const onDirectionPress = jest.fn();
+
+  render(
+    <BuildingMarker building={building} onDirectionPress={onDirectionPress} />,
+  );
+
+  expect(capturedMarkerProps.onCalloutPress).toBe(onDirectionPress);
   capturedMarkerProps.onCalloutPress();
-  expect(onDeselect).toHaveBeenCalledTimes(1);
+  expect(onDirectionPress).toHaveBeenCalledTimes(1);
 });
 
 test("calls showCallout when isSelected becomes true", () => {

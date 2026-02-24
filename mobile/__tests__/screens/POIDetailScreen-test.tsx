@@ -60,7 +60,7 @@ jest.mock("react-native-maps", () => {
   const { View } = require("react-native");
   return {
     __esModule: true,
-    default: (props: unknown) => <View testID="map-view" {...props} />,
+    default: (props: object) => <View testID="map-view" {...props} />,
     Marker: () => null,
     Polyline: () => null,
   };

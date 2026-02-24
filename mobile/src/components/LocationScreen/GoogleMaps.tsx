@@ -51,7 +51,8 @@ export default function GoogleMaps({
   const isCorrectingRef = useRef(false);
   const hasCenteredOnUserOnceRef = useRef(false);
   const [state, dispatch] = useReducer(mapUIReducer, initialMapUIState);
-  const [selectedBuilding, setSelectedBuilding] = useState<SelectedBuildingInfo | null>(null);
+  const [selectedBuilding, setSelectedBuilding] =
+    useState<SelectedBuildingInfo | null>(null);
 
   // Find current building when location or buildings change
   useEffect(() => {

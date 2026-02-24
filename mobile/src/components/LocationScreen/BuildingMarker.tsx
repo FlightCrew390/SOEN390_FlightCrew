@@ -13,15 +13,12 @@ import { COLORS, MAP_CONFIG } from "../../constants";
 import { Building } from "../../types/Building";
 import { styles } from "../../styles/BuildingMarkerStyle";
 
-// ─── Transport Icons ──────────────────────────────────────────────────────────
 const ICONS = {
   walk: require("../../../assets/walk.png"),
   bike: require("../../../assets/bike.png"),
   train: require("../../../assets/train.png"),
   car: require("../../../assets/car.png"),
 } as const;
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface SelectedBuildingInfo {
   building: Building;
@@ -35,8 +32,6 @@ interface BuildingMarkerProps {
   readonly onDeselect?: () => void;
   readonly onDirectionPress?: () => void;
 }
-
-// ─── Custom Map Marker ────────────────────────────────────────────────────────
 
 function CustomMarker({ isHighlighted }: Readonly<{ isHighlighted: boolean }>) {
   const { width, height } = MAP_CONFIG.markerSize;
@@ -71,8 +66,6 @@ function CustomMarker({ isHighlighted }: Readonly<{ isHighlighted: boolean }>) {
   );
 }
 
-// ─── BuildingMarker (default export) ─────────────────────────────────────────
-
 export default function BuildingMarker({
   building,
   isCurrentBuilding = false,
@@ -83,7 +76,6 @@ export default function BuildingMarker({
 }: Readonly<BuildingMarkerProps>) {
   const markerRef = React.useRef<any>(null);
 
-  // Auto-show callout when isSelected becomes true
   React.useEffect(() => {
     if (isSelected && markerRef.current) {
       setTimeout(() => {
@@ -111,8 +103,6 @@ export default function BuildingMarker({
   );
 }
 
-// ─── Transport Card (internal helper) ────────────────────────────────────────
-
 function TransportCard({
   icon,
 }: Readonly<{ icon: ReturnType<typeof require> }>) {
@@ -123,8 +113,6 @@ function TransportCard({
     </View>
   );
 }
-
-// ─── BuildingPopup (named export) ────────────────────────────────────────────
 
 export function BuildingPopup({
   building,

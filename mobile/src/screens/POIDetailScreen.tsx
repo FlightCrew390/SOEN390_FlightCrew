@@ -61,11 +61,11 @@ export default function POIDetailScreen() {
             lng: currentBuilding.longitude,
           }
       : location != null
-        ? {
-            lat: location.coords.latitude,
-            lng: location.coords.longitude,
-          }
-        : null;
+          ? {
+              lat: location.coords.latitude,
+              lng: location.coords.longitude,
+            }
+          : null;
 
   const originLabel =
     originBuilding != null
@@ -253,7 +253,10 @@ export default function POIDetailScreen() {
                   Use Current Location
                 </Text>
                 {currentBuilding != null && (
-                  <Text style={styles.originModalCurrentBuilding} numberOfLines={1}>
+                  <Text
+                    style={styles.originModalCurrentBuilding}
+                    numberOfLines={1}
+                  >
                     ({currentBuilding.buildingName})
                   </Text>
                 )}

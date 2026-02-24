@@ -5,7 +5,9 @@ type BuildingContextValue = ReturnType<typeof useBuildingData>;
 
 const BuildingContext = createContext<BuildingContextValue | null>(null);
 
-export function BuildingProvider({ children }: { children: React.ReactNode }) {
+export function BuildingProvider({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   const buildingData = useBuildingData();
   return (
     <BuildingContext.Provider value={buildingData}>

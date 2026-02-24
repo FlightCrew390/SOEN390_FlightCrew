@@ -5,7 +5,9 @@ type LocationContextValue = ReturnType<typeof useCurrentLocation>;
 
 const LocationContext = createContext<LocationContextValue | null>(null);
 
-export function LocationProvider({ children }: { children: React.ReactNode }) {
+export function LocationProvider({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   const location = useCurrentLocation();
   return (
     <LocationContext.Provider value={location}>

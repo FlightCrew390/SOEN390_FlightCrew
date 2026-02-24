@@ -40,13 +40,19 @@ interface BuildingMarkerProps {
 
 function CustomMarker({ isHighlighted }: Readonly<{ isHighlighted: boolean }>) {
   const { width, height } = MAP_CONFIG.markerSize;
-  const markerColor = isHighlighted ? COLORS.concordiaBlue : COLORS.concordiaMaroon;
+  const markerColor = isHighlighted
+    ? COLORS.concordiaBlue
+    : COLORS.concordiaMaroon;
   const markerSize = isHighlighted
     ? { width: width * 1.3, height: height * 1.3 }
     : { width, height };
 
   return (
-    <Svg width={markerSize.width} height={markerSize.height} viewBox="0 0 40 40">
+    <Svg
+      width={markerSize.width}
+      height={markerSize.height}
+      viewBox="0 0 40 40"
+    >
       <Circle cx="20" cy="20" r="14" fill={COLORS.shadowBlack} />
       <Circle cx="20" cy="16" r="14" stroke={COLORS.white} strokeWidth="4" />
       <Circle cx="20" cy="16" r="12" fill={markerColor} />
@@ -170,7 +176,8 @@ export function BuildingPopup({
               Building Code: {building.buildingCode}
             </Text>
             <Text style={styles.buildingDetail}>
-              Campus: {building.campus === "SGW" ? "Sir George Williams" : "Loyola"}
+              Campus:{" "}
+              {building.campus === "SGW" ? "Sir George Williams" : "Loyola"}
             </Text>
           </ScrollView>
         </View>

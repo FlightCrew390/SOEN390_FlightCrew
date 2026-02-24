@@ -21,7 +21,10 @@ import { LocationType } from "../../state/SearchPanelState";
 import styles from "../../styles/GoogleMaps";
 import { Building } from "../../types/Building";
 import { findCurrentBuilding } from "../../utils/buildingDetection";
-import BuildingMarker, { BuildingPopup, SelectedBuildingInfo } from "./BuildingMarker";
+import BuildingMarker, {
+  BuildingPopup,
+  SelectedBuildingInfo,
+} from "./BuildingMarker";
 import BuildingPolygon from "./BuildingPolygon";
 import DirectionPanel from "./DirectionPanel";
 import SearchPanel from "./SearchPanel";

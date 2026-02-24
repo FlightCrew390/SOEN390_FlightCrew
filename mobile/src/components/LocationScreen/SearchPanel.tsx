@@ -1,5 +1,5 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import React, { useState } from "react";
+import React, { useEffect, useReducer } from "react";
 import {
   Animated,
   Pressable,
@@ -8,12 +8,15 @@ import {
   TextInput,
   View,
 } from "react-native";
-import styles from "../../styles/SearchPanel";
-import { useBuildingData } from "../../hooks/useBuildingData";
+import { useBuildings } from "../../contexts/BuildingContext";
 import { usePanelAnimation } from "../../hooks/usePanelAnimation";
+import {
+  initialSearchPanelState,
+  searchPanelReducer,
+} from "../../reducers/searchPanelReducer";
+import { LocationType } from "../../state/SearchPanelState";
+import styles from "../../styles/SearchPanel";
 import { Building } from "../../types/Building";
-
-export type LocationType = "building" | "restaurant";
 
 interface SearchPanelProps {
   readonly visible: boolean;
@@ -33,54 +36,42 @@ export default function SearchPanel({
   onSearch,
   onSelectBuilding,
 }: Readonly<SearchPanelProps>) {
-  const [locationType, setLocationType] = useState<LocationType>("building");
-  const [query, setQuery] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [showAutocomplete, setShowAutocomplete] = useState(false);
-  const [autocompleteIdx, setAutocompleteIdx] = useState(-1);
-  const [selectedResult, setSelectedResult] = useState<Building | null>(null);
-  const { buildings } = useBuildingData();
+  const [state, dispatch] = useReducer(
+    searchPanelReducer,
+    initialSearchPanelState,
+  );
+  const { buildings } = useBuildings();
   const { animatedStyle } = usePanelAnimation(visible);
 
-  // Reset dropdown when closing
-  React.useEffect(() => {
-    if (!visible) setDropdownOpen(false);
+  useEffect(() => {
+    if (!visible) dispatch({ type: "PANEL_CLOSED" });
   }, [visible]);
 
   const selectedLabel =
-    LOCATION_OPTIONS.find((o) => o.key === locationType)?.label ?? "";
+    LOCATION_OPTIONS.find((o) => o.key === state.locationType)?.label ?? "";
 
   const placeholderText =
-    locationType === "building" ? "Building name" : "Restaurant name";
-
-  const handleSelect = (key: LocationType) => {
-    setLocationType(key);
-    setDropdownOpen(false);
-    setQuery("");
-    setShowAutocomplete(false);
-  };
+    state.locationType === "building" ? "Building name" : "Restaurant name";
 
   const handleSearch = () => {
-    setShowAutocomplete(false);
-    if (selectedResult) {
-      onSelectBuilding(selectedResult);
+    dispatch({ type: "BLUR_INPUT" });
+    if (state.selectedResult) {
+      onSelectBuilding(state.selectedResult);
     } else {
-      onSearch(query.trim(), locationType);
+      onSearch(state.query.trim(), state.locationType);
     }
   };
 
-  // Autocomplete logic
   let autocompleteResults: {
     buildingName: string;
     buildingCode: string;
     buildingLongName: string;
   }[] = [];
-  if (locationType === "building" && query.trim().length > 0) {
-    const q = query.trim().toLowerCase();
+  if (state.locationType === "building" && state.query.trim().length > 0) {
+    const q = state.query.trim().toLowerCase();
     const queryWords = q.split(/\s+/).filter((w) => w.length > 0);
     const isWordMatch = (field: string) => {
       const fieldWords = field.toLowerCase().split(/\W+/);
-      // Every query word must prefix-match at least one field word
       return queryWords.every((qw) =>
         fieldWords.some((fw) => fw.startsWith(qw)),
       );
@@ -100,6 +91,12 @@ export default function SearchPanel({
     });
   }
 
+  const isSearchDisabled =
+    state.query.trim().length === 0 ||
+    (state.locationType === "building" &&
+      autocompleteResults.length === 0 &&
+      !state.selectedResult);
+
   return (
     <Animated.View
       style={[styles.container, animatedStyle]}
@@ -112,21 +109,21 @@ export default function SearchPanel({
         <Pressable
           style={[
             styles.dropdownTrigger,
-            dropdownOpen && styles.dropdownTriggerOpen,
+            state.dropdownOpen && styles.dropdownTriggerOpen,
           ]}
-          onPress={() => setDropdownOpen((prev) => !prev)}
+          onPress={() => dispatch({ type: "TOGGLE_DROPDOWN" })}
           accessibilityLabel="Select location type"
           accessibilityRole="button"
         >
           <Text style={styles.dropdownTriggerText}>{selectedLabel}</Text>
           <FontAwesome5
-            name={dropdownOpen ? "chevron-up" : "chevron-down"}
+            name={state.dropdownOpen ? "chevron-up" : "chevron-down"}
             size={12}
             color="#666"
           />
         </Pressable>
 
-        {dropdownOpen && (
+        {state.dropdownOpen && (
           <View style={styles.dropdownMenu}>
             {LOCATION_OPTIONS.map((option, idx) => (
               <React.Fragment key={option.key}>
@@ -134,10 +131,15 @@ export default function SearchPanel({
                 <Pressable
                   style={[
                     styles.dropdownOption,
-                    option.key === locationType &&
+                    option.key === state.locationType &&
                       styles.dropdownOptionSelected,
                   ]}
-                  onPress={() => handleSelect(option.key)}
+                  onPress={() =>
+                    dispatch({
+                      type: "SELECT_LOCATION_TYPE",
+                      locationType: option.key,
+                    })
+                  }
                   accessibilityLabel={option.label}
                   accessibilityRole="menuitem"
                 >
@@ -153,9 +155,9 @@ export default function SearchPanel({
       <View
         style={[
           styles.textInputWrapper,
-          showAutocomplete &&
-            locationType === "building" &&
-            query.trim().length > 0 &&
+          state.showAutocomplete &&
+            state.locationType === "building" &&
+            state.query.trim().length > 0 &&
             styles.textInputWrapperOpen,
         ]}
       >
@@ -163,28 +165,19 @@ export default function SearchPanel({
           style={styles.textInputInner}
           placeholder={placeholderText}
           placeholderTextColor="#999"
-          value={query}
-          onChangeText={(text) => {
-            setQuery(text);
-            setDropdownOpen(false);
-            setShowAutocomplete(true);
-            setAutocompleteIdx(-1);
-            setSelectedResult(null);
-          }}
+          value={state.query}
+          onChangeText={(text) => dispatch({ type: "UPDATE_QUERY", text })}
           autoCapitalize="none"
           autoCorrect={false}
           returnKeyType="search"
           onSubmitEditing={handleSearch}
           accessibilityLabel={`Search ${placeholderText.toLowerCase()}`}
-          onBlur={() => setTimeout(() => setShowAutocomplete(false), 200)}
-          onFocus={() => setShowAutocomplete(true)}
+          onBlur={() => setTimeout(() => dispatch({ type: "BLUR_INPUT" }), 200)}
+          onFocus={() => dispatch({ type: "FOCUS_INPUT" })}
         />
-        {query.length > 0 && (
+        {state.query.length > 0 && (
           <Pressable
-            onPress={() => {
-              setQuery("");
-              setShowAutocomplete(false);
-            }}
+            onPress={() => dispatch({ type: "CLEAR_QUERY" })}
             accessibilityLabel="Clear search"
             accessibilityRole="button"
             style={styles.clearButton}
@@ -195,9 +188,9 @@ export default function SearchPanel({
       </View>
 
       {/* Autocomplete results */}
-      {showAutocomplete &&
-        locationType === "building" &&
-        query.trim().length > 0 && (
+      {state.showAutocomplete &&
+        state.locationType === "building" &&
+        state.query.trim().length > 0 && (
           <ScrollView
             style={styles.autocompleteList}
             nestedScrollEnabled
@@ -214,13 +207,15 @@ export default function SearchPanel({
                   key={b.buildingCode + b.buildingLongName}
                   style={[
                     styles.dropdownOption,
-                    idx === autocompleteIdx && styles.dropdownOptionSelected,
+                    idx === state.autocompleteIdx &&
+                      styles.dropdownOptionSelected,
                   ]}
-                  onPress={() => {
-                    setSelectedResult(b as Building);
-                    setQuery(b.buildingLongName);
-                    setShowAutocomplete(false);
-                  }}
+                  onPress={() =>
+                    dispatch({
+                      type: "SELECT_AUTOCOMPLETE",
+                      building: b as Building,
+                    })
+                  }
                   accessibilityLabel={b.buildingLongName}
                   accessibilityRole="menuitem"
                 >
@@ -237,19 +232,10 @@ export default function SearchPanel({
       <Pressable
         style={[
           styles.searchActionButton,
-          (query.trim().length === 0 ||
-            (locationType === "building" &&
-              autocompleteResults.length === 0 &&
-              !selectedResult)) &&
-            styles.searchActionButtonDisabled,
+          isSearchDisabled && styles.searchActionButtonDisabled,
         ]}
         onPress={handleSearch}
-        disabled={
-          query.trim().length === 0 ||
-          (locationType === "building" &&
-            autocompleteResults.length === 0 &&
-            !selectedResult)
-        }
+        disabled={isSearchDisabled}
         accessibilityLabel="Search"
         accessibilityRole="button"
       >

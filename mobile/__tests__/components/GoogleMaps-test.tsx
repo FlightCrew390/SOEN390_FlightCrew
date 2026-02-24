@@ -1,4 +1,4 @@
-import { render, screen, act } from "@testing-library/react-native";
+import { act, render, screen } from "@testing-library/react-native";
 import React from "react";
 
 import GoogleMaps from "../../src/components/LocationScreen/GoogleMaps";
@@ -98,16 +98,16 @@ jest.mock("../../src/components/LocationScreen/SearchPanel", () => {
   };
 });
 
-// Mock useBuildingData hook
+// Mock BuildingContext
 const mockUseBuildingData = jest.fn();
-jest.mock("../../src/hooks/useBuildingData", () => ({
-  useBuildingData: () => mockUseBuildingData(),
+jest.mock("../../src/contexts/BuildingContext", () => ({
+  useBuildings: () => mockUseBuildingData(),
 }));
 
-// Mock useCurrentLocation hook so tests aren't blocked by location loading
+// Mock LocationContext so tests aren't blocked by location loading
 const mockUseCurrentLocation = jest.fn();
-jest.mock("../../src/hooks/useCurrentLocation", () => ({
-  useCurrentLocation: () => mockUseCurrentLocation(),
+jest.mock("../../src/contexts/LocationContext", () => ({
+  useLocation: () => mockUseCurrentLocation(),
 }));
 
 const mockBuildings: Building[] = [
@@ -516,8 +516,6 @@ describe("map callbacks", () => {
   });
 
   test("onDirectionPress opens direction panel for the building", () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { fireEvent: fe } = require("@testing-library/react-native");
     mockUseBuildingData.mockReturnValue({
       buildings: mockBuildings,
       loading: false,

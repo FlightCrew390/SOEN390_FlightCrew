@@ -4,8 +4,8 @@
     "strict": true,
     "module": "ESNext",
     "forceConsistentCasingInFileNames": true,
-    "types": [
-      "jest"
-    ],
-    "skipLibCheck": true  }
+    "types": ["jest"],
+    "skipLibCheck": true,
+    "jsx": "react-jsx"
+  }
 }

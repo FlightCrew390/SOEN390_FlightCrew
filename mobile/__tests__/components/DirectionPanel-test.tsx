@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react-native";
+import { fireEvent, render, screen } from "@testing-library/react-native";
 import React from "react";
 
 import DirectionPanel from "../../src/components/LocationScreen/DirectionPanel";
@@ -42,19 +42,19 @@ beforeEach(() => {
 });
 
 test("is non-interactive when not visible", () => {
-  const { getByTestId, queryByRole } = render(
+  render(
     <DirectionPanel visible={false} building={building} onClose={jest.fn()} />,
   );
   // Close button should not be rendered when hidden
-  expect(queryByRole("button", { name: "Close direction panel" })).toBeNull();
+  expect(
+    screen.queryByRole("button", { name: "Close direction panel" }),
+  ).toBeNull();
 });
 
 test("renders empty panel when building is null", () => {
-  const { queryByText } = render(
-    <DirectionPanel visible={true} building={null} onClose={jest.fn()} />,
-  );
+  render(<DirectionPanel visible={true} building={null} onClose={jest.fn()} />);
   // Content should not be present when building is null
-  expect(queryByText("Directions")).toBeNull();
+  expect(screen.queryByText("Directions")).toBeNull();
 });
 
 test("renders building long name and address when visible", () => {

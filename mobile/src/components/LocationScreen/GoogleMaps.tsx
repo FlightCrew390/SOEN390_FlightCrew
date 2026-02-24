@@ -1,5 +1,5 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useReducer, useRef } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -14,15 +14,17 @@ import MapView, {
 } from "react-native-maps";
 import { COLORS, MAP_CONFIG } from "../../constants";
 import { campusBoundary } from "../../constants/campusBoundaries";
-import { useBuildingData } from "../../hooks/useBuildingData";
-import { useCurrentLocation } from "../../hooks/useCurrentLocation";
+import { useBuildings } from "../../contexts/BuildingContext";
+import { useLocation } from "../../contexts/LocationContext";
+import { initialMapUIState, mapUIReducer } from "../../reducers/mapUIReducer";
+import { LocationType } from "../../state/SearchPanelState";
 import styles from "../../styles/GoogleMaps";
 import { Building } from "../../types/Building";
 import { findCurrentBuilding } from "../../utils/buildingDetection";
 import BuildingMarker from "./BuildingMarker";
 import BuildingPolygon from "./BuildingPolygon";
 import DirectionPanel from "./DirectionPanel";
-import SearchPanel, { LocationType } from "./SearchPanel";
+import SearchPanel from "./SearchPanel";
 import UserLocationMarker from "./UserLocationMarker";
 
 interface GoogleMapsProps {
@@ -35,22 +37,17 @@ export default function GoogleMaps({
   mapRef: mapRefProp,
   onRecenter,
 }: Readonly<GoogleMapsProps> = {}) {
-  const { buildings, loading, error } = useBuildingData();
+  const { buildings, loading, error } = useBuildings();
   const {
     location,
     loading: locationLoading,
     error: locationError,
-  } = useCurrentLocation();
+  } = useLocation();
   const internalMapRef = useRef<MapView>(null);
   const mapRef = mapRefProp ?? internalMapRef;
   const isCorrectingRef = useRef(false);
   const hasCenteredOnUserOnceRef = useRef(false);
-  const [currentBuilding, setCurrentBuilding] = useState<Building | null>(null);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isDirectionOpen, setIsDirectionOpen] = useState(false);
-  const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(
-    null,
-  );
+  const [state, dispatch] = useReducer(mapUIReducer, initialMapUIState);
 
   // Find current building when location or buildings change
   useEffect(() => {
@@ -62,9 +59,9 @@ export default function GoogleMaps({
         },
         buildings,
       );
-      setCurrentBuilding(building);
+      dispatch({ type: "SET_CURRENT_BUILDING", building });
     } else {
-      setCurrentBuilding(null);
+      dispatch({ type: "SET_CURRENT_BUILDING", building: null });
     }
   }, [location, buildings]);
 
@@ -140,7 +137,7 @@ export default function GoogleMaps({
     });
   };
 
-  const handleSelectBuilding = (building: Building) => {
+  const animateToBuilding = (building: Building) => {
     if (!mapRef.current) return;
     const region = {
       latitude: building.latitude,
@@ -149,8 +146,11 @@ export default function GoogleMaps({
       longitudeDelta: 0.003,
     };
     mapRef.current.animateToRegion(region, 800);
-    setSelectedBuilding(building);
-    setIsSearchOpen(false);
+  };
+
+  const handleSelectBuilding = (building: Building) => {
+    animateToBuilding(building);
+    dispatch({ type: "SELECT_BUILDING", building });
   };
 
   const handleSearch = (query: string, locationType: LocationType) => {
@@ -191,9 +191,7 @@ export default function GoogleMaps({
         initialRegion={MAP_CONFIG.defaultCampusRegion}
         showsUserLocation={false}
         showsMyLocationButton={false}
-        onPress={() => {
-          if (!isDirectionOpen) setSelectedBuilding(null);
-        }}
+        onPress={() => dispatch({ type: "TAP_MAP" })}
       >
         {buildings.flatMap((building) => [
           <BuildingPolygon
@@ -204,17 +202,16 @@ export default function GoogleMaps({
             key={`${building.buildingCode}-marker`}
             building={building}
             isCurrentBuilding={
-              currentBuilding?.buildingCode === building.buildingCode
+              state.currentBuilding?.buildingCode === building.buildingCode
             }
             isSelected={
-              selectedBuilding?.buildingCode === building.buildingCode
+              state.selectedBuilding?.buildingCode === building.buildingCode
             }
-            onSelect={() => setSelectedBuilding(building)}
-            onDeselect={() => setSelectedBuilding(null)}
+            onSelect={() => handleSelectBuilding(building)}
+            onDeselect={() => dispatch({ type: "DESELECT_BUILDING" })}
             onDirectionPress={() => {
-              setSelectedBuilding(building);
-              setIsDirectionOpen(true);
-              setIsSearchOpen(false);
+              animateToBuilding(building);
+              dispatch({ type: "OPEN_DIRECTIONS", building });
             }}
           />,
         ])}
@@ -243,35 +240,43 @@ export default function GoogleMaps({
 
       {/* Direction panel */}
       <DirectionPanel
-        visible={isDirectionOpen}
-        building={selectedBuilding}
-        onClose={() => setIsDirectionOpen(false)}
+        visible={state.panel === "directions"}
+        building={state.selectedBuilding}
+        onClose={() => dispatch({ type: "CLOSE_PANEL" })}
       />
 
       {/* Search panel */}
       <SearchPanel
-        visible={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
+        visible={state.panel === "search"}
+        onClose={() => dispatch({ type: "CLOSE_PANEL" })}
         onSearch={handleSearch}
         onSelectBuilding={handleSelectBuilding}
       />
 
       {/* Search button (top left) — hidden when direction panel is open */}
-      {!isDirectionOpen && (
+      {state.panel !== "directions" && (
         <Pressable
-          style={[styles.searchButton, isSearchOpen && styles.searchButtonOpen]}
-          onPress={() => {
-            setIsSearchOpen((prev) => !prev);
-            setIsDirectionOpen(false);
-          }}
+          style={[
+            styles.searchButton,
+            state.panel === "search" && styles.searchButtonOpen,
+          ]}
+          onPress={() =>
+            dispatch(
+              state.panel === "search"
+                ? { type: "CLOSE_PANEL" }
+                : { type: "OPEN_SEARCH" },
+            )
+          }
           accessibilityLabel={
-            isSearchOpen ? "Close search" : "Search campus buildings"
+            state.panel === "search"
+              ? "Close search"
+              : "Search campus buildings"
           }
           accessibilityRole="button"
         >
           <FontAwesome5
-            name={isSearchOpen ? "times" : "search"}
-            size={isSearchOpen ? 30 : 28}
+            name={state.panel === "search" ? "times" : "search"}
+            size={state.panel === "search" ? 30 : 28}
             color={COLORS.concordiaMaroon}
           />
         </Pressable>

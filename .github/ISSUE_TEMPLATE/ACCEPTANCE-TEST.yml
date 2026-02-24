@@ -1,0 +1,67 @@
+name: Acceptance Test
+description: Document the verification of a completed user story with video evidence.
+title: "[AT] Story X.X: Feature Name"
+labels: ["Acceptance Test"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Acceptance Test Documentation
+        Use this form to verify that the requirements for a specific user story have been met.
+  
+  - type: input
+    id: video-link
+    attributes:
+      label: Video Demonstration
+      description: Provide the link to the GitHub asset or video showing the functionality.
+      placeholder: "https://github.com/user-attachments/assets/..."
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "---"
+
+  - type: textarea
+    id: criterion-1
+    attributes:
+      label: 1. Acceptance Criterion Verification
+      description: Enter the title, the requirement, and the verification details.
+      value: |
+        ### [Criterion Title]
+        **Requirement:** **Verification:**
+      required: true
+
+  - type: textarea
+    id: criterion-2
+    attributes:
+      label: 2. Acceptance Criterion Verification
+      description: Enter the title, the requirement, and the verification details.
+      value: |
+        ### [Criterion Title]
+        **Requirement:** **Verification:**
+    validations:
+      required: true
+
+  - type: textarea
+    id: criterion-3
+    attributes:
+      label: 3. Acceptance Criterion Verification
+      description: Enter the title, the requirement, and the verification details.
+      value: |
+        ### [Criterion Title]
+        **Requirement:** **Verification:**
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "---"
+
+  - type: textarea
+    id: additional-details
+    attributes:
+      label: Additional Details/Notes
+      description: Performance metrics, environment info, or edge cases.
+      value: |
+        * **Performance:** * **Environment:** * **Notes:** ```

@@ -191,7 +191,9 @@ export default function GoogleMaps({
         initialRegion={MAP_CONFIG.defaultCampusRegion}
         showsUserLocation={false}
         showsMyLocationButton={false}
-        onPress={() => { if (!isDirectionOpen) setSelectedBuilding(null); }}
+        onPress={() => {
+          if (!isDirectionOpen) setSelectedBuilding(null);
+        }}
       >
         {buildings.flatMap((building) => [
           <BuildingPolygon

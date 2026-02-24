@@ -47,7 +47,9 @@ export default function DirectionPanel({
 
             {/* Body */}
             <View style={styles.body}>
-              <Text style={styles.buildingName}>{building.buildingLongName}</Text>
+              <Text style={styles.buildingName}>
+                {building.buildingLongName}
+              </Text>
               <Text style={styles.buildingAddress}>{building.address}</Text>
             </View>
           </>

@@ -243,6 +243,7 @@ export default function GoogleMaps({
         visible={state.panel === "directions"}
         building={state.selectedBuilding}
         onClose={() => dispatch({ type: "CLOSE_PANEL" })}
+        onOpenSearch={() => dispatch({ type: "OPEN_SEARCH" })}
       />
 
       {/* Search panel */}

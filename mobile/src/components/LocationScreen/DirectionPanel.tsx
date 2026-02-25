@@ -10,12 +10,14 @@ interface DirectionPanelProps {
   readonly visible: boolean;
   readonly building: Building | null;
   readonly onClose: () => void;
+  readonly onOpenSearch?: () => void;
 }
 
 export default function DirectionPanel({
   visible,
   building,
   onClose,
+  onOpenSearch,
 }: Readonly<DirectionPanelProps>) {
   const { animatedStyle } = usePanelAnimation(visible);
 
@@ -50,7 +52,22 @@ export default function DirectionPanel({
               <Text style={styles.buildingName}>
                 {building.buildingLongName}
               </Text>
-              <Text style={styles.buildingAddress}>{building.address}</Text>
+              <View style={styles.addressRow}>
+                <Pressable
+                  style={styles.searchButtonLeftOfAddress}
+                  onPress={() => onOpenSearch?.()}
+                  disabled={!onOpenSearch}
+                  accessibilityLabel="Search buildings to change directions start"
+                  accessibilityRole="button"
+                >
+                  <FontAwesome5
+                    name="search"
+                    size={14}
+                    color={COLORS.concordiaMaroon}
+                  />
+                </Pressable>
+                <Text style={styles.buildingAddress}>{building.address}</Text>
+              </View>
             </View>
           </>
         )}

@@ -23,6 +23,8 @@ jest.mock("../../src/styles/DirectionPanel", () => ({
     closeButton: {},
     body: {},
     buildingName: {},
+    addressRow: {},
+    searchButtonLeftOfAddress: {},
     buildingAddress: {},
   },
 }));

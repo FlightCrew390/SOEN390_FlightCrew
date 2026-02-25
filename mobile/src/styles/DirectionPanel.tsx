@@ -55,7 +55,17 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     marginBottom: 4,
   },
+  addressRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 4,
+    gap: 8,
+  },
+  searchButtonLeftOfAddress: {
+    padding: 4,
+  },
   buildingAddress: {
+    flex: 1,
     fontSize: 14,
     color: COLORS.textSecondary,
   },

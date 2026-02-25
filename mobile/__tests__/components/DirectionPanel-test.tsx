@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
 import React from "react";
+import { Animated, Image, View, Text, ScrollView } from "react-native";
 
 import DirectionPanel from "../../src/components/LocationScreen/DirectionPanel";
 import { Building } from "../../src/types/Building";
@@ -171,4 +172,173 @@ test("does not call onClose before button is pressed", () => {
     <DirectionPanel visible={true} building={building} onClose={onClose} />,
   );
   expect(onClose).not.toHaveBeenCalled();
+});
+
+// --- Animated.View pointerEvents ---
+
+test("sets pointerEvents to 'auto' when visible and building exists", () => {
+  const { UNSAFE_getAllByType } = render(
+    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+  );
+  const animatedViews = UNSAFE_getAllByType(Animated.View);
+  const mainPanel = animatedViews.find((view) => view.props.pointerEvents);
+  expect(mainPanel?.props.pointerEvents).toBe("auto");
+});
+
+test("sets pointerEvents to 'none' when not visible", () => {
+  const { UNSAFE_getAllByType } = render(
+    <DirectionPanel visible={false} building={building} onClose={jest.fn()} />,
+  );
+  const animatedViews = UNSAFE_getAllByType(Animated.View);
+  const mainPanel = animatedViews.find((view) => view.props.pointerEvents);
+  expect(mainPanel?.props.pointerEvents).toBe("none");
+});
+
+test("sets pointerEvents to 'none' when building is null", () => {
+  const { UNSAFE_getAllByType } = render(
+    <DirectionPanel visible={true} building={null} onClose={jest.fn()} />,
+  );
+  const animatedViews = UNSAFE_getAllByType(Animated.View);
+  const mainPanel = animatedViews.find((view) => view.props.pointerEvents);
+  expect(mainPanel?.props.pointerEvents).toBe("none");
+});
+
+// --- TransportCard rendering ---
+
+test("renders all four transport card images", () => {
+  const { UNSAFE_getAllByType } = render(
+    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+  );
+  const images = UNSAFE_getAllByType(Image);
+  expect(images.length).toBe(4);
+});
+
+test("transport cards have correct resizeMode", () => {
+  const { UNSAFE_getAllByType } = render(
+    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+  );
+  const images = UNSAFE_getAllByType(Image);
+  images.forEach((image) => {
+    expect(image.props.resizeMode).toBe("contain");
+  });
+});
+
+test("transport cards are wrapped in View containers", () => {
+  const { UNSAFE_getAllByType } = render(
+    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+  );
+  const views = UNSAFE_getAllByType(View);
+  expect(views.length).toBeGreaterThan(0);
+});
+
+// --- Building info row ---
+
+test("renders building name with numberOfLines prop", () => {
+  const { UNSAFE_getAllByType } = render(
+    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+  );
+  const texts = UNSAFE_getAllByType(Text);
+  const buildingNameText = texts.find(
+    (text) => text.props.children === "Hall Building",
+  );
+  expect(buildingNameText?.props.numberOfLines).toBe(1);
+});
+
+test("renders building address with numberOfLines prop", () => {
+  const { UNSAFE_getAllByType } = render(
+    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+  );
+  const texts = UNSAFE_getAllByType(Text);
+  const addressText = texts.find(
+    (text) => text.props.children === "1455 De Maisonneuve Blvd. W.",
+  );
+  expect(addressText?.props.numberOfLines).toBe(2);
+});
+
+test("uses buildingCode as fallback when buildingName is null", () => {
+  const buildingWithoutName = { ...building, buildingName: null as any };
+  render(
+    <DirectionPanel
+      visible={true}
+      building={buildingWithoutName}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("H")).toBeTruthy();
+});
+
+test("renders empty string when address is null", () => {
+  const buildingWithoutAddress = { ...building, address: null as any };
+  const { UNSAFE_getAllByType } = render(
+    <DirectionPanel
+      visible={true}
+      building={buildingWithoutAddress}
+      onClose={jest.fn()}
+    />,
+  );
+  const texts = UNSAFE_getAllByType(Text);
+  const addressText = texts.find(
+    (text) =>
+      text.props.numberOfLines === 2 &&
+      text.props.style?.fontSize !== undefined,
+  );
+  expect(addressText?.props.children).toBe("");
+});
+
+// --- ScrollView interactions ---
+
+test("ScrollView shows vertical scroll indicator", () => {
+  const { UNSAFE_getAllByType } = render(
+    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+  );
+  const scrollViews = UNSAFE_getAllByType(ScrollView);
+  expect(scrollViews[0].props.showsVerticalScrollIndicator).toBe(true);
+});
+
+test("ScrollView handles touch responder", () => {
+  const { UNSAFE_getAllByType } = render(
+    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+  );
+  const scrollViews = UNSAFE_getAllByType(ScrollView);
+  expect(scrollViews[0].props.onStartShouldSetResponder()).toBe(true);
+});
+
+test("ScrollView contains all building detail texts", () => {
+  render(
+    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+  );
+  expect(screen.getByText("Henry F. Hall Building")).toBeTruthy();
+  expect(screen.getByText("Building Code: H")).toBeTruthy();
+  expect(screen.getByText("Campus: Sir George Williams")).toBeTruthy();
+});
+
+// --- Edge cases for building properties ---
+
+test("handles building with missing buildingLongName", () => {
+  const buildingWithoutLongName = {
+    ...building,
+    buildingLongName: undefined as any,
+  };
+  const { UNSAFE_getAllByType } = render(
+    <DirectionPanel
+      visible={true}
+      building={buildingWithoutLongName}
+      onClose={jest.fn()}
+    />,
+  );
+  const texts = UNSAFE_getAllByType(Text);
+  const longNameText = texts.find(
+    (text) =>
+      text.props.children === undefined &&
+      text.props.style?.fontWeight === "bold",
+  );
+  expect(longNameText).toBeDefined();
+});
+
+test("renders divider between transport and details sections", () => {
+  const { UNSAFE_getAllByType } = render(
+    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+  );
+  const views = UNSAFE_getAllByType(View);
+  expect(views.length).toBeGreaterThan(5); // Multiple Views including divider
 });

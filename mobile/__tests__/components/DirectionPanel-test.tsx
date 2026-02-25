@@ -1,5 +1,4 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
-import React from "react";
 import { Animated, Image, View, Text, ScrollView } from "react-native";
 
 import DirectionPanel from "../../src/components/LocationScreen/DirectionPanel";

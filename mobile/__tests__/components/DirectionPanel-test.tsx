@@ -88,6 +88,15 @@ test("renders empty panel when building is null", () => {
 
 // --- Header ---
 
+test("renders building long name and address when visible", () => {
+  render(
+    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+  );
+  expect(screen.getByText("Henry F. Hall Building")).toBeTruthy();
+  const addressNodes = screen.getAllByText("1455 De Maisonneuve Blvd. W.");
+  expect(addressNodes.length).toBeGreaterThanOrEqual(1);
+});
+
 test("renders Directions header when visible", () => {
   render(
     <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
@@ -102,7 +111,8 @@ test("renders building name and address when visible", () => {
     <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
   );
   expect(screen.getByText("Hall Building")).toBeTruthy();
-  expect(screen.getByText("1455 De Maisonneuve Blvd. W.")).toBeTruthy();
+  const addressNodes = screen.getAllByText("1455 De Maisonneuve Blvd. W.");
+  expect(addressNodes.length).toBeGreaterThanOrEqual(1);
 });
 
 test("renders building long name in details section", () => {

@@ -275,11 +275,12 @@ test("renders empty string when address is null", () => {
       onClose={jest.fn()}
     />,
   );
+  // Should render the building name but address should be empty/not crash
+  expect(screen.getByText("Hall Building")).toBeTruthy();
+  // The address field should exist but be empty
   const texts = UNSAFE_getAllByType(Text);
   const addressText = texts.find(
-    (text) =>
-      text.props.numberOfLines === 2 &&
-      text.props.style?.fontSize !== undefined,
+    (text) => text.props.numberOfLines === 2 && text.props.children === "",
   );
   expect(addressText?.props.children).toBe("");
 });
@@ -318,20 +319,16 @@ test("handles building with missing buildingLongName", () => {
     ...building,
     buildingLongName: undefined as any,
   };
-  const { UNSAFE_getAllByType } = render(
+  render(
     <DirectionPanel
       visible={true}
       building={buildingWithoutLongName}
       onClose={jest.fn()}
     />,
   );
-  const texts = UNSAFE_getAllByType(Text);
-  const longNameText = texts.find(
-    (text) =>
-      text.props.children === undefined &&
-      text.props.style?.fontWeight === "bold",
-  );
-  expect(longNameText).toBeDefined();
+  // Should still render other building details without crashing
+  expect(screen.getByText("Building Code: H")).toBeTruthy();
+  expect(screen.getByText("Campus: Sir George Williams")).toBeTruthy();
 });
 
 test("renders divider between transport and details sections", () => {

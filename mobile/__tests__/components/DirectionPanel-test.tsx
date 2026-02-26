@@ -37,6 +37,12 @@ jest.mock("../../src/styles/DirectionPanel", () => ({
     descriptionScroll: {},
     buildingLongName: {},
     buildingDetail: {},
+    changeStartWrapper: {},
+    changeStartRow: {},
+    changeStartText: {},
+    changeStart: {},
+    resetStartRow: {},
+    resetStartText: {},
   },
 }));
 
@@ -429,4 +435,63 @@ test("shows starting building code when startBuilding has no buildingName", () =
     />,
   );
   expect(screen.getByText("Starting at AD")).toBeTruthy();
+});
+
+// --- Reset to current location ---
+
+test("does not show 'Use current location' button when no startBuilding", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      onResetStart={jest.fn()}
+    />,
+  );
+  expect(screen.queryByText("Use current location")).toBeNull();
+});
+
+test("shows 'Use current location' button when startBuilding is set", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      startBuilding={loyolaBuilding}
+      onClose={jest.fn()}
+      onResetStart={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("Use current location")).toBeTruthy();
+});
+
+test("calls onResetStart when 'Use current location' is pressed", () => {
+  const onResetStart = jest.fn();
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      startBuilding={loyolaBuilding}
+      onClose={jest.fn()}
+      onResetStart={onResetStart}
+    />,
+  );
+  fireEvent.press(
+    screen.getByRole("button", { name: "Reset to current location" }),
+  );
+  expect(onResetStart).toHaveBeenCalledTimes(1);
+});
+
+test("reset button is disabled when onResetStart is not provided", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      startBuilding={loyolaBuilding}
+      onClose={jest.fn()}
+    />,
+  );
+  const resetButton = screen.getByRole("button", {
+    name: "Reset to current location",
+  });
+  expect(resetButton.props.accessibilityState?.disabled).toBe(true);
 });

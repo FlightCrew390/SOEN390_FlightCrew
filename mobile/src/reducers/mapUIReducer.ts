@@ -56,6 +56,12 @@ export function mapUIReducer(
         startBuilding: action.building,
       };
 
+    case "RESET_START_BUILDING":
+      return {
+        ...state,
+        startBuilding: null,
+      };
+
     case "RETURN_TO_DIRECTIONS":
       return { ...state, panel: "directions", searchOrigin: "default" };
 

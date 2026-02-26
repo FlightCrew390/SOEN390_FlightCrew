@@ -20,4 +20,5 @@ export type MapUIAction =
   | { type: "TAP_MAP" }
   | { type: "OPEN_SEARCH_FOR_START" }
   | { type: "SET_START_BUILDING"; building: Building }
+  | { type: "RESET_START_BUILDING" }
   | { type: "RETURN_TO_DIRECTIONS" };

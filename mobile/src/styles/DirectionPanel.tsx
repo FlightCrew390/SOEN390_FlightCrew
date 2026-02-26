@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   changeStartWrapper: {
     paddingHorizontal: 16,
     marginBottom: 14,
-    flexDirection: "row",
+    flexDirection: "column",
   },
   changeStartRow: {
     flexDirection: "row",
@@ -119,6 +119,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.concordiaMaroon,
     textDecorationLine: "underline",
+    fontStyle: "italic",
+  },
+  resetStartRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F2F2F2",
+    borderRadius: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 14,
+    gap: 6,
+    alignSelf: "flex-start",
+    marginTop: 8,
+  },
+  resetStartText: {
+    fontSize: 12,
+    color: COLORS.concordiaMaroon,
+    fontWeight: "500",
     fontStyle: "italic",
   },
   transportRow: {

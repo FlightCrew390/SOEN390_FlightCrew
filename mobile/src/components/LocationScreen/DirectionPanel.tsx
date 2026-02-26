@@ -25,6 +25,7 @@ interface DirectionPanelProps {
   readonly startBuilding?: Building | null;
   readonly onClose: () => void;
   readonly onOpenSearch?: () => void;
+  readonly onResetStart?: () => void;
 }
 
 function TransportCard({
@@ -44,6 +45,7 @@ export default function DirectionPanel({
   startBuilding,
   onClose,
   onOpenSearch,
+  onResetStart,
 }: Readonly<DirectionPanelProps>) {
   const { animatedStyle } = usePanelAnimation(visible);
 
@@ -101,6 +103,24 @@ export default function DirectionPanel({
                 </Text>
                 <Text style={styles.changeStart}>change</Text>
               </Pressable>
+              {startBuilding != null && (
+                <Pressable
+                  style={styles.resetStartRow}
+                  onPress={() => onResetStart?.()}
+                  disabled={!onResetStart}
+                  accessibilityLabel="Reset to current location"
+                  accessibilityRole="button"
+                >
+                  <FontAwesome5
+                    name="location-arrow"
+                    size={11}
+                    color={COLORS.concordiaMaroon}
+                  />
+                  <Text style={styles.resetStartText}>
+                    Use current location
+                  </Text>
+                </Pressable>
+              )}
             </View>
 
             {/* Transport options */}

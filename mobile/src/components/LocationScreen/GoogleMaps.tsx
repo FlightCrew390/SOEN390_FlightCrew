@@ -245,6 +245,7 @@ export default function GoogleMaps({
         startBuilding={state.startBuilding}
         onClose={() => dispatch({ type: "CLOSE_PANEL" })}
         onOpenSearch={() => dispatch({ type: "OPEN_SEARCH_FOR_START" })}
+        onResetStart={() => dispatch({ type: "RESET_START_BUILDING" })}
       />
 
       {/* Search panel */}

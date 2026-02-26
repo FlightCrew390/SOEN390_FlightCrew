@@ -149,6 +149,17 @@ describe("mapUIReducer", () => {
     expect(state.startBuilding).toBe(mockBuilding2);
   });
 
+  it("RESET_START_BUILDING clears startBuilding back to null", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      panel: "directions",
+      startBuilding: mockBuilding2,
+    };
+    const state = mapUIReducer(prev, { type: "RESET_START_BUILDING" });
+    expect(state.startBuilding).toBeNull();
+    expect(state.panel).toBe("directions");
+  });
+
   it("RETURN_TO_DIRECTIONS sets panel to directions and resets searchOrigin", () => {
     const prev: MapUIState = {
       ...initialMapUIState,

@@ -146,7 +146,7 @@ test("calls onDeselect when callout is pressed", () => {
   const building = createBuilding();
   const onDeselect = jest.fn();
 
-  render(<BuildingMarker building={building} onDeselect={onDeselect} />);
+  render(<BuildingMarker building={building} />);
 
   // onDeselect is not wired to onCalloutPress; tapping the callout triggers onDirectionPress.
   expect(onDeselect).not.toHaveBeenCalled();

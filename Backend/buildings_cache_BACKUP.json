@@ -2551,6 +2551,39 @@
   },
   {
     "Campus": "SGW",
+    "Building": "LS",
+    "Building_Name": "LS Building",
+    "Building_Long_Name": "Learning Square",
+    "Address": "1535 De Maisonneuve Blvd. W.",
+    "Latitude": 45.4963501,
+    "Longitude": -73.5794859,
+    "Google_Place_Info": {
+      "place": null,
+      "displayName": null,
+      "primaryType": null,
+      "types": ["subpremise", "street_address"],
+      "formattedAddress": "1535 Blvd. De Maisonneuve Ouest, Montreal, Quebec H3G 1M9",
+      "structureType": "POINT",
+      "location": { "latitude": 45.4963501, "longitude": -73.5794859 },
+      "displayPolygon": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.5796732, 45.4964109],
+            [-73.579561, 45.4965258],
+            [-73.5792508, 45.4963801],
+            [-73.5794615, 45.4961709],
+            [-73.5796654, 45.4962653],
+            [-73.5795756, 45.4963617],
+            [-73.5796732, 45.4964109]
+          ]
+        ]
+      },
+      "entrances": null
+    }
+  },
+  {
+    "Campus": "SGW",
     "Building": "S",
     "Building_Name": "S Building",
     "Building_Long_Name": "S Annex",

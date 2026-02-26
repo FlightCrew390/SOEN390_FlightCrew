@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
-import { Animated, Image, View, Text, ScrollView } from "react-native";
+import { Animated, Image, ScrollView, Text, View } from "react-native";
 
 import DirectionPanel from "../../src/components/LocationScreen/DirectionPanel";
 import { Building } from "../../src/types/Building";
@@ -395,4 +395,38 @@ test("renders divider between transport and details sections", () => {
   );
   const views = UNSAFE_getAllByType(View);
   expect(views.length).toBeGreaterThan(5); // Multiple Views including divider
+});
+
+// --- Start building ---
+
+test("shows 'Starting from your current location' when no startBuilding", () => {
+  render(
+    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+  );
+  expect(screen.getByText("Starting from your current location")).toBeTruthy();
+});
+
+test("shows starting building name when startBuilding is provided", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      startBuilding={loyolaBuilding}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("Starting at Administration Building")).toBeTruthy();
+});
+
+test("shows starting building code when startBuilding has no buildingName", () => {
+  const startWithoutName = { ...loyolaBuilding, buildingName: null as any };
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      startBuilding={startWithoutName}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("Starting at AD")).toBeTruthy();
 });

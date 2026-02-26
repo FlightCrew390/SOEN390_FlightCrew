@@ -6,6 +6,7 @@ export interface Building {
   address: string;
   latitude: number;
   longitude: number;
+  structureType?: string;
   polygons?: { latitude: number; longitude: number }[][];
   Google_Place_Info?: {
     displayName: { text: string };

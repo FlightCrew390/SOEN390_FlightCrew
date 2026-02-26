@@ -68,6 +68,7 @@ export class BuildingDataService {
           address: building.Address,
           latitude: building.Latitude,
           longitude: building.Longitude,
+          structureType: building.Google_Place_Info?.structureType,
           polygons: polygons,
           Google_Place_Info: building.Google_Place_Info,
         };

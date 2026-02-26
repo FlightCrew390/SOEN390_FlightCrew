@@ -14,15 +14,20 @@ export default function BuildingPolygon({ building }: BuildingPolygonProps) {
 
   return (
     <>
-      {building.polygons.map((polygonCoords, index) => (
-        <Polygon
-          key={`${building.buildingCode}-${index}`}
-          coordinates={polygonCoords}
-          strokeColor={COLORS.concordiaMaroon}
-          fillColor="rgba(156, 45, 45, 0.3)" // Transparent maroon
-          strokeWidth={2}
-        />
-      ))}
+      {building.polygons.map((polygonCoords, index) => {
+        const isGrounds = building.structureType === "GROUNDS";
+        return (
+          <Polygon
+            key={`${building.buildingCode}-${index}`}
+            coordinates={polygonCoords}
+            strokeColor={isGrounds ? "transparent" : COLORS.concordiaMaroon}
+            fillColor={
+              isGrounds ? "rgba(134, 134, 5, 0.3)" : "rgba(156, 45, 45, 0.3)"
+            }
+            strokeWidth={isGrounds ? 0 : 2}
+          />
+        );
+      })}
     </>
   );
 }

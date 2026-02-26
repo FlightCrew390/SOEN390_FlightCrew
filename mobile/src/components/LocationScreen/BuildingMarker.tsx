@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import { Marker, MapMarker } from "react-native-maps";
+import { useEffect, useRef } from "react";
+import { MapMarker, Marker } from "react-native-maps";
 import Svg, { Circle, Path } from "react-native-svg";
 import { COLORS, MAP_CONFIG } from "../../constants";
 import { Building } from "../../types/Building";
@@ -10,7 +10,6 @@ interface BuildingMarkerProps {
   readonly isSelected?: boolean;
   readonly isDirectionsOpen?: boolean;
   readonly onSelect?: () => void;
-  readonly onDeselect?: () => void;
   readonly onDirectionPress?: () => void;
 }
 
@@ -53,7 +52,6 @@ export default function BuildingMarker({
   isSelected = false,
   isDirectionsOpen = false,
   onSelect,
-  onDeselect,
   onDirectionPress,
 }: Readonly<BuildingMarkerProps>) {
   const markerRef = useRef<MapMarker>(null);

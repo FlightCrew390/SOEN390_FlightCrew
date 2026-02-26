@@ -69,11 +69,16 @@ const styles = StyleSheet.create({
   addressRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 4,
-    gap: 8,
+    marginBottom: 4,
+    gap: 10,
   },
   searchButtonLeftOfAddress: {
-    padding: 4,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#F2F2F2",
+    alignItems: "center",
+    justifyContent: "center",
   },
   buildingAddress: {
     flex: 1,
@@ -89,6 +94,32 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#1A1A1A",
     letterSpacing: -0.3,
+  },
+  changeStartWrapper: {
+    paddingHorizontal: 16,
+    marginBottom: 14,
+    flexDirection: "row",
+  },
+  changeStartRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F2F2F2",
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    gap: 10,
+    alignSelf: "flex-start",
+  },
+  changeStartText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    fontWeight: "500",
+  },
+  changeStart: {
+    fontSize: 14,
+    color: COLORS.concordiaMaroon,
+    textDecorationLine: "underline",
+    fontStyle: "italic",
   },
   transportRow: {
     flexDirection: "row",
@@ -118,7 +149,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   descriptionScroll: {
-    maxHeight: 80,
+    maxHeight: 120,
     paddingHorizontal: 16,
     paddingBottom: 16,
   },

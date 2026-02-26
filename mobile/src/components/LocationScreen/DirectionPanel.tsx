@@ -1,5 +1,4 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import React from "react";
 import {
   Animated,
   Image,
@@ -23,6 +22,7 @@ const ICONS = {
 interface DirectionPanelProps {
   readonly visible: boolean;
   readonly building: Building | null;
+  readonly startBuilding?: Building | null;
   readonly onClose: () => void;
   readonly onOpenSearch?: () => void;
 }
@@ -41,6 +41,7 @@ function TransportCard({
 export default function DirectionPanel({
   visible,
   building,
+  startBuilding,
   onClose,
   onOpenSearch,
 }: Readonly<DirectionPanelProps>) {
@@ -84,6 +85,24 @@ export default function DirectionPanel({
               <Text style={styles.distanceText}>-- m</Text>
             </View>
 
+            {/* Change start location */}
+            <View style={styles.changeStartWrapper}>
+              <Pressable
+                style={styles.changeStartRow}
+                onPress={() => onOpenSearch?.()}
+                disabled={!onOpenSearch}
+                accessibilityLabel="Search buildings to change directions start"
+                accessibilityRole="button"
+              >
+                <Text style={styles.changeStartText}>
+                  {startBuilding
+                    ? `Starting at ${startBuilding.buildingName ?? startBuilding.buildingCode}`
+                    : "Starting from your current location"}
+                </Text>
+                <Text style={styles.changeStart}>change</Text>
+              </Pressable>
+            </View>
+
             {/* Transport options */}
             <View style={styles.transportRow}>
               <TransportCard icon={ICONS.walk} />
@@ -104,19 +123,6 @@ export default function DirectionPanel({
                 {building.buildingLongName}
               </Text>
               <View style={styles.addressRow}>
-                <Pressable
-                  style={styles.searchButtonLeftOfAddress}
-                  onPress={() => onOpenSearch?.()}
-                  disabled={!onOpenSearch}
-                  accessibilityLabel="Search buildings to change directions start"
-                  accessibilityRole="button"
-                >
-                  <FontAwesome5
-                    name="search"
-                    size={14}
-                    color={COLORS.concordiaMaroon}
-                  />
-                </Pressable>
                 <Text style={styles.buildingAddress}>{building.address}</Text>
               </View>
               <Text style={styles.buildingDetail}>

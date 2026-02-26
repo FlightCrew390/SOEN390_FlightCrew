@@ -6,6 +6,7 @@ import { Building } from "../../src/types/Building";
 
 // Track the latest Marker props and ref methods for assertion
 const mockShowCallout = jest.fn();
+const mockHideCallout = jest.fn();
 let capturedMarkerProps: any = null;
 
 jest.mock("react-native-maps", () => {
@@ -15,6 +16,7 @@ jest.mock("react-native-maps", () => {
     capturedMarkerProps = props;
     React.useImperativeHandle(ref, () => ({
       showCallout: mockShowCallout,
+      hideCallout: mockHideCallout,
     }));
     return React.createElement("Marker", props, props.children);
   });
@@ -180,6 +182,52 @@ test("does not call showCallout when isSelected is false", () => {
   const building = createBuilding();
 
   render(<BuildingMarker building={building} isSelected={false} />);
+
+  jest.advanceTimersByTime(1000);
+  expect(mockShowCallout).not.toHaveBeenCalled();
+
+  jest.useRealTimers();
+});
+
+test("calls hideCallout when isDirectionsOpen and isSelected are true", () => {
+  const building = createBuilding();
+
+  render(
+    <BuildingMarker
+      building={building}
+      isSelected={true}
+      isDirectionsOpen={true}
+    />,
+  );
+
+  expect(mockHideCallout).toHaveBeenCalled();
+});
+
+test("does not call hideCallout when isDirectionsOpen is false", () => {
+  const building = createBuilding();
+
+  render(
+    <BuildingMarker
+      building={building}
+      isSelected={true}
+      isDirectionsOpen={false}
+    />,
+  );
+
+  expect(mockHideCallout).not.toHaveBeenCalled();
+});
+
+test("does not call showCallout when isDirectionsOpen is true", () => {
+  jest.useFakeTimers();
+  const building = createBuilding();
+
+  render(
+    <BuildingMarker
+      building={building}
+      isSelected={true}
+      isDirectionsOpen={true}
+    />,
+  );
 
   jest.advanceTimersByTime(1000);
   expect(mockShowCallout).not.toHaveBeenCalled();

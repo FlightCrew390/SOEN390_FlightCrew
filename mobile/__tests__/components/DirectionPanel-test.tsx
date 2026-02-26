@@ -185,6 +185,52 @@ test("does not call onClose before button is pressed", () => {
   expect(onClose).not.toHaveBeenCalled();
 });
 
+// --- Search button (onOpenSearch) ---
+
+test("renders search button when building is visible", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      onOpenSearch={jest.fn()}
+    />,
+  );
+  expect(
+    screen.getByRole("button", {
+      name: "Search buildings to change directions start",
+    }),
+  ).toBeTruthy();
+});
+
+test("calls onOpenSearch when search button is pressed", () => {
+  const onOpenSearch = jest.fn();
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      onOpenSearch={onOpenSearch}
+    />,
+  );
+  fireEvent.press(
+    screen.getByRole("button", {
+      name: "Search buildings to change directions start",
+    }),
+  );
+  expect(onOpenSearch).toHaveBeenCalledTimes(1);
+});
+
+test("search button is disabled when onOpenSearch is not provided", () => {
+  render(
+    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+  );
+  const searchButton = screen.getByRole("button", {
+    name: "Search buildings to change directions start",
+  });
+  expect(searchButton.props.accessibilityState?.disabled).toBe(true);
+});
+
 // --- Animated.View pointerEvents ---
 
 test("sets pointerEvents to 'auto' when visible and building exists", () => {

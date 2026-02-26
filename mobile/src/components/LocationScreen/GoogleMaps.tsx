@@ -207,6 +207,7 @@ export default function GoogleMaps({
             isSelected={
               state.selectedBuilding?.buildingCode === building.buildingCode
             }
+            isDirectionsOpen={state.panel === "directions"}
             onSelect={() => handleSelectBuilding(building)}
             onDeselect={() => dispatch({ type: "DESELECT_BUILDING" })}
             onDirectionPress={() => {

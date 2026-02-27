@@ -3,6 +3,7 @@ import { Animated, Image, ScrollView, Text, View } from "react-native";
 
 import DirectionPanel from "../../src/components/LocationScreen/DirectionPanel";
 import { Building } from "../../src/types/Building";
+import { TravelMode } from "../../src/types/Directions";
 
 jest.mock("@expo/vector-icons/FontAwesome5", () => "FontAwesome5");
 
@@ -80,7 +81,18 @@ beforeEach(() => {
 
 test("is non-interactive when not visible", () => {
   render(
-    <DirectionPanel visible={false} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={false}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   expect(
     screen.queryByRole("button", { name: "Close direction panel" }),
@@ -88,7 +100,20 @@ test("is non-interactive when not visible", () => {
 });
 
 test("renders empty panel when building is null", () => {
-  render(<DirectionPanel visible={true} building={null} onClose={jest.fn()} />);
+  render(
+    <DirectionPanel
+      visible={true}
+      building={null}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
+  );
   expect(screen.queryByText("Directions")).toBeNull();
 });
 
@@ -96,7 +121,18 @@ test("renders empty panel when building is null", () => {
 
 test("renders building long name and address when visible", () => {
   render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   expect(screen.getByText("Henry F. Hall Building")).toBeTruthy();
   const addressNodes = screen.getAllByText("1455 De Maisonneuve Blvd. W.");
@@ -105,7 +141,18 @@ test("renders building long name and address when visible", () => {
 
 test("renders Directions header when visible", () => {
   render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   expect(screen.getByText("Directions")).toBeTruthy();
 });
@@ -114,7 +161,18 @@ test("renders Directions header when visible", () => {
 
 test("renders building name and address when visible", () => {
   render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   expect(screen.getByText("Hall Building")).toBeTruthy();
   const addressNodes = screen.getAllByText("1455 De Maisonneuve Blvd. W.");
@@ -123,21 +181,54 @@ test("renders building name and address when visible", () => {
 
 test("renders building long name in details section", () => {
   render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   expect(screen.getByText("Henry F. Hall Building")).toBeTruthy();
 });
 
 test("renders building code in details section", () => {
   render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   expect(screen.getByText("Building Code: H")).toBeTruthy();
 });
 
 test("renders SGW campus label correctly", () => {
   render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   expect(screen.getByText("Campus: Sir George Williams")).toBeTruthy();
 });
@@ -148,6 +239,13 @@ test("renders Loyola campus label correctly", () => {
       visible={true}
       building={loyolaBuilding}
       onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
     />,
   );
   expect(screen.getByText("Campus: Loyola")).toBeTruthy();
@@ -155,7 +253,18 @@ test("renders Loyola campus label correctly", () => {
 
 test("renders distance placeholder", () => {
   render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   expect(screen.getByText("-- m")).toBeTruthy();
 });
@@ -164,7 +273,18 @@ test("renders distance placeholder", () => {
 
 test("renders four transport time placeholders", () => {
   render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   const timePlaceholders = screen.getAllByText("-- min");
   expect(timePlaceholders).toHaveLength(4);
@@ -175,7 +295,18 @@ test("renders four transport time placeholders", () => {
 test("calls onClose when close button is pressed", () => {
   const onClose = jest.fn();
   render(
-    <DirectionPanel visible={true} building={building} onClose={onClose} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={onClose}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   fireEvent.press(
     screen.getByRole("button", { name: "Close direction panel" }),
@@ -186,7 +317,18 @@ test("calls onClose when close button is pressed", () => {
 test("does not call onClose before button is pressed", () => {
   const onClose = jest.fn();
   render(
-    <DirectionPanel visible={true} building={building} onClose={onClose} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={onClose}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   expect(onClose).not.toHaveBeenCalled();
 });
@@ -200,6 +342,13 @@ test("renders search button when building is visible", () => {
       building={building}
       onClose={jest.fn()}
       onOpenSearch={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
     />,
   );
   expect(
@@ -217,6 +366,13 @@ test("calls onOpenSearch when search button is pressed", () => {
       building={building}
       onClose={jest.fn()}
       onOpenSearch={onOpenSearch}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
     />,
   );
   fireEvent.press(
@@ -229,7 +385,18 @@ test("calls onOpenSearch when search button is pressed", () => {
 
 test("search button is disabled when onOpenSearch is not provided", () => {
   render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   const searchButton = screen.getByRole("button", {
     name: "Search buildings to change directions start",
@@ -241,7 +408,18 @@ test("search button is disabled when onOpenSearch is not provided", () => {
 
 test("sets pointerEvents to 'auto' when visible and building exists", () => {
   const { UNSAFE_getAllByType } = render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   const animatedViews = UNSAFE_getAllByType(Animated.View);
   const mainPanel = animatedViews.find((view) => view.props.pointerEvents);
@@ -250,7 +428,18 @@ test("sets pointerEvents to 'auto' when visible and building exists", () => {
 
 test("sets pointerEvents to 'none' when not visible", () => {
   const { UNSAFE_getAllByType } = render(
-    <DirectionPanel visible={false} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={false}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   const animatedViews = UNSAFE_getAllByType(Animated.View);
   const mainPanel = animatedViews.find((view) => view.props.pointerEvents);
@@ -259,7 +448,18 @@ test("sets pointerEvents to 'none' when not visible", () => {
 
 test("sets pointerEvents to 'none' when building is null", () => {
   const { UNSAFE_getAllByType } = render(
-    <DirectionPanel visible={true} building={null} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={null}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   const animatedViews = UNSAFE_getAllByType(Animated.View);
   const mainPanel = animatedViews.find((view) => view.props.pointerEvents);
@@ -270,7 +470,18 @@ test("sets pointerEvents to 'none' when building is null", () => {
 
 test("renders all four transport card images", () => {
   const { UNSAFE_getAllByType } = render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   const images = UNSAFE_getAllByType(Image);
   expect(images.length).toBe(4);
@@ -278,7 +489,18 @@ test("renders all four transport card images", () => {
 
 test("transport cards have correct resizeMode", () => {
   const { UNSAFE_getAllByType } = render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   const images = UNSAFE_getAllByType(Image);
   images.forEach((image) => {
@@ -288,7 +510,18 @@ test("transport cards have correct resizeMode", () => {
 
 test("transport cards are wrapped in View containers", () => {
   const { UNSAFE_getAllByType } = render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   const views = UNSAFE_getAllByType(View);
   expect(views.length).toBeGreaterThan(0);
@@ -298,7 +531,18 @@ test("transport cards are wrapped in View containers", () => {
 
 test("renders building name with numberOfLines prop", () => {
   const { UNSAFE_getAllByType } = render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   const texts = UNSAFE_getAllByType(Text);
   const buildingNameText = texts.find(
@@ -309,7 +553,18 @@ test("renders building name with numberOfLines prop", () => {
 
 test("renders building address with numberOfLines prop", () => {
   const { UNSAFE_getAllByType } = render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   const texts = UNSAFE_getAllByType(Text);
   const addressText = texts.find(
@@ -325,6 +580,13 @@ test("uses buildingCode as fallback when buildingName is null", () => {
       visible={true}
       building={buildingWithoutName}
       onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
     />,
   );
   expect(screen.getByText("H")).toBeTruthy();
@@ -337,6 +599,13 @@ test("renders empty string when address is null", () => {
       visible={true}
       building={buildingWithoutAddress}
       onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
     />,
   );
   // Should render the building name but address should be empty/not crash
@@ -353,7 +622,18 @@ test("renders empty string when address is null", () => {
 
 test("ScrollView shows vertical scroll indicator", () => {
   const { UNSAFE_getAllByType } = render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   const scrollViews = UNSAFE_getAllByType(ScrollView);
   expect(scrollViews[0].props.showsVerticalScrollIndicator).toBe(true);
@@ -361,7 +641,18 @@ test("ScrollView shows vertical scroll indicator", () => {
 
 test("ScrollView handles touch responder", () => {
   const { UNSAFE_getAllByType } = render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   const scrollViews = UNSAFE_getAllByType(ScrollView);
   expect(scrollViews[0].props.onStartShouldSetResponder()).toBe(true);
@@ -369,7 +660,18 @@ test("ScrollView handles touch responder", () => {
 
 test("ScrollView contains all building detail texts", () => {
   render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   expect(screen.getByText("Henry F. Hall Building")).toBeTruthy();
   expect(screen.getByText("Building Code: H")).toBeTruthy();
@@ -388,6 +690,13 @@ test("handles building with missing buildingLongName", () => {
       visible={true}
       building={buildingWithoutLongName}
       onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
     />,
   );
   // Should still render other building details without crashing
@@ -397,7 +706,18 @@ test("handles building with missing buildingLongName", () => {
 
 test("renders divider between transport and details sections", () => {
   const { UNSAFE_getAllByType } = render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   const views = UNSAFE_getAllByType(View);
   expect(views.length).toBeGreaterThan(5); // Multiple Views including divider
@@ -407,7 +727,18 @@ test("renders divider between transport and details sections", () => {
 
 test("shows 'Starting from your current location' when no startBuilding", () => {
   render(
-    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
+    />,
   );
   expect(screen.getByText("Starting from your current location")).toBeTruthy();
 });
@@ -419,6 +750,13 @@ test("shows starting building name when startBuilding is provided", () => {
       building={building}
       startBuilding={loyolaBuilding}
       onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
     />,
   );
   expect(screen.getByText("Starting at Administration Building")).toBeTruthy();
@@ -432,6 +770,13 @@ test("shows starting building code when startBuilding has no buildingName", () =
       building={building}
       startBuilding={startWithoutName}
       onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
     />,
   );
   expect(screen.getByText("Starting at AD")).toBeTruthy();
@@ -446,6 +791,13 @@ test("does not show 'Use current location' button when no startBuilding", () => 
       building={building}
       onClose={jest.fn()}
       onResetStart={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
     />,
   );
   expect(screen.queryByText("Use current location")).toBeNull();
@@ -459,6 +811,13 @@ test("shows 'Use current location' button when startBuilding is set", () => {
       startBuilding={loyolaBuilding}
       onClose={jest.fn()}
       onResetStart={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
     />,
   );
   expect(screen.getByText("Use current location")).toBeTruthy();
@@ -473,6 +832,13 @@ test("calls onResetStart when 'Use current location' is pressed", () => {
       startBuilding={loyolaBuilding}
       onClose={jest.fn()}
       onResetStart={onResetStart}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
     />,
   );
   fireEvent.press(
@@ -488,6 +854,13 @@ test("reset button is disabled when onResetStart is not provided", () => {
       building={building}
       startBuilding={loyolaBuilding}
       onClose={jest.fn()}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode={"WALK"}
+      onTravelModeChange={function (mode: TravelMode): void {
+        throw new Error("Function not implemented.");
+      }}
     />,
   );
   const resetButton = screen.getByRole("button", {

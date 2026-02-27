@@ -33,6 +33,10 @@ describe("mapUIReducer", () => {
       currentBuilding: null,
       searchOrigin: "default",
       startBuilding: null,
+      travelMode: "WALK",
+      route: null,
+      routeLoading: false,
+      routeError: null,
     });
   });
 

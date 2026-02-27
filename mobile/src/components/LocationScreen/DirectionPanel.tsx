@@ -1,5 +1,6 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import {
+  ActivityIndicator,
   Animated,
   Image,
   Pressable,
@@ -11,31 +12,83 @@ import { COLORS } from "../../constants";
 import { usePanelAnimation } from "../../hooks/usePanelAnimation";
 import styles from "../../styles/DirectionPanel";
 import { Building } from "../../types/Building";
+import { RouteInfo, TravelMode } from "../../types/Directions";
 
-const ICONS = {
-  walk: require("../../../assets/walk.png"),
-  bike: require("../../../assets/bike.png"),
-  train: require("../../../assets/train.png"),
-  car: require("../../../assets/car.png"),
-} as const;
+const TRANSPORT_OPTIONS: {
+  mode: TravelMode;
+  icon: ReturnType<typeof require>;
+  label: string;
+}[] = [
+  { mode: "WALK", icon: require("../../../assets/walk.png"), label: "Walk" },
+  { mode: "BICYCLE", icon: require("../../../assets/bike.png"), label: "Bike" },
+  {
+    mode: "TRANSIT",
+    icon: require("../../../assets/train.png"),
+    label: "Transit",
+  },
+  { mode: "DRIVE", icon: require("../../../assets/car.png"), label: "Drive" },
+];
 
 interface DirectionPanelProps {
   readonly visible: boolean;
   readonly building: Building | null;
   readonly startBuilding?: Building | null;
+  readonly route: RouteInfo | null;
+  readonly routeLoading: boolean;
+  readonly routeError: string | null;
+  readonly travelMode: TravelMode;
+  readonly onTravelModeChange: (mode: TravelMode) => void;
   readonly onClose: () => void;
   readonly onOpenSearch?: () => void;
   readonly onResetStart?: () => void;
 }
 
+function formatDuration(totalSeconds: number): string {
+  if (totalSeconds <= 0) return "-- min";
+  const minutes = Math.round(totalSeconds / 60);
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const remaining = minutes % 60;
+  return remaining > 0 ? `${hours} hr ${remaining} min` : `${hours} hr`;
+}
+
+function formatDistance(meters: number): string {
+  if (meters <= 0) return "-- m";
+  if (meters < 1000) return `${Math.round(meters)} m`;
+  return `${(meters / 1000).toFixed(1)} km`;
+}
+
 function TransportCard({
   icon,
-}: Readonly<{ icon: ReturnType<typeof require> }>) {
+  label,
+  duration,
+  isActive,
+  onPress,
+}: Readonly<{
+  icon: ReturnType<typeof require>;
+  label: string;
+  duration: string;
+  isActive: boolean;
+  onPress: () => void;
+}>) {
   return (
-    <View style={styles.transportCard}>
-      <Image source={icon} style={styles.transportIcon} resizeMode="contain" />
-      <Text style={styles.transportTime}>-- min</Text>
-    </View>
+    <Pressable
+      style={[styles.transportCard, isActive && styles.transportCardActive]}
+      onPress={onPress}
+      accessibilityLabel={`Get directions by ${label}`}
+      accessibilityRole="button"
+    >
+      <Image
+        source={icon}
+        style={[styles.transportIcon, isActive && styles.transportIconActive]}
+        resizeMode="contain"
+      />
+      <Text
+        style={[styles.transportTime, isActive && styles.transportTimeActive]}
+      >
+        {duration}
+      </Text>
+    </Pressable>
   );
 }
 
@@ -43,11 +96,18 @@ export default function DirectionPanel({
   visible,
   building,
   startBuilding,
+  route,
+  routeLoading,
+  routeError,
+  travelMode,
+  onTravelModeChange,
   onClose,
   onOpenSearch,
   onResetStart,
 }: Readonly<DirectionPanelProps>) {
   const { animatedStyle } = usePanelAnimation(visible);
+
+  const distanceText = route ? formatDistance(route.distanceMeters) : "-- m";
 
   return (
     <>
@@ -63,7 +123,6 @@ export default function DirectionPanel({
         </Pressable>
       )}
 
-      {/* Always mounted so the fade-out animation can play */}
       <Animated.View
         style={[styles.container, animatedStyle]}
         pointerEvents={visible && building != null ? "auto" : "none"}
@@ -84,7 +143,7 @@ export default function DirectionPanel({
                   {building.address ?? ""}
                 </Text>
               </View>
-              <Text style={styles.distanceText}>-- m</Text>
+              <Text style={styles.distanceText}>{distanceText}</Text>
             </View>
 
             {/* Change start location */}
@@ -125,33 +184,97 @@ export default function DirectionPanel({
 
             {/* Transport options */}
             <View style={styles.transportRow}>
-              <TransportCard icon={ICONS.walk} />
-              <TransportCard icon={ICONS.bike} />
-              <TransportCard icon={ICONS.train} />
-              <TransportCard icon={ICONS.car} />
+              {TRANSPORT_OPTIONS.map(({ mode, icon, label }) => (
+                <TransportCard
+                  key={mode}
+                  icon={icon}
+                  label={label}
+                  isActive={travelMode === mode}
+                  duration={
+                    travelMode === mode && route
+                      ? formatDuration(route.durationSeconds)
+                      : "-- min"
+                  }
+                  onPress={() => onTravelModeChange(mode)}
+                />
+              ))}
             </View>
+
+            {/* Loading / error / route states */}
+            {routeLoading && (
+              <View style={styles.loadingRow}>
+                <ActivityIndicator
+                  size="small"
+                  color={COLORS.concordiaMaroon}
+                />
+                <Text style={styles.loadingText}>Calculating route…</Text>
+              </View>
+            )}
+
+            {routeError != null && !routeLoading && (
+              <View style={styles.errorRow}>
+                <FontAwesome5
+                  name="exclamation-circle"
+                  size={14}
+                  color={COLORS.error}
+                />
+                <Text style={styles.errorText}>{routeError}</Text>
+              </View>
+            )}
 
             <View style={styles.divider} />
 
-            {/* Building details */}
+            {/* Turn-by-turn steps */}
             <ScrollView
               style={styles.descriptionScroll}
               showsVerticalScrollIndicator
               onStartShouldSetResponder={() => true}
             >
-              <Text style={styles.buildingLongName}>
-                {building.buildingLongName}
-              </Text>
-              <View style={styles.addressRow}>
-                <Text style={styles.buildingAddress}>{building.address}</Text>
-              </View>
-              <Text style={styles.buildingDetail}>
-                Building Code: {building.buildingCode}
-              </Text>
-              <Text style={styles.buildingDetail}>
-                Campus:{" "}
-                {building.campus === "SGW" ? "Sir George Williams" : "Loyola"}
-              </Text>
+              {route && route.steps.length > 0 ? (
+                route.steps
+                  .filter((step) => step.instruction.length > 0)
+                  .map((step, idx) => (
+                    <View
+                      key={`step-${step.instruction}-${idx}`}
+                      style={styles.stepRow}
+                    >
+                      <View style={styles.stepBullet}>
+                        <Text style={styles.stepBulletText}>{idx + 1}</Text>
+                      </View>
+                      <View style={styles.stepContent}>
+                        <Text style={styles.stepInstruction}>
+                          {step.instruction}
+                        </Text>
+                        <Text style={styles.stepMeta}>
+                          {formatDistance(step.distanceMeters)}
+                          {step.durationSeconds > 0
+                            ? ` · ${formatDuration(step.durationSeconds)}`
+                            : ""}
+                        </Text>
+                      </View>
+                    </View>
+                  ))
+              ) : (
+                <>
+                  <Text style={styles.buildingLongName}>
+                    {building.buildingLongName}
+                  </Text>
+                  <View style={styles.addressRow}>
+                    <Text style={styles.buildingAddress}>
+                      {building.address}
+                    </Text>
+                  </View>
+                  <Text style={styles.buildingDetail}>
+                    Building Code: {building.buildingCode}
+                  </Text>
+                  <Text style={styles.buildingDetail}>
+                    Campus:{" "}
+                    {building.campus === "SGW"
+                      ? "Sir George Williams"
+                      : "Loyola"}
+                  </Text>
+                </>
+              )}
             </ScrollView>
           </>
         )}

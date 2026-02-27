@@ -1,5 +1,5 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import React, { useEffect, useReducer, useRef } from "react";
+import React, { useCallback, useEffect, useReducer, useRef } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import MapView, {
+  Polyline,
   PROVIDER_DEFAULT,
   PROVIDER_GOOGLE,
   Region,
@@ -16,10 +17,12 @@ import { COLORS, MAP_CONFIG } from "../../constants";
 import { campusBoundary } from "../../constants/campusBoundaries";
 import { useBuildings } from "../../contexts/BuildingContext";
 import { useLocation } from "../../contexts/LocationContext";
+import { useDirections } from "../../hooks/useDirections";
 import { initialMapUIState, mapUIReducer } from "../../reducers/mapUIReducer";
 import { LocationType } from "../../state/SearchPanelState";
 import styles from "../../styles/GoogleMaps";
 import { Building } from "../../types/Building";
+import { TravelMode } from "../../types/Directions";
 import { findCurrentBuilding } from "../../utils/buildingDetection";
 import BuildingMarker from "./BuildingMarker";
 import BuildingPolygon from "./BuildingPolygon";
@@ -29,7 +32,6 @@ import UserLocationMarker from "./UserLocationMarker";
 
 interface GoogleMapsProps {
   readonly mapRef?: React.RefObject<MapView | null>;
-  /** Called when user taps recenter so parent can sync campus selector to actual location. */
   readonly onRecenter?: () => void;
 }
 
@@ -49,7 +51,38 @@ export default function GoogleMaps({
   const hasCenteredOnUserOnceRef = useRef(false);
   const [state, dispatch] = useReducer(mapUIReducer, initialMapUIState);
 
-  // Find current building when location or buildings change
+  const onRouteLoading = useCallback(
+    () => dispatch({ type: "ROUTE_LOADING" }),
+    [],
+  );
+  const onRouteLoaded = useCallback(
+    (route: any) => dispatch({ type: "ROUTE_LOADED", route }),
+    [],
+  );
+  const onRouteError = useCallback(
+    (err: string) => dispatch({ type: "ROUTE_ERROR", error: err }),
+    [],
+  );
+
+  const userCoords = location
+    ? {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      }
+    : null;
+
+  useDirections({
+    destination: state.selectedBuilding,
+    startBuilding: state.startBuilding,
+    userLocation: userCoords,
+    travelMode: state.travelMode,
+    active: state.panel === "directions",
+    onLoading: onRouteLoading,
+    onLoaded: onRouteLoaded,
+    onError: onRouteError,
+  });
+
+  // ── Find current building ──
   useEffect(() => {
     if (location && buildings.length > 0) {
       const building = findCurrentBuilding(
@@ -65,7 +98,7 @@ export default function GoogleMaps({
     }
   }, [location, buildings]);
 
-  // When location first loads, center map on user once so they see their position
+  // ── Center on user once ──
   useEffect(() => {
     if (!location || !mapRef.current || hasCenteredOnUserOnceRef.current)
       return;
@@ -79,8 +112,20 @@ export default function GoogleMaps({
     requestIdleCallback(() => {
       if (mapRef.current) mapRef.current.animateToRegion(region, 1000);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mapRef stable; run only when location appears
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
+
+  // ── Fit map to route when it loads ──
+  useEffect(() => {
+    if (!state.route || !mapRef.current) return;
+    const coords = state.route.coordinates;
+    if (coords.length < 2) return;
+
+    mapRef.current.fitToCoordinates(coords, {
+      edgePadding: { top: 200, right: 60, bottom: 300, left: 60 },
+      animated: true,
+    });
+  }, [state.route, mapRef]);
 
   const handleMapReady = () => {
     if (mapRef.current && Platform.OS === "android") {
@@ -166,7 +211,10 @@ export default function GoogleMaps({
       );
       if (match) handleSelectBuilding(match);
     }
-    // Restaurant search: placeholder for future data source
+  };
+
+  const handleTravelModeChange = (mode: TravelMode) => {
+    dispatch({ type: "SET_TRAVEL_MODE", mode });
   };
 
   const displayError = error || locationError;
@@ -193,6 +241,7 @@ export default function GoogleMaps({
         showsMyLocationButton={false}
         onPress={() => dispatch({ type: "TAP_MAP" })}
       >
+        {/* Building polygons and markers */}
         {buildings.flatMap((building) => [
           <BuildingPolygon
             key={`${building.buildingCode}-poly`}
@@ -215,6 +264,18 @@ export default function GoogleMaps({
             }}
           />,
         ])}
+
+        {/* Route polyline */}
+        {state.route && state.route.coordinates.length > 1 && (
+          <Polyline
+            coordinates={state.route.coordinates}
+            strokeColor={COLORS.concordiaMaroon}
+            strokeWidth={5}
+            lineDashPattern={state.travelMode === "WALK" ? [8, 6] : undefined}
+          />
+        )}
+
+        {/* User location */}
         {location && (
           <UserLocationMarker
             latitude={location.coords.latitude}
@@ -243,6 +304,11 @@ export default function GoogleMaps({
         visible={state.panel === "directions"}
         building={state.selectedBuilding}
         startBuilding={state.startBuilding}
+        route={state.route}
+        routeLoading={state.routeLoading}
+        routeError={state.routeError}
+        travelMode={state.travelMode}
+        onTravelModeChange={handleTravelModeChange}
         onClose={() => dispatch({ type: "CLOSE_PANEL" })}
         onOpenSearch={() => dispatch({ type: "OPEN_SEARCH_FOR_START" })}
         onResetStart={() => dispatch({ type: "RESET_START_BUILDING" })}
@@ -266,7 +332,7 @@ export default function GoogleMaps({
         }
       />
 
-      {/* Search button (top left) — hidden when direction panel is open */}
+      {/* Search button */}
       {state.panel !== "directions" && (
         <Pressable
           style={[
@@ -303,7 +369,7 @@ export default function GoogleMaps({
         </Pressable>
       )}
 
-      {/* Recenter button (bottom right) */}
+      {/* Recenter button */}
       {location != null && (
         <Pressable
           style={styles.recenterButton}

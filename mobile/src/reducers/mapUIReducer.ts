@@ -1,10 +1,15 @@
 import { MapUIAction, MapUIState } from "../state/MapUIState";
+
 export const initialMapUIState: MapUIState = {
   panel: "none",
   selectedBuilding: null,
   currentBuilding: null,
   searchOrigin: "default",
   startBuilding: null,
+  travelMode: "WALK",
+  route: null,
+  routeLoading: false,
+  routeError: null,
 };
 
 export function mapUIReducer(
@@ -16,7 +21,14 @@ export function mapUIReducer(
       return { ...state, panel: "search", searchOrigin: "default" };
 
     case "CLOSE_PANEL":
-      return { ...state, panel: "none", searchOrigin: "default" };
+      return {
+        ...state,
+        panel: "none",
+        searchOrigin: "default",
+        route: null,
+        routeLoading: false,
+        routeError: null,
+      };
 
     case "SELECT_BUILDING":
       return {
@@ -24,6 +36,9 @@ export function mapUIReducer(
         selectedBuilding: action.building,
         panel: "none",
         searchOrigin: "default",
+        route: null,
+        routeLoading: false,
+        routeError: null,
       };
 
     case "DESELECT_BUILDING":
@@ -35,13 +50,15 @@ export function mapUIReducer(
         panel: "directions",
         selectedBuilding: action.building,
         startBuilding: null,
+        route: null,
+        routeLoading: false,
+        routeError: null,
       };
 
     case "SET_CURRENT_BUILDING":
       return { ...state, currentBuilding: action.building };
 
     case "TAP_MAP":
-      // Only deselect if directions aren't showing
       if (state.panel === "directions") return state;
       return { ...state, selectedBuilding: null };
 
@@ -54,16 +71,47 @@ export function mapUIReducer(
         panel: "directions",
         searchOrigin: "default",
         startBuilding: action.building,
+        // Clear old route — a new fetch will be triggered by the component
+        route: null,
+        routeLoading: false,
+        routeError: null,
       };
 
     case "RESET_START_BUILDING":
       return {
         ...state,
         startBuilding: null,
+        route: null,
+        routeLoading: false,
+        routeError: null,
       };
 
     case "RETURN_TO_DIRECTIONS":
       return { ...state, panel: "directions", searchOrigin: "default" };
+
+    case "SET_TRAVEL_MODE":
+      return {
+        ...state,
+        travelMode: action.mode,
+        // Clear old route so the component re-fetches with new mode
+        route: null,
+        routeLoading: false,
+        routeError: null,
+      };
+
+    case "ROUTE_LOADING":
+      return { ...state, routeLoading: true, routeError: null };
+
+    case "ROUTE_LOADED":
+      return { ...state, route: action.route, routeLoading: false };
+
+    case "ROUTE_ERROR":
+      return {
+        ...state,
+        routeLoading: false,
+        routeError: action.error,
+        route: null,
+      };
 
     default:
       return state;

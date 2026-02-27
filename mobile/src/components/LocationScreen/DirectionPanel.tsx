@@ -297,7 +297,7 @@ export default function DirectionPanel({
                       </View>
                       <MaterialIcons
                         name={getManeuverIcon(step.maneuver)}
-                        size={32}
+                        size={42}
                         color="#666"
                       />
                     </View>

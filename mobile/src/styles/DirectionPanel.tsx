@@ -218,6 +218,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     padding: 7,
     paddingHorizontal: 16,
+    marginRight: 10,
     gap: 12,
   },
   stepRowEven: {
@@ -226,13 +227,16 @@ const styles = StyleSheet.create({
     padding: 7,
     paddingHorizontal: 16,
     gap: 12,
-    backgroundColor: "#F9F9F9",
+    backgroundColor: "#F4F4F4",
+    borderTopRightRadius: 15,
+    borderBottomRightRadius: 15,
   },
   stepContent: {
     flex: 1,
   },
   stepInstruction: {
-    fontSize: 14,
+    fontSize: 15,
+    fontWeight: "500",
     color: "#1A1A1A",
     lineHeight: 20,
   },

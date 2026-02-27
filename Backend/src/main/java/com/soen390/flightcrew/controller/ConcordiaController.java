@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import com.soen390.flightcrew.model.Building;
 import com.soen390.flightcrew.model.GoogleGeocodeResponse;
 import com.soen390.flightcrew.service.GoogleMapsService;
+import com.soen390.flightcrew.service.BuildingInfoService;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.core.ParameterizedTypeReference;
@@ -42,28 +43,61 @@ public class ConcordiaController {
 
     private final RestTemplate restTemplate;
     private final GoogleMapsService googleMapsService;
+    private final BuildingInfoService buildingInfoService;
     private final ObjectMapper objectMapper;
 
     public ConcordiaController(RestTemplate restTemplate, GoogleMapsService googleMapsService,
-            ObjectMapper objectMapper) {
+            BuildingInfoService buildingInfoService, ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
         this.googleMapsService = googleMapsService;
+        this.buildingInfoService = buildingInfoService;
         this.objectMapper = objectMapper;
     }
 
     @GetMapping("/facilities/buildinglist")
     public ResponseEntity<List<Building>> getBuildingList() {
+        List<Building> buildings;
         Optional<List<Building>> cached = loadFromCache();
+
         if (cached.isPresent()) {
-            return ResponseEntity.ok(cached.get());
+            buildings = cached.get();
+        } else {
+            buildings = fetchBuildingsFromApi();
+            if (buildings != null && !buildings.isEmpty()) {
+                enrichWithGoogleData(buildings);
+            }
         }
 
-        List<Building> buildings = fetchBuildingsFromApi();
         if (buildings != null && !buildings.isEmpty()) {
-            enrichWithGoogleData(buildings);
-            saveToCache(buildings);
+            boolean updated = enrichWithAccessibilityInfo(buildings);
+            if (updated || !cached.isPresent()) {
+                saveToCache(buildings);
+            }
         }
+
         return ResponseEntity.ok(buildings);
+    }
+
+    private boolean enrichWithAccessibilityInfo(List<Building> buildings) {
+        boolean updated = false;
+        for (Building building : buildings) {
+            // Only fetch if not already present
+            if (building.getAccessibilityInfo() == null || building.getAccessibilityInfo().isEmpty()) {
+                // If the page is missing, the service will return "N/A" instead of null, so we
+                // can check for that to avoid retries.
+                try {
+                    String accessibilityInfo = buildingInfoService.fetchAccessibilityInfo(building);
+                    if (accessibilityInfo != null) {
+                        building.setAccessibilityInfo(accessibilityInfo);
+                        updated = true;
+                    }
+                } catch (Exception e) {
+                    logger.warning("Failed to enrich building " + building.getBuildingCode()
+                            + " with accessibility info: " + e.getMessage());
+                }
+            }
+        }
+        return updated;
     }
 
     private Optional<List<Building>> loadFromCache() {
@@ -114,6 +148,9 @@ public class ConcordiaController {
     }
 
     private void enrichBuilding(Building building) {
+        if (building.getGooglePlaceInfo() != null) {
+            return;
+        }
         try {
             // Note: This API call is rate-limited and costs money. Be careful with loops.
             GoogleGeocodeResponse googleResponse = googleMapsService

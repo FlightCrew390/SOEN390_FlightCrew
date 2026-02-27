@@ -8,8 +8,10 @@
 .env
 .env*.local
 
+
 # IDE / Editor
 .vscode/
+.expo/
 .idea/
 *.swp
 *.swo

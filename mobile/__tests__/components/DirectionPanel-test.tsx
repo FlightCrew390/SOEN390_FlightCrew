@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
-import { Animated, Image, View, Text, ScrollView } from "react-native";
+import { Animated, Image, ScrollView, Text, View } from "react-native";
 
 import DirectionPanel from "../../src/components/LocationScreen/DirectionPanel";
 import { Building } from "../../src/types/Building";
@@ -23,6 +23,8 @@ jest.mock("../../src/styles/DirectionPanel", () => ({
     closeButton: {},
     body: {},
     buildingName: {},
+    addressRow: {},
+    searchButtonLeftOfAddress: {},
     buildingAddress: {},
     buildingInfoRow: {},
     headerLeft: {},
@@ -35,6 +37,12 @@ jest.mock("../../src/styles/DirectionPanel", () => ({
     descriptionScroll: {},
     buildingLongName: {},
     buildingDetail: {},
+    changeStartWrapper: {},
+    changeStartRow: {},
+    changeStartText: {},
+    changeStart: {},
+    resetStartRow: {},
+    resetStartText: {},
   },
 }));
 
@@ -86,6 +94,15 @@ test("renders empty panel when building is null", () => {
 
 // --- Header ---
 
+test("renders building long name and address when visible", () => {
+  render(
+    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+  );
+  expect(screen.getByText("Henry F. Hall Building")).toBeTruthy();
+  const addressNodes = screen.getAllByText("1455 De Maisonneuve Blvd. W.");
+  expect(addressNodes.length).toBeGreaterThanOrEqual(1);
+});
+
 test("renders Directions header when visible", () => {
   render(
     <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
@@ -100,7 +117,8 @@ test("renders building name and address when visible", () => {
     <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
   );
   expect(screen.getByText("Hall Building")).toBeTruthy();
-  expect(screen.getByText("1455 De Maisonneuve Blvd. W.")).toBeTruthy();
+  const addressNodes = screen.getAllByText("1455 De Maisonneuve Blvd. W.");
+  expect(addressNodes.length).toBeGreaterThanOrEqual(1);
 });
 
 test("renders building long name in details section", () => {
@@ -171,6 +189,52 @@ test("does not call onClose before button is pressed", () => {
     <DirectionPanel visible={true} building={building} onClose={onClose} />,
   );
   expect(onClose).not.toHaveBeenCalled();
+});
+
+// --- Search button (onOpenSearch) ---
+
+test("renders search button when building is visible", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      onOpenSearch={jest.fn()}
+    />,
+  );
+  expect(
+    screen.getByRole("button", {
+      name: "Search buildings to change directions start",
+    }),
+  ).toBeTruthy();
+});
+
+test("calls onOpenSearch when search button is pressed", () => {
+  const onOpenSearch = jest.fn();
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      onOpenSearch={onOpenSearch}
+    />,
+  );
+  fireEvent.press(
+    screen.getByRole("button", {
+      name: "Search buildings to change directions start",
+    }),
+  );
+  expect(onOpenSearch).toHaveBeenCalledTimes(1);
+});
+
+test("search button is disabled when onOpenSearch is not provided", () => {
+  render(
+    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+  );
+  const searchButton = screen.getByRole("button", {
+    name: "Search buildings to change directions start",
+  });
+  expect(searchButton.props.accessibilityState?.disabled).toBe(true);
 });
 
 // --- Animated.View pointerEvents ---
@@ -337,4 +401,97 @@ test("renders divider between transport and details sections", () => {
   );
   const views = UNSAFE_getAllByType(View);
   expect(views.length).toBeGreaterThan(5); // Multiple Views including divider
+});
+
+// --- Start building ---
+
+test("shows 'Starting from your current location' when no startBuilding", () => {
+  render(
+    <DirectionPanel visible={true} building={building} onClose={jest.fn()} />,
+  );
+  expect(screen.getByText("Starting from your current location")).toBeTruthy();
+});
+
+test("shows starting building name when startBuilding is provided", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      startBuilding={loyolaBuilding}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("Starting at Administration Building")).toBeTruthy();
+});
+
+test("shows starting building code when startBuilding has no buildingName", () => {
+  const startWithoutName = { ...loyolaBuilding, buildingName: null as any };
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      startBuilding={startWithoutName}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("Starting at AD")).toBeTruthy();
+});
+
+// --- Reset to current location ---
+
+test("does not show 'Use current location' button when no startBuilding", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      onClose={jest.fn()}
+      onResetStart={jest.fn()}
+    />,
+  );
+  expect(screen.queryByText("Use current location")).toBeNull();
+});
+
+test("shows 'Use current location' button when startBuilding is set", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      startBuilding={loyolaBuilding}
+      onClose={jest.fn()}
+      onResetStart={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("Use current location")).toBeTruthy();
+});
+
+test("calls onResetStart when 'Use current location' is pressed", () => {
+  const onResetStart = jest.fn();
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      startBuilding={loyolaBuilding}
+      onClose={jest.fn()}
+      onResetStart={onResetStart}
+    />,
+  );
+  fireEvent.press(
+    screen.getByRole("button", { name: "Reset to current location" }),
+  );
+  expect(onResetStart).toHaveBeenCalledTimes(1);
+});
+
+test("reset button is disabled when onResetStart is not provided", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      startBuilding={loyolaBuilding}
+      onClose={jest.fn()}
+    />,
+  );
+  const resetButton = screen.getByRole("button", {
+    name: "Reset to current location",
+  });
+  expect(resetButton.props.accessibilityState?.disabled).toBe(true);
 });

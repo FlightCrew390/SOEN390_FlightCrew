@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import { Marker, MapMarker } from "react-native-maps";
+import { useEffect, useRef } from "react";
+import { MapMarker, Marker } from "react-native-maps";
 import Svg, { Circle, Path } from "react-native-svg";
 import { COLORS, MAP_CONFIG } from "../../constants";
 import { Building } from "../../types/Building";
@@ -8,8 +8,8 @@ interface BuildingMarkerProps {
   readonly building: Building;
   readonly isCurrentBuilding?: boolean;
   readonly isSelected?: boolean;
+  readonly isDirectionsOpen?: boolean;
   readonly onSelect?: () => void;
-  readonly onDeselect?: () => void;
   readonly onDirectionPress?: () => void;
 }
 
@@ -50,22 +50,28 @@ export default function BuildingMarker({
   building,
   isCurrentBuilding = false,
   isSelected = false,
+  isDirectionsOpen = false,
   onSelect,
-  onDeselect,
   onDirectionPress,
 }: Readonly<BuildingMarkerProps>) {
   const markerRef = useRef<MapMarker>(null);
 
-  // Programmatically show callout when selected via search
+  // Programmatically show callout when selected via search (and directions not open)
   useEffect(() => {
-    if (isSelected && markerRef.current) {
-      // Small delay to ensure the map has finished animating
+    if (isSelected && !isDirectionsOpen && markerRef.current) {
       const timer = setTimeout(() => {
         markerRef.current?.showCallout();
       }, 900);
       return () => clearTimeout(timer);
     }
-  }, [isSelected]);
+  }, [isSelected, isDirectionsOpen]);
+
+  // Hide callout when directions panel opens so it doesn't overlap the white panel
+  useEffect(() => {
+    if (isDirectionsOpen && isSelected && markerRef.current) {
+      markerRef.current.hideCallout();
+    }
+  }, [isDirectionsOpen, isSelected]);
 
   if (!building.latitude || !building.longitude) {
     return null;

@@ -207,8 +207,8 @@ export default function GoogleMaps({
             isSelected={
               state.selectedBuilding?.buildingCode === building.buildingCode
             }
+            isDirectionsOpen={state.panel === "directions"}
             onSelect={() => handleSelectBuilding(building)}
-            onDeselect={() => dispatch({ type: "DESELECT_BUILDING" })}
             onDirectionPress={() => {
               animateToBuilding(building);
               dispatch({ type: "OPEN_DIRECTIONS", building });
@@ -242,15 +242,28 @@ export default function GoogleMaps({
       <DirectionPanel
         visible={state.panel === "directions"}
         building={state.selectedBuilding}
+        startBuilding={state.startBuilding}
         onClose={() => dispatch({ type: "CLOSE_PANEL" })}
+        onOpenSearch={() => dispatch({ type: "OPEN_SEARCH_FOR_START" })}
+        onResetStart={() => dispatch({ type: "RESET_START_BUILDING" })}
       />
 
       {/* Search panel */}
       <SearchPanel
         visible={state.panel === "search"}
-        onClose={() => dispatch({ type: "CLOSE_PANEL" })}
+        onClose={() =>
+          state.searchOrigin === "directions"
+            ? dispatch({ type: "RETURN_TO_DIRECTIONS" })
+            : dispatch({ type: "CLOSE_PANEL" })
+        }
         onSearch={handleSearch}
-        onSelectBuilding={handleSelectBuilding}
+        onSelectBuilding={
+          state.searchOrigin === "directions"
+            ? (building: Building) => {
+                dispatch({ type: "SET_START_BUILDING", building });
+              }
+            : handleSelectBuilding
+        }
       />
 
       {/* Search button (top left) — hidden when direction panel is open */}
@@ -260,13 +273,17 @@ export default function GoogleMaps({
             styles.searchButton,
             state.panel === "search" && styles.searchButtonOpen,
           ]}
-          onPress={() =>
-            dispatch(
-              state.panel === "search"
-                ? { type: "CLOSE_PANEL" }
-                : { type: "OPEN_SEARCH" },
-            )
-          }
+          onPress={() => {
+            if (state.panel === "search") {
+              if (state.searchOrigin === "directions") {
+                dispatch({ type: "RETURN_TO_DIRECTIONS" });
+              } else {
+                dispatch({ type: "CLOSE_PANEL" });
+              }
+            } else {
+              dispatch({ type: "OPEN_SEARCH" });
+            }
+          }}
           accessibilityLabel={
             state.panel === "search"
               ? "Close search"
@@ -275,7 +292,11 @@ export default function GoogleMaps({
           accessibilityRole="button"
         >
           <FontAwesome5
-            name={state.panel === "search" ? "times" : "search"}
+            name={(() => {
+              if (state.panel !== "search") return "search";
+              if (state.searchOrigin === "directions") return "chevron-left";
+              return "times";
+            })()}
             size={state.panel === "search" ? 30 : 28}
             color={COLORS.concordiaMaroon}
           />

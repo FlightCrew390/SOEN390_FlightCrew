@@ -20,6 +20,7 @@ const mockAnimateToRegion = jest.fn();
 const mockSetMapBoundaries = jest.fn();
 let capturedOnMapReady: (() => void) | null = null;
 let capturedOnRegionChangeComplete: ((region: any) => void) | null = null;
+let capturedOnPress: (() => void) | null = null;
 
 jest.mock("react-native-maps", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -27,6 +28,7 @@ jest.mock("react-native-maps", () => {
   const MapViewMock = React.forwardRef((props: any, ref: any) => {
     capturedOnMapReady = props.onMapReady;
     capturedOnRegionChangeComplete = props.onRegionChangeComplete;
+    capturedOnPress = props.onPress;
     React.useImperativeHandle(ref, () => ({
       animateToRegion: mockAnimateToRegion,
       setMapBoundaries: mockSetMapBoundaries,
@@ -136,6 +138,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   capturedOnMapReady = null;
   capturedOnRegionChangeComplete = null;
+  capturedOnPress = null;
   capturedSearchProps = null;
   capturedDirectionProps = null;
   capturedLastBuildingMarkerProps = null;
@@ -641,5 +644,189 @@ describe("map callbacks", () => {
       }),
       800,
     );
+  });
+
+  test("setTimeout in region correction resets isCorrectingRef", () => {
+    jest.useFakeTimers();
+
+    render(<GoogleMaps />);
+
+    // Trigger a correction
+    if (capturedOnRegionChangeComplete) {
+      capturedOnRegionChangeComplete({
+        latitude: 50,
+        longitude: -73.6,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    }
+    expect(mockAnimateToRegion).toHaveBeenCalledTimes(1);
+
+    // Advance timers to run the setTimeout callback (400ms)
+    jest.advanceTimersByTime(400);
+
+    // Now a second correction should also work because isCorrectingRef was reset
+    mockAnimateToRegion.mockClear();
+    if (capturedOnRegionChangeComplete) {
+      capturedOnRegionChangeComplete({
+        latitude: 50,
+        longitude: -73.6,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    }
+    expect(mockAnimateToRegion).toHaveBeenCalledTimes(1);
+
+    jest.useRealTimers();
+  });
+
+  test("map onPress dispatches TAP_MAP to deselect building", () => {
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+
+    render(<GoogleMaps mapRef={React.createRef()} />);
+
+    // Select a building first
+    act(() => {
+      capturedLastBuildingMarkerProps.onSelect();
+    });
+    expect(capturedDirectionProps.building).not.toBeNull();
+
+    // Tap map to deselect
+    act(() => {
+      if (capturedOnPress) capturedOnPress();
+    });
+    expect(capturedDirectionProps.building).toBeNull();
+  });
+
+  test("BuildingMarker onSelect triggers handleSelectBuilding", () => {
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+
+    render(<GoogleMaps mapRef={React.createRef()} />);
+
+    act(() => {
+      capturedLastBuildingMarkerProps.onSelect();
+    });
+
+    expect(mockAnimateToRegion).toHaveBeenCalledWith(
+      expect.objectContaining({
+        latitudeDelta: 0.003,
+        longitudeDelta: 0.003,
+      }),
+      800,
+    );
+  });
+
+  test("search panel close returns to directions when searchOrigin is directions", () => {
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+
+    render(<GoogleMaps mapRef={React.createRef()} />);
+
+    // Open directions panel first
+    act(() => {
+      capturedLastBuildingMarkerProps.onDirectionPress();
+    });
+    expect(capturedDirectionProps.visible).toBe(true);
+
+    // Open search from directions via direction panel's onOpenSearch
+    act(() => {
+      capturedDirectionProps.onOpenSearch();
+    });
+    expect(capturedSearchProps.visible).toBe(true);
+
+    // Close search panel — should return to directions
+    act(() => {
+      capturedSearchProps.onClose();
+    });
+    expect(capturedDirectionProps.visible).toBe(true);
+  });
+
+  test("search panel onSelectBuilding dispatches SET_START_BUILDING when searchOrigin is directions", () => {
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+
+    render(<GoogleMaps mapRef={React.createRef()} />);
+
+    // Open directions panel
+    act(() => {
+      capturedLastBuildingMarkerProps.onDirectionPress();
+    });
+
+    // Open search from directions
+    act(() => {
+      capturedDirectionProps.onOpenSearch();
+    });
+
+    // Select a building as start point
+    act(() => {
+      capturedSearchProps.onSelectBuilding(mockBuildings[1]);
+    });
+
+    // Should return to directions panel with startBuilding set
+    expect(capturedDirectionProps.visible).toBe(true);
+    expect(capturedDirectionProps.startBuilding).toEqual(mockBuildings[1]);
+  });
+
+  test("search button shows close icon and closes search when pressed while search is open", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { fireEvent } = require("@testing-library/react-native");
+
+    render(<GoogleMaps mapRef={React.createRef()} />);
+
+    // Open search
+    const searchBtn = screen.getByRole("button", {
+      name: "Search campus buildings",
+    });
+    fireEvent.press(searchBtn);
+    expect(capturedSearchProps.visible).toBe(true);
+
+    // Now press the close search button
+    const closeBtn = screen.getByRole("button", { name: "Close search" });
+    fireEvent.press(closeBtn);
+    expect(capturedSearchProps.visible).toBe(false);
+  });
+
+  test("search button returns to directions when searchOrigin is directions", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { fireEvent } = require("@testing-library/react-native");
+
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+
+    render(<GoogleMaps mapRef={React.createRef()} />);
+
+    // Open directions
+    act(() => {
+      capturedLastBuildingMarkerProps.onDirectionPress();
+    });
+
+    // Open search from directions (via direction panel)
+    act(() => {
+      capturedDirectionProps.onOpenSearch();
+    });
+    expect(capturedSearchProps.visible).toBe(true);
+
+    // Press the search/back button — should return to directions
+    const backBtn = screen.getByRole("button", { name: "Close search" });
+    fireEvent.press(backBtn);
+    expect(capturedDirectionProps.visible).toBe(true);
+    expect(capturedSearchProps.visible).toBe(false);
   });
 });

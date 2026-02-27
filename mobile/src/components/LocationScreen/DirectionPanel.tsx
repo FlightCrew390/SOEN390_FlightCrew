@@ -1,5 +1,4 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import React from "react";
 import {
   Animated,
   Image,
@@ -23,7 +22,10 @@ const ICONS = {
 interface DirectionPanelProps {
   readonly visible: boolean;
   readonly building: Building | null;
+  readonly startBuilding?: Building | null;
   readonly onClose: () => void;
+  readonly onOpenSearch?: () => void;
+  readonly onResetStart?: () => void;
 }
 
 function TransportCard({
@@ -40,7 +42,10 @@ function TransportCard({
 export default function DirectionPanel({
   visible,
   building,
+  startBuilding,
   onClose,
+  onOpenSearch,
+  onResetStart,
 }: Readonly<DirectionPanelProps>) {
   const { animatedStyle } = usePanelAnimation(visible);
 
@@ -66,7 +71,6 @@ export default function DirectionPanel({
         {building != null && (
           <>
             {/* Header */}
-
             <View style={styles.header}>
               <Text style={styles.headerTitle}>Directions</Text>
             </View>
@@ -81,6 +85,42 @@ export default function DirectionPanel({
                 </Text>
               </View>
               <Text style={styles.distanceText}>-- m</Text>
+            </View>
+
+            {/* Change start location */}
+            <View style={styles.changeStartWrapper}>
+              <Pressable
+                style={styles.changeStartRow}
+                onPress={() => onOpenSearch?.()}
+                disabled={!onOpenSearch}
+                accessibilityLabel="Search buildings to change directions start"
+                accessibilityRole="button"
+              >
+                <Text style={styles.changeStartText}>
+                  {startBuilding
+                    ? `Starting at ${startBuilding.buildingName ?? startBuilding.buildingCode}`
+                    : "Starting from your current location"}
+                </Text>
+                <Text style={styles.changeStart}>change</Text>
+              </Pressable>
+              {startBuilding != null && (
+                <Pressable
+                  style={styles.resetStartRow}
+                  onPress={() => onResetStart?.()}
+                  disabled={!onResetStart}
+                  accessibilityLabel="Reset to current location"
+                  accessibilityRole="button"
+                >
+                  <FontAwesome5
+                    name="location-arrow"
+                    size={11}
+                    color={COLORS.concordiaMaroon}
+                  />
+                  <Text style={styles.resetStartText}>
+                    Use current location
+                  </Text>
+                </Pressable>
+              )}
             </View>
 
             {/* Transport options */}
@@ -102,6 +142,9 @@ export default function DirectionPanel({
               <Text style={styles.buildingLongName}>
                 {building.buildingLongName}
               </Text>
+              <View style={styles.addressRow}>
+                <Text style={styles.buildingAddress}>{building.address}</Text>
+              </View>
               <Text style={styles.buildingDetail}>
                 Building Code: {building.buildingCode}
               </Text>

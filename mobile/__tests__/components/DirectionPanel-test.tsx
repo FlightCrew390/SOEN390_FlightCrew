@@ -495,3 +495,270 @@ test("reset button is disabled when onResetStart is not provided", () => {
   });
   expect(resetButton.props.accessibilityState?.disabled).toBe(true);
 });
+
+// --- Route with data (formatDuration, formatDistance, steps) ---
+
+const sampleRoute = {
+  coordinates: [
+    { latitude: 45.497, longitude: -73.579 },
+    { latitude: 45.498, longitude: -73.58 },
+  ],
+  distanceMeters: 1500,
+  durationSeconds: 600,
+  steps: [
+    {
+      distanceMeters: 500,
+      durationSeconds: 200,
+      instruction: "Head north on Guy St",
+      maneuver: "DEPART",
+      coordinates: [],
+    },
+    {
+      distanceMeters: 1000,
+      durationSeconds: 400,
+      instruction: "Turn left on Sherbrooke",
+      maneuver: "TURN_LEFT",
+      coordinates: [],
+    },
+  ],
+};
+
+test("renders route distance in km when route is provided", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={sampleRoute}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("1.5 km")).toBeTruthy();
+});
+
+test("renders route distance in meters when less than 1000m", () => {
+  const shortRoute = { ...sampleRoute, distanceMeters: 500 };
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={shortRoute}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("500 m")).toBeTruthy();
+});
+
+test("renders duration in minutes on active transport card", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={sampleRoute}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("10 min")).toBeTruthy();
+});
+
+test("renders duration in hours and minutes for long routes", () => {
+  const longRoute = { ...sampleRoute, durationSeconds: 5400 }; // 1hr 30min
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={longRoute}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("1 hr 30 min")).toBeTruthy();
+});
+
+test("renders duration in hours only when evenly divisible", () => {
+  const evenRoute = { ...sampleRoute, durationSeconds: 7200 }; // 2hr
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={evenRoute}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("2 hr")).toBeTruthy();
+});
+
+test("renders turn-by-turn steps when route has steps", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={sampleRoute}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("Head north on Guy St")).toBeTruthy();
+  expect(screen.getByText("Turn left on Sherbrooke")).toBeTruthy();
+});
+
+test("renders step distance and duration meta", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={sampleRoute}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  // Step 1: 500 m · 3 min  (200s rounds to 3 min)
+  expect(screen.getByText(/500 m/)).toBeTruthy();
+  // Step 2: 1.0 km · 7 min  (400s rounds to 7 min)
+  expect(screen.getByText(/1\.0 km/)).toBeTruthy();
+});
+
+test("filters out steps with empty instruction", () => {
+  const routeWithEmptyStep = {
+    ...sampleRoute,
+    steps: [
+      ...sampleRoute.steps,
+      {
+        distanceMeters: 100,
+        durationSeconds: 30,
+        instruction: "",
+        maneuver: "",
+        coordinates: [],
+      },
+    ],
+  };
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={routeWithEmptyStep}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  // Step bullets should be 1 and 2 only (empty instruction filtered out)
+  expect(screen.getByText("1")).toBeTruthy();
+  expect(screen.getByText("2")).toBeTruthy();
+});
+
+// --- Loading / error states ---
+
+test("renders loading indicator when routeLoading is true", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={null}
+      routeLoading={true}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("Calculating route…")).toBeTruthy();
+});
+
+test("renders error message when routeError is set", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={null}
+      routeLoading={false}
+      routeError="Directions quota exceeded"
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("Directions quota exceeded")).toBeTruthy();
+});
+
+test("does not render error when loading", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={null}
+      routeLoading={true}
+      routeError="Some error"
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.queryByText("Some error")).toBeNull();
+});
+
+// --- Transport mode switching ---
+
+test("calls onTravelModeChange when transport card is pressed", () => {
+  const onTravelModeChange = jest.fn();
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={onTravelModeChange}
+      onClose={jest.fn()}
+    />,
+  );
+  fireEvent.press(
+    screen.getByRole("button", { name: "Get directions by Drive" }),
+  );
+  expect(onTravelModeChange).toHaveBeenCalledWith("DRIVE");
+});
+
+test("shows -- min on inactive transport cards even with route", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={sampleRoute}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  // 3 inactive cards should show "-- min"
+  const placeholders = screen.getAllByText("-- min");
+  expect(placeholders).toHaveLength(3);
+});

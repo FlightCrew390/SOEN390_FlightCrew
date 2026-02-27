@@ -175,6 +175,76 @@ describe("mapUIReducer", () => {
     expect(state.searchOrigin).toBe("default");
   });
 
+  it("SET_TRAVEL_MODE updates mode and clears route data", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      travelMode: "WALK",
+      route: {
+        coordinates: [],
+        distanceMeters: 100,
+        durationSeconds: 60,
+        steps: [],
+      },
+      routeLoading: true,
+      routeError: "old error",
+    };
+    const state = mapUIReducer(prev, {
+      type: "SET_TRAVEL_MODE",
+      mode: "DRIVE",
+    });
+    expect(state.travelMode).toBe("DRIVE");
+    expect(state.route).toBeNull();
+    expect(state.routeLoading).toBe(false);
+    expect(state.routeError).toBeNull();
+  });
+
+  it("ROUTE_LOADING sets routeLoading true and clears error", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      routeLoading: false,
+      routeError: "old error",
+    };
+    const state = mapUIReducer(prev, { type: "ROUTE_LOADING" });
+    expect(state.routeLoading).toBe(true);
+    expect(state.routeError).toBeNull();
+  });
+
+  it("ROUTE_LOADED sets route and clears loading", () => {
+    const route = {
+      coordinates: [{ latitude: 45.5, longitude: -73.58 }],
+      distanceMeters: 500,
+      durationSeconds: 120,
+      steps: [],
+    };
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      routeLoading: true,
+    };
+    const state = mapUIReducer(prev, { type: "ROUTE_LOADED", route });
+    expect(state.route).toBe(route);
+    expect(state.routeLoading).toBe(false);
+  });
+
+  it("ROUTE_ERROR sets error, clears loading and route", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      routeLoading: true,
+      route: {
+        coordinates: [],
+        distanceMeters: 100,
+        durationSeconds: 60,
+        steps: [],
+      },
+    };
+    const state = mapUIReducer(prev, {
+      type: "ROUTE_ERROR",
+      error: "Quota exceeded",
+    });
+    expect(state.routeLoading).toBe(false);
+    expect(state.routeError).toBe("Quota exceeded");
+    expect(state.route).toBeNull();
+  });
+
   it("returns current state for unknown action type", () => {
     const state = mapUIReducer(initialMapUIState, {
       type: "UNKNOWN_ACTION" as any,

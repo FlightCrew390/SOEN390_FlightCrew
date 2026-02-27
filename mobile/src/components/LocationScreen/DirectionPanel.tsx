@@ -1,4 +1,5 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {
   ActivityIndicator,
   Animated,
@@ -90,6 +91,48 @@ function TransportCard({
       </Text>
     </Pressable>
   );
+}
+function getManeuverIcon(maneuver: string): any {
+  switch (maneuver) {
+    case "DEPART":
+      return "start";
+    case "STRAIGHT":
+      return "straight";
+    case "RAMP_LEFT":
+      return "ramp-left";
+    case "RAMP_RIGHT":
+      return "ramp-right";
+    case "MERGE":
+      return "merge";
+    case "FORK_LEFT":
+      return "fork-left";
+    case "FORK_RIGHT":
+      return "fork-right";
+    case "FERRY":
+      return "directions-ferry";
+    case "TURN_LEFT":
+      return "turn-left";
+    case "TURN_SLIGHT_LEFT":
+      return "turn-slight-left";
+    case "TURN_SHARP_LEFT":
+      return "turn-sharp-left";
+    case "TURN_RIGHT":
+      return "turn-right";
+    case "TURN_SLIGHT_RIGHT":
+      return "turn-slight-right";
+    case "TURN_SHARP_RIGHT":
+      return "turn-sharp-right";
+    case "ROUNDABOUT_LEFT":
+      return "roundabout-left";
+    case "ROUNDABOUT_RIGHT":
+      return "roundabout-right";
+    case "UTURN_LEFT":
+      return "u-turn-left";
+    case "UTURN_RIGHT":
+      return "u-turn-right";
+    default:
+      return "dot-circle";
+  }
 }
 
 export default function DirectionPanel({
@@ -236,11 +279,11 @@ export default function DirectionPanel({
                   .map((step, idx) => (
                     <View
                       key={`step-${step.instruction}-${idx}`}
-                      style={styles.stepRow}
+                      style={[
+                        styles.stepRow,
+                        idx % 2 === 1 && styles.stepRowEven,
+                      ]}
                     >
-                      <View style={styles.stepBullet}>
-                        <Text style={styles.stepBulletText}>{idx + 1}</Text>
-                      </View>
                       <View style={styles.stepContent}>
                         <Text style={styles.stepInstruction}>
                           {step.instruction}
@@ -252,6 +295,11 @@ export default function DirectionPanel({
                             : ""}
                         </Text>
                       </View>
+                      <MaterialIcons
+                        name={getManeuverIcon(step.maneuver)}
+                        size={32}
+                        color="#666"
+                      />
                     </View>
                   ))
               ) : (

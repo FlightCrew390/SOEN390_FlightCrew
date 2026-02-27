@@ -211,28 +211,22 @@ const styles = StyleSheet.create({
   /* ── Step list (turn-by-turn) ── */
   descriptionScroll: {
     maxHeight: 160,
-    paddingHorizontal: 16,
     paddingBottom: 16,
   },
   stepRow: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: 14,
+    padding: 7,
+    paddingHorizontal: 16,
     gap: 12,
   },
-  stepBullet: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: COLORS.concordiaMaroon,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 1,
-  },
-  stepBulletText: {
-    color: COLORS.white,
-    fontSize: 12,
-    fontWeight: "700",
+  stepRowEven: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    padding: 7,
+    paddingHorizontal: 16,
+    gap: 12,
+    backgroundColor: "#F9F9F9",
   },
   stepContent: {
     flex: 1,

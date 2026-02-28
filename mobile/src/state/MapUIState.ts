@@ -11,7 +11,7 @@ export interface MapUIState {
   searchOrigin: SearchOrigin;
   startBuilding: Building | null;
   // Directions route data
-  travelMode: TravelMode;
+  travelMode: TravelMode | null;
   route: RouteInfo | null;
   routeLoading: boolean;
   routeError: string | null;
@@ -30,6 +30,7 @@ export type MapUIAction =
   | { type: "RESET_START_BUILDING" }
   | { type: "RETURN_TO_DIRECTIONS" }
   | { type: "SET_TRAVEL_MODE"; mode: TravelMode }
+  | { type: "RESET_TRAVEL_MODE"; mode: null }
   | { type: "ROUTE_LOADING" }
   | { type: "ROUTE_LOADED"; route: RouteInfo | null }
   | { type: "ROUTE_ERROR"; error: string };

@@ -6,7 +6,7 @@ export const initialMapUIState: MapUIState = {
   currentBuilding: null,
   searchOrigin: "default",
   startBuilding: null,
-  travelMode: "WALK",
+  travelMode: null,
   route: null,
   routeLoading: false,
   routeError: null,
@@ -25,6 +25,7 @@ export function mapUIReducer(
         ...state,
         panel: "none",
         searchOrigin: "default",
+        travelMode: null,
         route: null,
         routeLoading: false,
         routeError: null,
@@ -50,6 +51,7 @@ export function mapUIReducer(
         panel: "directions",
         selectedBuilding: action.building,
         startBuilding: null,
+        travelMode: null,
         route: null,
         routeLoading: false,
         routeError: null,
@@ -93,6 +95,15 @@ export function mapUIReducer(
       return {
         ...state,
         travelMode: action.mode,
+        // Clear old route so the component re-fetches with new mode
+        route: null,
+        routeLoading: false,
+        routeError: null,
+      };
+    case "RESET_TRAVEL_MODE":
+      return {
+        ...state,
+        travelMode: null,
         // Clear old route so the component re-fetches with new mode
         route: null,
         routeLoading: false,

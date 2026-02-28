@@ -626,7 +626,7 @@ test("ScrollView shows vertical scroll indicator", () => {
       visible={true}
       building={building}
       onClose={jest.fn()}
-      route={null}
+      route={sampleRoute}
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
@@ -645,7 +645,7 @@ test("ScrollView handles touch responder", () => {
       visible={true}
       building={building}
       onClose={jest.fn()}
-      route={null}
+      route={sampleRoute}
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
@@ -1041,9 +1041,10 @@ test("filters out steps with empty instruction", () => {
       onClose={jest.fn()}
     />,
   );
-  // Step bullets should be 1 and 2 only (empty instruction filtered out)
-  expect(screen.getByText("1")).toBeTruthy();
-  expect(screen.getByText("2")).toBeTruthy();
+  // Only the 2 non-empty instructions should be rendered (empty one filtered out)
+  expect(screen.getByText("Head north on Guy St")).toBeTruthy();
+  expect(screen.getByText("Turn left on Sherbrooke")).toBeTruthy();
+  expect(screen.queryByText("")).toBeNull();
 });
 
 // --- Loading / error states ---

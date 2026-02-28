@@ -208,8 +208,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 
-  /* ── Step list (turn-by-turn) ── */
   descriptionScroll: {
+    maxHeight: 120,
+    paddingBottom: 16,
+    paddingHorizontal: 16,
+  },
+  /* ── Step list (turn-by-turn) ── */
+  stepScroll: {
     maxHeight: 160,
     paddingBottom: 16,
   },
@@ -244,6 +249,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.textSecondary,
     marginTop: 2,
+  },
+  startBuildingIcon: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.concordiaMaroon,
   },
 
   /* ── Fallback building info ── */

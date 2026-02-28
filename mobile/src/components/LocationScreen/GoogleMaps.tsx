@@ -121,11 +121,18 @@ export default function GoogleMaps({
     const coords = state.route.coordinates;
     if (coords.length < 2) return;
 
-    mapRef.current.fitToCoordinates(coords, {
-      edgePadding: { top: 200, right: 60, bottom: 300, left: 60 },
-      animated: true,
-    });
-  }, [state.route, mapRef]);
+    if (state.panel === "directions") {
+      mapRef.current.fitToCoordinates(coords, {
+        edgePadding: { top: 500, right: 20, bottom: 100, left: 20 }, // More padding when directions panel is open to account for it
+        animated: true,
+      });
+    } else {
+      mapRef.current.fitToCoordinates(coords, {
+        edgePadding: { top: 200, right: 60, bottom: 300, left: 60 },
+        animated: true,
+      });
+    }
+  }, [state.route, mapRef, state.panel]);
 
   const handleMapReady = () => {
     if (mapRef.current && Platform.OS === "android") {
@@ -213,8 +220,12 @@ export default function GoogleMaps({
     }
   };
 
-  const handleTravelModeChange = (mode: TravelMode) => {
-    dispatch({ type: "SET_TRAVEL_MODE", mode });
+  const handleTravelModeChange = (mode: TravelMode | null) => {
+    if (mode === null) {
+      dispatch({ type: "RESET_TRAVEL_MODE", mode: null });
+    } else {
+      dispatch({ type: "SET_TRAVEL_MODE", mode });
+    }
   };
 
   const displayError = error || locationError;

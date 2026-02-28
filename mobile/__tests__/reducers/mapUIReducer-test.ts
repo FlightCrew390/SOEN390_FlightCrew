@@ -33,7 +33,7 @@ describe("mapUIReducer", () => {
       currentBuilding: null,
       searchOrigin: "default",
       startBuilding: null,
-      travelMode: "WALK",
+      travelMode: null,
       route: null,
       routeLoading: false,
       routeError: null,
@@ -51,10 +51,12 @@ describe("mapUIReducer", () => {
       ...initialMapUIState,
       panel: "search",
       searchOrigin: "directions",
+      travelMode: "DRIVE",
     };
     const state = mapUIReducer(prev, { type: "CLOSE_PANEL" });
     expect(state.panel).toBe("none");
     expect(state.searchOrigin).toBe("default");
+    expect(state.travelMode).toBeNull();
   });
 
   it("SELECT_BUILDING sets selectedBuilding and closes panel", () => {
@@ -78,13 +80,18 @@ describe("mapUIReducer", () => {
   });
 
   it("OPEN_DIRECTIONS sets panel to directions and selectedBuilding", () => {
-    const state = mapUIReducer(initialMapUIState, {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      travelMode: "DRIVE",
+    };
+    const state = mapUIReducer(prev, {
       type: "OPEN_DIRECTIONS",
       building: mockBuilding,
     });
     expect(state.panel).toBe("directions");
     expect(state.selectedBuilding).toBe(mockBuilding);
     expect(state.startBuilding).toBeNull();
+    expect(state.travelMode).toBeNull();
   });
 
   it("SET_CURRENT_BUILDING sets current building", () => {

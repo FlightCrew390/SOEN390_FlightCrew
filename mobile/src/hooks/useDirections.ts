@@ -11,7 +11,7 @@ interface UseDirectionsParams {
   /** User's current GPS coordinates, used when startBuilding is null. */
   userLocation: { latitude: number; longitude: number } | null;
   /** Selected travel mode. */
-  travelMode: TravelMode;
+  travelMode: TravelMode | null;
   /** Whether the directions panel is open. */
   active: boolean;
   /** Callbacks into the reducer. */
@@ -38,7 +38,7 @@ export function useDirections({
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    if (!active || !destination) return;
+    if (!active || !destination || travelMode == null) return;
 
     // Determine the origin coordinates
     const originLat = startBuilding?.latitude ?? userLocation?.latitude;

@@ -37,8 +37,8 @@ interface DirectionPanelProps {
   readonly route: RouteInfo | null;
   readonly routeLoading: boolean;
   readonly routeError: string | null;
-  readonly travelMode: TravelMode;
-  readonly onTravelModeChange: (mode: TravelMode) => void;
+  readonly travelMode: TravelMode | null;
+  readonly onTravelModeChange: (mode: TravelMode | null) => void;
   readonly onClose: () => void;
   readonly onOpenSearch?: () => void;
   readonly onResetStart?: () => void;
@@ -238,7 +238,9 @@ export default function DirectionPanel({
                       ? formatDuration(route.durationSeconds)
                       : "-- min"
                   }
-                  onPress={() => onTravelModeChange(mode)}
+                  onPress={() =>
+                    onTravelModeChange(travelMode === mode ? null : mode)
+                  }
                 />
               ))}
             </View>
@@ -267,14 +269,30 @@ export default function DirectionPanel({
 
             <View style={styles.divider} />
 
-            {/* Turn-by-turn steps */}
-            <ScrollView
-              style={styles.descriptionScroll}
-              showsVerticalScrollIndicator
-              onStartShouldSetResponder={() => true}
-            >
-              {route && route.steps.length > 0 ? (
-                route.steps
+            {route && route.steps.length > 0 ? (
+              <ScrollView
+                style={styles.stepScroll}
+                showsVerticalScrollIndicator
+                onStartShouldSetResponder={() => true}
+              >
+                {startBuilding && (
+                  <View
+                    key={`step-start-${startBuilding.buildingCode}`}
+                    style={styles.stepRow}
+                  >
+                    <View style={styles.stepContent}>
+                      <Text style={styles.stepInstruction}>
+                        Exit{" "}
+                        {startBuilding.buildingLongName ??
+                          startBuilding.buildingCode}
+                      </Text>
+                    </View>
+                    <View style={styles.startBuildingIcon}>
+                      <FontAwesome5 name="walking" size={36} color="white" />
+                    </View>
+                  </View>
+                )}
+                {route.steps
                   .filter((step) => step.instruction.length > 0)
                   .map((step, idx) => (
                     <View
@@ -301,29 +319,36 @@ export default function DirectionPanel({
                         color="#666"
                       />
                     </View>
-                  ))
-              ) : (
-                <>
-                  <Text style={styles.buildingLongName}>
-                    {building.buildingLongName}
-                  </Text>
-                  <View style={styles.addressRow}>
-                    <Text style={styles.buildingAddress}>
-                      {building.address}
+                  ))}
+              </ScrollView>
+            ) : (
+              <ScrollView
+                style={styles.descriptionScroll}
+                showsVerticalScrollIndicator={false}
+              >
+                {!routeLoading && !routeError && (
+                  <>
+                    <Text style={styles.buildingLongName}>
+                      {building.buildingLongName}
                     </Text>
-                  </View>
-                  <Text style={styles.buildingDetail}>
-                    Building Code: {building.buildingCode}
-                  </Text>
-                  <Text style={styles.buildingDetail}>
-                    Campus:{" "}
-                    {building.campus === "SGW"
-                      ? "Sir George Williams"
-                      : "Loyola"}
-                  </Text>
-                </>
-              )}
-            </ScrollView>
+                    <View style={styles.addressRow}>
+                      <Text style={styles.buildingAddress}>
+                        {building.address}
+                      </Text>
+                    </View>
+                    <Text style={styles.buildingDetail}>
+                      Building Code: {building.buildingCode}
+                    </Text>
+                    <Text style={styles.buildingDetail}>
+                      Campus:{" "}
+                      {building.campus === "SGW"
+                        ? "Sir George Williams"
+                        : "Loyola"}
+                    </Text>
+                  </>
+                )}
+              </ScrollView>
+            )}
           </>
         )}
       </Animated.View>

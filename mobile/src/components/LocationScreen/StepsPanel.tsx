@@ -5,21 +5,7 @@ import { COLORS } from "../../constants";
 import styles from "../../styles/StepsPanel";
 import { Building } from "../../types/Building";
 import { RouteInfo } from "../../types/Directions";
-
-function formatDuration(totalSeconds: number): string {
-  if (totalSeconds <= 0) return "-- min";
-  const minutes = Math.round(totalSeconds / 60);
-  if (minutes < 60) return `${minutes} min`;
-  const hours = Math.floor(minutes / 60);
-  const remaining = minutes % 60;
-  return remaining > 0 ? `${hours} hr ${remaining} min` : `${hours} hr`;
-}
-
-function formatDistance(meters: number): string {
-  if (meters <= 0) return "-- m";
-  if (meters < 1000) return `${Math.round(meters)} m`;
-  return `${(meters / 1000).toFixed(1)} km`;
-}
+import { formatDistance, formatDuration } from "../../utils/formatHelper";
 
 function getManeuverIcon(maneuver: string): any {
   switch (maneuver) {
@@ -149,7 +135,7 @@ export default function StepsPanel({
               <MaterialIcons
                 name={getManeuverIcon(step.maneuver)}
                 size={42}
-                color="#666"
+                color={COLORS.textSecondary}
               />
             </View>
           ))}

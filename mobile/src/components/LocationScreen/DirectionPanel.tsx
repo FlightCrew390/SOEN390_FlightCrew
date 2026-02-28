@@ -15,6 +15,7 @@ import { usePanelAnimation } from "../../hooks/usePanelAnimation";
 import styles from "../../styles/DirectionPanel";
 import { Building } from "../../types/Building";
 import { RouteInfo, TravelMode } from "../../types/Directions";
+import { formatDistance, formatDuration } from "../../utils/formatHelper";
 import StepsPanel from "./StepsPanel";
 
 const TRANSPORT_OPTIONS: {
@@ -47,21 +48,6 @@ interface DirectionPanelProps {
   readonly showSteps: boolean;
   readonly onShowSteps: () => void;
   readonly onHideSteps: () => void;
-}
-
-function formatDuration(totalSeconds: number): string {
-  if (totalSeconds <= 0) return "-- min";
-  const minutes = Math.round(totalSeconds / 60);
-  if (minutes < 60) return `${minutes} min`;
-  const hours = Math.floor(minutes / 60);
-  const remaining = minutes % 60;
-  return remaining > 0 ? `${hours} hr ${remaining} min` : `${hours} hr`;
-}
-
-function formatDistance(meters: number): string {
-  if (meters <= 0) return "-- m";
-  if (meters < 1000) return `${Math.round(meters)} m`;
-  return `${(meters / 1000).toFixed(1)} km`;
 }
 
 function TransportCard({

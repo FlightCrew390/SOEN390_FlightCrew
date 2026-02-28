@@ -285,7 +285,7 @@ export default function GoogleMaps({
         {state.route && state.route.coordinates.length > 1 && (
           <Polyline
             coordinates={state.route.coordinates}
-            strokeColor={"#40509F"} // When concordia shuttle routes are added, we can differentiate them by color
+            strokeColor={COLORS.mapPolylineWalk} // When concordia shuttle routes are added, we can differentiate them by color
             strokeWidth={5}
             lineDashPattern={state.travelMode === "WALK" ? [8, 6] : undefined}
           />

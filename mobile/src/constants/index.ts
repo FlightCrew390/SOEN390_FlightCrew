@@ -13,6 +13,7 @@ export const COLORS = {
   shadowBlack: "rgba(0, 0, 0, 0.25)",
   overlayWhite: "rgba(255, 255, 255, 0.9)",
   overlayError: "rgba(255, 0, 0, 0.9)",
+  mapPolylineWalk: "#40509F",
 };
 
 // API Configuration

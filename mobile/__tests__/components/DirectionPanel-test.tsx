@@ -6,6 +6,15 @@ import { Building } from "../../src/types/Building";
 import { TravelMode } from "../../src/types/Directions";
 
 jest.mock("@expo/vector-icons/FontAwesome5", () => "FontAwesome5");
+jest.mock("@expo/vector-icons/MaterialIcons", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require("react-native");
+  const MockMaterialIcon = (props: any) => (
+    <View {...props} testID={`material-icon-${props.name}`} />
+  );
+  MockMaterialIcon.displayName = "MockMaterialIcon";
+  return MockMaterialIcon;
+});
 
 jest.mock("../../src/hooks/usePanelAnimation", () => ({
   usePanelAnimation: () => ({
@@ -44,6 +53,20 @@ jest.mock("../../src/styles/DirectionPanel", () => ({
     changeStart: {},
     resetStartRow: {},
     resetStartText: {},
+    loadingRow: {},
+    loadingText: {},
+    errorRow: {},
+    errorText: {},
+    stepScroll: {},
+    stepRow: {},
+    stepRowEven: {},
+    stepContent: {},
+    stepInstruction: {},
+    stepMeta: {},
+    startBuildingIcon: {},
+    transportCardActive: {},
+    transportIconActive: {},
+    transportTimeActive: {},
   },
 }));
 
@@ -89,7 +112,7 @@ test("is non-interactive when not visible", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -109,7 +132,7 @@ test("renders empty panel when building is null", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -129,7 +152,7 @@ test("renders building long name and address when visible", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -149,7 +172,7 @@ test("renders Directions header when visible", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -169,7 +192,7 @@ test("renders building name and address when visible", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -189,7 +212,7 @@ test("renders building long name in details section", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -207,7 +230,7 @@ test("renders building code in details section", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -225,7 +248,7 @@ test("renders SGW campus label correctly", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -243,7 +266,7 @@ test("renders Loyola campus label correctly", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -261,7 +284,7 @@ test("renders distance placeholder", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -281,7 +304,7 @@ test("renders four transport time placeholders", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -303,7 +326,7 @@ test("calls onClose when close button is pressed", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -325,7 +348,7 @@ test("does not call onClose before button is pressed", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -346,7 +369,7 @@ test("renders search button when building is visible", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -370,7 +393,7 @@ test("calls onOpenSearch when search button is pressed", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -393,7 +416,7 @@ test("search button is disabled when onOpenSearch is not provided", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -416,7 +439,7 @@ test("sets pointerEvents to 'auto' when visible and building exists", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -436,7 +459,7 @@ test("sets pointerEvents to 'none' when not visible", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -456,7 +479,7 @@ test("sets pointerEvents to 'none' when building is null", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -478,7 +501,7 @@ test("renders all four transport card images", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -497,7 +520,7 @@ test("transport cards have correct resizeMode", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -518,7 +541,7 @@ test("transport cards are wrapped in View containers", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -539,7 +562,7 @@ test("renders building name with numberOfLines prop", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -561,7 +584,7 @@ test("renders building address with numberOfLines prop", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -584,7 +607,7 @@ test("uses buildingCode as fallback when buildingName is null", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -603,7 +626,7 @@ test("renders empty string when address is null", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -630,7 +653,7 @@ test("ScrollView shows vertical scroll indicator", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -649,7 +672,7 @@ test("ScrollView handles touch responder", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -668,7 +691,7 @@ test("ScrollView contains all building detail texts", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -694,7 +717,7 @@ test("handles building with missing buildingLongName", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -714,7 +737,7 @@ test("renders divider between transport and details sections", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -735,7 +758,7 @@ test("shows 'Starting from your current location' when no startBuilding", () => 
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -754,7 +777,7 @@ test("shows starting building name when startBuilding is provided", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -774,7 +797,7 @@ test("shows starting building code when startBuilding has no buildingName", () =
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -795,7 +818,7 @@ test("does not show 'Use current location' button when no startBuilding", () => 
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -815,7 +838,7 @@ test("shows 'Use current location' button when startBuilding is set", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -836,7 +859,7 @@ test("calls onResetStart when 'Use current location' is pressed", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -858,7 +881,7 @@ test("reset button is disabled when onResetStart is not provided", () => {
       routeLoading={false}
       routeError={null}
       travelMode={"WALK"}
-      onTravelModeChange={function (mode: TravelMode): void {
+      onTravelModeChange={function (mode: TravelMode | null): void {
         throw new Error("Function not implemented.");
       }}
     />,
@@ -1136,3 +1159,227 @@ test("shows -- min on inactive transport cards even with route", () => {
   const placeholders = screen.getAllByText("-- min");
   expect(placeholders).toHaveLength(3);
 });
+
+// --- formatDuration edge cases ---
+
+test("renders '-- min' on active card when route durationSeconds is 0", () => {
+  const zeroRoute = { ...sampleRoute, durationSeconds: 0 };
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={zeroRoute}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  // All 4 cards should show "-- min" because formatDuration(0) returns "-- min"
+  const placeholders = screen.getAllByText("-- min");
+  expect(placeholders).toHaveLength(4);
+});
+
+test("renders '-- min' on active card when route durationSeconds is negative", () => {
+  const negRoute = { ...sampleRoute, durationSeconds: -10 };
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={negRoute}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  const placeholders = screen.getAllByText("-- min");
+  expect(placeholders).toHaveLength(4);
+});
+
+// --- formatDistance edge cases ---
+
+test("renders '-- m' when route distanceMeters is 0", () => {
+  const zeroDistRoute = { ...sampleRoute, distanceMeters: 0 };
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={zeroDistRoute}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("-- m")).toBeTruthy();
+});
+
+test("renders '-- m' when route distanceMeters is negative", () => {
+  const negDistRoute = { ...sampleRoute, distanceMeters: -5 };
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={negDistRoute}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("-- m")).toBeTruthy();
+});
+
+// --- Deselect active transport mode ---
+
+test("calls onTravelModeChange with null when pressing the active mode", () => {
+  const onTravelModeChange = jest.fn();
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={null}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={onTravelModeChange}
+      onClose={jest.fn()}
+    />,
+  );
+  fireEvent.press(
+    screen.getByRole("button", { name: "Get directions by Walk" }),
+  );
+  expect(onTravelModeChange).toHaveBeenCalledWith(null);
+});
+
+// --- startBuilding "Exit" step with route steps ---
+
+test("renders 'Exit' step with startBuilding long name when route has steps", () => {
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      startBuilding={loyolaBuilding}
+      route={sampleRoute}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("Exit Loyola Administration Building")).toBeTruthy();
+});
+
+test("renders 'Exit' step with buildingCode when startBuilding has no long name", () => {
+  const startNoLongName = {
+    ...loyolaBuilding,
+    buildingLongName: undefined as any,
+  };
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      startBuilding={startNoLongName}
+      route={sampleRoute}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("Exit AD")).toBeTruthy();
+});
+
+// --- Step with durationSeconds === 0 ---
+
+test("renders step meta without duration when step durationSeconds is 0", () => {
+  const routeZeroDuration = {
+    ...sampleRoute,
+    steps: [
+      {
+        distanceMeters: 300,
+        durationSeconds: 0,
+        instruction: "Walk to destination",
+        maneuver: "DEPART",
+        coordinates: [],
+      },
+    ],
+  };
+  render(
+    <DirectionPanel
+      visible={true}
+      building={building}
+      route={routeZeroDuration}
+      routeLoading={false}
+      routeError={null}
+      travelMode="WALK"
+      onTravelModeChange={jest.fn()}
+      onClose={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("Walk to destination")).toBeTruthy();
+  expect(screen.getByText("300 m")).toBeTruthy();
+  // Should NOT contain the "·" separator since duration is 0
+  expect(screen.queryByText(/·/)).toBeNull();
+});
+
+// --- getManeuverIcon coverage ---
+
+const maneuverCases: { maneuver: string; expectedIcon: string }[] = [
+  { maneuver: "STRAIGHT", expectedIcon: "straight" },
+  { maneuver: "RAMP_LEFT", expectedIcon: "ramp-left" },
+  { maneuver: "RAMP_RIGHT", expectedIcon: "ramp-right" },
+  { maneuver: "MERGE", expectedIcon: "merge" },
+  { maneuver: "FORK_LEFT", expectedIcon: "fork-left" },
+  { maneuver: "FORK_RIGHT", expectedIcon: "fork-right" },
+  { maneuver: "FERRY", expectedIcon: "directions-ferry" },
+  { maneuver: "TURN_SLIGHT_LEFT", expectedIcon: "turn-slight-left" },
+  { maneuver: "TURN_SHARP_LEFT", expectedIcon: "turn-sharp-left" },
+  { maneuver: "TURN_RIGHT", expectedIcon: "turn-right" },
+  { maneuver: "TURN_SLIGHT_RIGHT", expectedIcon: "turn-slight-right" },
+  { maneuver: "TURN_SHARP_RIGHT", expectedIcon: "turn-sharp-right" },
+  { maneuver: "ROUNDABOUT_LEFT", expectedIcon: "roundabout-left" },
+  { maneuver: "ROUNDABOUT_RIGHT", expectedIcon: "roundabout-right" },
+  { maneuver: "UTURN_LEFT", expectedIcon: "u-turn-left" },
+  { maneuver: "UTURN_RIGHT", expectedIcon: "u-turn-right" },
+  { maneuver: "UNKNOWN_MANEUVER", expectedIcon: "dot-circle" },
+];
+
+test.each(maneuverCases)(
+  "renders correct icon for $maneuver maneuver",
+  ({ maneuver, expectedIcon }) => {
+    const routeWithManeuver = {
+      ...sampleRoute,
+      steps: [
+        {
+          distanceMeters: 100,
+          durationSeconds: 60,
+          instruction: `Step with ${maneuver}`,
+          maneuver,
+          coordinates: [],
+        },
+      ],
+    };
+    render(
+      <DirectionPanel
+        visible={true}
+        building={building}
+        route={routeWithManeuver}
+        routeLoading={false}
+        routeError={null}
+        travelMode="WALK"
+        onTravelModeChange={jest.fn()}
+        onClose={jest.fn()}
+      />,
+    );
+    expect(screen.getByText(`Step with ${maneuver}`)).toBeTruthy();
+    expect(screen.getByTestId(`material-icon-${expectedIcon}`)).toBeTruthy();
+  },
+);

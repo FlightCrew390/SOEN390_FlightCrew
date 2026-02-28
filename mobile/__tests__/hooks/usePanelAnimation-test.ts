@@ -30,19 +30,18 @@ test("does not throw when visible is true", () => {
 });
 
 test("does not throw when visible toggles", () => {
-  const { rerender } = renderHook(({ visible }: { visible: boolean }) => usePanelAnimation(visible), {
-    initialProps: { visible: false },
-  });
+  const { rerender } = renderHook(
+    ({ visible }: { visible: boolean }) => usePanelAnimation(visible),
+    {
+      initialProps: { visible: false },
+    },
+  );
 
   expect(() => {
-    act(() => {
-      rerender({ visible: true });
-    });
+    rerender({ visible: true });
   }).not.toThrow();
 
   expect(() => {
-    act(() => {
-      rerender({ visible: false });
-    });
+    rerender({ visible: false });
   }).not.toThrow();
 });

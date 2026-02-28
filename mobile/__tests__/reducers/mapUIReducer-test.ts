@@ -3,9 +3,10 @@ import {
   mapUIReducer,
 } from "../../src/reducers/mapUIReducer";
 import { MapUIState } from "../../src/state/MapUIState";
-import { Building } from "../../src/types/Building";
+import { Building, StructureType } from "../../src/types/Building";
 
 const mockBuilding: Building = {
+  structureType: StructureType.Building,
   campus: "SGW",
   buildingCode: "H",
   buildingName: "Hall",
@@ -16,6 +17,7 @@ const mockBuilding: Building = {
 };
 
 const mockBuilding2: Building = {
+  structureType: StructureType.Building,
   campus: "LOY",
   buildingCode: "CC",
   buildingName: "Central",

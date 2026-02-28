@@ -2,7 +2,7 @@ import { act, render, screen } from "@testing-library/react-native";
 import React from "react";
 
 import GoogleMaps from "../../src/components/LocationScreen/GoogleMaps";
-import { Building } from "../../src/types/Building";
+import { Building, StructureType } from "../../src/types/Building";
 
 // Mock Platform
 jest.mock("react-native/Libraries/Utilities/Platform", () => ({
@@ -114,6 +114,7 @@ jest.mock("../../src/contexts/LocationContext", () => ({
 
 const mockBuildings: Building[] = [
   {
+    structureType: StructureType.Building,
     campus: "SGW",
     buildingCode: "H",
     buildingName: "Hall Building",
@@ -123,6 +124,7 @@ const mockBuildings: Building[] = [
     longitude: -73.5789,
   },
   {
+    structureType: StructureType.Building,
     campus: "SGW",
     buildingCode: "EV",
     buildingName: "Engineering Building",

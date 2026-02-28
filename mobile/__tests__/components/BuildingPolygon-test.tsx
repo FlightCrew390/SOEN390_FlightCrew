@@ -2,7 +2,7 @@ import { render } from "@testing-library/react-native";
 import React from "react";
 
 import BuildingPolygon from "../../src/components/LocationScreen/BuildingPolygon";
-import { Building } from "../../src/types/Building";
+import { Building, StructureType } from "../../src/types/Building";
 
 jest.mock("react-native-maps", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -17,6 +17,7 @@ jest.mock("react-native-maps", () => {
 });
 
 const makeBuilding = (overrides: Partial<Building> = {}): Building => ({
+  structureType: StructureType.Building,
   campus: "SGW",
   buildingCode: "H",
   buildingName: "Hall",

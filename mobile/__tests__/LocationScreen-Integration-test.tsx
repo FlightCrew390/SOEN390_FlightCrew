@@ -4,7 +4,7 @@ import { act, render, screen, userEvent } from "@testing-library/react-native";
 import { JSX } from "react";
 import { CAMPUSES } from "../src/constants/campuses";
 import LocationScreen from "../src/screens/LocationScreen";
-import { Building } from "../src/types/Building";
+import { Building, StructureType } from "../src/types/Building";
 
 /* ----------------------------- mocks ----------------------------- */
 
@@ -69,6 +69,7 @@ jest.useFakeTimers();
 
 const mockBuildings: Building[] = [
   {
+    structureType: StructureType.Building,
     campus: "SGW",
     buildingCode: "H",
     buildingName: "Hall Building",
@@ -78,6 +79,7 @@ const mockBuildings: Building[] = [
     longitude: -73.5789,
   },
   {
+    structureType: StructureType.Building,
     campus: "LOY",
     buildingCode: "SP",
     buildingName: "Science Pavilion",

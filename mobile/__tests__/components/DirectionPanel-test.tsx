@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react-native";
 import { Animated, Image, ScrollView, Text, View } from "react-native";
 
 import DirectionPanel from "../../src/components/LocationScreen/DirectionPanel";
-import { Building } from "../../src/types/Building";
+import { Building, StructureType } from "../../src/types/Building";
 
 jest.mock("@expo/vector-icons/FontAwesome5", () => "FontAwesome5");
 
@@ -53,6 +53,7 @@ jest.mock("../../../assets/train.png", () => 0, { virtual: true });
 jest.mock("../../../assets/car.png", () => 0, { virtual: true });
 
 const building: Building = {
+  structureType: StructureType.Building,
   campus: "SGW",
   buildingCode: "H",
   buildingName: "Hall Building",
@@ -63,6 +64,7 @@ const building: Building = {
 };
 
 const loyolaBuilding: Building = {
+  structureType: StructureType.Building,
   campus: "LOY",
   buildingCode: "AD",
   buildingName: "Administration Building",

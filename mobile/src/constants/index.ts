@@ -13,6 +13,8 @@ export const COLORS = {
   shadowBlack: "rgba(0, 0, 0, 0.25)",
   overlayWhite: "rgba(255, 255, 255, 0.9)",
   overlayError: "rgba(255, 0, 0, 0.9)",
+  buildingFill: "rgba(156, 45, 45, 0.3)",
+  groundsFill: "rgba(134, 134, 5, 0.3)",
 };
 
 // API Configuration

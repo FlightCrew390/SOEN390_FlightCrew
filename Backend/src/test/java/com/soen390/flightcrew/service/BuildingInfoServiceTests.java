@@ -47,7 +47,7 @@ public class BuildingInfoServiceTests {
 
         String result = service.fetchAccessibilityInfo(building);
 
-        assertNull(result);
+        assertEquals("N/A", result);
         server.verify();
     }
 }

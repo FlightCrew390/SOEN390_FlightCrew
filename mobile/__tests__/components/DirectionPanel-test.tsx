@@ -57,6 +57,24 @@ jest.mock("../../src/styles/DirectionPanel", () => ({
     loadingText: {},
     errorRow: {},
     errorText: {},
+    viewStepsButton: {},
+    viewStepsText: {},
+    transportCardActive: {},
+    transportIconActive: {},
+    transportTimeActive: {},
+  },
+}));
+
+jest.mock("../../src/styles/StepsPanel", () => ({
+  __esModule: true,
+  default: {
+    container: {},
+    header: {},
+    backButton: {},
+    headerContent: {},
+    buildingName: {},
+    buildingAddress: {},
+    distanceText: {},
     stepScroll: {},
     stepRow: {},
     stepRowEven: {},
@@ -64,9 +82,6 @@ jest.mock("../../src/styles/DirectionPanel", () => ({
     stepInstruction: {},
     stepMeta: {},
     startBuildingIcon: {},
-    transportCardActive: {},
-    transportIconActive: {},
-    transportTimeActive: {},
   },
 }));
 
@@ -96,6 +111,12 @@ const loyolaBuilding: Building = {
   longitude: -73.6405,
 };
 
+const defaultStepsProps = {
+  showSteps: false,
+  onShowSteps: jest.fn(),
+  onHideSteps: jest.fn(),
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -105,6 +126,7 @@ beforeEach(() => {
 test("is non-interactive when not visible", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={false}
       building={building}
       onClose={jest.fn()}
@@ -125,6 +147,7 @@ test("is non-interactive when not visible", () => {
 test("renders empty panel when building is null", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={null}
       onClose={jest.fn()}
@@ -145,6 +168,7 @@ test("renders empty panel when building is null", () => {
 test("renders building long name and address when visible", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -165,6 +189,7 @@ test("renders building long name and address when visible", () => {
 test("renders Directions header when visible", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -185,6 +210,7 @@ test("renders Directions header when visible", () => {
 test("renders building name and address when visible", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -205,6 +231,7 @@ test("renders building name and address when visible", () => {
 test("renders building long name in details section", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -223,6 +250,7 @@ test("renders building long name in details section", () => {
 test("renders building code in details section", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -241,6 +269,7 @@ test("renders building code in details section", () => {
 test("renders SGW campus label correctly", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -259,6 +288,7 @@ test("renders SGW campus label correctly", () => {
 test("renders Loyola campus label correctly", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={loyolaBuilding}
       onClose={jest.fn()}
@@ -277,6 +307,7 @@ test("renders Loyola campus label correctly", () => {
 test("renders distance placeholder", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -297,6 +328,7 @@ test("renders distance placeholder", () => {
 test("renders four transport time placeholders", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -319,6 +351,7 @@ test("calls onClose when close button is pressed", () => {
   const onClose = jest.fn();
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={onClose}
@@ -341,6 +374,7 @@ test("does not call onClose before button is pressed", () => {
   const onClose = jest.fn();
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={onClose}
@@ -361,6 +395,7 @@ test("does not call onClose before button is pressed", () => {
 test("renders search button when building is visible", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -385,6 +420,7 @@ test("calls onOpenSearch when search button is pressed", () => {
   const onOpenSearch = jest.fn();
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -409,6 +445,7 @@ test("calls onOpenSearch when search button is pressed", () => {
 test("search button is disabled when onOpenSearch is not provided", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -432,6 +469,7 @@ test("search button is disabled when onOpenSearch is not provided", () => {
 test("sets pointerEvents to 'auto' when visible and building exists", () => {
   const { UNSAFE_getAllByType } = render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -452,6 +490,7 @@ test("sets pointerEvents to 'auto' when visible and building exists", () => {
 test("sets pointerEvents to 'none' when not visible", () => {
   const { UNSAFE_getAllByType } = render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={false}
       building={building}
       onClose={jest.fn()}
@@ -472,6 +511,7 @@ test("sets pointerEvents to 'none' when not visible", () => {
 test("sets pointerEvents to 'none' when building is null", () => {
   const { UNSAFE_getAllByType } = render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={null}
       onClose={jest.fn()}
@@ -494,6 +534,7 @@ test("sets pointerEvents to 'none' when building is null", () => {
 test("renders all four transport card images", () => {
   const { UNSAFE_getAllByType } = render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -513,6 +554,7 @@ test("renders all four transport card images", () => {
 test("transport cards have correct resizeMode", () => {
   const { UNSAFE_getAllByType } = render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -534,6 +576,7 @@ test("transport cards have correct resizeMode", () => {
 test("transport cards are wrapped in View containers", () => {
   const { UNSAFE_getAllByType } = render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -555,6 +598,7 @@ test("transport cards are wrapped in View containers", () => {
 test("renders building name with numberOfLines prop", () => {
   const { UNSAFE_getAllByType } = render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -577,6 +621,7 @@ test("renders building name with numberOfLines prop", () => {
 test("renders building address with numberOfLines prop", () => {
   const { UNSAFE_getAllByType } = render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -600,6 +645,7 @@ test("uses buildingCode as fallback when buildingName is null", () => {
   const buildingWithoutName = { ...building, buildingName: null as any };
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={buildingWithoutName}
       onClose={jest.fn()}
@@ -619,6 +665,7 @@ test("renders empty string when address is null", () => {
   const buildingWithoutAddress = { ...building, address: null as any };
   const { UNSAFE_getAllByType } = render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={buildingWithoutAddress}
       onClose={jest.fn()}
@@ -646,6 +693,8 @@ test("renders empty string when address is null", () => {
 test("ScrollView shows vertical scroll indicator", () => {
   const { UNSAFE_getAllByType } = render(
     <DirectionPanel
+      {...defaultStepsProps}
+      showSteps={true}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -659,12 +708,17 @@ test("ScrollView shows vertical scroll indicator", () => {
     />,
   );
   const scrollViews = UNSAFE_getAllByType(ScrollView);
-  expect(scrollViews[0].props.showsVerticalScrollIndicator).toBe(true);
+  const stepScrollView = scrollViews.find(
+    (sv) => sv.props.showsVerticalScrollIndicator === true,
+  );
+  expect(stepScrollView).toBeTruthy();
 });
 
 test("ScrollView handles touch responder", () => {
   const { UNSAFE_getAllByType } = render(
     <DirectionPanel
+      {...defaultStepsProps}
+      showSteps={true}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -678,12 +732,16 @@ test("ScrollView handles touch responder", () => {
     />,
   );
   const scrollViews = UNSAFE_getAllByType(ScrollView);
-  expect(scrollViews[0].props.onStartShouldSetResponder()).toBe(true);
+  const stepScrollView = scrollViews.find(
+    (sv) => sv.props.onStartShouldSetResponder,
+  );
+  expect(stepScrollView?.props.onStartShouldSetResponder()).toBe(true);
 });
 
 test("ScrollView contains all building detail texts", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -710,6 +768,7 @@ test("handles building with missing buildingLongName", () => {
   };
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={buildingWithoutLongName}
       onClose={jest.fn()}
@@ -730,6 +789,7 @@ test("handles building with missing buildingLongName", () => {
 test("renders divider between transport and details sections", () => {
   const { UNSAFE_getAllByType } = render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -751,6 +811,7 @@ test("renders divider between transport and details sections", () => {
 test("shows 'Starting from your current location' when no startBuilding", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -769,6 +830,7 @@ test("shows 'Starting from your current location' when no startBuilding", () => 
 test("shows starting building name when startBuilding is provided", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       startBuilding={loyolaBuilding}
@@ -789,6 +851,7 @@ test("shows starting building code when startBuilding has no buildingName", () =
   const startWithoutName = { ...loyolaBuilding, buildingName: null as any };
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       startBuilding={startWithoutName}
@@ -810,6 +873,7 @@ test("shows starting building code when startBuilding has no buildingName", () =
 test("does not show 'Use current location' button when no startBuilding", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       onClose={jest.fn()}
@@ -829,6 +893,7 @@ test("does not show 'Use current location' button when no startBuilding", () => 
 test("shows 'Use current location' button when startBuilding is set", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       startBuilding={loyolaBuilding}
@@ -850,6 +915,7 @@ test("calls onResetStart when 'Use current location' is pressed", () => {
   const onResetStart = jest.fn();
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       startBuilding={loyolaBuilding}
@@ -873,6 +939,7 @@ test("calls onResetStart when 'Use current location' is pressed", () => {
 test("reset button is disabled when onResetStart is not provided", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       startBuilding={loyolaBuilding}
@@ -922,6 +989,7 @@ const sampleRoute = {
 test("renders route distance in km when route is provided", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       route={sampleRoute}
@@ -939,6 +1007,7 @@ test("renders route distance in meters when less than 1000m", () => {
   const shortRoute = { ...sampleRoute, distanceMeters: 500 };
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       route={shortRoute}
@@ -955,6 +1024,7 @@ test("renders route distance in meters when less than 1000m", () => {
 test("renders duration in minutes on active transport card", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       route={sampleRoute}
@@ -972,6 +1042,7 @@ test("renders duration in hours and minutes for long routes", () => {
   const longRoute = { ...sampleRoute, durationSeconds: 5400 }; // 1hr 30min
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       route={longRoute}
@@ -989,6 +1060,7 @@ test("renders duration in hours only when evenly divisible", () => {
   const evenRoute = { ...sampleRoute, durationSeconds: 7200 }; // 2hr
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       route={evenRoute}
@@ -1005,6 +1077,8 @@ test("renders duration in hours only when evenly divisible", () => {
 test("renders turn-by-turn steps when route has steps", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
+      showSteps={true}
       visible={true}
       building={building}
       route={sampleRoute}
@@ -1022,6 +1096,8 @@ test("renders turn-by-turn steps when route has steps", () => {
 test("renders step distance and duration meta", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
+      showSteps={true}
       visible={true}
       building={building}
       route={sampleRoute}
@@ -1054,6 +1130,8 @@ test("filters out steps with empty instruction", () => {
   };
   render(
     <DirectionPanel
+      {...defaultStepsProps}
+      showSteps={true}
       visible={true}
       building={building}
       route={routeWithEmptyStep}
@@ -1075,6 +1153,7 @@ test("filters out steps with empty instruction", () => {
 test("renders loading indicator when routeLoading is true", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       route={null}
@@ -1091,6 +1170,7 @@ test("renders loading indicator when routeLoading is true", () => {
 test("renders error message when routeError is set", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       route={null}
@@ -1107,6 +1187,7 @@ test("renders error message when routeError is set", () => {
 test("does not render error when loading", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       route={null}
@@ -1126,6 +1207,7 @@ test("calls onTravelModeChange when transport card is pressed", () => {
   const onTravelModeChange = jest.fn();
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       route={null}
@@ -1145,6 +1227,7 @@ test("calls onTravelModeChange when transport card is pressed", () => {
 test("shows -- min on inactive transport cards even with route", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       route={sampleRoute}
@@ -1166,6 +1249,7 @@ test("renders '-- min' on active card when route durationSeconds is 0", () => {
   const zeroRoute = { ...sampleRoute, durationSeconds: 0 };
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       route={zeroRoute}
@@ -1185,6 +1269,7 @@ test("renders '-- min' on active card when route durationSeconds is negative", (
   const negRoute = { ...sampleRoute, durationSeconds: -10 };
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       route={negRoute}
@@ -1205,6 +1290,7 @@ test("renders '-- m' when route distanceMeters is 0", () => {
   const zeroDistRoute = { ...sampleRoute, distanceMeters: 0 };
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       route={zeroDistRoute}
@@ -1222,6 +1308,7 @@ test("renders '-- m' when route distanceMeters is negative", () => {
   const negDistRoute = { ...sampleRoute, distanceMeters: -5 };
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       route={negDistRoute}
@@ -1241,6 +1328,7 @@ test("calls onTravelModeChange with null when pressing the active mode", () => {
   const onTravelModeChange = jest.fn();
   render(
     <DirectionPanel
+      {...defaultStepsProps}
       visible={true}
       building={building}
       route={null}
@@ -1262,6 +1350,8 @@ test("calls onTravelModeChange with null when pressing the active mode", () => {
 test("renders 'Exit' step with startBuilding long name when route has steps", () => {
   render(
     <DirectionPanel
+      {...defaultStepsProps}
+      showSteps={true}
       visible={true}
       building={building}
       startBuilding={loyolaBuilding}
@@ -1283,6 +1373,8 @@ test("renders 'Exit' step with buildingCode when startBuilding has no long name"
   };
   render(
     <DirectionPanel
+      {...defaultStepsProps}
+      showSteps={true}
       visible={true}
       building={building}
       startBuilding={startNoLongName}
@@ -1314,6 +1406,8 @@ test("renders step meta without duration when step durationSeconds is 0", () => 
   };
   render(
     <DirectionPanel
+      {...defaultStepsProps}
+      showSteps={true}
       visible={true}
       building={building}
       route={routeZeroDuration}
@@ -1369,6 +1463,8 @@ test.each(maneuverCases)(
     };
     render(
       <DirectionPanel
+        {...defaultStepsProps}
+        showSteps={true}
         visible={true}
         building={building}
         route={routeWithManeuver}

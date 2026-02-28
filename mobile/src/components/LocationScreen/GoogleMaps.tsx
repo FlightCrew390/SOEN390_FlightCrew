@@ -121,9 +121,14 @@ export default function GoogleMaps({
     const coords = state.route.coordinates;
     if (coords.length < 2) return;
 
-    if (state.panel === "directions") {
+    if (state.panel === "steps") {
       mapRef.current.fitToCoordinates(coords, {
-        edgePadding: { top: 500, right: 20, bottom: 100, left: 20 }, // More padding when directions panel is open to account for it
+        edgePadding: { top: 250, right: 50, bottom: 50, left: 50 },
+        animated: true,
+      });
+    } else if (state.panel === "directions") {
+      mapRef.current.fitToCoordinates(coords, {
+        edgePadding: { top: 380, right: 0, bottom: 80, left: 0 },
         animated: true,
       });
     } else {
@@ -239,7 +244,7 @@ export default function GoogleMaps({
         maxZoomLevel={20}
         cameraZoomRange={{
           minCenterCoordinateDistance: 200,
-          maxCenterCoordinateDistance: 20000,
+          maxCenterCoordinateDistance: 200000,
         }}
         onMapReady={handleMapReady}
         onRegionChangeComplete={handleRegionChangeComplete}
@@ -312,7 +317,7 @@ export default function GoogleMaps({
 
       {/* Direction panel */}
       <DirectionPanel
-        visible={state.panel === "directions"}
+        visible={state.panel === "directions" || state.panel === "steps"}
         building={state.selectedBuilding}
         startBuilding={state.startBuilding}
         route={state.route}
@@ -323,6 +328,9 @@ export default function GoogleMaps({
         onClose={() => dispatch({ type: "CLOSE_PANEL" })}
         onOpenSearch={() => dispatch({ type: "OPEN_SEARCH_FOR_START" })}
         onResetStart={() => dispatch({ type: "RESET_START_BUILDING" })}
+        showSteps={state.panel === "steps"}
+        onShowSteps={() => dispatch({ type: "OPEN_STEPS" })}
+        onHideSteps={() => dispatch({ type: "CLOSE_STEPS" })}
       />
 
       {/* Search panel */}

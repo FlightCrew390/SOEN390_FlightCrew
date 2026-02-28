@@ -1,7 +1,7 @@
 import { Building } from "../types/Building";
 import { RouteInfo, TravelMode } from "../types/Directions";
 
-type Panel = "none" | "search" | "directions";
+type Panel = "none" | "search" | "directions" | "steps";
 export type SearchOrigin = "default" | "directions";
 
 export interface MapUIState {
@@ -33,4 +33,6 @@ export type MapUIAction =
   | { type: "RESET_TRAVEL_MODE"; mode: null }
   | { type: "ROUTE_LOADING" }
   | { type: "ROUTE_LOADED"; route: RouteInfo | null }
-  | { type: "ROUTE_ERROR"; error: string };
+  | { type: "ROUTE_ERROR"; error: string }
+  | { type: "OPEN_STEPS" }
+  | { type: "CLOSE_STEPS" };

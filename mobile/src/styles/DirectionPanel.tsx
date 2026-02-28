@@ -214,51 +214,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   /* ── Step list (turn-by-turn) ── */
-  stepScroll: {
-    maxHeight: 160,
-    paddingBottom: 16,
-  },
-  stepRow: {
+  viewStepsButton: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    padding: 7,
-    paddingHorizontal: 16,
-    marginRight: 10,
-    gap: 12,
-  },
-  stepRowEven: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    padding: 7,
-    paddingHorizontal: 16,
-    gap: 12,
-    backgroundColor: "#F4F4F4",
-    borderTopRightRadius: 15,
-    borderBottomRightRadius: 15,
-  },
-  stepContent: {
-    flex: 1,
-  },
-  stepInstruction: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: "#1A1A1A",
-    lineHeight: 20,
-  },
-  stepMeta: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
-  startBuildingIcon: {
     alignItems: "center",
     justifyContent: "center",
-    width: 36,
-    height: 36,
-    borderRadius: 18,
     backgroundColor: COLORS.concordiaMaroon,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    paddingVertical: 12,
+    borderRadius: 10,
+    gap: 8,
   },
-
+  viewStepsText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: COLORS.white,
+  },
   /* ── Fallback building info ── */
   buildingLongName: {
     fontSize: 15,

@@ -61,7 +61,7 @@ export function mapUIReducer(
       return { ...state, currentBuilding: action.building };
 
     case "TAP_MAP":
-      if (state.panel === "directions") return state;
+      if (state.panel === "directions" || state.panel === "steps") return state;
       return { ...state, selectedBuilding: null };
 
     case "OPEN_SEARCH_FOR_START":
@@ -123,6 +123,12 @@ export function mapUIReducer(
         routeError: action.error,
         route: null,
       };
+
+    case "OPEN_STEPS":
+      return { ...state, panel: "steps" };
+
+    case "CLOSE_STEPS":
+      return { ...state, panel: "directions" };
 
     default:
       return state;

@@ -252,6 +252,34 @@ describe("mapUIReducer", () => {
     expect(state.route).toBeNull();
   });
 
+  it("OPEN_STEPS sets panel to steps", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      panel: "directions",
+    };
+    const state = mapUIReducer(prev, { type: "OPEN_STEPS" });
+    expect(state.panel).toBe("steps");
+  });
+
+  it("CLOSE_STEPS sets panel to directions", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      panel: "steps",
+    };
+    const state = mapUIReducer(prev, { type: "CLOSE_STEPS" });
+    expect(state.panel).toBe("directions");
+  });
+
+  it("TAP_MAP does nothing when panel is steps", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      panel: "steps",
+      selectedBuilding: mockBuilding,
+    };
+    const state = mapUIReducer(prev, { type: "TAP_MAP" });
+    expect(state).toBe(prev);
+  });
+
   it("returns current state for unknown action type", () => {
     const state = mapUIReducer(initialMapUIState, {
       type: "UNKNOWN_ACTION" as any,

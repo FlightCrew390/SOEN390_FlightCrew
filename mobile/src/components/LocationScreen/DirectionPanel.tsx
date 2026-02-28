@@ -9,11 +9,13 @@ import {
   Text,
   View,
 } from "react-native";
+
 import { COLORS } from "../../constants";
 import { usePanelAnimation } from "../../hooks/usePanelAnimation";
 import styles from "../../styles/DirectionPanel";
 import { Building } from "../../types/Building";
 import { RouteInfo, TravelMode } from "../../types/Directions";
+import StepsPanel from "./StepsPanel";
 
 const TRANSPORT_OPTIONS: {
   mode: TravelMode;
@@ -42,6 +44,9 @@ interface DirectionPanelProps {
   readonly onClose: () => void;
   readonly onOpenSearch?: () => void;
   readonly onResetStart?: () => void;
+  readonly showSteps: boolean;
+  readonly onShowSteps: () => void;
+  readonly onHideSteps: () => void;
 }
 
 function formatDuration(totalSeconds: number): string {
@@ -92,49 +97,6 @@ function TransportCard({
     </Pressable>
   );
 }
-function getManeuverIcon(maneuver: string): any {
-  switch (maneuver) {
-    case "DEPART":
-      return "start";
-    case "STRAIGHT":
-      return "straight";
-    case "RAMP_LEFT":
-      return "ramp-left";
-    case "RAMP_RIGHT":
-      return "ramp-right";
-    case "MERGE":
-      return "merge";
-    case "FORK_LEFT":
-      return "fork-left";
-    case "FORK_RIGHT":
-      return "fork-right";
-    case "FERRY":
-      return "directions-ferry";
-    case "TURN_LEFT":
-      return "turn-left";
-    case "TURN_SLIGHT_LEFT":
-      return "turn-slight-left";
-    case "TURN_SHARP_LEFT":
-      return "turn-sharp-left";
-    case "TURN_RIGHT":
-      return "turn-right";
-    case "TURN_SLIGHT_RIGHT":
-      return "turn-slight-right";
-    case "TURN_SHARP_RIGHT":
-      return "turn-sharp-right";
-    case "ROUNDABOUT_LEFT":
-      return "roundabout-left";
-    case "ROUNDABOUT_RIGHT":
-      return "roundabout-right";
-    case "UTURN_LEFT":
-      return "u-turn-left";
-    case "UTURN_RIGHT":
-      return "u-turn-right";
-    default:
-      return "dot-circle";
-  }
-}
-
 export default function DirectionPanel({
   visible,
   building,
@@ -147,6 +109,9 @@ export default function DirectionPanel({
   onClose,
   onOpenSearch,
   onResetStart,
+  showSteps,
+  onShowSteps,
+  onHideSteps,
 }: Readonly<DirectionPanelProps>) {
   const { animatedStyle } = usePanelAnimation(visible);
 
@@ -155,7 +120,7 @@ export default function DirectionPanel({
   return (
     <>
       {/* Close button */}
-      {visible && (
+      {visible && !showSteps && (
         <Pressable
           style={styles.closeButton}
           onPress={onClose}
@@ -168,9 +133,11 @@ export default function DirectionPanel({
 
       <Animated.View
         style={[styles.container, animatedStyle]}
-        pointerEvents={visible && building != null ? "auto" : "none"}
+        pointerEvents={
+          visible && building != null && !showSteps ? "auto" : "none"
+        }
       >
-        {building != null && (
+        {building != null && !showSteps && (
           <>
             {/* Header */}
             <View style={styles.header}>
@@ -270,57 +237,24 @@ export default function DirectionPanel({
             <View style={styles.divider} />
 
             {route && route.steps.length > 0 ? (
-              <ScrollView
-                style={styles.stepScroll}
-                showsVerticalScrollIndicator
-                onStartShouldSetResponder={() => true}
+              <Pressable
+                style={styles.viewStepsButton}
+                onPress={onShowSteps}
+                accessibilityLabel="View step-by-step directions"
+                accessibilityRole="button"
               >
-                {startBuilding && (
-                  <View
-                    key={`step-start-${startBuilding.buildingCode}`}
-                    style={styles.stepRow}
-                  >
-                    <View style={styles.stepContent}>
-                      <Text style={styles.stepInstruction}>
-                        Exit{" "}
-                        {startBuilding.buildingLongName ??
-                          startBuilding.buildingCode}
-                      </Text>
-                    </View>
-                    <View style={styles.startBuildingIcon}>
-                      <FontAwesome5 name="walking" size={36} color="white" />
-                    </View>
-                  </View>
-                )}
-                {route.steps
-                  .filter((step) => step.instruction.length > 0)
-                  .map((step, idx) => (
-                    <View
-                      key={`step-${step.instruction}-${idx}`}
-                      style={[
-                        styles.stepRow,
-                        idx % 2 === 1 && styles.stepRowEven,
-                      ]}
-                    >
-                      <View style={styles.stepContent}>
-                        <Text style={styles.stepInstruction}>
-                          {step.instruction}
-                        </Text>
-                        <Text style={styles.stepMeta}>
-                          {formatDistance(step.distanceMeters)}
-                          {step.durationSeconds > 0
-                            ? ` · ${formatDuration(step.durationSeconds)}`
-                            : ""}
-                        </Text>
-                      </View>
-                      <MaterialIcons
-                        name={getManeuverIcon(step.maneuver)}
-                        size={42}
-                        color="#666"
-                      />
-                    </View>
-                  ))}
-              </ScrollView>
+                <MaterialIcons
+                  name="directions"
+                  size={20}
+                  color={COLORS.white}
+                />
+                <Text style={styles.viewStepsText}>View steps</Text>
+                <FontAwesome5
+                  name="chevron-right"
+                  size={14}
+                  color={COLORS.white}
+                />
+              </Pressable>
             ) : (
               <ScrollView
                 style={styles.descriptionScroll}
@@ -352,6 +286,16 @@ export default function DirectionPanel({
           </>
         )}
       </Animated.View>
+
+      {/* Steps panel (slides over the direction panel) */}
+      {showSteps && building != null && route && (
+        <StepsPanel
+          building={building}
+          startBuilding={startBuilding}
+          route={route}
+          onBack={onHideSteps}
+        />
+      )}
     </>
   );
 }

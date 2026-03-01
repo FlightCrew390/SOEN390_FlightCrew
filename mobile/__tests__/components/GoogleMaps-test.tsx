@@ -24,6 +24,9 @@ const defaultMapUIState = {
   routeError: null,
 } as const;
 
+// Remove duplicate mocks at the bottom of the import section
+// Convert the tests to use the second set of mocks (mockUseBuildingData and mockUseCurrentLocation) consistently
+
 type MapUIState = Omit<typeof defaultMapUIState, "panel" | "searchOrigin"> & {
   panel: "none" | "directions" | "steps" | "search";
   searchOrigin: "default" | "directions";
@@ -57,29 +60,16 @@ jest.mock("../../src/hooks/useMapCamera", () => ({
   }),
 }));
 
-// Mock contexts
-const mockLocation = {
-  coords: { latitude: 45.4973, longitude: -73.5789 },
-};
-
-let mockLocationValue: any = {
-  location: mockLocation,
-  loading: false,
-  error: null,
-};
-
-jest.mock("../../src/contexts/LocationContext", () => ({
-  useLocation: () => mockLocationValue,
+// Mock BuildingContext
+const mockUseBuildingData = jest.fn();
+jest.mock("../../src/contexts/BuildingContext", () => ({
+  useBuildings: () => mockUseBuildingData(),
 }));
 
-let mockBuildingsValue: any = {
-  buildings: testBuildings,
-  loading: false,
-  error: null,
-};
-
-jest.mock("../../src/contexts/BuildingContext", () => ({
-  useBuildings: () => mockBuildingsValue,
+// Mock LocationContext
+const mockUseCurrentLocation = jest.fn();
+jest.mock("../../src/contexts/LocationContext", () => ({
+  useLocation: () => mockUseCurrentLocation(),
 }));
 
 // Mock child components to be inspectable
@@ -139,18 +129,6 @@ jest.mock("../../src/components/LocationScreen/MapOverlays", () => {
   };
 });
 
-// Mock BuildingContext
-const mockUseBuildingData = jest.fn();
-jest.mock("../../src/contexts/BuildingContext", () => ({
-  useBuildings: () => mockUseBuildingData(),
-}));
-
-// Mock LocationContext so tests aren't blocked by location loading
-const mockUseCurrentLocation = jest.fn();
-jest.mock("../../src/contexts/LocationContext", () => ({
-  useLocation: () => mockUseCurrentLocation(),
-}));
-
 const mockBuildings: Building[] = [
   {
     structureType: StructureType.Building,
@@ -175,6 +153,8 @@ const mockBuildings: Building[] = [
   },
 ];
 
+const mockLocation = { coords: { latitude: 45.4973, longitude: -73.5789 } };
+
 beforeEach(() => {
   jest.clearAllMocks();
   mockUseBuildingData.mockReturnValue({
@@ -196,10 +176,9 @@ test("renders map view", () => {
     error: null,
   });
 
-  const { toJSON } = render(<GoogleMaps mapRef={React.createRef()} />);
+  render(<GoogleMaps mapRef={React.createRef()} />);
 
-  expect(toJSON()).toBeTruthy();
-  expect(JSON.stringify(toJSON())).toContain("MapView");
+  expect(screen.getByTestId("map-view")).toBeTruthy();
 });
 
 test("renders loading indicator when loading", () => {
@@ -211,7 +190,7 @@ test("renders loading indicator when loading", () => {
 
   render(<GoogleMaps mapRef={React.createRef()} />);
 
-  expect(screen.getByText("Loading buildings...")).toBeTruthy();
+  expect(screen.getByText("Loading")).toBeTruthy();
 });
 
 test("renders error message when error occurs", () => {
@@ -233,11 +212,11 @@ test("renders building markers for each building", () => {
     error: null,
   });
 
-  const { toJSON } = render(<GoogleMaps mapRef={React.createRef()} />);
-  const tree = JSON.stringify(toJSON());
+  const { getByTestId } = render(<GoogleMaps mapRef={React.createRef()} />);
+  const buildingLayer = getByTestId("building-layer");
 
-  expect(tree).toContain("BuildingMarker");
-  expect(tree).toContain("MapView");
+  expect(buildingLayer.props.buildingCount).toBe(mockBuildings.length);
+  expect(getByTestId("map-view")).toBeTruthy();
 });
 
 test("does not render loading overlay when not loading", () => {
@@ -249,7 +228,7 @@ test("does not render loading overlay when not loading", () => {
 
   render(<GoogleMaps mapRef={React.createRef()} />);
 
-  expect(screen.queryByText("Loading buildings...")).toBeNull();
+  expect(screen.queryByText("Loading")).toBeNull();
 });
 
 test("does not render error overlay when no error", () => {
@@ -271,10 +250,9 @@ test("renders empty map when no buildings", () => {
     error: null,
   });
 
-  const { toJSON } = render(<GoogleMaps mapRef={React.createRef()} />);
-  const tree = JSON.stringify(toJSON());
+  render(<GoogleMaps mapRef={React.createRef()} />);
 
-  expect(tree).toContain("MapView");
+  expect(screen.getByTestId("map-view")).toBeTruthy();
 });
 
 test("shows both loading and map simultaneously", () => {
@@ -286,7 +264,7 @@ test("shows both loading and map simultaneously", () => {
 
   render(<GoogleMaps mapRef={React.createRef()} />);
 
-  expect(screen.getByText("Loading buildings...")).toBeTruthy();
+  expect(screen.getByText("Loading")).toBeTruthy();
 });
 
 jest.mock("../../src/components/LocationScreen/DirectionPanel", () => {
@@ -390,16 +368,18 @@ describe("GoogleMaps", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockMapUIState = { ...defaultMapUIState };
-    mockLocationValue = {
+
+    mockUseCurrentLocation.mockReturnValue({
       location: mockLocation,
       loading: false,
       error: null,
-    };
-    mockBuildingsValue = {
+    });
+
+    mockUseBuildingData.mockReturnValue({
       buildings: testBuildings,
       loading: false,
       error: null,
-    };
+    });
   });
 
   // ── Renders child components ──
@@ -416,12 +396,21 @@ describe("GoogleMaps", () => {
   });
 
   it("renders UserLocationMarker when location exists", () => {
+    mockUseCurrentLocation.mockReturnValue({
+      location: { coords: { latitude: 45.4973, longitude: -73.5789 } },
+      loading: false,
+      error: null,
+    });
     render(<GoogleMaps />);
     expect(screen.getByTestId("user-location-marker")).toBeTruthy();
   });
 
   it("does not render UserLocationMarker when no location", () => {
-    mockLocationValue = { location: null, loading: false, error: null };
+    mockUseCurrentLocation.mockReturnValue({
+      location: null,
+      loading: false,
+      error: null,
+    });
     render(<GoogleMaps />);
     expect(screen.queryByTestId("user-location-marker")).toBeNull();
   });
@@ -479,12 +468,21 @@ describe("GoogleMaps", () => {
   });
 
   it("passes hasLocation to MapControls", () => {
+    mockUseCurrentLocation.mockReturnValue({
+      location: { coords: { latitude: 45.4973, longitude: -73.5789 } },
+      loading: false,
+      error: null,
+    });
     render(<GoogleMaps />);
     expect(screen.getByTestId("mc-has-location").children[0]).toBe("true");
   });
 
   it("passes hasLocation=false when no location", () => {
-    mockLocationValue = { location: null, loading: false, error: null };
+    mockUseCurrentLocation.mockReturnValue({
+      location: null,
+      loading: false,
+      error: null,
+    });
     render(<GoogleMaps />);
     expect(screen.getByTestId("mc-has-location").children[0]).toBe("false");
   });
@@ -563,27 +561,31 @@ describe("GoogleMaps", () => {
   // ── Loading / error overlays ──
 
   it("passes loading state to MapOverlays", () => {
-    mockBuildingsValue = { buildings: [], loading: true, error: null };
+    mockUseBuildingData.mockReturnValue({
+      buildings: [],
+      loading: true,
+      error: null,
+    });
     render(<GoogleMaps />);
     expect(screen.getByText("Loading")).toBeTruthy();
   });
 
   it("passes error to MapOverlays when not loading", () => {
-    mockBuildingsValue = {
+    mockUseBuildingData.mockReturnValue({
       buildings: [],
       loading: false,
       error: "Failed to load buildings",
-    };
+    });
     render(<GoogleMaps />);
     expect(screen.getByText("Failed to load buildings")).toBeTruthy();
   });
 
   it("does not pass error to MapOverlays when loading", () => {
-    mockBuildingsValue = {
+    mockUseBuildingData.mockReturnValue({
       buildings: [],
       loading: true,
       error: "Failed to load buildings",
-    };
+    });
     render(<GoogleMaps />);
     expect(screen.getByText("Loading")).toBeTruthy();
     // Error should be suppressed while loading
@@ -591,11 +593,11 @@ describe("GoogleMaps", () => {
   });
 
   it("passes location error to MapOverlays", () => {
-    mockLocationValue = {
+    mockUseCurrentLocation.mockReturnValue({
       location: null,
       loading: false,
       error: "GPS unavailable",
-    };
+    });
     render(<GoogleMaps />);
     expect(screen.getByText("GPS unavailable")).toBeTruthy();
   });

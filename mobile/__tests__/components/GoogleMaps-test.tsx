@@ -212,11 +212,11 @@ test("renders building markers for each building", () => {
     error: null,
   });
 
-  const { getByTestId } = render(<GoogleMaps mapRef={React.createRef()} />);
-  const buildingLayer = getByTestId("building-layer");
+  render(<GoogleMaps mapRef={React.createRef()} />);
+  const buildingLayer = screen.getByTestId("building-layer");
 
   expect(buildingLayer.props.buildingCount).toBe(mockBuildings.length);
-  expect(getByTestId("map-view")).toBeTruthy();
+  expect(screen.getByTestId("map-view")).toBeTruthy();
 });
 
 test("does not render loading overlay when not loading", () => {

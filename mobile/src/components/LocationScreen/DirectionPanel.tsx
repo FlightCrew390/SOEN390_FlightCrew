@@ -1,14 +1,6 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import {
-  ActivityIndicator,
-  Animated,
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import { Animated, Pressable, ScrollView, Text, View } from "react-native";
 
 import { COLORS } from "../../constants";
 import { usePanelAnimation } from "../../hooks/usePanelAnimation";
@@ -16,7 +8,9 @@ import styles from "../../styles/DirectionPanel";
 import { Building } from "../../types/Building";
 import { RouteInfo, TravelMode } from "../../types/Directions";
 import { formatDistance, formatDuration } from "../../utils/formatHelper";
+import RouteStatusDisplay from "./RouteStatusDisplay";
 import StepsPanel from "./StepsPanel";
+import TransportCard from "./TransportCard";
 
 const TRANSPORT_OPTIONS: {
   mode: TravelMode;
@@ -50,39 +44,71 @@ interface DirectionPanelProps {
   readonly onHideSteps: () => void;
 }
 
-function TransportCard({
-  icon,
-  label,
-  duration,
-  isActive,
-  onPress,
+function StartLocationRow({
+  startBuilding,
+  onOpenSearch,
+  onResetStart,
 }: Readonly<{
-  icon: ReturnType<typeof require>;
-  label: string;
-  duration: string;
-  isActive: boolean;
-  onPress: () => void;
+  startBuilding: Building | null | undefined;
+  onOpenSearch?: () => void;
+  onResetStart?: () => void;
 }>) {
   return (
-    <Pressable
-      style={[styles.transportCard, isActive && styles.transportCardActive]}
-      onPress={onPress}
-      accessibilityLabel={`Get directions by ${label}`}
-      accessibilityRole="button"
-    >
-      <Image
-        source={icon}
-        style={[styles.transportIcon, isActive && styles.transportIconActive]}
-        resizeMode="contain"
-      />
-      <Text
-        style={[styles.transportTime, isActive && styles.transportTimeActive]}
+    <View style={styles.changeStartWrapper}>
+      <Pressable
+        style={styles.changeStartRow}
+        onPress={() => onOpenSearch?.()}
+        disabled={!onOpenSearch}
+        accessibilityLabel="Search buildings to change directions start"
+        accessibilityRole="button"
       >
-        {duration}
-      </Text>
-    </Pressable>
+        <Text style={styles.changeStartText}>
+          {startBuilding
+            ? `Starting at ${startBuilding.buildingName ?? startBuilding.buildingCode}`
+            : "Starting from your current location"}
+        </Text>
+        <Text style={styles.changeStart}>change</Text>
+      </Pressable>
+      {startBuilding != null && (
+        <Pressable
+          style={styles.resetStartRow}
+          onPress={() => onResetStart?.()}
+          disabled={!onResetStart}
+          accessibilityLabel="Reset to current location"
+          accessibilityRole="button"
+        >
+          <FontAwesome5
+            name="location-arrow"
+            size={11}
+            color={COLORS.concordiaMaroon}
+          />
+          <Text style={styles.resetStartText}>Use current location</Text>
+        </Pressable>
+      )}
+    </View>
   );
 }
+
+function BuildingDetails({ building }: Readonly<{ building: Building }>) {
+  return (
+    <ScrollView
+      style={styles.descriptionScroll}
+      showsVerticalScrollIndicator={false}
+    >
+      <Text style={styles.buildingLongName}>{building.buildingLongName}</Text>
+      <View style={styles.addressRow}>
+        <Text style={styles.buildingAddress}>{building.address}</Text>
+      </View>
+      <Text style={styles.buildingDetail}>
+        Building Code: {building.buildingCode}
+      </Text>
+      <Text style={styles.buildingDetail}>
+        Campus: {building.campus === "SGW" ? "Sir George Williams" : "Loyola"}
+      </Text>
+    </ScrollView>
+  );
+}
+
 export default function DirectionPanel({
   visible,
   building,
@@ -142,41 +168,11 @@ export default function DirectionPanel({
               <Text style={styles.distanceText}>{distanceText}</Text>
             </View>
 
-            {/* Change start location */}
-            <View style={styles.changeStartWrapper}>
-              <Pressable
-                style={styles.changeStartRow}
-                onPress={() => onOpenSearch?.()}
-                disabled={!onOpenSearch}
-                accessibilityLabel="Search buildings to change directions start"
-                accessibilityRole="button"
-              >
-                <Text style={styles.changeStartText}>
-                  {startBuilding
-                    ? `Starting at ${startBuilding.buildingName ?? startBuilding.buildingCode}`
-                    : "Starting from your current location"}
-                </Text>
-                <Text style={styles.changeStart}>change</Text>
-              </Pressable>
-              {startBuilding != null && (
-                <Pressable
-                  style={styles.resetStartRow}
-                  onPress={() => onResetStart?.()}
-                  disabled={!onResetStart}
-                  accessibilityLabel="Reset to current location"
-                  accessibilityRole="button"
-                >
-                  <FontAwesome5
-                    name="location-arrow"
-                    size={11}
-                    color={COLORS.concordiaMaroon}
-                  />
-                  <Text style={styles.resetStartText}>
-                    Use current location
-                  </Text>
-                </Pressable>
-              )}
-            </View>
+            <StartLocationRow
+              startBuilding={startBuilding}
+              onOpenSearch={onOpenSearch}
+              onResetStart={onResetStart}
+            />
 
             {/* Transport options */}
             <View style={styles.transportRow}>
@@ -198,27 +194,7 @@ export default function DirectionPanel({
               ))}
             </View>
 
-            {/* Loading / error / route states */}
-            {routeLoading && (
-              <View style={styles.loadingRow}>
-                <ActivityIndicator
-                  size="small"
-                  color={COLORS.concordiaMaroon}
-                />
-                <Text style={styles.loadingText}>Calculating route…</Text>
-              </View>
-            )}
-
-            {routeError != null && !routeLoading && (
-              <View style={styles.errorRow}>
-                <FontAwesome5
-                  name="exclamation-circle"
-                  size={14}
-                  color={COLORS.error}
-                />
-                <Text style={styles.errorText}>{routeError}</Text>
-              </View>
-            )}
+            <RouteStatusDisplay loading={routeLoading} error={routeError} />
 
             <View style={styles.divider} />
 
@@ -242,32 +218,8 @@ export default function DirectionPanel({
                 />
               </Pressable>
             ) : (
-              <ScrollView
-                style={styles.descriptionScroll}
-                showsVerticalScrollIndicator={false}
-              >
-                {!routeLoading && !routeError && (
-                  <>
-                    <Text style={styles.buildingLongName}>
-                      {building.buildingLongName}
-                    </Text>
-                    <View style={styles.addressRow}>
-                      <Text style={styles.buildingAddress}>
-                        {building.address}
-                      </Text>
-                    </View>
-                    <Text style={styles.buildingDetail}>
-                      Building Code: {building.buildingCode}
-                    </Text>
-                    <Text style={styles.buildingDetail}>
-                      Campus:{" "}
-                      {building.campus === "SGW"
-                        ? "Sir George Williams"
-                        : "Loyola"}
-                    </Text>
-                  </>
-                )}
-              </ScrollView>
+              !routeLoading &&
+              !routeError && <BuildingDetails building={building} />
             )}
           </>
         )}

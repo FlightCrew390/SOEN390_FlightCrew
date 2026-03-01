@@ -1,198 +1,321 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
-import React from "react";
-
 import SearchPanel from "../../src/components/LocationScreen/SearchPanel";
+import { LocationType } from "../../src/state/SearchPanelState";
+import { Building } from "../../src/types/Building";
+import { hallBuilding, libraryBuilding, testBuildings } from "../fixtures";
 
-// Mock FontAwesome5
-jest.mock("@expo/vector-icons/FontAwesome5", () => "FontAwesome5");
+// ── Mocks ──
 
-// Mock BuildingContext
-const mockUseBuildingData = jest.fn();
-jest.mock("../../src/contexts/BuildingContext", () => ({
-  useBuildings: () => mockUseBuildingData(),
+jest.mock("@expo/vector-icons/FontAwesome5", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { Text } = require("react-native");
+  const MockedFontAwesome5 = (props: any) => (
+    <Text testID={`fa5-${props.name}`} {...props}>
+      {props.name}
+    </Text>
+  );
+  MockedFontAwesome5.displayName = "FontAwesome5";
+  return MockedFontAwesome5;
+});
+
+jest.mock("../../src/hooks/usePanelAnimation", () => ({
+  usePanelAnimation: () => ({
+    fadeAnim: { current: 1 },
+    slideAnim: { current: 0 },
+    animatedStyle: { opacity: 1, transform: [{ translateY: 0 }] },
+  }),
 }));
 
-const mockBuildings = [
-  {
-    campus: "SGW",
-    buildingCode: "H",
-    buildingName: "Hall Building",
-    buildingLongName: "Henry F. Hall Building",
-    address: "1455 De Maisonneuve Blvd. W.",
-    latitude: 45.4973,
-    longitude: -73.5789,
+// Mock useBuildings to return our test data
+const mockUseBuildings = jest.fn();
+jest.mock("../../src/contexts/BuildingContext", () => ({
+  useBuildings: () => mockUseBuildings(),
+}));
+
+// Mock useAutocomplete — we test the real one separately
+const mockUseAutocomplete = jest.fn();
+jest.mock("../../src/hooks/useAutocomplete", () => ({
+  useAutocomplete: (...args: any[]) => mockUseAutocomplete(...args),
+}));
+
+jest.mock("../../src/styles/SearchPanel", () => ({
+  __esModule: true,
+  default: {
+    container: {},
+    label: {},
+    dropdownMenuWrapper: {},
+    dropdownTrigger: {},
+    dropdownTriggerOpen: {},
+    dropdownTriggerText: {},
+    dropdownMenu: {},
+    dropdownDivider: {},
+    dropdownOption: {},
+    dropdownOptionSelected: {},
+    dropdownOptionText: {},
+    noResultsText: {},
+    textInputWrapper: {},
+    textInputWrapperOpen: {},
+    textInputInner: {},
+    clearButton: {},
+    clearButtonText: {},
+    autocompleteList: {},
+    searchActionButton: {},
+    searchActionButtonDisabled: {},
+    searchActionButtonText: {},
   },
-  {
-    campus: "SGW",
-    buildingCode: "EV",
-    buildingName: "Engineering Building",
-    buildingLongName:
-      "Engineering, Computer Science and Visual Arts Integrated Complex",
-    address: "1515 St. Catherine W.",
-    latitude: 45.4957,
-    longitude: -73.5773,
-  },
-];
+}));
 
-const defaultProps = {
-  visible: true,
-  onClose: jest.fn(),
-  onSearch: jest.fn(),
-  onSelectBuilding: jest.fn(),
-};
+// ── Helpers ──
 
-beforeEach(() => {
-  jest.clearAllMocks();
-  mockUseBuildingData.mockReturnValue({
-    buildings: mockBuildings,
-    loading: false,
-    error: null,
+interface Props {
+  visible?: boolean;
+  onClose?: () => void;
+  onSearch?: (query: string, locationType: LocationType) => void;
+  onSelectBuilding?: (building: Building) => void;
+}
+
+function renderSearchPanel(overrides: Props = {}) {
+  const props = {
+    visible: true,
+    onClose: jest.fn(),
+    onSearch: jest.fn(),
+    onSelectBuilding: jest.fn(),
+    ...overrides,
+  };
+  return { ...render(<SearchPanel {...props} />), props };
+}
+
+// ── Tests ──
+
+describe("SearchPanel", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUseBuildings.mockReturnValue({ buildings: testBuildings });
+    mockUseAutocomplete.mockReturnValue([]);
   });
-});
 
-test("is non-interactive when visible is false", () => {
-  const { UNSAFE_getByProps } = render(
-    <SearchPanel {...defaultProps} visible={false} />,
-  );
+  // ── Basic rendering ──
 
-  // Panel stays mounted for animation; pointerEvents blocks interaction
-  const panel = UNSAFE_getByProps({ accessibilityRole: "search" });
-  expect(panel.props.pointerEvents).toBe("none");
-});
-
-test("renders panel content when visible", () => {
-  render(<SearchPanel {...defaultProps} />);
-
-  expect(screen.getByText("Location type")).toBeTruthy();
-  expect(screen.getByText("Campus Building")).toBeTruthy();
-  expect(screen.getByLabelText("Search building name")).toBeTruthy();
-});
-
-test("shows autocomplete results when typing a building name", () => {
-  render(<SearchPanel {...defaultProps} />);
-
-  const input = screen.getByLabelText("Search building name");
-  fireEvent.changeText(input, "Hall");
-
-  // Focus the input to ensure autocomplete shows
-  fireEvent(input, "focus");
-
-  expect(screen.getByText("Henry F. Hall Building")).toBeTruthy();
-});
-
-test("shows no buildings found when query has no match", () => {
-  render(<SearchPanel {...defaultProps} />);
-
-  const input = screen.getByLabelText("Search building name");
-  fireEvent.changeText(input, "zzzzzzz");
-  fireEvent(input, "focus");
-
-  expect(screen.getByText("No buildings found.")).toBeTruthy();
-});
-
-test("selecting autocomplete result fills query", () => {
-  render(<SearchPanel {...defaultProps} />);
-
-  const input = screen.getByLabelText("Search building name");
-  fireEvent.changeText(input, "Hall");
-  fireEvent(input, "focus");
-
-  const option = screen.getByLabelText("Henry F. Hall Building");
-  fireEvent.press(option);
-
-  // After pressing, the input value should be the long name
-  expect(input.props.value).toBe("Henry F. Hall Building");
-});
-
-test("pressing Search after autocomplete pick calls onSelectBuilding", () => {
-  const onSearch = jest.fn();
-  const onSelectBuilding = jest.fn();
-  render(
-    <SearchPanel
-      {...defaultProps}
-      onSearch={onSearch}
-      onSelectBuilding={onSelectBuilding}
-    />,
-  );
-
-  const input = screen.getByLabelText("Search building name");
-  fireEvent.changeText(input, "Hall");
-  fireEvent(input, "focus");
-
-  // Select an autocomplete result first to enable the button
-  const option = screen.getByLabelText("Henry F. Hall Building");
-  fireEvent.press(option);
-
-  const searchBtn = screen.getByRole("button", { name: "Search" });
-  fireEvent.press(searchBtn);
-
-  expect(onSearch).not.toHaveBeenCalled();
-  expect(onSelectBuilding).toHaveBeenCalledWith(
-    expect.objectContaining({
-      buildingCode: "H",
-      buildingLongName: "Henry F. Hall Building",
-      latitude: 45.4973,
-      longitude: -73.5789,
-    }),
-  );
-});
-
-test("pressing Search without autocomplete pick calls onSearch with string", () => {
-  const onSearch = jest.fn();
-  const onSelectBuilding = jest.fn();
-  render(
-    <SearchPanel
-      {...defaultProps}
-      onSearch={onSearch}
-      onSelectBuilding={onSelectBuilding}
-    />,
-  );
-
-  const input = screen.getByLabelText("Search building name");
-  fireEvent.changeText(input, "Hall");
-  fireEvent(input, "focus");
-
-  // Press Search without picking from autocomplete
-  const searchBtn = screen.getByRole("button", { name: "Search" });
-  fireEvent.press(searchBtn);
-
-  expect(onSearch).toHaveBeenCalledWith("Hall", "building");
-  expect(onSelectBuilding).not.toHaveBeenCalled();
-});
-
-test("search button is disabled when query is empty", () => {
-  render(<SearchPanel {...defaultProps} />);
-
-  const searchBtn = screen.getByRole("button", { name: "Search" });
-  expect(searchBtn.props.accessibilityState?.disabled).toBe(true);
-});
-
-test("clear button clears the input", () => {
-  render(<SearchPanel {...defaultProps} />);
-
-  const input = screen.getByLabelText("Search building name");
-  fireEvent.changeText(input, "Hall");
-
-  const clearBtn = screen.getByRole("button", { name: "Clear search" });
-  fireEvent.press(clearBtn);
-
-  expect(input.props.value).toBe("");
-});
-
-test("selecting location type from dropdown changes placeholder", () => {
-  render(<SearchPanel {...defaultProps} />);
-
-  // Open dropdown
-  const dropdownBtn = screen.getByRole("button", {
-    name: "Select location type",
+  it("renders the location type label", () => {
+    renderSearchPanel();
+    expect(screen.getByText("Location type")).toBeTruthy();
   });
-  fireEvent.press(dropdownBtn);
 
-  // Select Restaurant
-  const restaurantOption = screen.getByLabelText("Restaurant");
-  fireEvent.press(restaurantOption);
+  it("renders Campus Building as default dropdown label", () => {
+    renderSearchPanel();
+    expect(screen.getByText("Campus Building")).toBeTruthy();
+  });
 
-  // Now placeholder should be Restaurant name
-  const input = screen.getByLabelText("Search restaurant name");
-  expect(input).toBeTruthy();
+  it("renders the search button", () => {
+    renderSearchPanel();
+    expect(screen.getByLabelText("Search")).toBeTruthy();
+  });
+
+  it("renders search input with building placeholder", () => {
+    renderSearchPanel();
+    expect(screen.getByLabelText("Search building name")).toBeTruthy();
+  });
+
+  // ── pointerEvents ──
+
+  it("sets pointerEvents to auto when visible", () => {
+    renderSearchPanel({ visible: true });
+    expect(screen.getByRole("search").props.pointerEvents).toBe("auto");
+  });
+
+  it("sets pointerEvents to none when not visible", () => {
+    renderSearchPanel({ visible: false });
+    expect(screen.getByRole("search").props.pointerEvents).toBe("none");
+  });
+
+  // ── Dropdown interaction ──
+
+  it("shows dropdown options when toggle is pressed", () => {
+    renderSearchPanel();
+    // Initially the menu items should not be visible
+    expect(screen.queryByLabelText("Restaurant")).toBeNull();
+
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    expect(screen.getByLabelText("Campus Building")).toBeTruthy();
+    expect(screen.getByLabelText("Restaurant")).toBeTruthy();
+  });
+
+  it("changes location type when an option is selected", () => {
+    renderSearchPanel();
+    // Open dropdown
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    // Select restaurant
+    fireEvent.press(screen.getByLabelText("Restaurant"));
+    // Placeholder should change
+    expect(screen.getByPlaceholderText("Restaurant name")).toBeTruthy();
+  });
+
+  // ── Text input ──
+
+  it("shows clear button when query is non-empty", () => {
+    renderSearchPanel();
+    // Initially no clear button
+    expect(screen.queryByLabelText("Clear search")).toBeNull();
+
+    fireEvent.changeText(screen.getByLabelText("Search building name"), "Hall");
+    expect(screen.getByLabelText("Clear search")).toBeTruthy();
+  });
+
+  it("clears query when clear button is pressed", () => {
+    renderSearchPanel();
+    fireEvent.changeText(screen.getByLabelText("Search building name"), "Hall");
+    expect(screen.getByLabelText("Clear search")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Clear search"));
+    // Clear button should disappear since query is empty
+    expect(screen.queryByLabelText("Clear search")).toBeNull();
+  });
+
+  // ── Search button disabled state ──
+
+  it("disables search button when query is empty", () => {
+    renderSearchPanel();
+    const btn = screen.getByLabelText("Search");
+    expect(
+      btn.props.accessibilityState?.disabled ?? btn.props.disabled,
+    ).toBeTruthy();
+  });
+
+  it("disables search button when building type and no autocomplete results", () => {
+    mockUseAutocomplete.mockReturnValue([]);
+    renderSearchPanel();
+    fireEvent.changeText(screen.getByLabelText("Search building name"), "zzz");
+    const btn = screen.getByLabelText("Search");
+    expect(
+      btn.props.accessibilityState?.disabled ?? btn.props.disabled,
+    ).toBeTruthy();
+  });
+
+  it("enables search button when there are autocomplete results", () => {
+    mockUseAutocomplete.mockReturnValue([hallBuilding]);
+    renderSearchPanel();
+    fireEvent.changeText(screen.getByLabelText("Search building name"), "Hall");
+
+    // Need to re-render since useAutocomplete mock already returns results
+    const btn = screen.getByLabelText("Search");
+    // The button should not be disabled
+    expect(btn.props.accessibilityState?.disabled).toBeFalsy();
+  });
+
+  // ── Autocomplete list ──
+
+  it("shows autocomplete results when typing a query", () => {
+    mockUseAutocomplete.mockReturnValue([hallBuilding, libraryBuilding]);
+    renderSearchPanel();
+    // Focus and type
+    fireEvent(screen.getByLabelText("Search building name"), "focus");
+    fireEvent.changeText(
+      screen.getByLabelText("Search building name"),
+      "Build",
+    );
+
+    expect(screen.getByLabelText("Henry F. Hall Building")).toBeTruthy();
+    expect(screen.getByLabelText("J.W. McConnell Building")).toBeTruthy();
+  });
+
+  it('shows "No buildings found." when autocomplete returns empty for typed query', () => {
+    mockUseAutocomplete.mockReturnValue([]);
+    renderSearchPanel();
+    fireEvent(screen.getByLabelText("Search building name"), "focus");
+    fireEvent.changeText(screen.getByLabelText("Search building name"), "zzz");
+    expect(screen.getByText("No buildings found.")).toBeTruthy();
+  });
+
+  it("fills input when an autocomplete result is pressed", () => {
+    mockUseAutocomplete.mockReturnValue([hallBuilding]);
+    renderSearchPanel();
+    fireEvent(screen.getByLabelText("Search building name"), "focus");
+    fireEvent.changeText(screen.getByLabelText("Search building name"), "Hall");
+
+    fireEvent.press(screen.getByLabelText("Henry F. Hall Building"));
+    // After selecting, the input value should be the long name
+    const input = screen.getByLabelText("Search building name");
+    expect(input.props.value).toBe("Henry F. Hall Building");
+  });
+
+  // ── Search submission ──
+
+  it("calls onSelectBuilding when search is submitted with a selected result", () => {
+    mockUseAutocomplete.mockReturnValue([hallBuilding]);
+    const { props } = renderSearchPanel();
+    // Type and select
+    fireEvent(screen.getByLabelText("Search building name"), "focus");
+    fireEvent.changeText(screen.getByLabelText("Search building name"), "Hall");
+    fireEvent.press(screen.getByLabelText("Henry F. Hall Building"));
+
+    // Now press search
+    fireEvent.press(screen.getByLabelText("Search"));
+    expect(props.onSelectBuilding).toHaveBeenCalledWith(hallBuilding);
+  });
+
+  it("calls onSearch when submitted without a selected result (restaurant type)", () => {
+    mockUseAutocomplete.mockReturnValue([]);
+    const { props } = renderSearchPanel();
+
+    // Switch to restaurant
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Restaurant"));
+
+    // Type a query
+    fireEvent.changeText(
+      screen.getByLabelText("Search restaurant name"),
+      "Pizza",
+    );
+
+    // Submit via search button (restaurant type doesn't need autocomplete match)
+    fireEvent.press(screen.getByLabelText("Search"));
+    expect(props.onSearch).toHaveBeenCalledWith("Pizza", "restaurant");
+  });
+
+  it("calls onSearch via keyboard submit", () => {
+    mockUseAutocomplete.mockReturnValue([]);
+    const { props } = renderSearchPanel();
+
+    // Switch to restaurant
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Restaurant"));
+
+    const input = screen.getByLabelText("Search restaurant name");
+    fireEvent.changeText(input, "Sushi");
+    fireEvent(input, "submitEditing");
+
+    expect(props.onSearch).toHaveBeenCalledWith("Sushi", "restaurant");
+  });
+
+  // ── useAutocomplete called with correct args ──
+
+  it("passes buildings, query, and locationType to useAutocomplete", () => {
+    renderSearchPanel();
+    expect(mockUseAutocomplete).toHaveBeenCalledWith(
+      testBuildings,
+      "",
+      "building",
+    );
+  });
+
+  it("passes updated query to useAutocomplete on change", () => {
+    renderSearchPanel();
+    fireEvent.changeText(screen.getByLabelText("Search building name"), "Hall");
+    // Check the most recent call
+    const lastCall = mockUseAutocomplete.mock.calls.at(-1);
+    expect(lastCall[1]).toBe("Hall");
+  });
+
+  // ── Dropdown chevron icon ──
+
+  it("shows chevron-down when dropdown is closed", () => {
+    renderSearchPanel();
+    expect(screen.getByTestId("fa5-chevron-down")).toBeTruthy();
+  });
+
+  it("shows chevron-up when dropdown is open", () => {
+    renderSearchPanel();
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    expect(screen.getByTestId("fa5-chevron-up")).toBeTruthy();
+  });
 });

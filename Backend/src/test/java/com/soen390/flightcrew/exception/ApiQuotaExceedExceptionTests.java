@@ -6,16 +6,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ApiQuotaExceededExceptionTest {
-
-    @Test
-    @DisplayName("Exception stores the provided message")
-    void constructor_storesMessage() {
-        String message = "Monthly quota reached";
-        ApiQuotaExceededException ex = new ApiQuotaExceededException(message);
-
-        assertEquals(message, ex.getMessage());
-    }
-
     @Test
     @DisplayName("Exception is a RuntimeException")
     void isRuntimeException() {

@@ -14,12 +14,13 @@ import org.springframework.web.client.RestTemplate;
 import com.soen390.flightcrew.exception.ApiQuotaExceededException;
 
 import java.util.Map;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class GoogleMapsService {
 
-    Logger logger = Logger.getLogger(GoogleMapsService.class.getName());
+    Logger logger = LoggerFactory.getLogger(GoogleMapsService.class.getName());
 
     @Value("${google.api.key}")
     private String googleApiKey;
@@ -61,7 +62,7 @@ public class GoogleMapsService {
                     GoogleGeocodeResponse.class);
             return response.getBody();
         } catch (Exception e) {
-            logger.severe("Error fetching geocode info from Google Maps API: " + e.getMessage());
+            logger.warn("Error fetching geocode info from Google Maps API: {}", e.getMessage());
             return null;
         }
     }
@@ -90,7 +91,7 @@ public class GoogleMapsService {
                     GoogleGeocodeResponse.class);
             return response.getBody();
         } catch (Exception e) {
-            logger.severe("Error fetching geocode info from Google Maps API: " + e.getMessage());
+            logger.warn("Error fetching geocode info from Google Maps API: {}", e.getMessage());
             return null;
         }
     }
@@ -140,7 +141,7 @@ public class GoogleMapsService {
                     GOOGLE_ROUTES_URL, entity, DirectionsResponse.class);
             return response.getBody();
         } catch (Exception e) {
-            logger.severe("Error fetching directions from Google Routes API: " + e.getMessage());
+            logger.warn("Error fetching directions from Google Routes API: {}", e.getMessage());
             return null;
         }
     }

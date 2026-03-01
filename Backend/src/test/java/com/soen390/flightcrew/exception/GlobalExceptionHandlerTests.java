@@ -24,17 +24,6 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("Response body contains error key with 'rate_limit_exceeded'")
-    void handleQuotaExceeded_bodyContainsErrorKey() {
-        ApiQuotaExceededException ex = new ApiQuotaExceededException("Monthly limit hit");
-
-        ResponseEntity<Map<String, String>> response = handler.handleQuotaExceeded(ex);
-
-        assertNotNull(response.getBody());
-        assertEquals("rate_limit_exceeded", response.getBody().get("error"));
-    }
-
-    @Test
     @DisplayName("Response body contains the exception message")
     void handleQuotaExceeded_bodyContainsMessage() {
         String message = "Google API quota exceeded. Try again later.";

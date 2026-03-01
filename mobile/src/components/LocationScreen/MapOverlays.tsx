@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, View } from "react-native";
+import { COLORS } from "../../constants";
 import styles from "../../styles/GoogleMaps";
 
 interface MapOverlaysProps {
@@ -18,7 +19,7 @@ export default function MapOverlays({
   if (isLoading) {
     return (
       <View style={styles.loadingOverlay}>
-        <ActivityIndicator size="large" color="#8b2020" />
+        <ActivityIndicator size="large" color={COLORS.concordiaMaroonLight} />
         <Text style={styles.loadingText}>
           {isBuildingsLoading
             ? "Loading buildings..."

@@ -4,23 +4,19 @@ import com.soen390.flightcrew.model.DirectionsResponse;
 import com.soen390.flightcrew.service.GoogleMapsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.soen390.flightcrew.service.ApiQuotaService;
-
-import java.util.Map;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api")
 public class DirectionsController {
 
-    Logger logger = Logger.getLogger(DirectionsController.class.getName());
+    Logger logger = LoggerFactory.getLogger(DirectionsController.class.getName());
 
     private final GoogleMapsService googleMapsService;
-    private final ApiQuotaService quotaService;
 
-    public DirectionsController(GoogleMapsService googleMapsService, ApiQuotaService quotaService) {
+    public DirectionsController(GoogleMapsService googleMapsService) {
         this.googleMapsService = googleMapsService;
-        this.quotaService = quotaService;
     }
 
     @GetMapping("/directions")
@@ -39,13 +35,5 @@ public class DirectionsController {
         }
 
         return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/quota/status")
-    public ResponseEntity<Map<String, Object>> getQuotaStatus() {
-        return ResponseEntity.ok(Map.of(
-                "monthlyUsage", quotaService.getMonthlyUsage(),
-                "monthlyLimit", quotaService.getMonthlyLimit(),
-                "remaining", quotaService.getRemainingMonthlyQuota()));
     }
 }

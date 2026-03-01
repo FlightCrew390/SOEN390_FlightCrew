@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 14,
-    paddingRight: 40, // extra room so text doesn't overlap close button
+    paddingRight: 40,
   },
   headerTitle: {
     fontSize: 18,
@@ -138,6 +138,8 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontStyle: "italic",
   },
+
+  /* ── Transport options ── */
   transportRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -148,28 +150,87 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     gap: 5,
+    paddingVertical: 8,
+    borderRadius: 10,
+    marginHorizontal: 3,
+  },
+  transportCardActive: {
+    backgroundColor: "rgba(156, 45, 45, 0.10)",
   },
   transportIcon: {
     width: 44,
     height: 44,
     tintColor: "#6B6B6B",
   },
+  transportIconActive: {
+    tintColor: COLORS.concordiaMaroon,
+  },
   transportTime: {
     fontSize: 11,
     color: "#4A4A4A",
     fontWeight: "500",
   },
+  transportTimeActive: {
+    color: COLORS.concordiaMaroon,
+    fontWeight: "700",
+  },
+
+  /* ── Loading & error ── */
+  loadingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    gap: 8,
+  },
+  loadingText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+  },
+  errorRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    gap: 8,
+  },
+  errorText: {
+    fontSize: 13,
+    color: COLORS.error,
+    flex: 1,
+  },
+
+  /* ── Divider ── */
   divider: {
     height: StyleSheet.hairlineWidth,
     backgroundColor: "#E0E0E0",
     marginHorizontal: 16,
     marginBottom: 12,
   },
+
   descriptionScroll: {
     maxHeight: 120,
-    paddingHorizontal: 16,
     paddingBottom: 16,
+    paddingHorizontal: 16,
   },
+  /* ── Step list (turn-by-turn) ── */
+  viewStepsButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.concordiaMaroon,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    paddingVertical: 12,
+    borderRadius: 10,
+    gap: 8,
+  },
+  viewStepsText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: COLORS.white,
+  },
+  /* ── Fallback building info ── */
   buildingLongName: {
     fontSize: 15,
     fontWeight: "600",

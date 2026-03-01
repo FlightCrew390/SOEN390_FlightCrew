@@ -15,6 +15,7 @@ export const COLORS = {
   overlayError: "rgba(255, 0, 0, 0.9)",
   buildingFill: "rgba(156, 45, 45, 0.3)",
   groundsFill: "rgba(134, 134, 5, 0.3)",
+  mapPolylineWalk: "#40509F",
 };
 
 // API Configuration

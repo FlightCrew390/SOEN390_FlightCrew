@@ -20,13 +20,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api")
 public class ConcordiaController {
 
-    Logger logger = Logger.getLogger(ConcordiaController.class.getName());
+    Logger logger = LoggerFactory.getLogger(ConcordiaController.class.getName());
 
     @Value("${external.api.url}")
     private String apiUrl;
@@ -76,7 +77,7 @@ public class ConcordiaController {
             });
             return Optional.of(cachedBuildings);
         } catch (IOException e) {
-            logger.severe("Failed to read from cache: " + e.getMessage());
+            logger.warn("Failed to read from cache: {}", e.getMessage());
             return Optional.empty();
         }
     }
@@ -100,7 +101,7 @@ public class ConcordiaController {
                     });
             return response.getBody();
         } catch (RestClientException e) {
-            logger.severe("Error fetching building list from API: " + e.getMessage());
+            logger.warn("Error fetching building list from API: {}", e.getMessage());
             return java.util.Collections.emptyList();
         }
     }
@@ -131,14 +132,13 @@ public class ConcordiaController {
                     googleResponse.getDestinations());
 
             if (bestMatch != null && bestMatch.getDisplayName() != null
-                    && logger.isLoggable(java.util.logging.Level.INFO)) {
-                logger.info(String.format("Match Selected: '%s' matched with: '%s'", targetName,
-                        bestMatch.getDisplayName().getText()));
+                    && logger.isInfoEnabled()) {
+                logger.info("Match Selected: '{}' matched with: '{}'", targetName,
+                        bestMatch.getDisplayName().getText());
             }
             building.setGooglePlaceInfo(bestMatch);
         } catch (Exception e) {
-            logger.severe("Error fetching google info for building " + building.getBuildingCode()
-                    + ": " + e.getMessage());
+            logger.warn("Error fetching google info for building {}: {}", building.getBuildingCode(), e.getMessage());
         }
     }
 
@@ -166,7 +166,7 @@ public class ConcordiaController {
         try {
             objectMapper.writeValue(new File(cacheFileName), buildings);
         } catch (IOException e) {
-            logger.severe("Failed to write to cache: " + e.getMessage());
+            logger.warn("Failed to write to cache: {}", e.getMessage());
         }
     }
 

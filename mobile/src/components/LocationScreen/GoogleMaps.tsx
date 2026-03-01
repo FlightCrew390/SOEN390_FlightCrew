@@ -1,35 +1,24 @@
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import React, { useEffect, useReducer, useRef } from "react";
-import {
-  ActivityIndicator,
-  Platform,
-  Pressable,
-  Text,
-  View,
-} from "react-native";
-import MapView, {
-  PROVIDER_DEFAULT,
-  PROVIDER_GOOGLE,
-  Region,
-} from "react-native-maps";
-import { COLORS, MAP_CONFIG } from "../../constants";
-import { campusBoundary } from "../../constants/campusBoundaries";
+import React, { useRef } from "react";
+import { Platform, View } from "react-native";
+import MapView, { PROVIDER_DEFAULT, PROVIDER_GOOGLE } from "react-native-maps";
+import { MAP_CONFIG } from "../../constants";
 import { useBuildings } from "../../contexts/BuildingContext";
 import { useLocation } from "../../contexts/LocationContext";
-import { initialMapUIState, mapUIReducer } from "../../reducers/mapUIReducer";
+import { useMapCamera } from "../../hooks/useMapCamera";
+import { useMapUI } from "../../hooks/useMapUI";
 import { LocationType } from "../../state/SearchPanelState";
 import styles from "../../styles/GoogleMaps";
 import { Building } from "../../types/Building";
-import { findCurrentBuilding } from "../../utils/buildingDetection";
-import BuildingMarker from "./BuildingMarker";
-import BuildingPolygon from "./BuildingPolygon";
+import BuildingLayer from "./BuildingLayer";
 import DirectionPanel from "./DirectionPanel";
+import MapControls from "./MapControls";
+import MapOverlays from "./MapOverlays";
+import RoutePolyline from "./RoutePolyline";
 import SearchPanel from "./SearchPanel";
 import UserLocationMarker from "./UserLocationMarker";
 
 interface GoogleMapsProps {
   readonly mapRef?: React.RefObject<MapView | null>;
-  /** Called when user taps recenter so parent can sync campus selector to actual location. */
   readonly onRecenter?: () => void;
 }
 
@@ -43,130 +32,39 @@ export default function GoogleMaps({
     loading: locationLoading,
     error: locationError,
   } = useLocation();
+
   const internalMapRef = useRef<MapView>(null);
   const mapRef = mapRefProp ?? internalMapRef;
-  const isCorrectingRef = useRef(false);
-  const hasCenteredOnUserOnceRef = useRef(false);
-  const [state, dispatch] = useReducer(mapUIReducer, initialMapUIState);
 
-  // Find current building when location or buildings change
-  useEffect(() => {
-    if (location && buildings.length > 0) {
-      const building = findCurrentBuilding(
-        {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        },
-        buildings,
-      );
-      dispatch({ type: "SET_CURRENT_BUILDING", building });
-    } else {
-      dispatch({ type: "SET_CURRENT_BUILDING", building: null });
-    }
-  }, [location, buildings]);
+  const {
+    state,
+    dispatch,
+    selectBuilding,
+    openDirections,
+    handleSearch,
+    handleTravelModeChange,
+  } = useMapUI(buildings, location);
 
-  // When location first loads, center map on user once so they see their position
-  useEffect(() => {
-    if (!location || !mapRef.current || hasCenteredOnUserOnceRef.current)
-      return;
-    hasCenteredOnUserOnceRef.current = true;
-    const region = {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: 0.005,
-      longitudeDelta: 0.005,
-    };
-    requestIdleCallback(() => {
-      if (mapRef.current) mapRef.current.animateToRegion(region, 1000);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mapRef stable; run only when location appears
-  }, [location]);
+  const {
+    handleMapReady,
+    handleRegionChangeComplete,
+    handleRecenter,
+    animateToBuilding,
+  } = useMapCamera(mapRef, location, state.route, state.panel);
 
-  const handleMapReady = () => {
-    if (mapRef.current && Platform.OS === "android") {
-      mapRef.current.setMapBoundaries(
-        campusBoundary.northEast,
-        campusBoundary.southWest,
-      );
-    }
-  };
-
-  const handleRegionChangeComplete = (region: Region) => {
-    if (!mapRef.current || isCorrectingRef.current) return;
-
-    let needsCorrection = false;
-    const correctedRegion = { ...region };
-
-    if (region.latitude > campusBoundary.northEast.latitude) {
-      correctedRegion.latitude = campusBoundary.northEast.latitude;
-      needsCorrection = true;
-    }
-    if (region.latitude < campusBoundary.southWest.latitude) {
-      correctedRegion.latitude = campusBoundary.southWest.latitude;
-      needsCorrection = true;
-    }
-    if (region.longitude > campusBoundary.northEast.longitude) {
-      correctedRegion.longitude = campusBoundary.northEast.longitude;
-      needsCorrection = true;
-    }
-    if (region.longitude < campusBoundary.southWest.longitude) {
-      correctedRegion.longitude = campusBoundary.southWest.longitude;
-      needsCorrection = true;
-    }
-
-    if (needsCorrection) {
-      isCorrectingRef.current = true;
-      mapRef.current.animateToRegion(correctedRegion, 300);
-      setTimeout(() => {
-        isCorrectingRef.current = false;
-      }, 400);
-    }
-  };
-
-  const handleRecenter = () => {
-    if (location == null || mapRef.current == null) return;
-    onRecenter?.();
-    const region = {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: 0.005,
-      longitudeDelta: 0.005,
-    };
-    requestIdleCallback(() => {
-      if (mapRef.current) mapRef.current.animateToRegion(region, 1000);
-    });
-  };
-
-  const animateToBuilding = (building: Building) => {
-    if (!mapRef.current) return;
-    const region = {
-      latitude: building.latitude,
-      longitude: building.longitude,
-      latitudeDelta: 0.003,
-      longitudeDelta: 0.003,
-    };
-    mapRef.current.animateToRegion(region, 800);
-  };
-
-  const handleSelectBuilding = (building: Building) => {
+  const onSelectBuilding = (building: Building) => {
     animateToBuilding(building);
-    dispatch({ type: "SELECT_BUILDING", building });
+    selectBuilding(building);
   };
 
-  const handleSearch = (query: string, locationType: LocationType) => {
-    if (!query) return;
+  const onDirectionPress = (building: Building) => {
+    animateToBuilding(building);
+    openDirections(building);
+  };
 
-    if (locationType === "building") {
-      const q = query.toLowerCase();
-      const match = buildings.find(
-        (b) =>
-          b.buildingName.toLowerCase().includes(q) ||
-          b.buildingLongName.toLowerCase().includes(q) ||
-          b.buildingCode.toLowerCase() === q,
-      );
-      if (match) handleSelectBuilding(match);
-    }
-    // Restaurant search: placeholder for future data source
+  const onSearchSubmit = (query: string, locationType: LocationType) => {
+    const match = handleSearch(query, locationType);
+    if (match) onSelectBuilding(match);
   };
 
   const displayError = error || locationError;
@@ -180,7 +78,7 @@ export default function GoogleMaps({
         maxZoomLevel={20}
         cameraZoomRange={{
           minCenterCoordinateDistance: 200,
-          maxCenterCoordinateDistance: 20000,
+          maxCenterCoordinateDistance: 200000,
         }}
         onMapReady={handleMapReady}
         onRegionChangeComplete={handleRegionChangeComplete}
@@ -193,28 +91,17 @@ export default function GoogleMaps({
         showsMyLocationButton={false}
         onPress={() => dispatch({ type: "TAP_MAP" })}
       >
-        {buildings.flatMap((building) => [
-          <BuildingPolygon
-            key={`${building.buildingCode}-poly`}
-            building={building}
-          />,
-          <BuildingMarker
-            key={`${building.buildingCode}-marker`}
-            building={building}
-            isCurrentBuilding={
-              state.currentBuilding?.buildingCode === building.buildingCode
-            }
-            isSelected={
-              state.selectedBuilding?.buildingCode === building.buildingCode
-            }
-            isDirectionsOpen={state.panel === "directions"}
-            onSelect={() => handleSelectBuilding(building)}
-            onDirectionPress={() => {
-              animateToBuilding(building);
-              dispatch({ type: "OPEN_DIRECTIONS", building });
-            }}
-          />,
-        ])}
+        <BuildingLayer
+          buildings={buildings}
+          currentBuildingCode={state.currentBuilding?.buildingCode ?? null}
+          selectedBuildingCode={state.selectedBuilding?.buildingCode ?? null}
+          isDirectionsOpen={state.panel === "directions"}
+          onSelect={onSelectBuilding}
+          onDirectionPress={onDirectionPress}
+        />
+
+        <RoutePolyline route={state.route} travelMode={state.travelMode} />
+
         {location && (
           <UserLocationMarker
             latitude={location.coords.latitude}
@@ -223,32 +110,29 @@ export default function GoogleMaps({
         )}
       </MapView>
 
-      {isLoading && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#8b2020" />
-          <Text style={styles.loadingText}>
-            {loading ? "Loading buildings..." : "Getting your location..."}
-          </Text>
-        </View>
-      )}
+      <MapOverlays
+        isLoading={isLoading}
+        isBuildingsLoading={loading}
+        error={displayError && !isLoading ? displayError : null}
+      />
 
-      {displayError && !isLoading && (
-        <View style={styles.errorOverlay}>
-          <Text style={styles.errorText}>{displayError}</Text>
-        </View>
-      )}
-
-      {/* Direction panel */}
       <DirectionPanel
-        visible={state.panel === "directions"}
+        visible={state.panel === "directions" || state.panel === "steps"}
         building={state.selectedBuilding}
         startBuilding={state.startBuilding}
+        route={state.route}
+        routeLoading={state.routeLoading}
+        routeError={state.routeError}
+        travelMode={state.travelMode}
+        onTravelModeChange={handleTravelModeChange}
         onClose={() => dispatch({ type: "CLOSE_PANEL" })}
         onOpenSearch={() => dispatch({ type: "OPEN_SEARCH_FOR_START" })}
         onResetStart={() => dispatch({ type: "RESET_START_BUILDING" })}
+        showSteps={state.panel === "steps"}
+        onShowSteps={() => dispatch({ type: "OPEN_STEPS" })}
+        onHideSteps={() => dispatch({ type: "CLOSE_STEPS" })}
       />
 
-      {/* Search panel */}
       <SearchPanel
         visible={state.panel === "search"}
         onClose={() =>
@@ -256,69 +140,25 @@ export default function GoogleMaps({
             ? dispatch({ type: "RETURN_TO_DIRECTIONS" })
             : dispatch({ type: "CLOSE_PANEL" })
         }
-        onSearch={handleSearch}
+        onSearch={onSearchSubmit}
         onSelectBuilding={
           state.searchOrigin === "directions"
             ? (building: Building) => {
                 dispatch({ type: "SET_START_BUILDING", building });
               }
-            : handleSelectBuilding
+            : onSelectBuilding
         }
       />
 
-      {/* Search button (top left) — hidden when direction panel is open */}
-      {state.panel !== "directions" && (
-        <Pressable
-          style={[
-            styles.searchButton,
-            state.panel === "search" && styles.searchButtonOpen,
-          ]}
-          onPress={() => {
-            if (state.panel === "search") {
-              if (state.searchOrigin === "directions") {
-                dispatch({ type: "RETURN_TO_DIRECTIONS" });
-              } else {
-                dispatch({ type: "CLOSE_PANEL" });
-              }
-            } else {
-              dispatch({ type: "OPEN_SEARCH" });
-            }
-          }}
-          accessibilityLabel={
-            state.panel === "search"
-              ? "Close search"
-              : "Search campus buildings"
-          }
-          accessibilityRole="button"
-        >
-          <FontAwesome5
-            name={(() => {
-              if (state.panel !== "search") return "search";
-              if (state.searchOrigin === "directions") return "chevron-left";
-              return "times";
-            })()}
-            size={state.panel === "search" ? 30 : 28}
-            color={COLORS.concordiaMaroon}
-          />
-        </Pressable>
-      )}
-
-      {/* Recenter button (bottom right) */}
-      {location != null && (
-        <Pressable
-          style={styles.recenterButton}
-          onPress={handleRecenter}
-          accessibilityLabel="Recenter map on my location"
-          accessibilityRole="button"
-        >
-          <FontAwesome5
-            name="location-arrow"
-            size={22}
-            color={COLORS.concordiaMaroon}
-            style={{ transform: [{ rotate: "-45deg" }] }}
-          />
-        </Pressable>
-      )}
+      <MapControls
+        panel={state.panel}
+        searchOrigin={state.searchOrigin}
+        hasLocation={location != null}
+        onOpenSearch={() => dispatch({ type: "OPEN_SEARCH" })}
+        onCloseSearch={() => dispatch({ type: "CLOSE_PANEL" })}
+        onReturnToDirections={() => dispatch({ type: "RETURN_TO_DIRECTIONS" })}
+        onRecenter={() => handleRecenter(onRecenter)}
+      />
     </View>
   );
 }

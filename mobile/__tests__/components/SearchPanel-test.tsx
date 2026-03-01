@@ -120,12 +120,12 @@ describe("SearchPanel", () => {
 
   it("sets pointerEvents to auto when visible", () => {
     renderSearchPanel({ visible: true });
-    expect(screen.getByRole("search").props.pointerEvents).toBe("auto");
+    expect(screen.getByTestId("search-panel").props.pointerEvents).toBe("auto");
   });
 
   it("sets pointerEvents to none when not visible", () => {
     renderSearchPanel({ visible: false });
-    expect(screen.getByRole("search").props.pointerEvents).toBe("none");
+    expect(screen.getByTestId("search-panel").props.pointerEvents).toBe("none");
   });
 
   // ── Dropdown interaction ──

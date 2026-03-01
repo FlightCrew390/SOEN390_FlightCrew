@@ -201,7 +201,9 @@ jest.mock("../../src/components/LocationScreen/MapControls", () => {
 jest.mock("react-native-maps", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View } = require("react-native");
-  const MockMapView = React.forwardRef((props: any, ref: any) => (
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { forwardRef } = require("react");
+  const MockMapView = forwardRef((props: any, ref: any) => (
     <View testID="map-view" ref={ref} {...props}>
       {props.children}
     </View>

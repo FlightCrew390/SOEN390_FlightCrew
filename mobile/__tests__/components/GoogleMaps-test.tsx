@@ -177,12 +177,6 @@ const mockBuildings: Building[] = [
 
 beforeEach(() => {
   jest.clearAllMocks();
-  capturedOnMapReady = null;
-  capturedOnRegionChangeComplete = null;
-  capturedOnPress = null;
-  capturedSearchProps = null;
-  capturedDirectionProps = null;
-  capturedLastBuildingMarkerProps = null;
   mockUseBuildingData.mockReturnValue({
     buildings: [],
     loading: false,
@@ -293,6 +287,8 @@ test("shows both loading and map simultaneously", () => {
   render(<GoogleMaps mapRef={React.createRef()} />);
 
   expect(screen.getByText("Loading buildings...")).toBeTruthy();
+});
+
 jest.mock("../../src/components/LocationScreen/DirectionPanel", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View, Text } = require("react-native");

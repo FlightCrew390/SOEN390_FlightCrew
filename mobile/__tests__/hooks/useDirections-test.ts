@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from "@testing-library/react-native";
 import { useDirections } from "../../src/hooks/useDirections";
 import { DirectionsService } from "../../src/services/DirectionsService";
-import { Building } from "../../src/types/Building";
+import { Building, StructureType } from "../../src/types/Building";
 import { RouteInfo } from "../../src/types/Directions";
 
 jest.mock("../../src/services/DirectionsService");
@@ -19,6 +19,7 @@ const destination: Building = {
   address: "1455 De Maisonneuve Blvd. W.",
   latitude: 45.4973,
   longitude: -73.5789,
+  structureType: StructureType.Building,
 };
 
 const startBuilding: Building = {
@@ -29,6 +30,7 @@ const startBuilding: Building = {
   address: "7141 Sherbrooke St. W.",
   latitude: 45.4582,
   longitude: -73.6405,
+  structureType: StructureType.Building,
 };
 
 const mockRoute: RouteInfo = {

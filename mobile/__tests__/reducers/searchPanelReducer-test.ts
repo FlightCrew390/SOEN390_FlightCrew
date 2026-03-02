@@ -3,7 +3,7 @@ import {
   searchPanelReducer,
 } from "../../src/reducers/searchPanelReducer";
 import { SearchPanelState } from "../../src/state/SearchPanelState";
-import { Building } from "../../src/types/Building";
+import { Building, StructureType } from "../../src/types/Building";
 
 const mockBuilding: Building = {
   campus: "SGW",
@@ -13,6 +13,7 @@ const mockBuilding: Building = {
   address: "1455 De Maisonneuve Blvd. W.",
   latitude: 45.4973,
   longitude: -73.5789,
+  structureType: StructureType.Building,
 };
 
 describe("searchPanelReducer", () => {

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
 import StepsPanel from "../../src/components/LocationScreen/StepsPanel";
-import { Building } from "../../src/types/Building";
+import { Building, StructureType } from "../../src/types/Building";
 import { RouteInfo } from "../../src/types/Directions";
 
 const building: Building = {
@@ -11,6 +11,7 @@ const building: Building = {
   address: "1455 De Maisonneuve Blvd. W.",
   latitude: 45.497,
   longitude: -73.579,
+  structureType: StructureType.Building,
 };
 
 const startBuilding: Building = {
@@ -18,9 +19,10 @@ const startBuilding: Building = {
   buildingCode: "EV",
   buildingName: "EV Building",
   buildingLongName: "Engineering and Visual Arts Complex",
-  address: "1515 Ste-Catherine W.",
-  latitude: 45.496,
-  longitude: -73.578,
+  address: "1515 St. Catherine St. W.",
+  latitude: 45.495,
+  longitude: -73.577,
+  structureType: StructureType.Building,
 };
 
 const route: RouteInfo = {

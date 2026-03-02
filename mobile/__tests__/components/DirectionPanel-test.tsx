@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
 import DirectionPanel from "../../src/components/LocationScreen/DirectionPanel";
-import { Building } from "../../src/types/Building";
+import { Building, StructureType } from "../../src/types/Building";
 import { RouteInfo, TravelMode } from "../../src/types/Directions";
 import { hallBuilding, libraryBuilding, makeRoute } from "../fixtures";
 
@@ -85,6 +85,37 @@ jest.mock("../../src/styles/DirectionPanel", () => ({
   },
 }));
 
+// Mock image assets used by transport cards
+jest.mock("../../../assets/walk.png", () => 0, { virtual: true });
+jest.mock("../../../assets/bike.png", () => 0, { virtual: true });
+jest.mock("../../../assets/train.png", () => 0, { virtual: true });
+jest.mock("../../../assets/car.png", () => 0, { virtual: true });
+
+const building: Building = {
+  structureType: StructureType.Building,
+  campus: "SGW",
+  buildingCode: "H",
+  buildingName: "Hall Building",
+  buildingLongName: "Henry F. Hall Building",
+  address: "1455 De Maisonneuve Blvd. W.",
+  latitude: 45.4973,
+  longitude: -73.5789,
+};
+
+const loyolaBuilding: Building = {
+  structureType: StructureType.Building,
+  campus: "LOY",
+  buildingCode: "AD",
+  buildingName: "Administration Building",
+  buildingLongName: "Loyola Administration Building",
+  address: "7141 Sherbrooke St. W.",
+  latitude: 45.4582,
+  longitude: -73.6405,
+};
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 jest.mock("../../src/utils/formatHelper", () => ({
   formatDistance: (m: number) => `${m} m`,
   formatDuration: (s: number) => `${Math.round(s / 60)} min`,

@@ -2,7 +2,7 @@ import { render } from "@testing-library/react-native";
 import React from "react";
 
 import BuildingMarker from "../../src/components/LocationScreen/BuildingMarker";
-import { Building } from "../../src/types/Building";
+import { Building, StructureType } from "../../src/types/Building";
 
 // Track the latest Marker props and ref methods for assertion
 const mockShowCallout = jest.fn();
@@ -41,6 +41,7 @@ jest.mock("react-native-svg", () => ({
 }));
 
 const createBuilding = (overrides: Partial<Building> = {}): Building => ({
+  structureType: StructureType.Building,
   campus: "SGW",
   buildingCode: "H",
   buildingName: "Hall Building",

@@ -2,13 +2,18 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import { useState } from "react";
+import { useReducer } from "react";
 import { Platform, Pressable, Text, View } from "react-native";
 
 import { COLORS } from "../../constants";
+import { DEPARTURE_OPTIONS } from "../../constants/departureOptions";
+import {
+  departureTimePickerReducer,
+  initialDepartureTimePickerState,
+} from "../../reducers/departureTimePickerReducer";
 import styles from "../../styles/DirectionPanel";
 import { DepartureOption, DepartureTimeConfig } from "../../types/Directions";
-import { DEPARTURE_OPTIONS } from "../../constants/departureOptions";
+import { formatDate, formatTime } from "../../utils/formatHelper";
 
 interface DepartureTimePickerProps {
   readonly config: DepartureTimeConfig;
@@ -19,9 +24,11 @@ export default function DepartureTimePicker({
   config,
   onConfigChange,
 }: DepartureTimePickerProps) {
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+  const [state, dispatch] = useReducer(
+    departureTimePickerReducer,
+    initialDepartureTimePickerState,
+  );
+  const { showDatePicker, showTimePicker, expanded } = state;
 
   const handleOptionSelect = (option: DepartureOption) => {
     if (option === "now") {
@@ -29,11 +36,11 @@ export default function DepartureTimePicker({
     } else {
       onConfigChange({ option, date: config.date });
     }
-    setExpanded(false);
+    dispatch({ type: "COLLAPSE" });
   };
 
   const handleDateChange = (_event: DateTimePickerEvent, date?: Date) => {
-    setShowDatePicker(Platform.OS === "ios");
+    if (Platform.OS !== "ios") dispatch({ type: "HIDE_DATE_PICKER" });
     if (date) {
       const merged = new Date(config.date);
       merged.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
@@ -42,23 +49,13 @@ export default function DepartureTimePicker({
   };
 
   const handleTimeChange = (_event: DateTimePickerEvent, date?: Date) => {
-    setShowTimePicker(Platform.OS === "ios");
+    if (Platform.OS !== "ios") dispatch({ type: "HIDE_TIME_PICKER" });
     if (date) {
       const merged = new Date(config.date);
       merged.setHours(date.getHours(), date.getMinutes(), 0, 0);
       onConfigChange({ ...config, date: merged });
     }
   };
-
-  const formatDate = (d: Date) =>
-    d.toLocaleDateString(undefined, {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-    });
-
-  const formatTime = (d: Date) =>
-    d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
 
   let activeLabel: string;
   if (config.option === "now") {
@@ -74,7 +71,7 @@ export default function DepartureTimePicker({
       {/* Main toggle button */}
       <Pressable
         style={styles.departureToggle}
-        onPress={() => setExpanded(!expanded)}
+        onPress={() => dispatch({ type: "TOGGLE_EXPANDED" })}
         accessibilityLabel="Change departure time"
         accessibilityRole="button"
       >
@@ -127,7 +124,7 @@ export default function DepartureTimePicker({
         <View style={styles.departureDateTimeRow}>
           <Pressable
             style={styles.departureDateBtn}
-            onPress={() => setShowDatePicker(true)}
+            onPress={() => dispatch({ type: "SHOW_DATE_PICKER" })}
             accessibilityLabel="Select date"
             accessibilityRole="button"
           >
@@ -138,7 +135,7 @@ export default function DepartureTimePicker({
           </Pressable>
           <Pressable
             style={styles.departureDateBtn}
-            onPress={() => setShowTimePicker(true)}
+            onPress={() => dispatch({ type: "SHOW_TIME_PICKER" })}
             accessibilityLabel="Select time"
             accessibilityRole="button"
           >

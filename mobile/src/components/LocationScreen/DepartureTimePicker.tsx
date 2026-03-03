@@ -8,12 +8,7 @@ import { Platform, Pressable, Text, View } from "react-native";
 import { COLORS } from "../../constants";
 import styles from "../../styles/DirectionPanel";
 import { DepartureOption, DepartureTimeConfig } from "../../types/Directions";
-
-const OPTIONS: { value: DepartureOption; label: string }[] = [
-  { value: "now", label: "Leave now" },
-  { value: "depart_at", label: "Depart at" },
-  { value: "arrive_by", label: "Arrive by" },
-];
+import { DEPARTURE_OPTIONS } from "../../constants/departureOptions";
 
 interface DepartureTimePickerProps {
   readonly config: DepartureTimeConfig;
@@ -103,7 +98,7 @@ export default function DepartureTimePicker({
           style={styles.departureOptions}
           accessibilityLabel="Departure time options"
         >
-          {OPTIONS.map(({ value, label }) => (
+          {DEPARTURE_OPTIONS.map(({ value, label }) => (
             <Pressable
               key={value}
               style={[

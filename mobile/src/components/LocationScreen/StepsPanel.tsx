@@ -10,6 +10,7 @@ import {
   TransitStepDetails,
 } from "../../types/Directions";
 import {
+  computeStepTimeline,
   getDepartureDate,
   getManeuverIcon,
   parseTime,
@@ -77,34 +78,8 @@ export default function StepsPanel({
     departureConfig,
     route.durationSeconds,
   );
-
-  // Pre-compute schedule-aware timestamps for each visible step.
-  // For transit steps, snap the running clock to real Google schedule times.
-  const visibleSteps = route.steps.filter(
-    (step) => step.instruction.length > 0,
-  );
-  const stepTimes: Date[] = [];
-  let clock = initialDeparture.getTime();
-  for (const step of visibleSteps) {
-    // If this is a transit step with a real departure time, snap to it
-    const realDep = parseTime(step.transitDetails?.departureTime);
-    if (realDep) {
-      clock = realDep.getTime();
-    }
-    stepTimes.push(new Date(clock));
-
-    // Advance the clock: prefer real arrival time, else add duration
-    const realArr = parseTime(step.transitDetails?.arrivalTime);
-    if (realArr) {
-      clock = realArr.getTime();
-    } else {
-      clock += step.durationSeconds * 1000;
-    }
-  }
-
-  // Departure = first step time; arrival = end of last step
-  const departureDate = stepTimes.length > 0 ? stepTimes[0] : initialDeparture;
-  const arrivalDate = new Date(clock);
+  const { visibleSteps, stepTimes, departureDate, arrivalDate } =
+    computeStepTimeline(route.steps, initialDeparture);
 
   return (
     <View style={styles.container}>

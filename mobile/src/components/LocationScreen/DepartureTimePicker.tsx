@@ -57,6 +57,9 @@ export default function DepartureTimePicker({
     }
   };
 
+  const isPastTime =
+    config.option !== "now" && config.date.getTime() < Date.now();
+
   let activeLabel: string;
   if (config.option === "now") {
     activeLabel = "Leave now";
@@ -145,6 +148,16 @@ export default function DepartureTimePicker({
             </Text>
           </Pressable>
         </View>
+      )}
+
+      {/* Past-time warning */}
+      {isPastTime && (
+        <Text
+          style={styles.departurePastTimeWarning}
+          accessibilityRole="alert"
+        >
+          Please select a future date and time.
+        </Text>
       )}
 
       {/* Native date picker */}

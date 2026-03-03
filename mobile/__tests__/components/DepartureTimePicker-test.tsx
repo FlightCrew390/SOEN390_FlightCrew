@@ -53,6 +53,7 @@ jest.mock("../../src/styles/DirectionPanel", () => ({
     departureDateTimeRow: {},
     departureDateBtn: {},
     departureDateText: {},
+    departurePastTimeWarning: {},
   },
 }));
 
@@ -325,5 +326,71 @@ describe("DepartureTimePicker", () => {
       _timePickerOnChange?.({}, undefined);
     });
     expect(onConfigChange).not.toHaveBeenCalled();
+  });
+
+  // ── Past-time warning ──
+
+  it("shows warning when option is depart_at and date is in the past", () => {
+    const pastConfig: DepartureTimeConfig = {
+      option: "depart_at",
+      date: new Date("2020-01-01T10:00:00"),
+    };
+    render(
+      <DepartureTimePicker
+        config={pastConfig}
+        onConfigChange={onConfigChange}
+      />,
+    );
+    expect(
+      screen.getByText("Please select a future date and time."),
+    ).toBeTruthy();
+  });
+
+  it("shows warning when option is arrive_by and date is in the past", () => {
+    const pastConfig: DepartureTimeConfig = {
+      option: "arrive_by",
+      date: new Date("2020-01-01T10:00:00"),
+    };
+    render(
+      <DepartureTimePicker
+        config={pastConfig}
+        onConfigChange={onConfigChange}
+      />,
+    );
+    expect(
+      screen.getByText("Please select a future date and time."),
+    ).toBeTruthy();
+  });
+
+  it("does not show warning when option is now (regardless of date)", () => {
+    const pastConfig: DepartureTimeConfig = {
+      option: "now",
+      date: new Date("2020-01-01T10:00:00"),
+    };
+    render(
+      <DepartureTimePicker
+        config={pastConfig}
+        onConfigChange={onConfigChange}
+      />,
+    );
+    expect(
+      screen.queryByText("Please select a future date and time."),
+    ).toBeNull();
+  });
+
+  it("does not show warning when date is in the future", () => {
+    const futureConfig: DepartureTimeConfig = {
+      option: "depart_at",
+      date: new Date("2099-12-31T23:59:00"),
+    };
+    render(
+      <DepartureTimePicker
+        config={futureConfig}
+        onConfigChange={onConfigChange}
+      />,
+    );
+    expect(
+      screen.queryByText("Please select a future date and time."),
+    ).toBeNull();
   });
 });

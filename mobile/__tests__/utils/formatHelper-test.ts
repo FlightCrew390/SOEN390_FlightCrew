@@ -65,7 +65,7 @@ describe("formatTime", () => {
     const result = formatTime(d);
 
     expect(spy).toHaveBeenCalledWith(undefined, {
-      hour: "2-digit",
+      hour: "numeric",
       minute: "2-digit",
     });
     expect(result).toBe("10:05 AM");

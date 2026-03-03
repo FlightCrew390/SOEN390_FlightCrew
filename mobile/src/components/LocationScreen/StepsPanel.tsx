@@ -9,82 +9,12 @@ import {
   RouteInfo,
   TransitStepDetails,
 } from "../../types/Directions";
-import { formatDistance, formatDuration } from "../../utils/formatHelper";
-
-function getManeuverIcon(maneuver: string): any {
-  switch (maneuver) {
-    case "DEPART":
-      return "start";
-    case "STRAIGHT":
-      return "straight";
-    case "RAMP_LEFT":
-      return "ramp-left";
-    case "RAMP_RIGHT":
-      return "ramp-right";
-    case "MERGE":
-      return "merge";
-    case "FORK_LEFT":
-      return "fork-left";
-    case "FORK_RIGHT":
-      return "fork-right";
-    case "FERRY":
-      return "directions-ferry";
-    case "TURN_LEFT":
-      return "turn-left";
-    case "TURN_SLIGHT_LEFT":
-      return "turn-slight-left";
-    case "TURN_SHARP_LEFT":
-      return "turn-sharp-left";
-    case "TURN_RIGHT":
-      return "turn-right";
-    case "TURN_SLIGHT_RIGHT":
-      return "turn-slight-right";
-    case "TURN_SHARP_RIGHT":
-      return "turn-sharp-right";
-    case "ROUNDABOUT_LEFT":
-      return "roundabout-left";
-    case "ROUNDABOUT_RIGHT":
-      return "roundabout-right";
-    case "UTURN_LEFT":
-      return "u-turn-left";
-    case "UTURN_RIGHT":
-      return "u-turn-right";
-    default:
-      return "dot-circle";
-  }
-}
-
-/** Format a Date to "h:mm AM/PM" */
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString(undefined, {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-/** Parse an ISO time string; returns null on failure */
-function parseTime(iso: string | undefined): Date | null {
-  if (!iso) return null;
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-
-/**
- * Compute the departure time to use for calculating step timestamps.
- * For "arrive_by", we work backwards from the arrival time.
- */
-function getDepartureDate(
-  config: DepartureTimeConfig,
-  routeDurationSeconds: number,
-): Date {
-  if (config.option === "arrive_by") {
-    return new Date(config.date.getTime() - routeDurationSeconds * 1000);
-  }
-  if (config.option === "depart_at") {
-    return config.date;
-  }
-  return new Date(); // "now"
-}
+import { formatDistance, formatDuration, formatTime } from "../../utils/formatHelper";
+import {
+  getDepartureDate,
+  getManeuverIcon,
+  parseTime,
+} from "../../utils/directionsUtils";
 
 function TransitBadge({ transit }: Readonly<{ transit: TransitStepDetails }>) {
   const departureParsed = parseTime(transit.departureTime);

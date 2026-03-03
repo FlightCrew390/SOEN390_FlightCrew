@@ -9,82 +9,16 @@ import {
   RouteInfo,
   TransitStepDetails,
 } from "../../types/Directions";
-import { formatDistance, formatDuration } from "../../utils/formatHelper";
-
-function getManeuverIcon(maneuver: string): any {
-  switch (maneuver) {
-    case "DEPART":
-      return "start";
-    case "STRAIGHT":
-      return "straight";
-    case "RAMP_LEFT":
-      return "ramp-left";
-    case "RAMP_RIGHT":
-      return "ramp-right";
-    case "MERGE":
-      return "merge";
-    case "FORK_LEFT":
-      return "fork-left";
-    case "FORK_RIGHT":
-      return "fork-right";
-    case "FERRY":
-      return "directions-ferry";
-    case "TURN_LEFT":
-      return "turn-left";
-    case "TURN_SLIGHT_LEFT":
-      return "turn-slight-left";
-    case "TURN_SHARP_LEFT":
-      return "turn-sharp-left";
-    case "TURN_RIGHT":
-      return "turn-right";
-    case "TURN_SLIGHT_RIGHT":
-      return "turn-slight-right";
-    case "TURN_SHARP_RIGHT":
-      return "turn-sharp-right";
-    case "ROUNDABOUT_LEFT":
-      return "roundabout-left";
-    case "ROUNDABOUT_RIGHT":
-      return "roundabout-right";
-    case "UTURN_LEFT":
-      return "u-turn-left";
-    case "UTURN_RIGHT":
-      return "u-turn-right";
-    default:
-      return "dot-circle";
-  }
-}
-
-/** Format a Date to "h:mm AM/PM" */
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString(undefined, {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-/** Parse an ISO time string; returns null on failure */
-function parseTime(iso: string | undefined): Date | null {
-  if (!iso) return null;
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-
-/**
- * Compute the departure time to use for calculating step timestamps.
- * For "arrive_by", we work backwards from the arrival time.
- */
-function getDepartureDate(
-  config: DepartureTimeConfig,
-  routeDurationSeconds: number,
-): Date {
-  if (config.option === "arrive_by") {
-    return new Date(config.date.getTime() - routeDurationSeconds * 1000);
-  }
-  if (config.option === "depart_at") {
-    return config.date;
-  }
-  return new Date(); // "now"
-}
+import {
+  getDepartureDate,
+  getManeuverIcon,
+  parseTime,
+} from "../../utils/directionsUtils";
+import {
+  formatDateTime,
+  formatDistance,
+  formatDuration,
+} from "../../utils/formatHelper";
 
 function TransitBadge({ transit }: Readonly<{ transit: TransitStepDetails }>) {
   const departureParsed = parseTime(transit.departureTime);
@@ -94,7 +28,7 @@ function TransitBadge({ transit }: Readonly<{ transit: TransitStepDetails }>) {
     <View style={styles.transitBadge}>
       <View style={styles.transitLineRow}>
         <MaterialIcons
-          name={getManeuverIcon(transit.vehicleType)}
+          name={getManeuverIcon(transit.vehicleType) as any}
           size={18}
           color={COLORS.white}
         />
@@ -105,13 +39,13 @@ function TransitBadge({ transit }: Readonly<{ transit: TransitStepDetails }>) {
       {transit.departureStopName ? (
         <Text style={styles.transitStop} numberOfLines={1}>
           From {transit.departureStopName}
-          {departureParsed ? ` at ${formatTime(departureParsed)}` : ""}
+          {departureParsed ? ` at ${formatDateTime(departureParsed)}` : ""}
         </Text>
       ) : null}
       {transit.arrivalStopName ? (
         <Text style={styles.transitStop} numberOfLines={1}>
           To {transit.arrivalStopName}
-          {arrivalParsed ? ` at ${formatTime(arrivalParsed)}` : ""}
+          {arrivalParsed ? ` at ${formatDateTime(arrivalParsed)}` : ""}
         </Text>
       ) : null}
       {transit.stopCount > 0 && (
@@ -207,14 +141,16 @@ export default function StepsPanel({
           <FontAwesome5 name="clock" size={13} color={COLORS.concordiaMaroon} />
           <Text style={styles.timeSummaryLabel}>Depart</Text>
           <Text style={styles.timeSummaryValue}>
-            {formatTime(departureDate)}
+            {formatDateTime(departureDate)}
           </Text>
         </View>
         <View style={styles.timeSummaryDivider} />
         <View style={styles.timeSummaryItem}>
           <FontAwesome5 name="flag-checkered" size={13} color="#555" />
           <Text style={styles.timeSummaryLabel}>Arrive</Text>
-          <Text style={styles.timeSummaryValue}>{formatTime(arrivalDate)}</Text>
+          <Text style={styles.timeSummaryValue}>
+            {formatDateTime(arrivalDate)}
+          </Text>
         </View>
         <View style={styles.timeSummaryDivider} />
         <View style={styles.timeSummaryItem}>
@@ -255,7 +191,7 @@ export default function StepsPanel({
           >
             <View style={styles.stepContent}>
               <Text style={styles.stepTimestamp}>
-                {formatTime(stepTimes[idx])}
+                {formatDateTime(stepTimes[idx])}
               </Text>
               <Text style={styles.stepInstruction}>{step.instruction}</Text>
               <Text style={styles.stepMeta}>
@@ -269,7 +205,7 @@ export default function StepsPanel({
               )}
             </View>
             <MaterialIcons
-              name={getManeuverIcon(step.maneuver)}
+              name={getManeuverIcon(step.maneuver) as any}
               size={42}
               color={COLORS.textSecondary}
             />
@@ -279,7 +215,9 @@ export default function StepsPanel({
         {/* Arrival row */}
         <View style={styles.stepRow}>
           <View style={styles.stepContent}>
-            <Text style={styles.stepTimestamp}>{formatTime(arrivalDate)}</Text>
+            <Text style={styles.stepTimestamp}>
+              {formatDateTime(arrivalDate)}
+            </Text>
             <Text style={styles.stepInstruction}>
               Arrive at {building.buildingName ?? building.buildingCode}
             </Text>

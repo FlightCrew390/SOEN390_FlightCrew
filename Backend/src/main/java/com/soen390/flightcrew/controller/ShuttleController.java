@@ -34,7 +34,7 @@ public class ShuttleController {
      * @return 200 with schedule, or 400 if the day parameter is invalid
      */
     @GetMapping("/schedule")
-    public ResponseEntity<?> getSchedule(@RequestParam(required = false) String day) {
+    public ResponseEntity<Object> getSchedule(@RequestParam(required = false) String day) {
         DayOfWeek dayOfWeek;
 
         if (day == null || day.isBlank()) {

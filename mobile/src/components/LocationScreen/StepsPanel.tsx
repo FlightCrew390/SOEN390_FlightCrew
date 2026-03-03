@@ -66,7 +66,7 @@ function formatTime(date: Date): string {
 function parseTime(iso: string | undefined): Date | null {
   if (!iso) return null;
   const d = new Date(iso);
-  return isNaN(d.getTime()) ? null : d;
+  return Number.isNaN(d.getTime()) ? null : d;
 }
 
 /**
@@ -86,18 +86,17 @@ function getDepartureDate(
   return new Date(); // "now"
 }
 
+function getVehicleIcon(vehicleType: string): string {
+  if (vehicleType === "BUS") return "directions-bus";
+  if (vehicleType === "SUBWAY" || vehicleType === "METRO") return "subway";
+  if (vehicleType === "RAIL" || vehicleType === "COMMUTER_TRAIN") return "train";
+  return "directions-transit";
+}
+
 function TransitBadge({ transit }: Readonly<{ transit: TransitStepDetails }>) {
   const departureParsed = parseTime(transit.departureTime);
   const arrivalParsed = parseTime(transit.arrivalTime);
-  const vehicleIcon =
-    transit.vehicleType === "BUS"
-      ? "directions-bus"
-      : transit.vehicleType === "SUBWAY" || transit.vehicleType === "METRO"
-        ? "subway"
-        : transit.vehicleType === "RAIL" ||
-            transit.vehicleType === "COMMUTER_TRAIN"
-          ? "train"
-          : "directions-transit";
+  const vehicleIcon = getVehicleIcon(transit.vehicleType);
 
   return (
     <View style={styles.transitBadge}>
@@ -256,7 +255,7 @@ export default function StepsPanel({
         {visibleSteps.map((step, idx) => (
           <View
             key={`step-${step.instruction}-${idx}`}
-            style={[styles.stepRow, idx % 2 !== 1 && styles.stepRowOdd]}
+            style={[styles.stepRow, idx % 2 === 0 && styles.stepRowOdd]}
           >
             <View style={styles.stepContent}>
               <Text style={styles.stepTimestamp}>

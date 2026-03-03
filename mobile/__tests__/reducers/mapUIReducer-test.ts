@@ -36,6 +36,7 @@ describe("mapUIReducer", () => {
       searchOrigin: "default",
       startBuilding: null,
       travelMode: null,
+      departureConfig: { option: "now", date: expect.any(Date) },
       route: null,
       routeLoading: false,
       routeError: null,

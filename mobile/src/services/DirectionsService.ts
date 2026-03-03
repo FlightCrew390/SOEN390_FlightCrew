@@ -25,6 +25,8 @@ export class DirectionsService {
     destLat: number,
     destLng: number,
     travelMode: TravelMode = "WALK",
+    departureTime?: string,
+    arrivalTime?: string,
   ): Promise<RouteInfo | null> {
     const params = new URLSearchParams({
       originLat: originLat.toString(),
@@ -33,6 +35,13 @@ export class DirectionsService {
       destLng: destLng.toString(),
       travelMode,
     });
+
+    if (departureTime) {
+      params.set("departureTime", departureTime);
+    }
+    if (arrivalTime) {
+      params.set("arrivalTime", arrivalTime);
+    }
 
     const url = `${API_BASE_URL}/directions?${params}`;
 

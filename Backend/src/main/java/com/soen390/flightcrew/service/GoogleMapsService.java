@@ -96,10 +96,10 @@ public class GoogleMapsService {
         }
     }
 
-    @Cacheable(value = "directions", key = "#originLat + ',' + #originLng + ',' + #destLat + ',' + #destLng + ',' + #travelMode")
+    @Cacheable(value = "directions", key = "#originLat + ',' + #originLng + ',' + #destLat + ',' + #destLng + ',' + #travelMode + ',' + #departureTime + ',' + #arrivalTime")
     public DirectionsResponse getDirections(Double originLat, Double originLng,
             Double destLat, Double destLng,
-            String travelMode) {
+            String travelMode, String departureTime, String arrivalTime) {
         if (originLat == null || originLng == null || destLat == null || destLng == null) {
             return null;
         }
@@ -128,11 +128,19 @@ public class GoogleMapsService {
 
         String mode = (travelMode != null) ? travelMode.toUpperCase() : "WALK";
 
-        Map<String, Object> requestBody = Map.of(
-                "origin", origin,
-                "destination", destination,
-                "travelMode", mode,
-                "computeAlternativeRoutes", false);
+        // Use mutable map so we can conditionally add time fields
+        Map<String, Object> requestBody = new java.util.HashMap<>();
+        requestBody.put("origin", origin);
+        requestBody.put("destination", destination);
+        requestBody.put("travelMode", mode);
+        requestBody.put("computeAlternativeRoutes", false);
+
+        if (departureTime != null && !departureTime.isEmpty()) {
+            requestBody.put("departureTime", departureTime);
+        }
+        if (arrivalTime != null && !arrivalTime.isEmpty()) {
+            requestBody.put("arrivalTime", arrivalTime);
+        }
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 

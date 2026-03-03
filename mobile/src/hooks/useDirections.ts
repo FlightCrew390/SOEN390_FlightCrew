@@ -1,7 +1,11 @@
 import { useEffect, useRef } from "react";
 import { DirectionsService } from "../services/DirectionsService";
 import { Building } from "../types/Building";
-import { RouteInfo, TravelMode } from "../types/Directions";
+import {
+  DepartureTimeConfig,
+  RouteInfo,
+  TravelMode,
+} from "../types/Directions";
 
 interface UseDirectionsParams {
   /** The destination building (required). */
@@ -12,6 +16,8 @@ interface UseDirectionsParams {
   userLocation: { latitude: number; longitude: number } | null;
   /** Selected travel mode. */
   travelMode: TravelMode | null;
+  /** Departure / arrival time configuration. */
+  departureConfig: DepartureTimeConfig;
   /** Whether the directions panel is open. */
   active: boolean;
   /** Callbacks into the reducer. */
@@ -21,14 +27,15 @@ interface UseDirectionsParams {
 }
 
 /**
- * Fetches directions whenever the origin, destination, or travel mode changes
- * while the directions panel is active.
+ * Fetches directions whenever the origin, destination, travel mode, or
+ * departure config changes while the directions panel is active.
  */
 export function useDirections({
   destination,
   startBuilding,
   userLocation,
   travelMode,
+  departureConfig,
   active,
   onLoading,
   onLoaded,
@@ -53,6 +60,16 @@ export function useDirections({
 
     let cancelled = false;
 
+    // Derive departure/arrival time strings from config
+    const departureTime =
+      departureConfig.option === "depart_at"
+        ? departureConfig.date.toISOString()
+        : undefined;
+    const arrivalTime =
+      departureConfig.option === "arrive_by"
+        ? departureConfig.date.toISOString()
+        : undefined;
+
     const fetchRoute = async () => {
       onLoading();
       try {
@@ -62,6 +79,8 @@ export function useDirections({
           destination.latitude,
           destination.longitude,
           travelMode,
+          departureTime,
+          arrivalTime,
         );
         if (!cancelled) onLoaded(route);
       } catch (err) {
@@ -87,5 +106,7 @@ export function useDirections({
     userLocation?.latitude,
     userLocation?.longitude,
     travelMode,
+    departureConfig.option,
+    departureConfig.date,
   ]);
 }

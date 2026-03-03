@@ -396,4 +396,170 @@ describe("DirectionsService.fetchDirections", () => {
       error,
     );
   });
+
+  it("appends departureTime param when provided", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => createDirectionsResponse(),
+    });
+
+    await DirectionsService.fetchDirections(
+      45.497,
+      -73.579,
+      45.458,
+      -73.64,
+      "TRANSIT",
+      "2026-03-03T09:00:00Z",
+    );
+
+    const calledUrl: string = mockFetch.mock.calls[0][0];
+    expect(calledUrl).toContain("departureTime=2026-03-03T09%3A00%3A00Z");
+  });
+
+  it("appends arrivalTime param when provided", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => createDirectionsResponse(),
+    });
+
+    await DirectionsService.fetchDirections(
+      45.497,
+      -73.579,
+      45.458,
+      -73.64,
+      "TRANSIT",
+      undefined,
+      "2026-03-03T10:00:00Z",
+    );
+
+    const calledUrl: string = mockFetch.mock.calls[0][0];
+    expect(calledUrl).toContain("arrivalTime=2026-03-03T10%3A00%3A00Z");
+  });
+
+  it("parses transit step details into transitDetails field", async () => {
+    const response = {
+      routes: [
+        {
+          polyline: { encodedPolyline: "_p~iF~ps|U" },
+          distanceMeters: 5000,
+          duration: "900s",
+          legs: [
+            {
+              distanceMeters: 5000,
+              duration: "900s",
+              steps: [
+                {
+                  distanceMeters: 5000,
+                  staticDuration: "900s",
+                  polyline: { encodedPolyline: "_p~iF~ps|U" },
+                  navigationInstruction: {
+                    instructions: "Take the 80 bus",
+                    maneuver: "STRAIGHT",
+                  },
+                  transitDetails: {
+                    stopDetails: {
+                      departureStop: { name: "Guy-Concordia" },
+                      arrivalStop: { name: "Berri-UQAM" },
+                      departureTime: "2026-03-03T09:15:00Z",
+                      arrivalTime: "2026-03-03T09:30:00Z",
+                    },
+                    transitLine: {
+                      name: "Green Line",
+                      nameShort: "1",
+                      vehicle: {
+                        type: "SUBWAY",
+                        name: { text: "Metro" },
+                      },
+                    },
+                    stopCount: 5,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => response,
+    });
+
+    const result = await DirectionsService.fetchDirections(
+      45.497,
+      -73.579,
+      45.458,
+      -73.64,
+      "TRANSIT",
+    );
+
+    expect(result).not.toBeNull();
+    expect(result!.steps).toHaveLength(1);
+
+    const transit = result!.steps[0].transitDetails!;
+    expect(transit.departureStopName).toBe("Guy-Concordia");
+    expect(transit.arrivalStopName).toBe("Berri-UQAM");
+    expect(transit.departureTime).toBe("2026-03-03T09:15:00Z");
+    expect(transit.arrivalTime).toBe("2026-03-03T09:30:00Z");
+    expect(transit.lineName).toBe("Green Line");
+    expect(transit.lineShortName).toBe("1");
+    expect(transit.vehicleType).toBe("SUBWAY");
+    expect(transit.vehicleName).toBe("Metro");
+    expect(transit.stopCount).toBe(5);
+  });
+
+  it("handles transit step with missing nested fields gracefully", async () => {
+    const response = {
+      routes: [
+        {
+          polyline: { encodedPolyline: "_p~iF~ps|U" },
+          distanceMeters: 1000,
+          duration: "300s",
+          legs: [
+            {
+              steps: [
+                {
+                  distanceMeters: 1000,
+                  staticDuration: "300s",
+                  navigationInstruction: {
+                    instructions: "Take transit",
+                    maneuver: "STRAIGHT",
+                  },
+                  transitDetails: {
+                    // All nested fields missing
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => response,
+    });
+
+    const result = await DirectionsService.fetchDirections(
+      45.497,
+      -73.579,
+      45.458,
+      -73.64,
+    );
+
+    const transit = result!.steps[0].transitDetails!;
+    expect(transit.departureStopName).toBe("");
+    expect(transit.arrivalStopName).toBe("");
+    expect(transit.lineName).toBe("");
+    expect(transit.lineShortName).toBe("");
+    expect(transit.vehicleType).toBe("");
+    expect(transit.vehicleName).toBe("");
+    expect(transit.stopCount).toBe(0);
+  });
 });

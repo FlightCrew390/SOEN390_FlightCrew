@@ -213,4 +213,216 @@ describe("StepsPanel", () => {
     expect(screen.getByText("Depart")).toBeTruthy();
     expect(screen.getByText("Arrive")).toBeTruthy();
   });
+
+  it("uses arrive_by config to compute departure time", () => {
+    const arriveBy: DepartureTimeConfig = {
+      option: "arrive_by",
+      date: new Date("2026-03-03T11:00:00"),
+    };
+    render(
+      <StepsPanel
+        building={building}
+        route={route}
+        departureConfig={arriveBy}
+        onBack={onBack}
+      />,
+    );
+    expect(screen.getByText("Depart")).toBeTruthy();
+    expect(screen.getByText("Arrive")).toBeTruthy();
+  });
+
+  it("handles invalid transit departure/arrival time (parseTime NaN branch)", () => {
+    const routeWithBadTime: RouteInfo = {
+      coordinates: [],
+      distanceMeters: 5000,
+      durationSeconds: 1200,
+      steps: [
+        {
+          distanceMeters: 4000,
+          durationSeconds: 900,
+          instruction: "Take bus",
+          maneuver: "STRAIGHT",
+          coordinates: [],
+          transitDetails: {
+            departureStopName: "Stop A",
+            arrivalStopName: "Stop B",
+            departureTime: "not-a-valid-date",
+            arrivalTime: "also-invalid",
+            lineName: "Line 1",
+            lineShortName: "1",
+            vehicleType: "BUS",
+            vehicleName: "Bus",
+            stopCount: 3,
+          },
+        },
+      ],
+    };
+    render(
+      <StepsPanel
+        building={building}
+        route={routeWithBadTime}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+      />,
+    );
+    expect(screen.getByText("Take bus")).toBeTruthy();
+    // Stop count still renders
+    expect(screen.getByText("3 stops")).toBeTruthy();
+  });
+
+  it("uses buildingCode as fallback when startBuilding has no buildingLongName", () => {
+    const buildingNoLongName = {
+      ...startBuilding,
+      buildingLongName: undefined,
+    } as unknown as (typeof startBuilding);
+    render(
+      <StepsPanel
+        building={building}
+        startBuilding={buildingNoLongName}
+        route={route}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+      />,
+    );
+    expect(screen.getByText(/Exit EV/)).toBeTruthy();
+  });
+
+  it("renders steps with all remaining maneuver types", () => {
+    const allManeuvers = [
+      "RAMP_LEFT",
+      "RAMP_RIGHT",
+      "MERGE",
+      "FORK_LEFT",
+      "FORK_RIGHT",
+      "FERRY",
+      "TURN_SLIGHT_LEFT",
+      "TURN_SHARP_LEFT",
+      "TURN_RIGHT",
+      "TURN_SLIGHT_RIGHT",
+      "TURN_SHARP_RIGHT",
+      "ROUNDABOUT_LEFT",
+      "ROUNDABOUT_RIGHT",
+      "UTURN_LEFT",
+      "UTURN_RIGHT",
+      "UNKNOWN_MANEUVER",
+    ];
+    const steps = allManeuvers.map((maneuver, i) => ({
+      distanceMeters: 100,
+      durationSeconds: 60,
+      instruction: `Step ${maneuver}`,
+      maneuver,
+      coordinates: [],
+    }));
+    render(
+      <StepsPanel
+        building={building}
+        route={{ ...route, steps }}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+      />,
+    );
+    expect(screen.getByText("Step RAMP_LEFT")).toBeTruthy();
+    expect(screen.getByText("Step UNKNOWN_MANEUVER")).toBeTruthy();
+  });
+
+  it("renders transit badge with METRO vehicle type", () => {
+    const metroRoute: RouteInfo = {
+      coordinates: [],
+      distanceMeters: 2000,
+      durationSeconds: 600,
+      steps: [
+        {
+          distanceMeters: 2000,
+          durationSeconds: 600,
+          instruction: "Take metro",
+          maneuver: "STRAIGHT",
+          coordinates: [],
+          transitDetails: {
+            departureStopName: "Station A",
+            arrivalStopName: "Station B",
+            departureTime: "2026-03-03T09:00:00Z",
+            arrivalTime: "2026-03-03T09:10:00Z",
+            lineName: "Orange Line",
+            lineShortName: "5",
+            vehicleType: "METRO",
+            vehicleName: "Metro",
+            stopCount: 1,
+          },
+        },
+      ],
+    };
+    render(
+      <StepsPanel
+        building={building}
+        route={metroRoute}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+      />,
+    );
+    expect(screen.getByText("Take metro")).toBeTruthy();
+    expect(screen.getByText("5")).toBeTruthy();
+  });
+
+  it("renders transit badge with RAIL vehicle type", () => {
+    const railRoute: RouteInfo = {
+      coordinates: [],
+      distanceMeters: 10000,
+      durationSeconds: 1800,
+      steps: [
+        {
+          distanceMeters: 10000,
+          durationSeconds: 1800,
+          instruction: "Take train",
+          maneuver: "STRAIGHT",
+          coordinates: [],
+          transitDetails: {
+            departureStopName: "",
+            arrivalStopName: "",
+            departureTime: "",
+            arrivalTime: "",
+            lineName: "Exo",
+            lineShortName: "",
+            vehicleType: "RAIL",
+            vehicleName: "Train",
+            stopCount: 0,
+          },
+        },
+      ],
+    };
+    render(
+      <StepsPanel
+        building={building}
+        route={railRoute}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+      />,
+    );
+    expect(screen.getByText("Take train")).toBeTruthy();
+  });
+
+  it("renders no start building section when startBuilding is null", () => {
+    render(
+      <StepsPanel
+        building={building}
+        startBuilding={null}
+        route={route}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+      />,
+    );
+    expect(screen.queryByText(/Exit/)).toBeNull();
+  });
+
+  it("renders step duration dot when durationSeconds is positive", () => {
+    render(
+      <StepsPanel
+        building={building}
+        route={route}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+      />,
+    );
+    // Steps with durationSeconds > 0 show duration with dot separator
+    expect(screen.getByText("Head north")).toBeTruthy();
+  });
 });

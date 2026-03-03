@@ -13,6 +13,7 @@ const mockHandleSearch = jest.fn();
 const mockHandleTravelModeChange = jest.fn();
 const mockSelectPoi = jest.fn();
 const mockClearPoi = jest.fn();
+const mockHandleDepartureConfigChange = jest.fn();
 
 const defaultMapUIState = {
   panel: "none" as const,
@@ -53,6 +54,7 @@ jest.mock("../../src/hooks/useMapUI", () => ({
     handleTravelModeChange: mockHandleTravelModeChange,
     selectPoi: mockSelectPoi,
     clearPoi: mockClearPoi,
+    handleDepartureConfigChange: mockHandleDepartureConfigChange,
   }),
 }));
 
@@ -200,6 +202,7 @@ jest.mock("../../src/components/LocationScreen/SearchPanel", () => {
     default: (props: any) => (
       <View testID="search-panel">
         <Text testID="sp-visible">{String(props.visible)}</Text>
+        <Pressable testID="sp-close" onPress={props.onClose} />
         <Pressable
           testID="sp-select-building"
           onPress={() =>
@@ -1127,13 +1130,72 @@ describe("GoogleMaps", () => {
     });
   });
 
-  it("does not call animateToBuilding when selecting from search in directions origin", () => {
+  // ── onDirectionPress wiring ──
+
+  it("calls animateToBuilding and openDirections when BuildingLayer onDirectionPress fires", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("bl-direction-press"));
+    expect(mockAnimateToBuilding).toHaveBeenCalledWith(hallBuilding);
+    expect(mockOpenDirections).toHaveBeenCalledWith(hallBuilding);
+  });
+
+  it("calls animateToBuilding and selectBuilding when BuildingLayer onSelect fires", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("bl-select"));
+    expect(mockAnimateToBuilding).toHaveBeenCalledWith(hallBuilding);
+    expect(mockSelectBuilding).toHaveBeenCalledWith(hallBuilding);
+  });
+
+  // ── DirectionPanel callback wiring ──
+
+  it("dispatches OPEN_SEARCH_FOR_START when DirectionPanel onOpenSearch fires", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("dp-open-search"));
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: "OPEN_SEARCH_FOR_START",
+    });
+  });
+
+  it("dispatches RESET_START_BUILDING when DirectionPanel onResetStart fires", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("dp-reset-start"));
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "RESET_START_BUILDING" });
+  });
+
+  it("dispatches OPEN_STEPS when DirectionPanel onShowSteps fires", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("dp-btn-show-steps"));
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "OPEN_STEPS" });
+  });
+
+  it("dispatches CLOSE_STEPS when DirectionPanel onHideSteps fires", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("dp-btn-hide-steps"));
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "CLOSE_STEPS" });
+  });
+
+  // ── SearchPanel onClose wiring ──
+
+  it("dispatches CLOSE_PANEL when SearchPanel onClose fires with default origin", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "search",
+      searchOrigin: "default",
+    };
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("sp-close"));
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "CLOSE_PANEL" });
+  });
+
+  it("dispatches RETURN_TO_DIRECTIONS when SearchPanel onClose fires with directions origin", () => {
     mockMapUIState = {
       ...defaultMapUIState,
       panel: "search",
       searchOrigin: "directions",
     };
     render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("sp-close"));
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "RETURN_TO_DIRECTIONS" });
     fireEvent.press(screen.getByTestId("sp-select-building"));
     expect(mockAnimateToBuilding).not.toHaveBeenCalled();
     expect(mockSelectBuilding).not.toHaveBeenCalled();

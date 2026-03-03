@@ -145,24 +145,38 @@ export default function StepsPanel({
   onBack,
 }: Readonly<StepsPanelProps>) {
   const distanceText = formatDistance(route.distanceMeters);
-  const departureDate = getDepartureDate(
+  const initialDeparture = getDepartureDate(
     departureConfig,
     route.durationSeconds,
   );
-  const arrivalDate = new Date(
-    departureDate.getTime() + route.durationSeconds * 1000,
-  );
 
-  // Pre-compute cumulative start time for each visible step
+  // Pre-compute schedule-aware timestamps for each visible step.
+  // For transit steps, snap the running clock to real Google schedule times.
   const visibleSteps = route.steps.filter(
     (step) => step.instruction.length > 0,
   );
   const stepTimes: Date[] = [];
-  let cumulativeMs = 0;
+  let clock = initialDeparture.getTime();
   for (const step of visibleSteps) {
-    stepTimes.push(new Date(departureDate.getTime() + cumulativeMs));
-    cumulativeMs += step.durationSeconds * 1000;
+    // If this is a transit step with a real departure time, snap to it
+    const realDep = parseTime(step.transitDetails?.departureTime);
+    if (realDep) {
+      clock = realDep.getTime();
+    }
+    stepTimes.push(new Date(clock));
+
+    // Advance the clock: prefer real arrival time, else add duration
+    const realArr = parseTime(step.transitDetails?.arrivalTime);
+    if (realArr) {
+      clock = realArr.getTime();
+    } else {
+      clock += step.durationSeconds * 1000;
+    }
   }
+
+  // Departure = first step time; arrival = end of last step
+  const departureDate = stepTimes.length > 0 ? stepTimes[0] : initialDeparture;
+  const arrivalDate = new Date(clock);
 
   return (
     <View style={styles.container}>

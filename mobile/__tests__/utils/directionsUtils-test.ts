@@ -1,9 +1,10 @@
 import {
+  computeStepTimeline,
   getDepartureDate,
   getManeuverIcon,
   parseTime,
 } from "../../src/utils/directionsUtils";
-import { DepartureTimeConfig } from "../../src/types/Directions";
+import { DepartureTimeConfig, StepInfo } from "../../src/types/Directions";
 
 // ── getManeuverIcon ──
 
@@ -85,5 +86,103 @@ describe("getDepartureDate", () => {
     const after = Date.now();
     expect(result.getTime()).toBeGreaterThanOrEqual(before);
     expect(result.getTime()).toBeLessThanOrEqual(after);
+  });
+});
+
+// ── computeStepTimeline ──
+
+function makeStep(overrides: Partial<StepInfo> = {}): StepInfo {
+  return {
+    distanceMeters: 100,
+    durationSeconds: 60,
+    instruction: "Walk north",
+    maneuver: "STRAIGHT",
+    coordinates: [],
+    ...overrides,
+  };
+}
+
+describe("computeStepTimeline", () => {
+  const t0 = new Date("2026-03-03T10:00:00");
+
+  it("filters out steps with empty instructions", () => {
+    const steps = [
+      makeStep({ instruction: "Walk north" }),
+      makeStep({ instruction: "" }),
+    ];
+    const { visibleSteps } = computeStepTimeline(steps, t0);
+    expect(visibleSteps).toHaveLength(1);
+    expect(visibleSteps[0].instruction).toBe("Walk north");
+  });
+
+  it("assigns the departure time to the first step", () => {
+    const steps = [makeStep(), makeStep()];
+    const { stepTimes, departureDate } = computeStepTimeline(steps, t0);
+    expect(stepTimes[0].getTime()).toBe(t0.getTime());
+    expect(departureDate.getTime()).toBe(t0.getTime());
+  });
+
+  it("advances the clock by durationSeconds when no real arrival time", () => {
+    const steps = [makeStep({ durationSeconds: 120 }), makeStep()];
+    const { stepTimes } = computeStepTimeline(steps, t0);
+    expect(stepTimes[1].getTime()).toBe(t0.getTime() + 120 * 1000);
+  });
+
+  it("snaps the clock to a real transit departure time", () => {
+    const snapTime = "2026-03-03T10:05:00";
+    const steps = [
+      makeStep(),
+      makeStep({
+        transitDetails: {
+          departureTime: snapTime,
+          arrivalTime: "",
+          departureStopName: "A",
+          arrivalStopName: "B",
+          lineName: "L1",
+          lineShortName: "1",
+          vehicleType: "BUS",
+          vehicleName: "Bus",
+          stopCount: 3,
+        },
+      }),
+    ];
+    const { stepTimes } = computeStepTimeline(steps, t0);
+    expect(stepTimes[1].getTime()).toBe(new Date(snapTime).getTime());
+  });
+
+  it("uses real transit arrival time to advance the clock", () => {
+    const depTime = "2026-03-03T10:05:00";
+    const arrTime = "2026-03-03T10:15:00";
+    const steps = [
+      makeStep({
+        durationSeconds: 0,
+        transitDetails: {
+          departureTime: depTime,
+          arrivalTime: arrTime,
+          departureStopName: "A",
+          arrivalStopName: "B",
+          lineName: "L1",
+          lineShortName: "1",
+          vehicleType: "BUS",
+          vehicleName: "Bus",
+          stopCount: 3,
+        },
+      }),
+      makeStep(),
+    ];
+    const { stepTimes } = computeStepTimeline(steps, t0);
+    expect(stepTimes[1].getTime()).toBe(new Date(arrTime).getTime());
+  });
+
+  it("sets arrivalDate to clock time after last step", () => {
+    const steps = [makeStep({ durationSeconds: 300 })];
+    const { arrivalDate } = computeStepTimeline(steps, t0);
+    expect(arrivalDate.getTime()).toBe(t0.getTime() + 300 * 1000);
+  });
+
+  it("returns initialDeparture as departureDate when no visible steps", () => {
+    const { departureDate, arrivalDate } = computeStepTimeline([], t0);
+    expect(departureDate.getTime()).toBe(t0.getTime());
+    expect(arrivalDate.getTime()).toBe(t0.getTime());
   });
 });

@@ -4,54 +4,18 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import { COLORS } from "../../constants";
 import styles from "../../styles/StepsPanel";
 import { Building } from "../../types/Building";
+import { DepartureTimeConfig, RouteInfo } from "../../types/Directions";
 import {
-  DepartureTimeConfig,
-  RouteInfo,
-  TransitStepDetails,
-} from "../../types/Directions";
-import { formatDistance, formatDuration, formatTime } from "../../utils/formatHelper";
+  formatDistance,
+  formatDuration,
+  formatTime,
+} from "../../utils/formatHelper";
 import {
+  computeStepTimeline,
   getDepartureDate,
   getManeuverIcon,
-  parseTime,
 } from "../../utils/directionsUtils";
-
-function TransitBadge({ transit }: Readonly<{ transit: TransitStepDetails }>) {
-  const departureParsed = parseTime(transit.departureTime);
-  const arrivalParsed = parseTime(transit.arrivalTime);
-
-  return (
-    <View style={styles.transitBadge}>
-      <View style={styles.transitLineRow}>
-        <MaterialIcons
-          name={getManeuverIcon(transit.vehicleType)}
-          size={18}
-          color={COLORS.white}
-        />
-        <Text style={styles.transitLineName}>
-          {transit.lineShortName || transit.lineName || transit.vehicleName}
-        </Text>
-      </View>
-      {transit.departureStopName ? (
-        <Text style={styles.transitStop} numberOfLines={1}>
-          From {transit.departureStopName}
-          {departureParsed ? ` at ${formatTime(departureParsed)}` : ""}
-        </Text>
-      ) : null}
-      {transit.arrivalStopName ? (
-        <Text style={styles.transitStop} numberOfLines={1}>
-          To {transit.arrivalStopName}
-          {arrivalParsed ? ` at ${formatTime(arrivalParsed)}` : ""}
-        </Text>
-      ) : null}
-      {transit.stopCount > 0 && (
-        <Text style={styles.transitStopCount}>
-          {transit.stopCount} stop{transit.stopCount !== 1 ? "s" : ""}
-        </Text>
-      )}
-    </View>
-  );
-}
+import TransitBadge from "./TransitBadge";
 
 interface StepsPanelProps {
   readonly building: Building;
@@ -73,34 +37,8 @@ export default function StepsPanel({
     departureConfig,
     route.durationSeconds,
   );
-
-  // Pre-compute schedule-aware timestamps for each visible step.
-  // For transit steps, snap the running clock to real Google schedule times.
-  const visibleSteps = route.steps.filter(
-    (step) => step.instruction.length > 0,
-  );
-  const stepTimes: Date[] = [];
-  let clock = initialDeparture.getTime();
-  for (const step of visibleSteps) {
-    // If this is a transit step with a real departure time, snap to it
-    const realDep = parseTime(step.transitDetails?.departureTime);
-    if (realDep) {
-      clock = realDep.getTime();
-    }
-    stepTimes.push(new Date(clock));
-
-    // Advance the clock: prefer real arrival time, else add duration
-    const realArr = parseTime(step.transitDetails?.arrivalTime);
-    if (realArr) {
-      clock = realArr.getTime();
-    } else {
-      clock += step.durationSeconds * 1000;
-    }
-  }
-
-  // Departure = first step time; arrival = end of last step
-  const departureDate = stepTimes.length > 0 ? stepTimes[0] : initialDeparture;
-  const arrivalDate = new Date(clock);
+  const { visibleSteps, stepTimes, departureDate, arrivalDate } =
+    computeStepTimeline(route.steps, initialDeparture);
 
   return (
     <View style={styles.container}>

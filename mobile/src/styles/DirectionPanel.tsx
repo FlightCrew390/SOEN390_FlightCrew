@@ -311,6 +311,12 @@ const styles = StyleSheet.create({
     color: "#333",
     fontWeight: "500",
   },
+  departurePastTimeWarning: {
+    marginTop: 6,
+    fontSize: 12,
+    color: COLORS.error,
+    fontWeight: "500",
+  },
 });
 
 export default styles;

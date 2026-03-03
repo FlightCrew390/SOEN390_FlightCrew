@@ -1,4 +1,4 @@
-import { DepartureTimeConfig } from "../types/Directions";
+import { DepartureTimeConfig, StepInfo } from "../types/Directions";
 
 /**
  * Maps a Google Directions maneuver string to a MaterialIcons icon name.
@@ -68,4 +68,45 @@ export function getDepartureDate(
     return config.date;
   }
   return new Date(); // "now"
+}
+
+export interface StepTimeline {
+  visibleSteps: StepInfo[];
+  stepTimes: Date[];
+  departureDate: Date;
+  arrivalDate: Date;
+}
+
+/**
+ * Filters visible steps and computes a schedule-aware timestamp for each one.
+ * For transit steps, the running clock snaps to real Google schedule times.
+ * Returns the visible steps, their timestamps, and the overall departure/arrival dates.
+ */
+export function computeStepTimeline(
+  steps: StepInfo[],
+  initialDeparture: Date,
+): StepTimeline {
+  const visibleSteps = steps.filter((step) => step.instruction.length > 0);
+  const stepTimes: Date[] = [];
+  let clock = initialDeparture.getTime();
+
+  for (const step of visibleSteps) {
+    const realDep = parseTime(step.transitDetails?.departureTime);
+    if (realDep) {
+      clock = realDep.getTime();
+    }
+    stepTimes.push(new Date(clock));
+
+    const realArr = parseTime(step.transitDetails?.arrivalTime);
+    if (realArr) {
+      clock = realArr.getTime();
+    } else {
+      clock += step.durationSeconds * 1000;
+    }
+  }
+
+  const departureDate = stepTimes.length > 0 ? stepTimes[0] : initialDeparture;
+  const arrivalDate = new Date(clock);
+
+  return { visibleSteps, stepTimes, departureDate, arrivalDate };
 }

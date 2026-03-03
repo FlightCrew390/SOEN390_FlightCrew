@@ -1,9 +1,13 @@
+import type MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { ComponentProps } from "react";
 import { DepartureTimeConfig, StepInfo } from "../types/Directions";
+
+type MaterialIconName = ComponentProps<typeof MaterialIcons>["name"];
 
 /**
  * Maps a Google Directions maneuver string to a MaterialIcons icon name.
  */
-export function getManeuverIcon(maneuver: string): string {
+export function getManeuverIcon(maneuver: string): MaterialIconName {
   switch (maneuver) {
     case "DEPART":
       return "start";
@@ -42,7 +46,7 @@ export function getManeuverIcon(maneuver: string): string {
     case "UTURN_RIGHT":
       return "u-turn-right";
     default:
-      return "dot-circle";
+      return "navigation";
   }
 }
 

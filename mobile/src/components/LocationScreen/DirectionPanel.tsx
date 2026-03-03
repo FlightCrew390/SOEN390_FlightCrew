@@ -385,6 +385,7 @@ export default function DirectionPanel({
           building={building}
           startBuilding={startBuilding}
           route={route}
+          departureConfig={departureConfig}
           onBack={onHideSteps}
         />
       )}

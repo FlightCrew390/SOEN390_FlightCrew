@@ -4,7 +4,11 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import { COLORS } from "../../constants";
 import styles from "../../styles/StepsPanel";
 import { Building } from "../../types/Building";
-import { RouteInfo } from "../../types/Directions";
+import {
+  DepartureTimeConfig,
+  RouteInfo,
+  TransitStepDetails,
+} from "../../types/Directions";
 import { formatDistance, formatDuration } from "../../utils/formatHelper";
 
 function getManeuverIcon(maneuver: string): any {
@@ -50,10 +54,86 @@ function getManeuverIcon(maneuver: string): any {
   }
 }
 
+/** Format a Date to "h:mm AM/PM" */
+function formatTime(date: Date): string {
+  return date.toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+/** Parse an ISO time string; returns null on failure */
+function parseTime(iso: string | undefined): Date | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+/**
+ * Compute the departure time to use for calculating step timestamps.
+ * For "arrive_by", we work backwards from the arrival time.
+ */
+function getDepartureDate(
+  config: DepartureTimeConfig,
+  routeDurationSeconds: number,
+): Date {
+  if (config.option === "arrive_by") {
+    return new Date(config.date.getTime() - routeDurationSeconds * 1000);
+  }
+  if (config.option === "depart_at") {
+    return config.date;
+  }
+  return new Date(); // "now"
+}
+
+function TransitBadge({
+  transit,
+}: Readonly<{ transit: TransitStepDetails }>) {
+  const departureParsed = parseTime(transit.departureTime);
+  const arrivalParsed = parseTime(transit.arrivalTime);
+  const vehicleIcon =
+    transit.vehicleType === "BUS"
+      ? "directions-bus"
+      : transit.vehicleType === "SUBWAY" || transit.vehicleType === "METRO"
+        ? "subway"
+        : transit.vehicleType === "RAIL" || transit.vehicleType === "COMMUTER_TRAIN"
+          ? "train"
+          : "directions-transit";
+
+  return (
+    <View style={styles.transitBadge}>
+      <View style={styles.transitLineRow}>
+        <MaterialIcons name={vehicleIcon} size={18} color={COLORS.white} />
+        <Text style={styles.transitLineName}>
+          {transit.lineShortName || transit.lineName || transit.vehicleName}
+        </Text>
+      </View>
+      {transit.departureStopName ? (
+        <Text style={styles.transitStop} numberOfLines={1}>
+          From {transit.departureStopName}
+          {departureParsed ? ` at ${formatTime(departureParsed)}` : ""}
+        </Text>
+      ) : null}
+      {transit.arrivalStopName ? (
+        <Text style={styles.transitStop} numberOfLines={1}>
+          To {transit.arrivalStopName}
+          {arrivalParsed ? ` at ${formatTime(arrivalParsed)}` : ""}
+        </Text>
+      ) : null}
+      {transit.stopCount > 0 && (
+        <Text style={styles.transitStopCount}>
+          {transit.stopCount} stop{transit.stopCount !== 1 ? "s" : ""}
+        </Text>
+      )}
+    </View>
+  );
+}
+
 interface StepsPanelProps {
   readonly building: Building;
   readonly startBuilding?: Building | null;
   readonly route: RouteInfo;
+  readonly departureConfig: DepartureTimeConfig;
   readonly onBack: () => void;
 }
 
@@ -61,9 +141,28 @@ export default function StepsPanel({
   building,
   startBuilding,
   route,
+  departureConfig,
   onBack,
 }: Readonly<StepsPanelProps>) {
   const distanceText = formatDistance(route.distanceMeters);
+  const departureDate = getDepartureDate(
+    departureConfig,
+    route.durationSeconds,
+  );
+  const arrivalDate = new Date(
+    departureDate.getTime() + route.durationSeconds * 1000,
+  );
+
+  // Pre-compute cumulative start time for each visible step
+  const visibleSteps = route.steps.filter(
+    (step) => step.instruction.length > 0,
+  );
+  const stepTimes: Date[] = [];
+  let cumulativeMs = 0;
+  for (const step of visibleSteps) {
+    stepTimes.push(new Date(departureDate.getTime() + cumulativeMs));
+    cumulativeMs += step.durationSeconds * 1000;
+  }
 
   return (
     <View style={styles.container}>
@@ -94,6 +193,36 @@ export default function StepsPanel({
         <Text style={styles.distanceText}>{distanceText}</Text>
       </View>
 
+      {/* Departure & arrival summary */}
+      <View style={styles.timeSummaryRow}>
+        <View style={styles.timeSummaryItem}>
+          <FontAwesome5
+            name="clock"
+            size={13}
+            color={COLORS.concordiaMaroon}
+          />
+          <Text style={styles.timeSummaryLabel}>Depart</Text>
+          <Text style={styles.timeSummaryValue}>
+            {formatTime(departureDate)}
+          </Text>
+        </View>
+        <View style={styles.timeSummaryDivider} />
+        <View style={styles.timeSummaryItem}>
+          <FontAwesome5 name="flag-checkered" size={13} color="#555" />
+          <Text style={styles.timeSummaryLabel}>Arrive</Text>
+          <Text style={styles.timeSummaryValue}>
+            {formatTime(arrivalDate)}
+          </Text>
+        </View>
+        <View style={styles.timeSummaryDivider} />
+        <View style={styles.timeSummaryItem}>
+          <MaterialIcons name="timer" size={15} color="#555" />
+          <Text style={styles.timeSummaryValue}>
+            {formatDuration(route.durationSeconds)}
+          </Text>
+        </View>
+      </View>
+
       {/* Step-by-step directions */}
       <ScrollView
         style={styles.stepScroll}
@@ -116,29 +245,50 @@ export default function StepsPanel({
             </View>
           </View>
         )}
-        {route.steps
-          .filter((step) => step.instruction.length > 0)
-          .map((step, idx) => (
-            <View
-              key={`step-${step.instruction}-${idx}`}
-              style={[styles.stepRow, idx % 2 !== 1 && styles.stepRowOdd]}
-            >
-              <View style={styles.stepContent}>
-                <Text style={styles.stepInstruction}>{step.instruction}</Text>
-                <Text style={styles.stepMeta}>
-                  {formatDistance(step.distanceMeters)}
-                  {step.durationSeconds > 0
-                    ? ` · ${formatDuration(step.durationSeconds)}`
-                    : ""}
-                </Text>
-              </View>
-              <MaterialIcons
-                name={getManeuverIcon(step.maneuver)}
-                size={42}
-                color={COLORS.textSecondary}
-              />
+        {visibleSteps.map((step, idx) => (
+          <View
+            key={`step-${step.instruction}-${idx}`}
+            style={[styles.stepRow, idx % 2 !== 1 && styles.stepRowOdd]}
+          >
+            <View style={styles.stepContent}>
+              <Text style={styles.stepTimestamp}>
+                {formatTime(stepTimes[idx])}
+              </Text>
+              <Text style={styles.stepInstruction}>{step.instruction}</Text>
+              <Text style={styles.stepMeta}>
+                {formatDistance(step.distanceMeters)}
+                {step.durationSeconds > 0
+                  ? ` · ${formatDuration(step.durationSeconds)}`
+                  : ""}
+              </Text>
+              {step.transitDetails && (
+                <TransitBadge transit={step.transitDetails} />
+              )}
             </View>
-          ))}
+            <MaterialIcons
+              name={getManeuverIcon(step.maneuver)}
+              size={42}
+              color={COLORS.textSecondary}
+            />
+          </View>
+        ))}
+
+        {/* Arrival row */}
+        <View style={styles.stepRow}>
+          <View style={styles.stepContent}>
+            <Text style={styles.stepTimestamp}>
+              {formatTime(arrivalDate)}
+            </Text>
+            <Text style={styles.stepInstruction}>
+              Arrive at {building.buildingName ?? building.buildingCode}
+            </Text>
+          </View>
+          <MaterialIcons
+            name="place"
+            size={42}
+            color={COLORS.concordiaMaroon}
+          />
+        </View>
       </ScrollView>
     </View>
   );

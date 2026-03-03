@@ -15,9 +15,14 @@ import { COLORS, METRO_ACCESS_BUILDINGS } from "../../constants";
 import { usePanelAnimation } from "../../hooks/usePanelAnimation";
 import styles from "../../styles/DirectionPanel";
 import { Building, StructureType } from "../../types/Building";
-import { RouteInfo, TravelMode } from "../../types/Directions";
+import {
+  DepartureTimeConfig,
+  RouteInfo,
+  TravelMode,
+} from "../../types/Directions";
 import { formatDistance, formatDuration } from "../../utils/formatHelper";
 import Tooltip from "../common/Tooltip";
+import DepartureTimePicker from "./DepartureTimePicker";
 import RouteStatusDisplay from "./RouteStatusDisplay";
 import StepsPanel from "./StepsPanel";
 import TransportCard from "./TransportCard";
@@ -46,6 +51,8 @@ interface DirectionPanelProps {
   readonly routeError: string | null;
   readonly travelMode: TravelMode | null;
   readonly onTravelModeChange: (mode: TravelMode | null) => void;
+  readonly departureConfig: DepartureTimeConfig;
+  readonly onDepartureConfigChange: (config: DepartureTimeConfig) => void;
   readonly onClose: () => void;
   readonly onOpenSearch?: () => void;
   readonly onResetStart?: () => void;
@@ -257,6 +264,8 @@ export default function DirectionPanel({
   routeError,
   travelMode,
   onTravelModeChange,
+  departureConfig,
+  onDepartureConfigChange,
   onClose,
   onOpenSearch,
   onResetStart,
@@ -311,6 +320,12 @@ export default function DirectionPanel({
               startBuilding={startBuilding}
               onOpenSearch={onOpenSearch}
               onResetStart={onResetStart}
+            />
+
+            {/* Departure time picker */}
+            <DepartureTimePicker
+              config={departureConfig}
+              onConfigChange={onDepartureConfigChange}
             />
 
             {/* Transport options */}

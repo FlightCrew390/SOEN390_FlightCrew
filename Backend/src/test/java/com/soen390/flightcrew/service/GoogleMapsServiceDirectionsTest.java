@@ -55,7 +55,7 @@ class GoogleMapsServiceDirectionsTest {
                 .thenReturn(ResponseEntity.ok(mockResponse));
 
         DirectionsResponse result = googleMapsService.getDirections(
-                ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, DEST_LNG, "WALK");
+                ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, DEST_LNG, "WALK", null, null);
 
         assertNotNull(result);
         assertNotNull(result.getRoutes());
@@ -70,7 +70,7 @@ class GoogleMapsServiceDirectionsTest {
         when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(DirectionsResponse.class)))
                 .thenReturn(ResponseEntity.ok(new DirectionsResponse()));
 
-        googleMapsService.getDirections(ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, DEST_LNG, "DRIVE");
+        googleMapsService.getDirections(ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, DEST_LNG, "DRIVE", null, null);
 
         verify(restTemplate).postForEntity(
                 eq("https://routes.googleapis.com/directions/v2:computeRoutes"),
@@ -85,7 +85,7 @@ class GoogleMapsServiceDirectionsTest {
         when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(DirectionsResponse.class)))
                 .thenReturn(ResponseEntity.ok(new DirectionsResponse()));
 
-        googleMapsService.getDirections(ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, DEST_LNG, "WALK");
+        googleMapsService.getDirections(ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, DEST_LNG, "WALK", null, null);
 
         verify(quotaService, times(1)).tryConsume();
     }
@@ -101,7 +101,7 @@ class GoogleMapsServiceDirectionsTest {
 
         // Should not throw — null travelMode is handled internally
         DirectionsResponse result = googleMapsService.getDirections(
-                ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, DEST_LNG, null);
+                ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, DEST_LNG, null, null, null);
 
         assertNotNull(result);
         verify(restTemplate).postForEntity(anyString(), any(HttpEntity.class), eq(DirectionsResponse.class));
@@ -113,7 +113,7 @@ class GoogleMapsServiceDirectionsTest {
     @DisplayName("Returns null when origin latitude is null")
     void getDirections_nullOriginLat_returnsNull() {
         DirectionsResponse result = googleMapsService.getDirections(
-                null, ORIGIN_LNG, DEST_LAT, DEST_LNG, "WALK");
+                null, ORIGIN_LNG, DEST_LAT, DEST_LNG, "WALK", null, null);
 
         assertNull(result);
         verifyNoInteractions(restTemplate);
@@ -124,7 +124,7 @@ class GoogleMapsServiceDirectionsTest {
     @DisplayName("Returns null when origin longitude is null")
     void getDirections_nullOriginLng_returnsNull() {
         DirectionsResponse result = googleMapsService.getDirections(
-                ORIGIN_LAT, null, DEST_LAT, DEST_LNG, "WALK");
+                ORIGIN_LAT, null, DEST_LAT, DEST_LNG, "WALK", null, null);
 
         assertNull(result);
         verifyNoInteractions(restTemplate);
@@ -134,7 +134,7 @@ class GoogleMapsServiceDirectionsTest {
     @DisplayName("Returns null when destination latitude is null")
     void getDirections_nullDestLat_returnsNull() {
         DirectionsResponse result = googleMapsService.getDirections(
-                ORIGIN_LAT, ORIGIN_LNG, null, DEST_LNG, "WALK");
+                ORIGIN_LAT, ORIGIN_LNG, null, DEST_LNG, "WALK", null, null);
 
         assertNull(result);
         verifyNoInteractions(restTemplate);
@@ -144,7 +144,7 @@ class GoogleMapsServiceDirectionsTest {
     @DisplayName("Returns null when destination longitude is null")
     void getDirections_nullDestLng_returnsNull() {
         DirectionsResponse result = googleMapsService.getDirections(
-                ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, null, "WALK");
+                ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, null, "WALK", null, null);
 
         assertNull(result);
         verifyNoInteractions(restTemplate);
@@ -158,7 +158,7 @@ class GoogleMapsServiceDirectionsTest {
         when(quotaService.tryConsume()).thenReturn(false);
 
         assertThrows(ApiQuotaExceededException.class,
-                () -> googleMapsService.getDirections(ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, DEST_LNG, "WALK"));
+                () -> googleMapsService.getDirections(ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, DEST_LNG, "WALK", null, null));
 
         // Must NOT call Google when quota is exceeded
         verifyNoInteractions(restTemplate);
@@ -170,7 +170,7 @@ class GoogleMapsServiceDirectionsTest {
         when(quotaService.tryConsume()).thenReturn(false);
 
         try {
-            googleMapsService.getDirections(ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, DEST_LNG, "WALK");
+            googleMapsService.getDirections(ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, DEST_LNG, "WALK", null, null);
         } catch (ApiQuotaExceededException ignored) {
             // expected
         }
@@ -188,7 +188,7 @@ class GoogleMapsServiceDirectionsTest {
                 .thenThrow(new RestClientException("Connection refused"));
 
         DirectionsResponse result = googleMapsService.getDirections(
-                ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, DEST_LNG, "WALK");
+                ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, DEST_LNG, "WALK", null, null);
 
         assertNull(result);
     }
@@ -201,7 +201,7 @@ class GoogleMapsServiceDirectionsTest {
                 .thenReturn(ResponseEntity.ok(null));
 
         DirectionsResponse result = googleMapsService.getDirections(
-                ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, DEST_LNG, "WALK");
+                ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, DEST_LNG, "WALK", null, null);
 
         assertNull(result);
     }

@@ -48,3 +48,15 @@ export interface StepInfo {
   maneuver: string;
   coordinates: { latitude: number; longitude: number }[];
 }
+
+export type DepartureOption = "now" | "depart_at" | "arrive_by";
+
+export interface DepartureTimeConfig {
+  option: DepartureOption;
+  date: Date;
+}
+
+export const DEFAULT_DEPARTURE_CONFIG: DepartureTimeConfig = {
+  option: "now",
+  date: new Date(),
+};

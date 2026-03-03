@@ -55,6 +55,7 @@ export default function GoogleMaps({
     handleSearch,
     handleTravelModeChange,
     selectPoi,
+    handleDepartureConfigChange,
   } = useMapUI(buildings, location);
 
   const {
@@ -191,6 +192,8 @@ export default function GoogleMaps({
         routeError={state.routeError}
         travelMode={state.travelMode}
         onTravelModeChange={handleTravelModeChange}
+        departureConfig={state.departureConfig}
+        onDepartureConfigChange={handleDepartureConfigChange}
         onClose={() => dispatch({ type: "CLOSE_PANEL" })}
         onOpenSearch={() => dispatch({ type: "OPEN_SEARCH_FOR_START" })}
         onResetStart={() => dispatch({ type: "RESET_START_BUILDING" })}

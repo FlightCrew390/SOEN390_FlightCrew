@@ -152,10 +152,7 @@ export default function DepartureTimePicker({
 
       {/* Past-time warning */}
       {isPastTime && (
-        <Text
-          style={styles.departurePastTimeWarning}
-          accessibilityRole="alert"
-        >
+        <Text style={styles.departurePastTimeWarning} accessibilityRole="alert">
           Please select a future date and time.
         </Text>
       )}

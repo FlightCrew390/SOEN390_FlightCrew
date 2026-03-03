@@ -315,7 +315,7 @@ describe("DepartureTimePicker", () => {
 
     // First call is from date change, second from time change
     const timeCalls = onConfigChange.mock.calls;
-    const lastCall = timeCalls[timeCalls.length - 1][0] as DepartureTimeConfig;
+    const lastCall = timeCalls.at(-1)?.[0] as DepartureTimeConfig;
     expect(lastCall.date.getHours()).toBe(14);
     expect(lastCall.date.getMinutes()).toBe(30);
   });

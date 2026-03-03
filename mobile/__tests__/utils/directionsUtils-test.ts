@@ -34,9 +34,9 @@ describe("getManeuverIcon", () => {
     expect(getManeuverIcon(maneuver)).toBe(expected);
   });
 
-  it("returns dot-circle for unknown maneuver", () => {
-    expect(getManeuverIcon("UNKNOWN_MANEUVER")).toBe("dot-circle");
-    expect(getManeuverIcon("")).toBe("dot-circle");
+  it("returns navigation for unknown maneuver", () => {
+    expect(getManeuverIcon("UNKNOWN_MANEUVER")).toBe("navigation");
+    expect(getManeuverIcon("")).toBe("navigation");
   });
 });
 

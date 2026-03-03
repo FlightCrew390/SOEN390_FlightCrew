@@ -124,7 +124,7 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
   return (
     <ScrollView
       style={styles.descriptionScroll}
-      contentContainerStyle={{ paddingBottom: 40 }}
+      contentContainerStyle={{ paddingBottom: 16 }}
       showsVerticalScrollIndicator={false}
     >
       <Text style={styles.buildingLongName}>{building.buildingLongName}</Text>

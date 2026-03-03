@@ -55,6 +55,7 @@ const styles = StyleSheet.create({
   stepScroll: {
     flex: 1,
     paddingTop: 12,
+    paddingBottom: 20,
   },
   stepRow: {
     flexDirection: "row",

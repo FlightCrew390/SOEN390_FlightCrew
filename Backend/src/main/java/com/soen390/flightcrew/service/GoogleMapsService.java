@@ -118,6 +118,8 @@ public class GoogleMapsService {
                         + "routes.legs.steps.polyline.encodedPolyline,"
                         + "routes.legs.steps.distanceMeters,"
                         + "routes.legs.steps.staticDuration,"
+                        + "routes.legs.steps.travelMode,"
+                        + "routes.legs.steps.transitDetails,"
                         + "routes.legs.distanceMeters,routes.legs.duration");
 
         // Build the request body per Google Routes API spec

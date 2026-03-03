@@ -38,9 +38,9 @@ export function useMapUI(
   // ── Derived user coordinates ──
   const userCoords: UserCoords | null = location
     ? {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-    }
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      }
     : null;
 
   // ── Wire direction fetching ──

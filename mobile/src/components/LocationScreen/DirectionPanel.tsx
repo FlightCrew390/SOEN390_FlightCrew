@@ -6,7 +6,11 @@ import { COLORS } from "../../constants";
 import { usePanelAnimation } from "../../hooks/usePanelAnimation";
 import styles from "../../styles/DirectionPanel";
 import { Building } from "../../types/Building";
-import { DepartureTimeConfig, RouteInfo, TravelMode } from "../../types/Directions";
+import {
+  DepartureTimeConfig,
+  RouteInfo,
+  TravelMode,
+} from "../../types/Directions";
 import { formatDistance, formatDuration } from "../../utils/formatHelper";
 import DepartureTimePicker from "./DepartureTimePicker";
 import RouteStatusDisplay from "./RouteStatusDisplay";
@@ -18,15 +22,15 @@ const TRANSPORT_OPTIONS: {
   icon: ReturnType<typeof require>;
   label: string;
 }[] = [
-    { mode: "WALK", icon: require("../../../assets/walk.png"), label: "Walk" },
-    { mode: "BICYCLE", icon: require("../../../assets/bike.png"), label: "Bike" },
-    {
-      mode: "TRANSIT",
-      icon: require("../../../assets/train.png"),
-      label: "Transit",
-    },
-    { mode: "DRIVE", icon: require("../../../assets/car.png"), label: "Drive" },
-  ];
+  { mode: "WALK", icon: require("../../../assets/walk.png"), label: "Walk" },
+  { mode: "BICYCLE", icon: require("../../../assets/bike.png"), label: "Bike" },
+  {
+    mode: "TRANSIT",
+    icon: require("../../../assets/train.png"),
+    label: "Transit",
+  },
+  { mode: "DRIVE", icon: require("../../../assets/car.png"), label: "Drive" },
+];
 
 interface DirectionPanelProps {
   readonly visible: boolean;

@@ -86,9 +86,7 @@ function getDepartureDate(
   return new Date(); // "now"
 }
 
-function TransitBadge({
-  transit,
-}: Readonly<{ transit: TransitStepDetails }>) {
+function TransitBadge({ transit }: Readonly<{ transit: TransitStepDetails }>) {
   const departureParsed = parseTime(transit.departureTime);
   const arrivalParsed = parseTime(transit.arrivalTime);
   const vehicleIcon =
@@ -96,7 +94,8 @@ function TransitBadge({
       ? "directions-bus"
       : transit.vehicleType === "SUBWAY" || transit.vehicleType === "METRO"
         ? "subway"
-        : transit.vehicleType === "RAIL" || transit.vehicleType === "COMMUTER_TRAIN"
+        : transit.vehicleType === "RAIL" ||
+            transit.vehicleType === "COMMUTER_TRAIN"
           ? "train"
           : "directions-transit";
 
@@ -210,11 +209,7 @@ export default function StepsPanel({
       {/* Departure & arrival summary */}
       <View style={styles.timeSummaryRow}>
         <View style={styles.timeSummaryItem}>
-          <FontAwesome5
-            name="clock"
-            size={13}
-            color={COLORS.concordiaMaroon}
-          />
+          <FontAwesome5 name="clock" size={13} color={COLORS.concordiaMaroon} />
           <Text style={styles.timeSummaryLabel}>Depart</Text>
           <Text style={styles.timeSummaryValue}>
             {formatTime(departureDate)}
@@ -224,9 +219,7 @@ export default function StepsPanel({
         <View style={styles.timeSummaryItem}>
           <FontAwesome5 name="flag-checkered" size={13} color="#555" />
           <Text style={styles.timeSummaryLabel}>Arrive</Text>
-          <Text style={styles.timeSummaryValue}>
-            {formatTime(arrivalDate)}
-          </Text>
+          <Text style={styles.timeSummaryValue}>{formatTime(arrivalDate)}</Text>
         </View>
         <View style={styles.timeSummaryDivider} />
         <View style={styles.timeSummaryItem}>
@@ -291,9 +284,7 @@ export default function StepsPanel({
         {/* Arrival row */}
         <View style={styles.stepRow}>
           <View style={styles.stepContent}>
-            <Text style={styles.stepTimestamp}>
-              {formatTime(arrivalDate)}
-            </Text>
+            <Text style={styles.stepTimestamp}>{formatTime(arrivalDate)}</Text>
             <Text style={styles.stepInstruction}>
               Arrive at {building.buildingName ?? building.buildingCode}
             </Text>

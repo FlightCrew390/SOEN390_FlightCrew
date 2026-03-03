@@ -57,7 +57,6 @@ public class ShuttleScheduleService {
             logger.info("Loaded shuttle schedule: {} Mon-Thu departures, {} Fri departures, {} route points",
                     mondayThursdaySchedule.size(), fridaySchedule.size(), sgwToLoyolaRoute.size());
         } catch (IOException e) {
-            logger.error("Failed to read shuttle schedule file", e);
             throw new IllegalStateException("Failed to read shuttle schedule file", e);
         }
     }

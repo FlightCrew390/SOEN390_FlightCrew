@@ -89,7 +89,8 @@ function getDepartureDate(
 function getVehicleIcon(vehicleType: string): string {
   if (vehicleType === "BUS") return "directions-bus";
   if (vehicleType === "SUBWAY" || vehicleType === "METRO") return "subway";
-  if (vehicleType === "RAIL" || vehicleType === "COMMUTER_TRAIN") return "train";
+  if (vehicleType === "RAIL" || vehicleType === "COMMUTER_TRAIN")
+    return "train";
   return "directions-transit";
 }
 

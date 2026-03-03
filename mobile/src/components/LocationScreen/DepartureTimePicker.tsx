@@ -65,12 +65,14 @@ export default function DepartureTimePicker({
   const formatTime = (d: Date) =>
     d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
 
-  const activeLabel =
-    config.option === "now"
-      ? "Leave now"
-      : config.option === "depart_at"
-        ? "Depart at"
-        : "Arrive by";
+  let activeLabel: string;
+  if (config.option === "now") {
+    activeLabel = "Leave now";
+  } else if (config.option === "depart_at") {
+    activeLabel = "Depart at";
+  } else {
+    activeLabel = "Arrive by";
+  }
 
   return (
     <View style={styles.departureWrapper}>

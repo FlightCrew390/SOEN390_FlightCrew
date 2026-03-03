@@ -240,6 +240,7 @@ export default function StepsPanel({
       {/* Step-by-step directions */}
       <ScrollView
         style={styles.stepScroll}
+        contentContainerStyle={{ paddingBottom: 20 }}
         showsVerticalScrollIndicator
         onStartShouldSetResponder={() => true}
       >

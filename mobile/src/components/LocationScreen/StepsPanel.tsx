@@ -116,7 +116,7 @@ function TransitBadge({ transit }: Readonly<{ transit: TransitStepDetails }>) {
       ) : null}
       {transit.stopCount > 0 && (
         <Text style={styles.transitStopCount}>
-          {transit.stopCount} stop{transit.stopCount !== 1 ? "s" : ""}
+          {transit.stopCount} stop{transit.stopCount === 1 ? "" : "s"}
         </Text>
       )}
     </View>

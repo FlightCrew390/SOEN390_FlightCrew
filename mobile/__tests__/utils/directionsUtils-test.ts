@@ -1,10 +1,10 @@
+import { DepartureTimeConfig, StepInfo } from "../../src/types/Directions";
 import {
   computeStepTimeline,
   getDepartureDate,
   getManeuverIcon,
   parseTime,
 } from "../../src/utils/directionsUtils";
-import { DepartureTimeConfig, StepInfo } from "../../src/types/Directions";
 
 // ── getManeuverIcon ──
 
@@ -69,12 +69,18 @@ describe("getDepartureDate", () => {
   const fixedDate = new Date("2026-03-03T12:00:00");
 
   it('returns config.date for "depart_at"', () => {
-    const config: DepartureTimeConfig = { option: "depart_at", date: fixedDate };
+    const config: DepartureTimeConfig = {
+      option: "depart_at",
+      date: fixedDate,
+    };
     expect(getDepartureDate(config, 600)).toEqual(fixedDate);
   });
 
   it('works backwards from arrival for "arrive_by"', () => {
-    const config: DepartureTimeConfig = { option: "arrive_by", date: fixedDate };
+    const config: DepartureTimeConfig = {
+      option: "arrive_by",
+      date: fixedDate,
+    };
     const result = getDepartureDate(config, 600);
     expect(result.getTime()).toBe(fixedDate.getTime() - 600 * 1000);
   });

@@ -86,23 +86,18 @@ function getDepartureDate(
   return new Date(); // "now"
 }
 
-function getVehicleIcon(vehicleType: string): string {
-  if (vehicleType === "BUS") return "directions-bus";
-  if (vehicleType === "SUBWAY" || vehicleType === "METRO") return "subway";
-  if (vehicleType === "RAIL" || vehicleType === "COMMUTER_TRAIN")
-    return "train";
-  return "directions-transit";
-}
-
 function TransitBadge({ transit }: Readonly<{ transit: TransitStepDetails }>) {
   const departureParsed = parseTime(transit.departureTime);
   const arrivalParsed = parseTime(transit.arrivalTime);
-  const vehicleIcon = getVehicleIcon(transit.vehicleType);
 
   return (
     <View style={styles.transitBadge}>
       <View style={styles.transitLineRow}>
-        <MaterialIcons name={vehicleIcon} size={18} color={COLORS.white} />
+        <MaterialIcons
+          name={getManeuverIcon(transit.vehicleType)}
+          size={18}
+          color={COLORS.white}
+        />
         <Text style={styles.transitLineName}>
           {transit.lineShortName || transit.lineName || transit.vehicleName}
         </Text>

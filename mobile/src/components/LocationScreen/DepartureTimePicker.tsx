@@ -133,34 +133,6 @@ export default function DepartureTimePicker({
         </View>
       )}
 
-      {/* Date & time buttons (visible when a timed option is selected) */}
-      {config.option !== "now" && (
-        <View style={styles.departureDateTimeRow}>
-          <Pressable
-            style={styles.departureDateBtn}
-            onPress={() => dispatch({ type: "SHOW_DATE_PICKER" })}
-            accessibilityLabel="Select date"
-            accessibilityRole="button"
-          >
-            <FontAwesome5 name="calendar-alt" size={13} color="#555" />
-            <Text style={styles.departureDateText}>
-              {formatDate(config.date)}
-            </Text>
-          </Pressable>
-          <Pressable
-            style={styles.departureDateBtn}
-            onPress={() => dispatch({ type: "SHOW_TIME_PICKER" })}
-            accessibilityLabel="Select time"
-            accessibilityRole="button"
-          >
-            <FontAwesome5 name="clock" size={13} color="#555" />
-            <Text style={styles.departureDateText}>
-              {formatDateTime(config.date)}
-            </Text>
-          </Pressable>
-        </View>
-      )}
-
       {/* Past-time warning */}
       {isPastTime && (
         <Text style={styles.departurePastTimeWarning} accessibilityRole="alert">

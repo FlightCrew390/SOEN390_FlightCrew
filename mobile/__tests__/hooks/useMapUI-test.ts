@@ -13,10 +13,12 @@ jest.mock("../../src/hooks/useDirections", () => ({
   useDirections: jest.fn(),
 }));
 
-// Mock findCurrentBuilding
+// Mock findCurrentBuilding and calculateDistance (used by getClosestCampusId)
 const mockFindCurrentBuilding = jest.fn();
 jest.mock("../../src/utils/buildingDetection", () => ({
+  ...jest.requireActual("../../src/utils/buildingDetection"),
   findCurrentBuilding: (...args: any[]) => mockFindCurrentBuilding(...args),
+  calculateDistance: jest.fn(() => 100),
 }));
 
 const mockFetchPois = jest.fn();

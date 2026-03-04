@@ -148,10 +148,23 @@ jest.mock("../../src/components/LocationScreen/TransportCard", () => {
   const { Pressable, Text } = require("react-native");
   return {
     __esModule: true,
-    default: ({ label, duration, isActive, onPress }: any) => (
+    default: ({
+      label,
+      duration,
+      isActive,
+      onPress,
+      onSelectMode,
+      mode,
+    }: any) => (
       <Pressable
         testID={`transport-${label}`}
-        onPress={onPress}
+        onPress={() => {
+          if (mode != null && onSelectMode != null) {
+            onSelectMode(mode);
+          } else {
+            onPress?.();
+          }
+        }}
         accessibilityLabel={`Get directions by ${label}`}
         accessibilityRole="button"
       >
@@ -434,20 +447,20 @@ describe("DirectionPanel", () => {
   it("shows view steps button when route has steps", () => {
     const route = makeRoute();
     renderPanel({ route });
-    expect(screen.getByLabelText("View step-by-step directions")).toBeTruthy();
+    expect(screen.getByLabelText("View route")).toBeTruthy();
   });
 
   it("calls onShowSteps when view steps is pressed", () => {
     const route = makeRoute();
     const { props } = renderPanel({ route });
-    fireEvent.press(screen.getByLabelText("View step-by-step directions"));
+    fireEvent.press(screen.getByLabelText("View route"));
     expect(props.onShowSteps).toHaveBeenCalledTimes(1);
   });
 
   it("does not show view steps when route has no steps", () => {
     const route = makeRoute({ steps: [] });
     renderPanel({ route });
-    expect(screen.queryByLabelText("View step-by-step directions")).toBeNull();
+    expect(screen.queryByLabelText("View route")).toBeNull();
   });
 
   // ── Building details (fallback when no route) ──

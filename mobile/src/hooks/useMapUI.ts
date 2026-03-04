@@ -6,6 +6,7 @@ import { Building } from "../types/Building";
 import { DepartureTimeConfig, TravelMode } from "../types/Directions";
 import { PointOfInterest } from "../types/PointOfInterest";
 import { findCurrentBuilding } from "../utils/buildingDetection";
+import { getClosestCampusId } from "../utils/campusDetection";
 import { haversineDistance } from "../utils/distanceUtils";
 import { useDirections } from "./useDirections";
 
@@ -50,11 +51,22 @@ export function useMapUI(
     [location],
   );
 
-  // ── Wire direction fetching ──
+  const userCampus = useMemo(
+    () =>
+      location
+        ? getClosestCampusId(
+            location.coords.latitude,
+            location.coords.longitude,
+          )
+        : null,
+    [location],
+  );
+
   useDirections({
     destination: state.selectedBuilding,
     startBuilding: state.startBuilding,
     userLocation: userCoords,
+    userCampus,
     travelMode: state.travelMode,
     departureConfig: state.departureConfig,
     active: state.panel === "directions",

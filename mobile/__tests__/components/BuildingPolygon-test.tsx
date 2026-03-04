@@ -2,7 +2,8 @@ import { render } from "@testing-library/react-native";
 import React from "react";
 
 import BuildingPolygon from "../../src/components/LocationScreen/BuildingPolygon";
-import { Building } from "../../src/types/Building";
+import { COLORS } from "../../src/constants";
+import { Building, StructureType } from "../../src/types/Building";
 
 jest.mock("react-native-maps", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -17,6 +18,7 @@ jest.mock("react-native-maps", () => {
 });
 
 const makeBuilding = (overrides: Partial<Building> = {}): Building => ({
+  structureType: StructureType.Building,
   campus: "SGW",
   buildingCode: "H",
   buildingName: "Hall",
@@ -86,6 +88,29 @@ describe("BuildingPolygon", () => {
     const polygon = Array.isArray(json) ? json[0] : json;
     expect(polygon.props.coordinates).toEqual(polygons[0]);
     expect(polygon.props.strokeWidth).toBe(2);
-    expect(polygon.props.fillColor).toBe("rgba(156, 45, 45, 0.3)");
+    expect(polygon.props.strokeColor).toBe(COLORS.concordiaMaroon);
+    expect(polygon.props.fillColor).toBe(COLORS.buildingFill);
+  });
+
+  it("passes correct props to Polygon when structure type is Grounds", () => {
+    const polygons = [
+      [
+        { latitude: 45.497, longitude: -73.579 },
+        { latitude: 45.498, longitude: -73.578 },
+      ],
+    ];
+    const building = makeBuilding({
+      structureType: StructureType.Grounds,
+      buildingCode: "EV",
+      polygons,
+    });
+    const view = render(<BuildingPolygon building={building} />);
+    const json = view.toJSON() as any;
+    // Single polygon renders directly (not as array)
+    const polygon = Array.isArray(json) ? json[0] : json;
+    expect(polygon.props.coordinates).toEqual(polygons[0]);
+    expect(polygon.props.strokeWidth).toBe(0);
+    expect(polygon.props.strokeColor).toBe("transparent");
+    expect(polygon.props.fillColor).toBe(COLORS.groundsFill);
   });
 });

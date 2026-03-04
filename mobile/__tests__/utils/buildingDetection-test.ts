@@ -1,4 +1,4 @@
-import { Building } from "../../src/types/Building";
+import { Building, StructureType } from "../../src/types/Building";
 import {
   calculateDistance,
   findCurrentBuilding,
@@ -6,6 +6,7 @@ import {
 
 const mockBuildings: Building[] = [
   {
+    structureType: StructureType.Building,
     campus: "SGW",
     buildingCode: "H",
     buildingName: "Hall Building",
@@ -15,6 +16,7 @@ const mockBuildings: Building[] = [
     longitude: -73.5789,
   },
   {
+    structureType: StructureType.Building,
     campus: "LOY",
     buildingCode: "CC",
     buildingName: "Central Building",
@@ -112,6 +114,7 @@ describe("findCurrentBuilding", () => {
   test("skips buildings without coordinates", () => {
     const buildingsWithMissing: Building[] = [
       {
+        structureType: StructureType.Building,
         campus: "SGW",
         buildingCode: "X",
         buildingName: "No Coords",

@@ -3,9 +3,10 @@ import {
   mapUIReducer,
 } from "../../src/reducers/mapUIReducer";
 import { MapUIState } from "../../src/state/MapUIState";
-import { Building } from "../../src/types/Building";
+import { Building, StructureType } from "../../src/types/Building";
 
 const mockBuilding: Building = {
+  structureType: StructureType.Building,
   campus: "SGW",
   buildingCode: "H",
   buildingName: "Hall",
@@ -16,6 +17,7 @@ const mockBuilding: Building = {
 };
 
 const mockBuilding2: Building = {
+  structureType: StructureType.Building,
   campus: "LOY",
   buildingCode: "CC",
   buildingName: "Central",
@@ -33,6 +35,10 @@ describe("mapUIReducer", () => {
       currentBuilding: null,
       searchOrigin: "default",
       startBuilding: null,
+      travelMode: null,
+      route: null,
+      routeLoading: false,
+      routeError: null,
     });
   });
 
@@ -47,10 +53,12 @@ describe("mapUIReducer", () => {
       ...initialMapUIState,
       panel: "search",
       searchOrigin: "directions",
+      travelMode: "DRIVE",
     };
     const state = mapUIReducer(prev, { type: "CLOSE_PANEL" });
     expect(state.panel).toBe("none");
     expect(state.searchOrigin).toBe("default");
+    expect(state.travelMode).toBeNull();
   });
 
   it("SELECT_BUILDING sets selectedBuilding and closes panel", () => {
@@ -74,13 +82,18 @@ describe("mapUIReducer", () => {
   });
 
   it("OPEN_DIRECTIONS sets panel to directions and selectedBuilding", () => {
-    const state = mapUIReducer(initialMapUIState, {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      travelMode: "DRIVE",
+    };
+    const state = mapUIReducer(prev, {
       type: "OPEN_DIRECTIONS",
       building: mockBuilding,
     });
     expect(state.panel).toBe("directions");
     expect(state.selectedBuilding).toBe(mockBuilding);
     expect(state.startBuilding).toBeNull();
+    expect(state.travelMode).toBeNull();
   });
 
   it("SET_CURRENT_BUILDING sets current building", () => {
@@ -169,6 +182,104 @@ describe("mapUIReducer", () => {
     const state = mapUIReducer(prev, { type: "RETURN_TO_DIRECTIONS" });
     expect(state.panel).toBe("directions");
     expect(state.searchOrigin).toBe("default");
+  });
+
+  it("SET_TRAVEL_MODE updates mode and clears route data", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      travelMode: "WALK",
+      route: {
+        coordinates: [],
+        distanceMeters: 100,
+        durationSeconds: 60,
+        steps: [],
+      },
+      routeLoading: true,
+      routeError: "old error",
+    };
+    const state = mapUIReducer(prev, {
+      type: "SET_TRAVEL_MODE",
+      mode: "DRIVE",
+    });
+    expect(state.travelMode).toBe("DRIVE");
+    expect(state.route).toBeNull();
+    expect(state.routeLoading).toBe(false);
+    expect(state.routeError).toBeNull();
+  });
+
+  it("ROUTE_LOADING sets routeLoading true and clears error", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      routeLoading: false,
+      routeError: "old error",
+    };
+    const state = mapUIReducer(prev, { type: "ROUTE_LOADING" });
+    expect(state.routeLoading).toBe(true);
+    expect(state.routeError).toBeNull();
+  });
+
+  it("ROUTE_LOADED sets route and clears loading", () => {
+    const route = {
+      coordinates: [{ latitude: 45.5, longitude: -73.58 }],
+      distanceMeters: 500,
+      durationSeconds: 120,
+      steps: [],
+    };
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      routeLoading: true,
+    };
+    const state = mapUIReducer(prev, { type: "ROUTE_LOADED", route });
+    expect(state.route).toBe(route);
+    expect(state.routeLoading).toBe(false);
+  });
+
+  it("ROUTE_ERROR sets error, clears loading and route", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      routeLoading: true,
+      route: {
+        coordinates: [],
+        distanceMeters: 100,
+        durationSeconds: 60,
+        steps: [],
+      },
+    };
+    const state = mapUIReducer(prev, {
+      type: "ROUTE_ERROR",
+      error: "Quota exceeded",
+    });
+    expect(state.routeLoading).toBe(false);
+    expect(state.routeError).toBe("Quota exceeded");
+    expect(state.route).toBeNull();
+  });
+
+  it("OPEN_STEPS sets panel to steps", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      panel: "directions",
+    };
+    const state = mapUIReducer(prev, { type: "OPEN_STEPS" });
+    expect(state.panel).toBe("steps");
+  });
+
+  it("CLOSE_STEPS sets panel to directions", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      panel: "steps",
+    };
+    const state = mapUIReducer(prev, { type: "CLOSE_STEPS" });
+    expect(state.panel).toBe("directions");
+  });
+
+  it("TAP_MAP does nothing when panel is steps", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      panel: "steps",
+      selectedBuilding: mockBuilding,
+    };
+    const state = mapUIReducer(prev, { type: "TAP_MAP" });
+    expect(state).toBe(prev);
   });
 
   it("returns current state for unknown action type", () => {

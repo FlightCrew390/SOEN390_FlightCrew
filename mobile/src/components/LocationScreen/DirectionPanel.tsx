@@ -1,4 +1,5 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Animated, Pressable, ScrollView, Text, View } from "react-native";
 
@@ -105,6 +106,55 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
       <Text style={styles.buildingDetail}>
         Campus: {building.campus === "SGW" ? "Sir George Williams" : "Loyola"}
       </Text>
+      {building.accessibilityInfo && building.accessibilityInfo !== "N/A" && (
+        <View
+          style={{ flexDirection: "row", alignItems: "center", marginTop: 8 }}
+        >
+          {building.accessibilityInfo
+            .toLowerCase()
+            .includes("not accessible") ? (
+            <MaterialIcons
+              name="not-accessible"
+              size={22}
+              color={COLORS.concordiaMaroon}
+            />
+          ) : (
+            <>
+              {(building.accessibilityInfo.toLowerCase().includes("ramp") ||
+                building.accessibilityInfo
+                  .toLowerCase()
+                  .includes("accessible")) && (
+                <MaterialIcons
+                  name="accessible"
+                  size={22}
+                  color="#2E7D32"
+                  style={{ marginRight: 10 }}
+                />
+              )}
+              {(building.accessibilityInfo.toLowerCase().includes("door") ||
+                building.accessibilityInfo
+                  .toLowerCase()
+                  .includes("entrance")) && (
+                <MaterialCommunityIcons
+                  name="door-sliding"
+                  size={22}
+                  color="#2E7D32"
+                  style={{ marginRight: 10 }}
+                />
+              )}
+              {(building.accessibilityInfo.toLowerCase().includes("elevator") ||
+                building.accessibilityInfo.toLowerCase().includes("lift")) && (
+                <MaterialIcons
+                  name="elevator"
+                  size={22}
+                  color="#2E7D32"
+                  style={{ marginRight: 10 }}
+                />
+              )}
+            </>
+          )}
+        </View>
+      )}
     </ScrollView>
   );
 }

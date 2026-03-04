@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   },
 
   descriptionScroll: {
-    maxHeight: 120,
+    maxHeight: 200,
     paddingBottom: 16,
     paddingHorizontal: 16,
   },

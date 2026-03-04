@@ -30,6 +30,18 @@ jest.mock("@expo/vector-icons/MaterialIcons", () => {
   return MockedIcon;
 });
 
+jest.mock("@expo/vector-icons/MaterialCommunityIcons", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { Text } = require("react-native");
+  const MockedIcon = (props: any) => (
+    <Text testID={`mci-${props.name}`} {...props}>
+      {props.name}
+    </Text>
+  );
+  MockedIcon.displayName = "MaterialCommunityIcons";
+  return MockedIcon;
+});
+
 jest.mock("../../src/hooks/usePanelAnimation", () => ({
   usePanelAnimation: () => ({
     fadeAnim: { current: 1 },
@@ -100,17 +112,8 @@ const building: Building = {
   address: "1455 De Maisonneuve Blvd. W.",
   latitude: 45.4973,
   longitude: -73.5789,
-};
-
-const loyolaBuilding: Building = {
-  structureType: StructureType.Building,
-  campus: "LOY",
-  buildingCode: "AD",
-  buildingName: "Administration Building",
-  buildingLongName: "Loyola Administration Building",
-  address: "7141 Sherbrooke St. W.",
-  latitude: 45.4582,
-  longitude: -73.6405,
+  accessibilityInfo:
+    "Wheelchair accessible entrance at 1455 De Maisonneuve Blvd. W.",
 };
 
 beforeEach(() => {
@@ -504,5 +507,59 @@ describe("DirectionPanel", () => {
     );
     const main = animView.find((n: any) => n.props.pointerEvents === "none");
     expect(main).toBeTruthy();
+  });
+
+  // ── Accessibility Info ──
+
+  it("shows accessible icon when building has general accessibility info", () => {
+    const accessibleBuilding: Building = {
+      ...building,
+      accessibilityInfo: "Wheelchair ramp available",
+    };
+    renderPanel({ building: accessibleBuilding });
+
+    expect(screen.getByTestId("mi-accessible")).toBeTruthy();
+    expect(screen.queryByTestId("mi-not-accessible")).toBeNull();
+  });
+
+  it("shows door icon when building has door/entrance info", () => {
+    const doorBuilding: Building = {
+      ...building,
+      accessibilityInfo: "Automated door entrance",
+    };
+    renderPanel({ building: doorBuilding });
+
+    expect(screen.getByTestId("mci-door-sliding")).toBeTruthy();
+  });
+
+  it("shows elevator icon when building has elevator info", () => {
+    const elevatorBuilding: Building = {
+      ...building,
+      accessibilityInfo: "Elevator to all floors",
+    };
+    renderPanel({ building: elevatorBuilding });
+
+    expect(screen.getByTestId("mi-elevator")).toBeTruthy();
+  });
+
+  it("shows not-accessible icon when building is not accessible", () => {
+    const notAccessibleBuilding: Building = {
+      ...building,
+      accessibilityInfo: "This building is not accessible",
+    };
+    renderPanel({ building: notAccessibleBuilding });
+
+    expect(screen.getByTestId("mi-not-accessible")).toBeTruthy();
+    expect(screen.queryByTestId("mi-accessible")).toBeNull();
+  });
+
+  it("shows no accessibility icons when info is N/A or missing", () => {
+    // The default 'building' fixture has no accessibilityInfo
+    renderPanel({ building });
+
+    expect(screen.queryByTestId("mi-accessible")).toBeNull();
+    expect(screen.queryByTestId("mi-not-accessible")).toBeNull();
+    expect(screen.queryByTestId("mci-door-sliding")).toBeNull();
+    expect(screen.queryByTestId("mi-elevator")).toBeNull();
   });
 });

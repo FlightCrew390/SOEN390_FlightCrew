@@ -1,4 +1,4 @@
-import { renderHook, act } from "@testing-library/react-native";
+import { renderHook } from "@testing-library/react-native";
 
 import { usePanelAnimation } from "../../src/hooks/usePanelAnimation";
 

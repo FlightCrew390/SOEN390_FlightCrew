@@ -30,89 +30,108 @@ public class BuildingInfoService {
      *         found.
      */
     public String fetchAccessibilityInfo(Building building) {
-        if (building.getBuildingCode() == null || building.getBuildingCode().isEmpty()) {
+        if (building == null || building.getBuildingCode() == null || building.getBuildingCode().isEmpty()) {
             return null;
         }
 
         String url = BASE_URL + building.getBuildingCode().toUpperCase() + ".html";
         try {
-            // Use RestTemplate to fetch the HTML content so we can mock it in tests
-            String html = restTemplate.getForObject(url, String.class);
-            if (html == null)
+            Document doc = fetchDocument(url);
+            if (doc == null) {
                 return null;
-
-            Document doc = Jsoup.parse(html);
-
-            // Look for "Building accessibility" heading
-            Element accessibilityHeader = doc
-                    .selectFirst("h2:contains(Building accessibility), h3:contains(Building accessibility)");
-
-            if (accessibilityHeader != null) {
-                StringBuilder info = new StringBuilder();
-
-                // Check direct siblings of the header (header and content are siblings)
-                Element next = accessibilityHeader.nextElementSibling();
-                boolean checkedSiblings = false;
-                while (next != null) {
-                    checkedSiblings = true;
-                    if (isHeader(next))
-                        break;
-                    processElement(next, info);
-                    next = next.nextElementSibling();
-                }
-
-                // If no info found from siblings, header might be in a wrapper.
-                // Check parent's siblings (AEM usage often wraps components in divs).
-                if (info.length() == 0 && accessibilityHeader.parent() != null) {
-                    Element parent = accessibilityHeader.parent();
-
-                    // Example structure:
-                    // <div class="parsys">
-                    // <div class="c-title"><h2>Building accessibility</h2></div>
-                    // <div class="reference">...content...</div>
-                    // </div>
-
-                    while (parent != null && parent.nextElementSibling() == null && !parent.tagName().equals("body")) {
-                        parent = parent.parent();
-                    }
-
-                    if (parent != null) {
-                        Element parentNext = parent.nextElementSibling();
-                        while (parentNext != null) {
-                            // If we see a header, it's likely the next section
-                            if (isHeader(parentNext))
-                                break;
-                            // Or if the div contains a header for the next section
-                            if (!parentNext.select("h2, h3").isEmpty()) {
-                                // Double check it's not a subsection header relevant to accessibility
-                                break;
-                            }
-
-                            processElement(parentNext, info);
-                            parentNext = parentNext.nextElementSibling();
-                        }
-                    }
-                }
-
-                if (info.length() > 0) {
-                    return info.toString().trim();
-                }
-
-                // Fallback
-                Element content = accessibilityHeader.nextElementSibling();
-                if (content != null) {
-                    return content.text();
-                }
-
-            } else {
-                logger.warning("Accessibility section not found for building: " + building.getBuildingCode());
             }
+
+            Element accessibilityHeader = findAccessibilityHeader(doc);
+            if (accessibilityHeader == null) {
+                logger.warning(
+                        "Accessibility section not found for building: " + building.getBuildingCode());
+                return "N/A";
+            }
+
+            String info = extractAccessibilityInfo(accessibilityHeader);
+            if (!info.isEmpty()) {
+                return info;
+            }
+
+            // Fallback: If no info was extracted (e.g. empty sections), try immediate next
+            // sibling
+            return extractFallbackContent(accessibilityHeader);
 
         } catch (Exception e) {
             logger.severe("Error searching for building info at " + url + ": " + e.getMessage());
         }
 
         return "N/A";
+    }
+
+    private Document fetchDocument(String url) {
+        // Use RestTemplate to fetch the HTML content so we can mock it in tests
+        String html = restTemplate.getForObject(url, String.class);
+        return html != null ? Jsoup.parse(html) : null;
+    }
+
+    private Element findAccessibilityHeader(Document doc) {
+        // Look for "Building accessibility" heading
+        return doc.selectFirst(
+                "h2:contains(Building accessibility), h3:contains(Building accessibility)");
+    }
+
+    private String extractAccessibilityInfo(Element header) {
+        StringBuilder info = new StringBuilder();
+
+        // 1. Try direct siblings of the header
+        extractFromSiblings(header.nextElementSibling(), info);
+
+        // 2. If no info found, try searching in parent container siblings (AEM
+        // structure)
+        if (info.length() == 0 && header.parent() != null) {
+            Element container = findContainer(header);
+            if (container != null) {
+                extractFromParentSiblings(container.nextElementSibling(), info);
+            }
+        }
+
+        return info.toString().trim();
+    }
+
+    private void extractFromSiblings(Element startElement, StringBuilder info) {
+        Element next = startElement;
+        while (next != null) {
+            if (isHeader(next)) {
+                break;
+            }
+            processElement(next, info);
+            next = next.nextElementSibling();
+        }
+    }
+
+    private Element findContainer(Element header) {
+        Element parent = header.parent();
+        while (parent != null && parent.nextElementSibling() == null && !parent.tagName().equals("body")) {
+            parent = parent.parent();
+        }
+        return parent;
+    }
+
+    private void extractFromParentSiblings(Element startElement, StringBuilder info) {
+        Element next = startElement;
+        while (next != null) {
+            // If we see a header, it's likely the next section
+            if (isHeader(next)) {
+                break;
+            }
+            if (!next.select("h2, h3").isEmpty()) {
+                break;
+            }
+
+            processElement(next, info);
+            next = next.nextElementSibling();
+        }
+    }
+
+    private String extractFallbackContent(Element header) {
+        Element content = header.nextElementSibling();
+        return content != null ? content.text() : "N/A";
     }
 
     private boolean isHeader(Element element) {

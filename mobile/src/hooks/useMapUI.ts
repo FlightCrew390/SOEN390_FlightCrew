@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer } from "react";
 import { initialMapUIState, mapUIReducer } from "../reducers/mapUIReducer";
 import { LocationType } from "../state/SearchPanelState";
 import { Building } from "../types/Building";
 import { DepartureTimeConfig, TravelMode } from "../types/Directions";
 import { findCurrentBuilding } from "../utils/buildingDetection";
+import { getClosestCampusId } from "../utils/campusDetection";
 import { useDirections } from "./useDirections";
 
 interface UserCoords {
@@ -35,7 +36,6 @@ export function useMapUI(
     [],
   );
 
-  // ── Derived user coordinates ──
   const userCoords: UserCoords | null = location
     ? {
         latitude: location.coords.latitude,
@@ -43,11 +43,22 @@ export function useMapUI(
       }
     : null;
 
-  // ── Wire direction fetching ──
+  const userCampus = useMemo(
+    () =>
+      location
+        ? getClosestCampusId(
+            location.coords.latitude,
+            location.coords.longitude,
+          )
+        : null,
+    [location],
+  );
+
   useDirections({
     destination: state.selectedBuilding,
     startBuilding: state.startBuilding,
     userLocation: userCoords,
+    userCampus,
     travelMode: state.travelMode,
     departureConfig: state.departureConfig,
     active: state.panel === "directions",

@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
+import { SHUTTLE_STOPS } from "../constants/shuttle";
 import { DirectionsService } from "../services/DirectionsService";
+import { normalizeCampus } from "../services/GoogleDirectionsService";
 import { Building } from "../types/Building";
 import {
   DepartureTimeConfig,
@@ -8,12 +10,14 @@ import {
 } from "../types/Directions";
 
 interface UseDirectionsParams {
-  /** The destination building (required). */
+  /** The destination building (required for non-shuttle modes). */
   destination: Building | null;
   /** Optional custom start building; when null the user's live location is used. */
   startBuilding: Building | null;
   /** User's current GPS coordinates, used when startBuilding is null. */
   userLocation: { latitude: number; longitude: number } | null;
+  /** User's campus (SGW or LOYOLA) for shuttle mode. */
+  userCampus: string | null;
   /** Selected travel mode. */
   travelMode: TravelMode | null;
   /** Departure / arrival time configuration. */
@@ -34,6 +38,7 @@ export function useDirections({
   destination,
   startBuilding,
   userLocation,
+  userCampus,
   travelMode,
   departureConfig,
   active,
@@ -41,23 +46,54 @@ export function useDirections({
   onLoaded,
   onError,
 }: UseDirectionsParams) {
-  // Use a ref for the abort controller so we can cancel in-flight requests
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    if (!active || !destination || travelMode == null) return;
+    if (!active || travelMode == null) return;
 
-    // Determine the origin coordinates
+    if (travelMode === "SHUTTLE") {
+      if (!userCampus) return;
+      const normalized = normalizeCampus(userCampus) as "SGW" | "LOY";
+      const other = normalized === "SGW" ? "LOY" : "SGW";
+      const origin = SHUTTLE_STOPS[normalized].coordinate;
+      const dest = SHUTTLE_STOPS[other].coordinate;
+
+      let cancelled = false;
+      const fetchShuttle = async () => {
+        onLoading();
+        try {
+          const route = await DirectionsService.fetchDirections(
+            origin.latitude,
+            origin.longitude,
+            dest.latitude,
+            dest.longitude,
+            "DRIVE",
+          );
+          if (!cancelled) onLoaded(route);
+        } catch (err) {
+          if (!cancelled) {
+            onError(
+              err instanceof Error
+                ? err.message
+                : "Failed to load shuttle route",
+            );
+          }
+        }
+      };
+      fetchShuttle();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    if (!destination) return;
     const originLat = startBuilding?.latitude ?? userLocation?.latitude;
     const originLng = startBuilding?.longitude ?? userLocation?.longitude;
-
     if (originLat == null || originLng == null) return;
 
-    // Cancel any previous in-flight request
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
-
     let cancelled = false;
 
     // Derive departure/arrival time strings from config
@@ -105,6 +141,7 @@ export function useDirections({
     startBuilding?.buildingCode,
     userLocation?.latitude,
     userLocation?.longitude,
+    userCampus,
     travelMode,
     departureConfig.option,
     departureConfig.date,

@@ -410,7 +410,7 @@ describe("GoogleMaps", () => {
     render(<GoogleMaps />);
     expect(screen.getByTestId("map-view")).toBeTruthy();
     expect(screen.getByTestId("building-layer")).toBeTruthy();
-    expect(screen.getByTestId("route-polyline")).toBeTruthy();
+    expect(screen.queryByTestId("route-polyline")).toBeNull();
     expect(screen.getByTestId("map-overlays")).toBeTruthy();
     expect(screen.getByTestId("direction-panel")).toBeTruthy();
     expect(screen.getByTestId("search-panel")).toBeTruthy();

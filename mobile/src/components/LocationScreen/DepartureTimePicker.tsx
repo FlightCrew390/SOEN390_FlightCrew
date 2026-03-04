@@ -45,6 +45,8 @@ export default function DepartureTimePicker({
       const merged = new Date(config.date);
       merged.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
       onConfigChange({ ...config, date: merged });
+      // Chain: after picking date, show time picker
+      dispatch({ type: "SHOW_TIME_PICKER" });
     }
   };
 
@@ -81,9 +83,18 @@ export default function DepartureTimePicker({
         <FontAwesome5 name="clock" size={13} color={COLORS.concordiaMaroon} />
         <Text style={styles.departureToggleText}>{activeLabel}</Text>
         {config.option !== "now" && (
-          <Text style={styles.departureToggleTime}>
-            {formatDate(config.date)}, {formatTime(config.date)}
-          </Text>
+          <Pressable
+            onPress={(e) => {
+              e.stopPropagation();
+              dispatch({ type: "SHOW_DATE_PICKER" });
+            }}
+            accessibilityLabel="Select date and time"
+            accessibilityRole="button"
+          >
+            <Text style={styles.departureToggleTime}>
+              {formatDate(config.date)}, {formatTime(config.date)}
+            </Text>
+          </Pressable>
         )}
         <FontAwesome5
           name={expanded ? "chevron-up" : "chevron-down"}
@@ -122,33 +133,6 @@ export default function DepartureTimePicker({
         </View>
       )}
 
-      {/* Date & time buttons (visible when a timed option is selected) */}
-      {config.option !== "now" && (
-        <View style={styles.departureDateTimeRow}>
-          <Pressable
-            style={styles.departureDateBtn}
-            onPress={() => dispatch({ type: "SHOW_DATE_PICKER" })}
-            accessibilityLabel="Select date"
-            accessibilityRole="button"
-          >
-            <FontAwesome5 name="calendar-alt" size={13} color="#555" />
-            <Text style={styles.departureDateText}>
-              {formatDate(config.date)}
-            </Text>
-          </Pressable>
-          <Pressable
-            style={styles.departureDateBtn}
-            onPress={() => dispatch({ type: "SHOW_TIME_PICKER" })}
-            accessibilityLabel="Select time"
-            accessibilityRole="button"
-          >
-            <FontAwesome5 name="clock" size={13} color="#555" />
-            <Text style={styles.departureDateText}>
-              {formatTime(config.date)}
-            </Text>
-          </Pressable>
-        </View>
-      )}
 
       {/* Past-time warning */}
       {isPastTime && (

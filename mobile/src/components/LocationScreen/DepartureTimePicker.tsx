@@ -133,7 +133,6 @@ export default function DepartureTimePicker({
         </View>
       )}
 
-
       {/* Past-time warning */}
       {isPastTime && (
         <Text style={styles.departurePastTimeWarning} accessibilityRole="alert">

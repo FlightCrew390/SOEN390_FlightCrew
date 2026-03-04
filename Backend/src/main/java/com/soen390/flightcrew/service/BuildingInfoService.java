@@ -116,11 +116,9 @@ public class BuildingInfoService {
     private void extractFromParentSiblings(Element startElement, StringBuilder info) {
         Element next = startElement;
         while (next != null) {
-            // If we see a header, it's likely the next section
-            if (isHeader(next)) {
-                break;
-            }
-            if (!next.select("h2, h3").isEmpty()) {
+            // Stop if we see a header or if the element contains a header (likely next
+            // section)
+            if (isHeader(next) || !next.select("h2, h3").isEmpty()) {
                 break;
             }
 

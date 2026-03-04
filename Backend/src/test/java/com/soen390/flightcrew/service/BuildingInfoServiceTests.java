@@ -171,7 +171,7 @@ public class BuildingInfoServiceTests {
         MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
 
         server.expect(requestTo("https://www.concordia.ca/maps/buildings/H.html"))
-                .andRespond((request) -> {
+                .andRespond(request -> {
                     throw new RuntimeException("Network error");
                 });
 

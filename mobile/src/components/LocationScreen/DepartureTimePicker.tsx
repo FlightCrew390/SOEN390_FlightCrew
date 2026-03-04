@@ -45,6 +45,8 @@ export default function DepartureTimePicker({
       const merged = new Date(config.date);
       merged.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
       onConfigChange({ ...config, date: merged });
+      // Chain: after picking date, show time picker
+      dispatch({ type: "SHOW_TIME_PICKER" });
     }
   };
 
@@ -81,9 +83,18 @@ export default function DepartureTimePicker({
         <FontAwesome5 name="clock" size={13} color={COLORS.concordiaMaroon} />
         <Text style={styles.departureToggleText}>{activeLabel}</Text>
         {config.option !== "now" && (
-          <Text style={styles.departureToggleTime}>
-            {formatDate(config.date)}, {formatDateTime(config.date)}
-          </Text>
+          <Pressable
+            onPress={(e) => {
+              e.stopPropagation();
+              dispatch({ type: "SHOW_DATE_PICKER" });
+            }}
+            accessibilityLabel="Select date and time"
+            accessibilityRole="button"
+          >
+            <Text style={styles.departureToggleTime}>
+              {formatDate(config.date)}, {formatDateTime(config.date)}
+            </Text>
+          </Pressable>
         )}
         <FontAwesome5
           name={expanded ? "chevron-up" : "chevron-down"}

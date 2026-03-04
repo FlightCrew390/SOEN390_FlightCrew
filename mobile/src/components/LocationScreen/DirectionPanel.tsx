@@ -106,7 +106,7 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
       <Text style={styles.buildingDetail}>
         Campus: {building.campus === "SGW" ? "Sir George Williams" : "Loyola"}
       </Text>
-      {building.accessibilityInfo && building.accessibilityInfo !== "N/A" && (
+      {!!building.accessibilityInfo && building.accessibilityInfo !== "N/A" && (
         <View
           style={{ flexDirection: "row", alignItems: "center", marginTop: 8 }}
         >

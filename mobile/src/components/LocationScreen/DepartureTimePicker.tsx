@@ -84,10 +84,7 @@ export default function DepartureTimePicker({
         <Text style={styles.departureToggleText}>{activeLabel}</Text>
         {config.option !== "now" && (
           <Pressable
-            onPress={(e) => {
-              e.stopPropagation();
-              dispatch({ type: "SHOW_DATE_PICKER" });
-            }}
+            onPress={() => dispatch({ type: "SHOW_DATE_PICKER" })}
             accessibilityLabel="Select date and time"
             accessibilityRole="button"
           >

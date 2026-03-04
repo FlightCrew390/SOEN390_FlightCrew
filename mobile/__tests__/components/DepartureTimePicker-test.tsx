@@ -112,37 +112,34 @@ describe("DepartureTimePicker", () => {
 
   // ── Date/time row visibility ──
 
-  it("hides date/time buttons when option is now", () => {
+  it("hides date/time button when option is now", () => {
     render(
       <DepartureTimePicker
         config={makeConfig("now")}
         onConfigChange={onConfigChange}
       />,
     );
-    expect(screen.queryByLabelText("Select date")).toBeNull();
-    expect(screen.queryByLabelText("Select time")).toBeNull();
+    expect(screen.queryByLabelText("Select date and time")).toBeNull();
   });
 
-  it("shows date and time buttons when option is depart_at", () => {
+  it("shows date and time button when option is depart_at", () => {
     render(
       <DepartureTimePicker
         config={makeConfig("depart_at")}
         onConfigChange={onConfigChange}
       />,
     );
-    expect(screen.getByLabelText("Select date")).toBeTruthy();
-    expect(screen.getByLabelText("Select time")).toBeTruthy();
+    expect(screen.getByLabelText("Select date and time")).toBeTruthy();
   });
 
-  it("shows date and time buttons when option is arrive_by", () => {
+  it("shows date and time button when option is arrive_by", () => {
     render(
       <DepartureTimePicker
         config={makeConfig("arrive_by")}
         onConfigChange={onConfigChange}
       />,
     );
-    expect(screen.getByLabelText("Select date")).toBeTruthy();
-    expect(screen.getByLabelText("Select time")).toBeTruthy();
+    expect(screen.getByLabelText("Select date and time")).toBeTruthy();
   });
 
   // ── Toggle expand / collapse ──
@@ -233,25 +230,29 @@ describe("DepartureTimePicker", () => {
 
   // ── Date/time pickers ──
 
-  it("shows date picker when Select date is pressed", () => {
+  it("shows date picker when Select date and time is pressed", () => {
     render(
       <DepartureTimePicker
         config={makeConfig("depart_at")}
         onConfigChange={onConfigChange}
       />,
     );
-    fireEvent.press(screen.getByLabelText("Select date"));
+    fireEvent.press(screen.getByLabelText("Select date and time"));
     expect(screen.getByTestId("date-picker")).toBeTruthy();
   });
 
-  it("shows time picker when Select time is pressed", () => {
+  it("shows time picker after date is picked (chained flow)", () => {
     render(
       <DepartureTimePicker
         config={makeConfig("depart_at")}
         onConfigChange={onConfigChange}
       />,
     );
-    fireEvent.press(screen.getByLabelText("Select time"));
+    fireEvent.press(screen.getByLabelText("Select date and time"));
+    const newDate = new Date("2026-04-15T00:00:00");
+    act(() => {
+      _datePickerOnChange?.({}, newDate);
+    });
     expect(screen.getByTestId("time-picker")).toBeTruthy();
   });
 
@@ -264,7 +265,7 @@ describe("DepartureTimePicker", () => {
         onConfigChange={onConfigChange}
       />,
     );
-    fireEvent.press(screen.getByLabelText("Select date"));
+    fireEvent.press(screen.getByLabelText("Select date and time"));
 
     const newDate = new Date("2026-04-15T00:00:00");
     act(() => {
@@ -285,7 +286,7 @@ describe("DepartureTimePicker", () => {
         onConfigChange={onConfigChange}
       />,
     );
-    fireEvent.press(screen.getByLabelText("Select date"));
+    fireEvent.press(screen.getByLabelText("Select date and time"));
     act(() => {
       _datePickerOnChange?.({}, undefined);
     });
@@ -301,17 +302,22 @@ describe("DepartureTimePicker", () => {
         onConfigChange={onConfigChange}
       />,
     );
-    fireEvent.press(screen.getByLabelText("Select time"));
+    // Open date picker, then pick a date to chain into time picker
+    fireEvent.press(screen.getByLabelText("Select date and time"));
+    act(() => {
+      _datePickerOnChange?.({}, new Date("2026-03-03T10:00:00"));
+    });
 
     const newTime = new Date("2026-03-03T14:30:00");
     act(() => {
       _timePickerOnChange?.({}, newTime);
     });
 
-    expect(onConfigChange).toHaveBeenCalledTimes(1);
-    const called = onConfigChange.mock.calls[0][0] as DepartureTimeConfig;
-    expect(called.date.getHours()).toBe(14);
-    expect(called.date.getMinutes()).toBe(30);
+    // First call is from date change, second from time change
+    const timeCalls = onConfigChange.mock.calls;
+    const lastCall = timeCalls[timeCalls.length - 1][0] as DepartureTimeConfig;
+    expect(lastCall.date.getHours()).toBe(14);
+    expect(lastCall.date.getMinutes()).toBe(30);
   });
 
   it("does not call onConfigChange when time picker fires with no date", () => {
@@ -321,7 +327,12 @@ describe("DepartureTimePicker", () => {
         onConfigChange={onConfigChange}
       />,
     );
-    fireEvent.press(screen.getByLabelText("Select time"));
+    // Open date picker, then pick a date to chain into time picker
+    fireEvent.press(screen.getByLabelText("Select date and time"));
+    act(() => {
+      _datePickerOnChange?.({}, new Date("2026-03-03T10:00:00"));
+    });
+    onConfigChange.mockClear();
     act(() => {
       _timePickerOnChange?.({}, undefined);
     });

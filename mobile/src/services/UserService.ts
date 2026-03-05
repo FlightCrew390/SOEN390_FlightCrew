@@ -13,11 +13,12 @@ export class UserService {
   static async authenticate(
     authCode: string,
     redirectUri: string,
+    clientId: string,
   ): Promise<AuthTokens> {
     const response = await fetch(`${API_BASE_URL}/v1/auth/google`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: authCode, redirectUri }),
+      body: JSON.stringify({ code: authCode, redirectUri, clientId }),
     });
 
     if (!response.ok) {

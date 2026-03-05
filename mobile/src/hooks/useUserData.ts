@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { TokenStorageService } from "../services/TokenStorageService";
+import {
+  UserPreferences,
+  UserPreferencesService,
+} from "../services/UserPreferencesService";
 import { UserService } from "../services/UserService";
 import { AuthTokens, User } from "../types/User";
+
+function mergePreferences(user: User, prefs: UserPreferences): User {
+  return { ...user, studentId: prefs.studentId || undefined };
+}
 
 export const useUserData = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -21,10 +29,14 @@ export const useUserData = () => {
           return;
         }
 
-        const fetchedUser = await UserService.fetchUser(storedTokens);
+        const [fetchedUser, prefs] = await Promise.all([
+          UserService.fetchUser(storedTokens),
+          UserPreferencesService.load(),
+        ]);
+
         if (isMounted) {
           setTokens(storedTokens);
-          setUser(fetchedUser);
+          setUser(mergePreferences(fetchedUser, prefs));
         }
       } catch (err) {
         if (isMounted) {
@@ -50,18 +62,19 @@ export const useUserData = () => {
         setLoading(true);
         setError(null);
 
-        // 1. Exchange auth code for tokens via the backend
         const newTokens = await UserService.authenticate(
           authCode,
           redirectUri,
           clientId,
         );
 
-        // 2. Fetch user profile from Google using the access token
-        const fetchedUser = await UserService.fetchUser(newTokens);
+        const [fetchedUser, prefs] = await Promise.all([
+          UserService.fetchUser(newTokens),
+          UserPreferencesService.load(),
+        ]);
 
         setTokens(newTokens);
-        setUser(fetchedUser);
+        setUser(mergePreferences(fetchedUser, prefs));
       } catch (err) {
         setError(err instanceof Error ? err.message : "Authentication failed");
       } finally {
@@ -73,7 +86,10 @@ export const useUserData = () => {
 
   const signOut = useCallback(async () => {
     try {
-      await UserService.signOut();
+      await Promise.all([
+        UserService.signOut(),
+        UserPreferencesService.clear(),
+      ]);
     } catch {
       // Always clear local state even if something fails
     } finally {
@@ -83,6 +99,18 @@ export const useUserData = () => {
     }
   }, []);
 
+  /**
+   * Persist a partial preference update and sync it into the user object.
+   * Uses functional setUser to avoid stale closure issues.
+   */
+  const savePreference = useCallback(
+    async (updates: Partial<UserPreferences>) => {
+      const merged = await UserPreferencesService.save(updates);
+      setUser((prev) => (prev ? mergePreferences(prev, merged) : prev));
+    },
+    [],
+  );
+
   return {
     user,
     tokens,
@@ -91,5 +119,6 @@ export const useUserData = () => {
     error,
     signIn,
     signOut,
+    savePreference,
   };
 };

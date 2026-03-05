@@ -1,12 +1,15 @@
 package com.soen390.flightcrew.controller;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.soen390.flightcrew.model.GoogleTokenDTO;
 import com.soen390.flightcrew.service.GoogleAuthService;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -20,25 +23,24 @@ public class AuthController {
     }
 
     @PostMapping("/google")
-    public ResponseEntity<?> exchangeCode(@RequestBody Map<String, String> request) {
+    public ResponseEntity<GoogleTokenDTO> exchangeCode(@RequestBody Map<String, String> request) {
         String authCode = request.get("code");
         
         if (authCode == null || authCode.isEmpty()) {
-            return ResponseEntity.badRequest().body("Missing authorization code");
+            throw new IllegalArgumentException("Missing authorization code");
         }
 
         try {
             GoogleTokenResponse response = googleAuthService.exchangeCodeForTokens(authCode);
 
-            Map<String, Object> tokenMap = new HashMap<>();
-            tokenMap.put("accessToken", response.getAccessToken());
-            tokenMap.put("refreshToken", response.getRefreshToken());
-            tokenMap.put("expiresIn", response.getExpiresInSeconds());
-
-            return ResponseEntity.ok(tokenMap);
+            return ResponseEntity.ok(new GoogleTokenDTO(
+            response.getAccessToken(),
+            response.getRefreshToken(),
+            response.getExpiresInSeconds()
+    ));
 
         } catch (IOException e) {
-            return ResponseEntity.status(401).body("Google exchange failed: " + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Google exchange failed: " + e.getMessage());
         }
     }
 }

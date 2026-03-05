@@ -19,9 +19,6 @@ public class GoogleAuthService {
 
     public GoogleTokenResponse exchangeCodeForTokens(String authCode) throws IOException {
         
-        //Used for testing
-        //String redirectUri = "https://developers.google.com/oauthplayground";
-        
         String redirectUri = "postmessage";
 
         return new GoogleAuthorizationCodeTokenRequest(

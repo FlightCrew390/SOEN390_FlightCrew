@@ -15,6 +15,10 @@ const appConfig = ({ config }: ConfigContext): ExpoConfig => ({
     resizeMode: "contain",
     backgroundColor: "#ffffff",
   },
+  plugins: ["expo-secure-store", "expo-web-browser"],
+  expo: {
+    scheme: "com.soen390.flightcrew",
+  },
   ios: {
     bundleIdentifier: "com.flightcrew.mobile",
     supportsTablet: true,

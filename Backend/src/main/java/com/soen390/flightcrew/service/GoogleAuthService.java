@@ -17,9 +17,7 @@ public class GoogleAuthService {
     @Value("${google.client-secret}")
     private String clientSecret;
 
-    public GoogleTokenResponse exchangeCodeForTokens(String authCode) throws IOException {
-        
-        String redirectUri = "postmessage";
+    public GoogleTokenResponse exchangeCodeForTokens(String authCode, String redirectUri) throws IOException {
 
         return new GoogleAuthorizationCodeTokenRequest(
                 new NetHttpTransport(),
@@ -28,7 +26,6 @@ public class GoogleAuthService {
                 clientId,
                 clientSecret,
                 authCode,
-                redirectUri
-        ).execute();
+                redirectUri).execute();
     }
 }

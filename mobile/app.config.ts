@@ -16,6 +16,7 @@ const appConfig = ({ config }: ConfigContext): ExpoConfig => ({
     backgroundColor: "#ffffff",
   },
   ios: {
+    bundleIdentifier: "com.flightcrew.mobile",
     supportsTablet: true,
     infoPlist: {
       NSAppTransportSecurity: {
@@ -29,7 +30,7 @@ const appConfig = ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   android: {
-    package: "com.yourteam.mobile",
+    package: "com.flightcrew.mobile",
     adaptiveIcon: {
       foregroundImage: "./assets/adaptive-icon.png",
       backgroundColor: "#ffffff",

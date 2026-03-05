@@ -1,10 +1,17 @@
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { makeRedirectUri, useAuthRequest } from "expo-auth-session";
+import { useAuthRequest } from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect } from "react";
-import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  Platform,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 import { COLORS } from "../../constants";
 import { useUser } from "../../contexts/UserContext";
 import styles from "../../styles/ConnectionPanelStyle";
@@ -17,17 +24,31 @@ const GOOGLE_AUTH_DISCOVERY = {
   revocationEndpoint: "https://oauth2.googleapis.com/revoke",
 };
 
-const redirectUri = makeRedirectUri({
-  scheme: "com.soen390.flightcrew",
-  path: "redirect",
-});
+// Google requires the iOS client ID on iOS and the web client ID elsewhere.
+// The redirect URI on iOS must use the reversed iOS client ID as the scheme.
+const IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? "";
+const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? "";
+
+const clientId = Platform.OS === "ios" ? IOS_CLIENT_ID : WEB_CLIENT_ID;
+
+// Reversed client ID: "1234-abcd.apps.googleusercontent.com"
+// becomes the scheme "com.googleusercontent.apps.1234-abcd"
+function getReversedClientId(iosClientId: string): string {
+  const parts = iosClientId.split(".").reverse();
+  return parts.join(".");
+}
+
+const redirectUri =
+  Platform.OS === "ios"
+    ? `${getReversedClientId(IOS_CLIENT_ID)}:/oauthredirect`
+    : `com.soen390.flightcrew:/oauthredirect`;
 
 export default function ConnectionPanel() {
   const { user, isAuthenticated, loading, error, signIn, signOut } = useUser();
 
   const [request, response, promptAsync] = useAuthRequest(
     {
-      clientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? "",
+      clientId,
       scopes: ["openid", "profile", "email"],
       responseType: "code",
       redirectUri,
@@ -82,7 +103,6 @@ export default function ConnectionPanel() {
               style={styles.calendarConnection}
               onPress={() => {
                 // TODO: Launch Google Calendar OAuth consent flow
-                // with additional scope "https://www.googleapis.com/auth/calendar.readonly"
               }}
               accessibilityLabel="Connect to Google Calendar"
               accessibilityRole="button"

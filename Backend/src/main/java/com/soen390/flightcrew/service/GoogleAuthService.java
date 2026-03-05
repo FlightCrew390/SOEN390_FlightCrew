@@ -17,14 +17,17 @@ public class GoogleAuthService {
     @Value("${google.client-secret}")
     private String clientSecret;
 
-    public GoogleTokenResponse exchangeCodeForTokens(String authCode, String redirectUri) throws IOException {
+    public GoogleTokenResponse exchangeCodeForTokens(
+            String authCode, String redirectUri, String clientId) throws IOException {
 
+        // iOS client IDs are public clients — no secret needed.
+        // Use empty string for the secret parameter.
         return new GoogleAuthorizationCodeTokenRequest(
                 new NetHttpTransport(),
                 new GsonFactory(),
                 "https://oauth2.googleapis.com/token",
                 clientId,
-                clientSecret,
+                "",
                 authCode,
                 redirectUri).execute();
     }

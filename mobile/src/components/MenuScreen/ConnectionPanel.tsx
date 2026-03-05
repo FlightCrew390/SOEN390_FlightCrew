@@ -52,14 +52,14 @@ export default function ConnectionPanel() {
       scopes: ["openid", "profile", "email"],
       responseType: "code",
       redirectUri,
-      usePKCE: true,
+      usePKCE: false,
     },
     GOOGLE_AUTH_DISCOVERY,
   );
 
   useEffect(() => {
     if (response?.type === "success" && response.params?.code) {
-      signIn(response.params.code, redirectUri);
+      signIn(response.params.code, redirectUri, clientId);
     }
   }, [response, signIn]);
 

@@ -26,23 +26,28 @@ public class AuthController {
     public ResponseEntity<GoogleTokenDTO> exchangeCode(@RequestBody Map<String, String> request) {
         String authCode = request.get("code");
         String redirectUri = request.get("redirectUri");
+        String clientId = request.get("clientId");
 
-        if (authCode == null || authCode.isEmpty())
-
-        {
+        if (authCode == null || authCode.isEmpty()) {
             throw new IllegalArgumentException("Missing authorization code");
+        }
+        if (redirectUri == null || redirectUri.isEmpty()) {
+            throw new IllegalArgumentException("Missing redirect URI");
+        }
+        if (clientId == null || clientId.isEmpty()) {
+            throw new IllegalArgumentException("Missing client ID");
         }
 
         try {
-            GoogleTokenResponse response = googleAuthService.exchangeCodeForTokens(authCode, redirectUri);
-
+            GoogleTokenResponse response = googleAuthService.exchangeCodeForTokens(
+                    authCode, redirectUri, clientId);
             return ResponseEntity.ok(new GoogleTokenDTO(
                     response.getAccessToken(),
                     response.getRefreshToken(),
                     response.getExpiresInSeconds()));
-
         } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Google exchange failed: " + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "Google exchange failed: " + e.getMessage());
         }
     }
 }

@@ -44,25 +44,32 @@ export const useUserData = () => {
     };
   }, []);
 
-  const signIn = useCallback(async (authCode: string, redirectUri: string) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const signIn = useCallback(
+    async (authCode: string, redirectUri: string, clientId: string) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      // 1. Exchange auth code for tokens via the backend
-      const newTokens = await UserService.authenticate(authCode, redirectUri);
+        // 1. Exchange auth code for tokens via the backend
+        const newTokens = await UserService.authenticate(
+          authCode,
+          redirectUri,
+          clientId,
+        );
 
-      // 2. Fetch user profile from Google using the access token
-      const fetchedUser = await UserService.fetchUser(newTokens);
+        // 2. Fetch user profile from Google using the access token
+        const fetchedUser = await UserService.fetchUser(newTokens);
 
-      setTokens(newTokens);
-      setUser(fetchedUser);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Authentication failed");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        setTokens(newTokens);
+        setUser(fetchedUser);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Authentication failed");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
   const signOut = useCallback(async () => {
     try {

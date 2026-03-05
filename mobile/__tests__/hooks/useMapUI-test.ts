@@ -1,4 +1,5 @@
 import { act, renderHook } from "@testing-library/react-native";
+import { useDirections } from "../../src/hooks/useDirections";
 import { useMapUI } from "../../src/hooks/useMapUI";
 import {
   hallBuilding,
@@ -240,5 +241,66 @@ describe("useMapUI", () => {
       result.current.dispatch({ type: "RESET_START_BUILDING" });
     });
     expect(result.current.state.startBuilding).toBeNull();
+  });
+
+  // ── Route callbacks (onLoading / onLoaded / onError) ──
+
+  describe("route callbacks passed to useDirections", () => {
+    let capturedParams: any;
+
+    beforeEach(() => {
+      (useDirections as jest.Mock).mockImplementation((params: any) => {
+        capturedParams = params;
+      });
+    });
+
+    it("dispatches ROUTE_LOADING when onLoading is called", () => {
+      const { result } = renderHook(() => useMapUI(testBuildings, null));
+      act(() => {
+        capturedParams.onLoading();
+      });
+      expect(result.current.state.routeLoading).toBe(true);
+      expect(result.current.state.routeError).toBeNull();
+    });
+
+    it("dispatches ROUTE_LOADED when onLoaded is called", () => {
+      const route = {
+        coordinates: [],
+        distanceMeters: 500,
+        durationSeconds: 120,
+        steps: [],
+      };
+      const { result } = renderHook(() => useMapUI(testBuildings, null));
+      act(() => {
+        capturedParams.onLoaded(route);
+      });
+      expect(result.current.state.route).toBe(route);
+      expect(result.current.state.routeLoading).toBe(false);
+    });
+
+    it("dispatches ROUTE_ERROR when onError is called", () => {
+      const { result } = renderHook(() => useMapUI(testBuildings, null));
+      act(() => {
+        capturedParams.onError("Network error");
+      });
+      expect(result.current.state.routeError).toBe("Network error");
+      expect(result.current.state.routeLoading).toBe(false);
+      expect(result.current.state.route).toBeNull();
+    });
+  });
+
+  // ── handleDepartureConfigChange ──
+
+  it("handleDepartureConfigChange dispatches SET_DEPARTURE_CONFIG", () => {
+    const { result } = renderHook(() => useMapUI(testBuildings, null));
+    const config = {
+      option: "depart_at" as const,
+      date: new Date("2026-03-03T09:00:00"),
+    };
+    act(() => {
+      result.current.handleDepartureConfigChange(config);
+    });
+    expect(result.current.state.departureConfig).toBe(config);
+    expect(result.current.state.route).toBeNull();
   });
 });

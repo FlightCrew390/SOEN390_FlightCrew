@@ -25,10 +25,12 @@ public class DirectionsController {
             @RequestParam Double originLng,
             @RequestParam Double destLat,
             @RequestParam Double destLng,
-            @RequestParam(defaultValue = "WALK") String travelMode) {
+            @RequestParam(defaultValue = "WALK") String travelMode,
+            @RequestParam(required = false) String departureTime,
+            @RequestParam(required = false) String arrivalTime) {
 
         DirectionsResponse response = googleMapsService.getDirections(
-                originLat, originLng, destLat, destLng, travelMode);
+                originLat, originLng, destLat, destLng, travelMode, departureTime, arrivalTime);
 
         if (response == null || response.getRoutes() == null || response.getRoutes().isEmpty()) {
             return ResponseEntity.noContent().build();

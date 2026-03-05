@@ -244,6 +244,79 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     lineHeight: 20,
   },
+
+  /* ── Departure time picker ── */
+  departureWrapper: {
+    paddingHorizontal: 16,
+    marginBottom: 14,
+  },
+  departureToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F2F2F2",
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    gap: 8,
+    alignSelf: "flex-start",
+  },
+  departureToggleText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    fontWeight: "500",
+  },
+  departureToggleTime: {
+    fontSize: 13,
+    color: COLORS.concordiaMaroon,
+    fontWeight: "600",
+  },
+  departureOptions: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 10,
+  },
+  departurePill: {
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    backgroundColor: "#F2F2F2",
+  },
+  departurePillActive: {
+    backgroundColor: COLORS.concordiaMaroon,
+  },
+  departurePillText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    fontWeight: "500",
+  },
+  departurePillTextActive: {
+    color: COLORS.white,
+  },
+  departureDateTimeRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 10,
+  },
+  departureDateBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#F2F2F2",
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+  },
+  departureDateText: {
+    fontSize: 13,
+    color: "#333",
+    fontWeight: "500",
+  },
+  departurePastTimeWarning: {
+    marginTop: 6,
+    fontSize: 12,
+    color: COLORS.error,
+    fontWeight: "500",
+  },
 });
 
 export default styles;

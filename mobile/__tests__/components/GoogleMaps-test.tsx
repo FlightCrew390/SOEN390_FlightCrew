@@ -11,6 +11,7 @@ const mockSelectBuilding = jest.fn();
 const mockOpenDirections = jest.fn();
 const mockHandleSearch = jest.fn();
 const mockHandleTravelModeChange = jest.fn();
+const mockHandleDepartureConfigChange = jest.fn();
 
 const defaultMapUIState = {
   panel: "none" as const,
@@ -43,6 +44,7 @@ jest.mock("../../src/hooks/useMapUI", () => ({
     openDirections: mockOpenDirections,
     handleSearch: mockHandleSearch,
     handleTravelModeChange: mockHandleTravelModeChange,
+    handleDepartureConfigChange: mockHandleDepartureConfigChange,
   }),
 }));
 
@@ -75,7 +77,7 @@ jest.mock("../../src/contexts/LocationContext", () => ({
 // Mock child components to be inspectable
 jest.mock("../../src/components/LocationScreen/BuildingLayer", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View } = require("react-native");
+  const { View, Pressable } = require("react-native");
   return {
     __esModule: true,
     default: (props: any) => (
@@ -87,7 +89,22 @@ jest.mock("../../src/components/LocationScreen/BuildingLayer", () => {
           isDirectionsOpen: props.isDirectionsOpen,
           buildingCount: props.buildings.length,
         }}
-      />
+      >
+        <Pressable
+          testID="bl-direction-press"
+          onPress={() =>
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            props.onDirectionPress(require("../fixtures").hallBuilding)
+          }
+        />
+        <Pressable
+          testID="bl-select"
+          onPress={() =>
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            props.onSelect(require("../fixtures").hallBuilding)
+          }
+        />
+      </View>
     ),
   };
 });
@@ -269,13 +286,17 @@ test("shows both loading and map simultaneously", () => {
 
 jest.mock("../../src/components/LocationScreen/DirectionPanel", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View, Text } = require("react-native");
+  const { View, Text, Pressable } = require("react-native");
   return {
     __esModule: true,
     default: (props: any) => (
       <View testID="direction-panel">
         <Text testID="dp-visible">{String(props.visible)}</Text>
         <Text testID="dp-show-steps">{String(props.showSteps)}</Text>
+        <Pressable testID="dp-open-search" onPress={props.onOpenSearch} />
+        <Pressable testID="dp-reset-start" onPress={props.onResetStart} />
+        <Pressable testID="dp-btn-show-steps" onPress={props.onShowSteps} />
+        <Pressable testID="dp-btn-hide-steps" onPress={props.onHideSteps} />
       </View>
     ),
   };
@@ -289,6 +310,7 @@ jest.mock("../../src/components/LocationScreen/SearchPanel", () => {
     default: (props: any) => (
       <View testID="search-panel">
         <Text testID="sp-visible">{String(props.visible)}</Text>
+        <Pressable testID="sp-close" onPress={props.onClose} />
         <Pressable
           testID="sp-select-building"
           onPress={() =>
@@ -617,5 +639,67 @@ describe("GoogleMaps", () => {
       type: "SET_START_BUILDING",
       building: hallBuilding,
     });
+  });
+
+  // ── onDirectionPress wiring ──
+
+  it("calls animateToBuilding and openDirections when BuildingLayer onDirectionPress fires", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("bl-direction-press"));
+    expect(mockAnimateToBuilding).toHaveBeenCalledWith(hallBuilding);
+    expect(mockOpenDirections).toHaveBeenCalledWith(hallBuilding);
+  });
+
+  it("calls animateToBuilding and selectBuilding when BuildingLayer onSelect fires", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("bl-select"));
+    expect(mockAnimateToBuilding).toHaveBeenCalledWith(hallBuilding);
+    expect(mockSelectBuilding).toHaveBeenCalledWith(hallBuilding);
+  });
+
+  // ── DirectionPanel callback wiring ──
+
+  it("dispatches OPEN_SEARCH_FOR_START when DirectionPanel onOpenSearch fires", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("dp-open-search"));
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "OPEN_SEARCH_FOR_START" });
+  });
+
+  it("dispatches RESET_START_BUILDING when DirectionPanel onResetStart fires", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("dp-reset-start"));
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "RESET_START_BUILDING" });
+  });
+
+  it("dispatches OPEN_STEPS when DirectionPanel onShowSteps fires", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("dp-btn-show-steps"));
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "OPEN_STEPS" });
+  });
+
+  it("dispatches CLOSE_STEPS when DirectionPanel onHideSteps fires", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("dp-btn-hide-steps"));
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "CLOSE_STEPS" });
+  });
+
+  // ── SearchPanel onClose wiring ──
+
+  it("dispatches CLOSE_PANEL when SearchPanel onClose fires with default origin", () => {
+    mockMapUIState = { ...defaultMapUIState, panel: "search", searchOrigin: "default" };
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("sp-close"));
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "CLOSE_PANEL" });
+  });
+
+  it("dispatches RETURN_TO_DIRECTIONS when SearchPanel onClose fires with directions origin", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "search",
+      searchOrigin: "directions",
+    };
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("sp-close"));
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "RETURN_TO_DIRECTIONS" });
   });
 });

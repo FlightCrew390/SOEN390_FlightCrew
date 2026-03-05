@@ -3,6 +3,7 @@ import {
   DirectionsResponse,
   RouteInfo,
   StepInfo,
+  TransitStepDetails,
   TravelMode,
 } from "../types/Directions";
 import { decodePolyline } from "../utils/polylineDecode";
@@ -25,6 +26,8 @@ export class DirectionsService {
     destLat: number,
     destLng: number,
     travelMode: TravelMode = "WALK",
+    departureTime?: string,
+    arrivalTime?: string,
   ): Promise<RouteInfo | null> {
     const params = new URLSearchParams({
       originLat: originLat.toString(),
@@ -33,6 +36,13 @@ export class DirectionsService {
       destLng: destLng.toString(),
       travelMode,
     });
+
+    if (departureTime) {
+      params.set("departureTime", departureTime);
+    }
+    if (arrivalTime) {
+      params.set("arrivalTime", arrivalTime);
+    }
 
     const url = `${API_BASE_URL}/directions?${params}`;
 
@@ -73,7 +83,7 @@ function parseRoute(data: DirectionsResponse): RouteInfo | null {
   const steps: StepInfo[] = [];
   for (const leg of route.legs ?? []) {
     for (const step of leg.steps ?? []) {
-      steps.push({
+      const parsed: StepInfo = {
         distanceMeters: step.distanceMeters ?? 0,
         durationSeconds: parseDuration(step.staticDuration),
         instruction: step.navigationInstruction?.instructions ?? "",
@@ -81,7 +91,26 @@ function parseRoute(data: DirectionsResponse): RouteInfo | null {
         coordinates: step.polyline?.encodedPolyline
           ? decodePolyline(step.polyline.encodedPolyline)
           : [],
-      });
+      };
+
+      // Parse transit details if present
+      if (step.transitDetails) {
+        const td = step.transitDetails;
+        const transit: TransitStepDetails = {
+          departureStopName: td.stopDetails?.departureStop?.name ?? "",
+          arrivalStopName: td.stopDetails?.arrivalStop?.name ?? "",
+          departureTime: td.stopDetails?.departureTime ?? "",
+          arrivalTime: td.stopDetails?.arrivalTime ?? "",
+          lineName: td.transitLine?.name ?? "",
+          lineShortName: td.transitLine?.nameShort ?? "",
+          vehicleType: td.transitLine?.vehicle?.type ?? "",
+          vehicleName: td.transitLine?.vehicle?.name?.text ?? "",
+          stopCount: td.stopCount ?? 0,
+        };
+        parsed.transitDetails = transit;
+      }
+
+      steps.push(parsed);
     }
   }
 

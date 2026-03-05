@@ -6,8 +6,13 @@ import { COLORS } from "../../constants";
 import { usePanelAnimation } from "../../hooks/usePanelAnimation";
 import styles from "../../styles/DirectionPanel";
 import { Building } from "../../types/Building";
-import { RouteInfo, TravelMode } from "../../types/Directions";
+import {
+  DepartureTimeConfig,
+  RouteInfo,
+  TravelMode,
+} from "../../types/Directions";
 import { formatDistance, formatDuration } from "../../utils/formatHelper";
+import DepartureTimePicker from "./DepartureTimePicker";
 import RouteStatusDisplay from "./RouteStatusDisplay";
 import StepsPanel from "./StepsPanel";
 import TransportCard from "./TransportCard";
@@ -36,6 +41,8 @@ interface DirectionPanelProps {
   readonly routeError: string | null;
   readonly travelMode: TravelMode | null;
   readonly onTravelModeChange: (mode: TravelMode | null) => void;
+  readonly departureConfig: DepartureTimeConfig;
+  readonly onDepartureConfigChange: (config: DepartureTimeConfig) => void;
   readonly onClose: () => void;
   readonly onOpenSearch?: () => void;
   readonly onResetStart?: () => void;
@@ -93,6 +100,7 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
   return (
     <ScrollView
       style={styles.descriptionScroll}
+      contentContainerStyle={{ paddingBottom: 16 }}
       showsVerticalScrollIndicator={false}
     >
       <Text style={styles.buildingLongName}>{building.buildingLongName}</Text>
@@ -118,6 +126,8 @@ export default function DirectionPanel({
   routeError,
   travelMode,
   onTravelModeChange,
+  departureConfig,
+  onDepartureConfigChange,
   onClose,
   onOpenSearch,
   onResetStart,
@@ -172,6 +182,12 @@ export default function DirectionPanel({
               startBuilding={startBuilding}
               onOpenSearch={onOpenSearch}
               onResetStart={onResetStart}
+            />
+
+            {/* Departure time picker */}
+            <DepartureTimePicker
+              config={departureConfig}
+              onConfigChange={onDepartureConfigChange}
             />
 
             {/* Transport options */}
@@ -231,6 +247,7 @@ export default function DirectionPanel({
           building={building}
           startBuilding={startBuilding}
           route={route}
+          departureConfig={departureConfig}
           onBack={onHideSteps}
         />
       )}

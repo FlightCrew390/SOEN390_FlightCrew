@@ -1,7 +1,12 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
 import DirectionPanel from "../../src/components/LocationScreen/DirectionPanel";
 import { Building, StructureType } from "../../src/types/Building";
-import { RouteInfo, TravelMode } from "../../src/types/Directions";
+import {
+  DEFAULT_DEPARTURE_CONFIG,
+  DepartureTimeConfig,
+  RouteInfo,
+  TravelMode,
+} from "../../src/types/Directions";
 import { hallBuilding, libraryBuilding, makeRoute } from "../fixtures";
 
 // ── Mocks ──
@@ -82,6 +87,18 @@ jest.mock("../../src/styles/DirectionPanel", () => ({
     buildingLongName: {},
     addressRow: {},
     buildingDetail: {},
+    departureWrapper: {},
+    departureToggle: {},
+    departureToggleText: {},
+    departureToggleTime: {},
+    departureOptions: {},
+    departurePill: {},
+    departurePillActive: {},
+    departurePillText: {},
+    departurePillTextActive: {},
+    departureDateTimeRow: {},
+    departureDateBtn: {},
+    departureDateText: {},
   },
 }));
 
@@ -167,6 +184,22 @@ jest.mock("../../src/components/LocationScreen/StepsPanel", () => {
   };
 });
 
+jest.mock(
+  "../../src/components/LocationScreen/DepartureTimePicker",
+  () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { View, Text } = require("react-native");
+    return {
+      __esModule: true,
+      default: ({ config }: any) => (
+        <View testID="departure-time-picker">
+          <Text>{config.option}</Text>
+        </View>
+      ),
+    };
+  },
+);
+
 // Asset requires
 jest.mock("../../../assets/walk.png", () => 1, { virtual: true });
 jest.mock("../../../assets/bike.png", () => 2, { virtual: true });
@@ -184,6 +217,8 @@ interface Props {
   routeError?: string | null;
   travelMode?: TravelMode | null;
   onTravelModeChange?: (mode: TravelMode | null) => void;
+  departureConfig?: DepartureTimeConfig;
+  onDepartureConfigChange?: (config: DepartureTimeConfig) => void;
   onClose?: () => void;
   onOpenSearch?: () => void;
   onResetStart?: () => void;
@@ -202,6 +237,8 @@ function renderPanel(overrides: Props = {}) {
     routeError: null,
     travelMode: null,
     onTravelModeChange: jest.fn(),
+    departureConfig: DEFAULT_DEPARTURE_CONFIG,
+    onDepartureConfigChange: jest.fn(),
     onClose: jest.fn(),
     onOpenSearch: jest.fn(),
     onResetStart: jest.fn(),

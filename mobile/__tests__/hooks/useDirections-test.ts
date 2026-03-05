@@ -2,7 +2,7 @@ import { renderHook, waitFor } from "@testing-library/react-native";
 import { useDirections } from "../../src/hooks/useDirections";
 import { DirectionsService } from "../../src/services/DirectionsService";
 import { Building, StructureType } from "../../src/types/Building";
-import { RouteInfo } from "../../src/types/Directions";
+import { DEFAULT_DEPARTURE_CONFIG, RouteInfo } from "../../src/types/Directions";
 
 jest.mock("../../src/services/DirectionsService");
 
@@ -58,6 +58,7 @@ describe("useDirections", () => {
         startBuilding: null,
         userLocation,
         travelMode: "WALK",
+        departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: false,
         onLoading,
         onLoaded,
@@ -80,6 +81,7 @@ describe("useDirections", () => {
         startBuilding: null,
         userLocation,
         travelMode: "WALK",
+        departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
         onLoading,
         onLoaded,
@@ -102,6 +104,7 @@ describe("useDirections", () => {
         startBuilding: null,
         userLocation: null,
         travelMode: "WALK",
+        departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
         onLoading,
         onLoaded,
@@ -125,6 +128,7 @@ describe("useDirections", () => {
         startBuilding: null,
         userLocation,
         travelMode: "WALK",
+        departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
         onLoading,
         onLoaded,
@@ -141,6 +145,8 @@ describe("useDirections", () => {
       destination.latitude,
       destination.longitude,
       "WALK",
+      undefined,
+      undefined,
     );
   });
 
@@ -156,6 +162,7 @@ describe("useDirections", () => {
         startBuilding,
         userLocation,
         travelMode: "DRIVE",
+        departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
         onLoading,
         onLoaded,
@@ -170,6 +177,8 @@ describe("useDirections", () => {
       destination.latitude,
       destination.longitude,
       "DRIVE",
+      undefined,
+      undefined,
     );
   });
 
@@ -185,6 +194,7 @@ describe("useDirections", () => {
         startBuilding: null,
         userLocation,
         travelMode: "WALK",
+        departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
         onLoading,
         onLoaded,
@@ -208,6 +218,7 @@ describe("useDirections", () => {
         startBuilding: null,
         userLocation,
         travelMode: "WALK",
+        departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
         onLoading,
         onLoaded,
@@ -238,6 +249,7 @@ describe("useDirections", () => {
         startBuilding: null,
         userLocation,
         travelMode: "WALK",
+        departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
         onLoading,
         onLoaded,

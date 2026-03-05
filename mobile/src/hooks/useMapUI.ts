@@ -2,7 +2,7 @@ import { useCallback, useEffect, useReducer } from "react";
 import { initialMapUIState, mapUIReducer } from "../reducers/mapUIReducer";
 import { LocationType } from "../state/SearchPanelState";
 import { Building } from "../types/Building";
-import { TravelMode } from "../types/Directions";
+import { DepartureTimeConfig, TravelMode } from "../types/Directions";
 import { findCurrentBuilding } from "../utils/buildingDetection";
 import { useDirections } from "./useDirections";
 
@@ -49,6 +49,7 @@ export function useMapUI(
     startBuilding: state.startBuilding,
     userLocation: userCoords,
     travelMode: state.travelMode,
+    departureConfig: state.departureConfig,
     active: state.panel === "directions",
     onLoading: onRouteLoading,
     onLoaded: onRouteLoaded,
@@ -107,6 +108,13 @@ export function useMapUI(
     }
   }, []);
 
+  const handleDepartureConfigChange = useCallback(
+    (config: DepartureTimeConfig) => {
+      dispatch({ type: "SET_DEPARTURE_CONFIG", config });
+    },
+    [],
+  );
+
   return {
     state,
     dispatch,
@@ -115,5 +123,6 @@ export function useMapUI(
     openDirections,
     handleSearch,
     handleTravelModeChange,
+    handleDepartureConfigChange,
   };
 }

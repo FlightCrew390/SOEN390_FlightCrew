@@ -14,10 +14,6 @@ const DEFAULT_PREFERENCES: UserPreferences = {
 };
 
 export class UserPreferencesService {
-  /**
-   * Load all saved preferences, falling back to defaults
-   * for any missing fields.
-   */
   static async load(): Promise<UserPreferences> {
     try {
       const raw = await SecureStore.getItemAsync(PREFERENCES_KEY);
@@ -30,10 +26,6 @@ export class UserPreferencesService {
     }
   }
 
-  /**
-   * Save a partial update — merges with existing preferences
-   * so callers don't need to pass every field.
-   */
   static async save(
     updates: Partial<UserPreferences>,
   ): Promise<UserPreferences> {
@@ -43,9 +35,6 @@ export class UserPreferencesService {
     return merged;
   }
 
-  /**
-   * Clear all stored preferences (e.g. on sign-out).
-   */
   static async clear(): Promise<void> {
     await SecureStore.deleteItemAsync(PREFERENCES_KEY);
   }

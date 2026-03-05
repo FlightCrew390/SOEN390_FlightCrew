@@ -9,7 +9,9 @@ import org.springframework.test.context.TestPropertySource;
         "external.api.url=http://mock-api.com",
         "external.api.user=testUser",
         "external.api.key=testKey",
-        "google.api.key=testGoogleKey"
+        "google.api.key=testGoogleKey",
+        "google.client-id=test-id",
+        "google.client-secret=test-secret",
 })
 class BackendTests {
 

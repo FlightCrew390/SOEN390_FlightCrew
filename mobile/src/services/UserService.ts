@@ -66,6 +66,7 @@ export class UserService {
       email: data.email,
       displayName: data.name,
       avatarUrl: data.picture ?? null,
+      studentId: undefined,
     };
   }
 

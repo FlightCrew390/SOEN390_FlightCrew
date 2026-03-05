@@ -3,13 +3,14 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useAuthRequest } from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
   Platform,
   Pressable,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { COLORS } from "../../constants";
@@ -24,15 +25,11 @@ const GOOGLE_AUTH_DISCOVERY = {
   revocationEndpoint: "https://oauth2.googleapis.com/revoke",
 };
 
-// Google requires the iOS client ID on iOS and the web client ID elsewhere.
-// The redirect URI on iOS must use the reversed iOS client ID as the scheme.
 const IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? "";
 const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? "";
 
 const clientId = Platform.OS === "ios" ? IOS_CLIENT_ID : WEB_CLIENT_ID;
 
-// Reversed client ID: "1234-abcd.apps.googleusercontent.com"
-// becomes the scheme "com.googleusercontent.apps.1234-abcd"
 function getReversedClientId(iosClientId: string): string {
   const parts = iosClientId.split(".").reverse();
   return parts.join(".");
@@ -44,7 +41,23 @@ const redirectUri =
     : `com.soen390.flightcrew:/oauthredirect`;
 
 export default function ConnectionPanel() {
-  const { user, isAuthenticated, loading, error, signIn, signOut } = useUser();
+  const {
+    user,
+    isAuthenticated,
+    loading,
+    error,
+    signIn,
+    signOut,
+    savePreference,
+  } = useUser();
+  const [studentId, setStudentId] = useState<string>(user?.studentId ?? "");
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing && user?.studentId !== undefined) {
+      setStudentId(user.studentId ?? "");
+    }
+  }, [user?.studentId, isEditing]);
 
   const [request, response, promptAsync] = useAuthRequest(
     {
@@ -95,7 +108,27 @@ export default function ConnectionPanel() {
               </View>
               <View style={styles.profileInfo}>
                 <Text style={styles.studentName}>{user.displayName}</Text>
-                <Text style={styles.studentId}>{user.id}</Text>
+                <TextInput
+                  style={styles.studentId}
+                  value={studentId}
+                  placeholder="Tap to enter studentID"
+                  onChangeText={setStudentId}
+                  onFocus={() => setIsEditing(true)}
+                  onBlur={() => {
+                    setIsEditing(false);
+                    if (studentId !== user.studentId) {
+                      savePreference({ studentId });
+                    }
+                  }}
+                  onSubmitEditing={() => {
+                    setIsEditing(false);
+                    if (studentId !== user.studentId) {
+                      savePreference({ studentId });
+                    }
+                  }}
+                  accessibilityLabel="Student ID"
+                  keyboardType="default"
+                />
               </View>
             </View>
 

@@ -22,7 +22,11 @@ import { Building } from "../../types/Building";
 interface SearchPanelProps {
   readonly visible: boolean;
   readonly onClose: () => void;
-  readonly onSearch: (query: string, locationType: LocationType, radiusKm: number | null) => void;
+  readonly onSearch: (
+    query: string,
+    locationType: LocationType,
+    radiusKm: number | null,
+  ) => void;
   readonly onSelectBuilding: (building: Building) => void;
 }
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer } from "react";
 import { initialMapUIState, mapUIReducer } from "../reducers/mapUIReducer";
 import { LocationType, isPoi } from "../state/SearchPanelState";
 import { PoiService } from "../services/PoiService";
@@ -39,12 +39,16 @@ export function useMapUI(
   );
 
   // ── Derived user coordinates ──
-  const userCoords: UserCoords | null = location
-    ? {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      }
-    : null;
+  const userCoords: UserCoords | null = useMemo(
+    () =>
+      location
+        ? {
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          }
+        : null,
+    [location],
+  );
 
   // ── Wire direction fetching ──
   useDirections({

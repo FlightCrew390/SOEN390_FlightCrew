@@ -1,6 +1,12 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import React from "react";
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import { COLORS } from "../../constants";
 import styles from "../../styles/PoiResultsPanel";
 import { PointOfInterest } from "../../types/PointOfInterest";
@@ -40,9 +46,7 @@ export default function PoiResultsPanel({
   onDirectionPress,
 }: Readonly<PoiResultsPanelProps>) {
   const title =
-    results.length > 0
-      ? categoryLabel(results[0].category)
-      : "Results";
+    results.length > 0 ? categoryLabel(results[0].category) : "Results";
 
   return (
     <View style={styles.container} testID="poi-results-panel">
@@ -84,16 +88,14 @@ export default function PoiResultsPanel({
       ) : (
         <ScrollView
           style={styles.resultScroll}
+          contentContainerStyle={styles.resultScrollContent}
           showsVerticalScrollIndicator
           onStartShouldSetResponder={() => true}
         >
           {results.map((poi, idx) => (
             <View
               key={`poi-${poi.name}-${idx}`}
-              style={[
-                styles.resultRow,
-                idx % 2 !== 0 && styles.resultRowOdd,
-              ]}
+              style={[styles.resultRow, idx % 2 !== 0 && styles.resultRowOdd]}
             >
               <View style={styles.resultContent}>
                 <Text style={styles.poiName}>{poi.name}</Text>
@@ -110,7 +112,7 @@ export default function PoiResultsPanel({
                   <FontAwesome5
                     name="map-pin"
                     size={20}
-                    color={COLORS.concordiaBlue}
+                    color={COLORS.concordiaMaroon}
                   />
                 </Pressable>
 

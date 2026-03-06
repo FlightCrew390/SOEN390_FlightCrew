@@ -10,6 +10,7 @@ import styles from "../../styles/DirectionPanel";
 import { Building } from "../../types/Building";
 import { RouteInfo, TravelMode } from "../../types/Directions";
 import { formatDistance, formatDuration } from "../../utils/formatHelper";
+import Tooltip from "../common/Tooltip";
 import RouteStatusDisplay from "./RouteStatusDisplay";
 import StepsPanel from "./StepsPanel";
 import TransportCard from "./TransportCard";
@@ -87,36 +88,6 @@ function StartLocationRow({
           <Text style={styles.resetStartText}>Use current location</Text>
         </Pressable>
       )}
-    </View>
-  );
-}
-
-function Tooltip({
-  text,
-  align = "center",
-}: Readonly<{
-  text: string;
-  align?: "left" | "center" | "right";
-}>) {
-  const extraStyle = text.length > 15 ? { minWidth: 100 } : { minWidth: 80 };
-
-  let alignStyle;
-  if (align === "left") {
-    alignStyle = { left: 0, alignSelf: "flex-start" };
-  } else if (align === "right") {
-    alignStyle = { right: 0, alignSelf: "flex-end" };
-  } else {
-    alignStyle = { alignSelf: "center" };
-  }
-
-  return (
-    <View style={[styles.tooltip as any, extraStyle, alignStyle]}>
-      <Text
-        style={[styles.tooltipText, { flexWrap: "wrap" }]}
-        numberOfLines={2}
-      >
-        {text}
-      </Text>
     </View>
   );
 }

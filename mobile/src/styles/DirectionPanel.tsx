@@ -244,22 +244,6 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     lineHeight: 20,
   },
-  tooltip: {
-    position: "absolute",
-    bottom: -35,
-    backgroundColor: "rgba(0,0,0,0.8)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    zIndex: 100,
-    alignSelf: "center",
-  },
-  tooltipText: {
-    color: "#fff",
-    fontSize: 10,
-    fontWeight: "600",
-    textAlign: "center",
-  },
 });
 
 export default styles;

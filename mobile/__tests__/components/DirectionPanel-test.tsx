@@ -94,8 +94,6 @@ jest.mock("../../src/styles/DirectionPanel", () => ({
     buildingLongName: {},
     addressRow: {},
     buildingDetail: {},
-    tooltip: {},
-    tooltipText: {},
   },
 }));
 

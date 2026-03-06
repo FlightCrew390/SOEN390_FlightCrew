@@ -6,6 +6,7 @@ import { PointOfInterest, PoiCategory } from "../../types/PointOfInterest";
 
 interface PoiMarkerProps {
   readonly poi: PointOfInterest;
+  readonly isDirectionsOpen?: boolean;
   readonly onPress?: () => void;
   readonly onDirectionPress?: () => void;
 }
@@ -102,20 +103,28 @@ function PoiCustomMarker({ category }: Readonly<{ category: PoiCategory }>) {
 
 export default function PoiMarker({
   poi,
+  isDirectionsOpen = false,
   onPress,
   onDirectionPress,
 }: Readonly<PoiMarkerProps>) {
   const markerRef = useRef<MapMarker>(null);
 
-  // Auto-show callout when the marker appears (mirrors BuildingMarker behaviour)
+  // Auto-show callout when the marker appears (and directions are not open)
   useEffect(() => {
-    if (markerRef.current) {
+    if (markerRef.current && !isDirectionsOpen) {
       const timer = setTimeout(() => {
         markerRef.current?.showCallout();
       }, 900);
       return () => clearTimeout(timer);
     }
-  }, [poi]);
+  }, [poi, isDirectionsOpen]);
+
+  // Hide callout when directions panel opens so it doesn't overlap
+  useEffect(() => {
+    if (isDirectionsOpen && markerRef.current) {
+      markerRef.current.hideCallout();
+    }
+  }, [isDirectionsOpen]);
 
   return (
     <Marker

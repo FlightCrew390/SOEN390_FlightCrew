@@ -101,6 +101,7 @@ export default function GoogleMaps({
 
   const onPoiDirectionPress = (poi: PointOfInterest) => {
     const building = poiToBuilding(poi);
+    selectPoi(poi);
     animateToBuilding(building);
     openDirections(building);
   };
@@ -150,6 +151,7 @@ export default function GoogleMaps({
         {state.selectedPoi && (
           <PoiMarker
             poi={state.selectedPoi}
+            isDirectionsOpen={state.panel === "directions" || state.panel === "steps"}
             onDirectionPress={() => onPoiDirectionPress(state.selectedPoi!)}
           />
         )}

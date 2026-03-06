@@ -327,6 +327,253 @@ public class PointOfInterestControllerTests {
         assertEquals(2, pois.length);
     }
 
+    @Test
+    void getPoiList_PoiWithoutCoordinates_SkipsEnrichment() {
+        // Arrange — cache with a POI that has null lat/long
+        String cachedJson = "[{\"Name\":\"No Coords Cafe\",\"Category\":\"cafe\",\"Campus\":\"SGW\",\"Address\":\"123 St\",\"Latitude\":null,\"Longitude\":null,\"Description\":\"No coords\"}]";
+        writeCache(cachedJson);
+
+        // Act
+        RestTemplate client = new RestTemplate();
+        String url = "http://localhost:" + port + "/api/poi/list";
+        ResponseEntity<PointOfInterest[]> response = client.getForEntity(url, PointOfInterest[].class);
+
+        // Assert — POI returned without enrichment
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        PointOfInterest[] pois = response.getBody();
+        assertNotNull(pois);
+        assertEquals(1, pois.length);
+        assertEquals("No Coords Cafe", pois[0].getName());
+        assertNull(pois[0].getGooglePlaceInfo());
+    }
+
+    @Test
+    void getPoiList_MultipleDestinations_FindsBestMatchByName() {
+        // Arrange — no cache, mock Google to return multiple destinations where
+        // second one matches POI name
+        File cacheFile = new File("test_poi_cache.json");
+        if (cacheFile.exists()) {
+            cacheFile.delete();
+        }
+
+        MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate)
+                .ignoreExpectOrder(true).build();
+
+        // Google returns multiple destinations — the matching logic should pick the
+        // best match
+        String googleJsonWithMatch = """
+                {
+                  "destinations": [
+                    {
+                      "primary": {
+                        "place": "places/WrongPlace",
+                        "displayName": { "text": "Some Random Place", "languageCode": "en" },
+                        "formattedAddress": "999 Random St"
+                      }
+                    },
+                    {
+                      "primary": {
+                        "place": "places/CorrectPlace",
+                        "displayName": { "text": "Café Gentile", "languageCode": "en" },
+                        "formattedAddress": "4126 Ste-Catherine St W"
+                      }
+                    }
+                  ]
+                }""";
+
+        String googleJsonDefault = """
+                {
+                  "destinations": [
+                    {
+                      "primary": {
+                        "place": "places/DefaultPlace",
+                        "displayName": { "text": "Default", "languageCode": "en" },
+                        "formattedAddress": "Default Address"
+                      }
+                    }
+                  ]
+                }""";
+
+        // First call gets the multi-destination response, rest get default
+        mockServer.expect(requestTo("https://geocode.googleapis.com/v4alpha/geocode/destinations"))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(googleJsonWithMatch, MediaType.APPLICATION_JSON));
+
+        for (int i = 1; i < 21; i++) {
+            mockServer.expect(requestTo("https://geocode.googleapis.com/v4alpha/geocode/destinations"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess(googleJsonDefault, MediaType.APPLICATION_JSON));
+        }
+
+        // Act
+        RestTemplate client = new RestTemplate();
+        String url = "http://localhost:" + port + "/api/poi/list";
+        ResponseEntity<PointOfInterest[]> response = client.getForEntity(url, PointOfInterest[].class);
+
+        // Assert — first POI (Café Gentile) should match the second destination
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        PointOfInterest[] pois = response.getBody();
+        assertNotNull(pois);
+        assertTrue(pois.length > 0);
+        assertNotNull(pois[0].getGooglePlaceInfo());
+        assertEquals("places/CorrectPlace", pois[0].getGooglePlaceInfo().getPlaceId());
+
+        mockServer.verify();
+    }
+
+    @Test
+    void getPoiList_DestinationWithNullDisplayName_SkipsInMatching() {
+        // Arrange — Google returns destination with null displayName in primary
+        File cacheFile = new File("test_poi_cache.json");
+        if (cacheFile.exists()) {
+            cacheFile.delete();
+        }
+
+        MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate)
+                .ignoreExpectOrder(true).build();
+
+        // First destination has null displayName, second has valid match
+        String googleJson = """
+                {
+                  "destinations": [
+                    {
+                      "primary": {
+                        "place": "places/NullName",
+                        "formattedAddress": "Some Address"
+                      }
+                    },
+                    {
+                      "primary": {
+                        "place": "places/MatchPlace",
+                        "displayName": { "text": "Café Gentile", "languageCode": "en" },
+                        "formattedAddress": "4126 Ste-Catherine St W"
+                      }
+                    }
+                  ]
+                }""";
+
+        String googleJsonDefault = """
+                {
+                  "destinations": [
+                    {
+                      "primary": {
+                        "place": "places/Default",
+                        "displayName": { "text": "Default", "languageCode": "en" },
+                        "formattedAddress": "Default Address"
+                      }
+                    }
+                  ]
+                }""";
+
+        mockServer.expect(requestTo("https://geocode.googleapis.com/v4alpha/geocode/destinations"))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(googleJson, MediaType.APPLICATION_JSON));
+
+        for (int i = 1; i < 21; i++) {
+            mockServer.expect(requestTo("https://geocode.googleapis.com/v4alpha/geocode/destinations"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess(googleJsonDefault, MediaType.APPLICATION_JSON));
+        }
+
+        // Act
+        RestTemplate client = new RestTemplate();
+        String url = "http://localhost:" + port + "/api/poi/list";
+        ResponseEntity<PointOfInterest[]> response = client.getForEntity(url, PointOfInterest[].class);
+
+        // Assert — should skip null displayName and match on second destination
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        PointOfInterest[] pois = response.getBody();
+        assertNotNull(pois);
+        assertNotNull(pois[0].getGooglePlaceInfo());
+        assertEquals("places/MatchPlace", pois[0].getGooglePlaceInfo().getPlaceId());
+
+        mockServer.verify();
+    }
+
+    @Test
+    void getPoiList_GoogleReturnsNullDestinations_NoEnrichment() {
+        // Arrange — Google returns response with null destinations list
+        File cacheFile = new File("test_poi_cache.json");
+        if (cacheFile.exists()) {
+            cacheFile.delete();
+        }
+
+        MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate)
+                .ignoreExpectOrder(true).build();
+
+        for (int i = 0; i < 21; i++) {
+            mockServer.expect(requestTo("https://geocode.googleapis.com/v4alpha/geocode/destinations"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess("{}", MediaType.APPLICATION_JSON));
+        }
+
+        // Act
+        RestTemplate client = new RestTemplate();
+        String url = "http://localhost:" + port + "/api/poi/list";
+        ResponseEntity<PointOfInterest[]> response = client.getForEntity(url, PointOfInterest[].class);
+
+        // Assert — POIs returned without enrichment since destinations is null
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        PointOfInterest[] pois = response.getBody();
+        assertNotNull(pois);
+        assertTrue(pois.length > 0);
+        assertNull(pois[0].getGooglePlaceInfo());
+
+        mockServer.verify();
+    }
+
+    @Test
+    void getPoiList_NoMatchingDestinationName_ReturnsFirstDestination() {
+        // Arrange — Google returns destinations where none match the POI name
+        File cacheFile = new File("test_poi_cache.json");
+        if (cacheFile.exists()) {
+            cacheFile.delete();
+        }
+
+        MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate)
+                .ignoreExpectOrder(true).build();
+
+        String googleJson = """
+                {
+                  "destinations": [
+                    {
+                      "primary": {
+                        "place": "places/FirstPlace",
+                        "displayName": { "text": "Totally Unrelated Name", "languageCode": "en" },
+                        "formattedAddress": "Some Address"
+                      }
+                    },
+                    {
+                      "primary": {
+                        "place": "places/SecondPlace",
+                        "displayName": { "text": "Another Unrelated", "languageCode": "en" },
+                        "formattedAddress": "Another Address"
+                      }
+                    }
+                  ]
+                }""";
+
+        for (int i = 0; i < 21; i++) {
+            mockServer.expect(requestTo("https://geocode.googleapis.com/v4alpha/geocode/destinations"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess(googleJson, MediaType.APPLICATION_JSON));
+        }
+
+        // Act
+        RestTemplate client = new RestTemplate();
+        String url = "http://localhost:" + port + "/api/poi/list";
+        ResponseEntity<PointOfInterest[]> response = client.getForEntity(url, PointOfInterest[].class);
+
+        // Assert — falls back to first destination since no name match
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        PointOfInterest[] pois = response.getBody();
+        assertNotNull(pois);
+        assertNotNull(pois[0].getGooglePlaceInfo());
+        assertEquals("places/FirstPlace", pois[0].getGooglePlaceInfo().getPlaceId());
+
+        mockServer.verify();
+    }
+
     private void writeCache(String content) {
         try (FileWriter fw = new FileWriter("test_poi_cache.json")) {
             fw.write(content);

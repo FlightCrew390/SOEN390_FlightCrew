@@ -7,6 +7,7 @@ jest.mock("expo-secure-store");
 const mockedSecureStore = SecureStore as jest.Mocked<typeof SecureStore>;
 
 const mockTokens: AuthTokens = {
+  clientId: "client-789",
   accessToken: "access-123",
   refreshToken: "refresh-456",
   expiresAt: Date.now() + 3_600_000,
@@ -18,10 +19,10 @@ beforeEach(() => {
 
 describe("TokenStorageService", () => {
   describe("saveTokens", () => {
-    it("stores all three token fields in secure store", async () => {
+    it("stores all four token fields in secure store", async () => {
       await TokenStorageService.saveTokens(mockTokens);
 
-      expect(mockedSecureStore.setItemAsync).toHaveBeenCalledTimes(3);
+      expect(mockedSecureStore.setItemAsync).toHaveBeenCalledTimes(4);
       expect(mockedSecureStore.setItemAsync).toHaveBeenCalledWith(
         "user_access_token",
         mockTokens.accessToken,
@@ -34,6 +35,10 @@ describe("TokenStorageService", () => {
         "user_token_expires_at",
         mockTokens.expiresAt.toString(),
       );
+      expect(mockedSecureStore.setItemAsync).toHaveBeenCalledWith(
+        "user_client_id",
+        mockTokens.clientId,
+      );
     });
   });
 
@@ -42,7 +47,8 @@ describe("TokenStorageService", () => {
       mockedSecureStore.getItemAsync
         .mockResolvedValueOnce(mockTokens.accessToken)
         .mockResolvedValueOnce(mockTokens.refreshToken)
-        .mockResolvedValueOnce(mockTokens.expiresAt.toString());
+        .mockResolvedValueOnce(mockTokens.expiresAt.toString())
+        .mockResolvedValueOnce(mockTokens.clientId);
 
       const result = await TokenStorageService.getTokens();
 
@@ -53,7 +59,8 @@ describe("TokenStorageService", () => {
       mockedSecureStore.getItemAsync
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce(mockTokens.refreshToken)
-        .mockResolvedValueOnce(mockTokens.expiresAt.toString());
+        .mockResolvedValueOnce(mockTokens.expiresAt.toString())
+        .mockResolvedValueOnce(mockTokens.clientId);
 
       const result = await TokenStorageService.getTokens();
 
@@ -64,7 +71,8 @@ describe("TokenStorageService", () => {
       mockedSecureStore.getItemAsync
         .mockResolvedValueOnce(mockTokens.accessToken)
         .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(mockTokens.expiresAt.toString());
+        .mockResolvedValueOnce(mockTokens.expiresAt.toString())
+        .mockResolvedValueOnce(mockTokens.clientId);
 
       const result = await TokenStorageService.getTokens();
 
@@ -75,6 +83,19 @@ describe("TokenStorageService", () => {
       mockedSecureStore.getItemAsync
         .mockResolvedValueOnce(mockTokens.accessToken)
         .mockResolvedValueOnce(mockTokens.refreshToken)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(mockTokens.clientId);
+
+      const result = await TokenStorageService.getTokens();
+
+      expect(result).toBeNull();
+    });
+
+    it("returns null when clientId is missing", async () => {
+      mockedSecureStore.getItemAsync
+        .mockResolvedValueOnce(mockTokens.accessToken)
+        .mockResolvedValueOnce(mockTokens.refreshToken)
+        .mockResolvedValueOnce(mockTokens.expiresAt.toString())
         .mockResolvedValueOnce(null);
 
       const result = await TokenStorageService.getTokens();
@@ -84,10 +105,10 @@ describe("TokenStorageService", () => {
   });
 
   describe("clearTokens", () => {
-    it("deletes all three token fields", async () => {
+    it("deletes all four token fields", async () => {
       await TokenStorageService.clearTokens();
 
-      expect(mockedSecureStore.deleteItemAsync).toHaveBeenCalledTimes(3);
+      expect(mockedSecureStore.deleteItemAsync).toHaveBeenCalledTimes(4);
       expect(mockedSecureStore.deleteItemAsync).toHaveBeenCalledWith(
         "user_access_token",
       );
@@ -96,6 +117,9 @@ describe("TokenStorageService", () => {
       );
       expect(mockedSecureStore.deleteItemAsync).toHaveBeenCalledWith(
         "user_token_expires_at",
+      );
+      expect(mockedSecureStore.deleteItemAsync).toHaveBeenCalledWith(
+        "user_client_id",
       );
     });
   });

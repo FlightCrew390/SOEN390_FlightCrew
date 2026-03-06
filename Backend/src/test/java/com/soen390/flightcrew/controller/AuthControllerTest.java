@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.soen390.flightcrew.service.GoogleAuthService;
-import com.soen390.flightcrew.controller.AuthController;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,15 +24,15 @@ import java.io.IOException;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = {
-    "external.api.url=http://mock-api.com",
-    "external.api.user=testUser",
-    "external.api.key=testKey",
-    "google.api.key=testGoogleKey",
-    "app.cache.file=non_existent_cache.json",
-    "google.client-id=mock-id",
-    "google.client-secret=mock-secret"
+        "external.api.url=http://mock-api.com",
+        "external.api.user=testUser",
+        "external.api.key=testKey",
+        "google.api.key=testGoogleKey",
+        "app.cache.file=non_existent_cache.json",
+        "google.client-id=mock-id",
+        "google.client-secret=mock-secret"
 })
-public class AuthControllerTest {
+class AuthControllerTest {
 
     private MockMvc mockMvc;
 
@@ -41,23 +40,23 @@ public class AuthControllerTest {
     private WebApplicationContext context;
 
     @MockitoBean
-    private GoogleAuthService googleAuthService; 
+    private GoogleAuthService googleAuthService;
 
     @BeforeEach
-        void setup() {
-            this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-        }
+    void setup() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+    }
 
     @Test
-    public void testExchangeCode_Success() throws Exception {
+    void testExchangeCode_Success() throws Exception {
         GoogleTokenResponse fakeResponse = new GoogleTokenResponse();
         fakeResponse.setAccessToken("mock_access_token");
         fakeResponse.setRefreshToken("mock_refresh_token");
         fakeResponse.setExpiresInSeconds(3600L);
 
-        when(googleAuthService.exchangeCodeForTokens(anyString())).thenReturn(fakeResponse);
+        when(googleAuthService.exchangeCodeForTokens(anyString(), anyString(), anyString())).thenReturn(fakeResponse);
 
-        String jsonRequest = "{\"code\": \"test_auth_code\"}";
+        String jsonRequest = "{\"code\": \"test_auth_code\", \"redirectUri\": \"http://localhost:3000/auth\", \"clientId\": \"test-client-id\"}";
 
         mockMvc.perform(post("/api/v1/auth/google")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -69,11 +68,11 @@ public class AuthControllerTest {
     }
 
     @Test
-    public void testExchangeCode_Failure() throws Exception {
-        when(googleAuthService.exchangeCodeForTokens(anyString()))
+    void testExchangeCode_Failure() throws Exception {
+        when(googleAuthService.exchangeCodeForTokens(anyString(), anyString(), anyString()))
                 .thenThrow(new IOException("invalid_grant"));
 
-        String jsonRequest = "{\"code\": \"expired_code\"}";
+        String jsonRequest = "{\"code\": \"expired_code\", \"redirectUri\": \"http://localhost:3000/auth\", \"clientId\": \"test-client-id\"}";
 
         mockMvc.perform(post("/api/v1/auth/google")
                 .contentType(MediaType.APPLICATION_JSON)

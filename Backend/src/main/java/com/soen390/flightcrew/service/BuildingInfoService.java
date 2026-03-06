@@ -7,12 +7,13 @@ import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class BuildingInfoService {
 
-    private static final Logger logger = Logger.getLogger(BuildingInfoService.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(BuildingInfoService.class);
     private static final String BASE_URL = "https://www.concordia.ca/maps/buildings/";
 
     private final RestTemplate restTemplate;
@@ -43,7 +44,7 @@ public class BuildingInfoService {
 
             Element accessibilityHeader = findAccessibilityHeader(doc);
             if (accessibilityHeader == null) {
-                logger.warning(
+                logger.warn(
                         "Accessibility section not found for building: " + building.getBuildingCode());
                 return "N/A";
             }
@@ -58,7 +59,7 @@ public class BuildingInfoService {
             return extractFallbackContent(accessibilityHeader);
 
         } catch (Exception e) {
-            logger.severe("Error searching for building info at " + url + ": " + e.getMessage());
+            logger.error("Error searching for building info at " + url + ": " + e.getMessage());
         }
 
         return "N/A";

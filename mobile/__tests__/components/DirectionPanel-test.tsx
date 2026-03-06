@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react-native";
+import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import DirectionPanel from "../../src/components/LocationScreen/DirectionPanel";
 import { Building, StructureType } from "../../src/types/Building";
 import { RouteInfo, TravelMode } from "../../src/types/Directions";
@@ -94,6 +94,8 @@ jest.mock("../../src/styles/DirectionPanel", () => ({
     buildingLongName: {},
     addressRow: {},
     buildingDetail: {},
+    tooltip: {},
+    tooltipText: {},
   },
 }));
 
@@ -560,5 +562,71 @@ describe("DirectionPanel", () => {
     expect(screen.queryByTestId("mi-not-accessible")).toBeNull();
     expect(screen.queryByTestId("mci-door-sliding")).toBeNull();
     expect(screen.queryByTestId("mi-elevator")).toBeNull();
+  });
+
+  // ── Tooltip Interaction ──
+
+  it("toggles tooltip on icon press and auto-hides after 3s", () => {
+    jest.useFakeTimers();
+
+    const accessibleBuilding: Building = {
+      ...building,
+      accessibilityInfo: "Wheelchair ramp available",
+    };
+    renderPanel({ building: accessibleBuilding });
+
+    const icon = screen.getByTestId("mi-accessible");
+    expect(icon).toBeTruthy();
+
+    // 1. Tooltip initially hidden
+    expect(screen.queryByText("Wheelchair Accessible")).toBeNull();
+
+    // 2. Press icon -> Show tooltip
+    fireEvent.press(icon);
+    expect(screen.getByText("Wheelchair Accessible")).toBeTruthy();
+
+    // 3. Press again -> Hide tooltip
+    fireEvent.press(icon);
+    expect(screen.queryByText("Wheelchair Accessible")).toBeNull();
+
+    // 4. Press again -> Show tooltip
+    fireEvent.press(icon);
+    expect(screen.getByText("Wheelchair Accessible")).toBeTruthy();
+
+    // 5. Wait 3s -> Auto-hide
+    act(() => {
+      jest.advanceTimersByTime(3000);
+    });
+    expect(screen.queryByText("Wheelchair Accessible")).toBeNull();
+
+    jest.useRealTimers();
+  });
+
+  it("shows correct tooltips for other icons", () => {
+    const fullAccessBuilding: Building = {
+      ...building,
+      accessibilityInfo:
+        "Wheelchair accessible, automated door, elevator available",
+    };
+    renderPanel({ building: fullAccessBuilding });
+
+    // Door
+    fireEvent.press(screen.getByTestId("mci-door-sliding"));
+    expect(screen.getByText("Automatic Door")).toBeTruthy();
+
+    // Elevator
+    fireEvent.press(screen.getByTestId("mi-elevator"));
+    expect(screen.getByText("Elevator")).toBeTruthy();
+  });
+
+  it("shows Not Accessible tooltip", () => {
+    const notAccessibleBuilding: Building = {
+      ...building,
+      accessibilityInfo: "Not accessible building",
+    };
+    renderPanel({ building: notAccessibleBuilding });
+
+    fireEvent.press(screen.getByTestId("mi-not-accessible"));
+    expect(screen.getByText("Not Accessible")).toBeTruthy();
   });
 });

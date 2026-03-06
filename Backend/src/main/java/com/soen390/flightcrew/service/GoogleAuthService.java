@@ -1,6 +1,7 @@
 package com.soen390.flightcrew.service;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleRefreshTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
@@ -30,5 +31,18 @@ public class GoogleAuthService {
                 "",
                 authCode,
                 redirectUri).execute();
+    }
+
+    public GoogleTokenResponse refreshAccessToken(String refreshToken, String clientId) throws IOException {
+        // Determine the secret: iOS client IDs are public (no secret),
+        // web/Android client IDs use the configured secret
+        String secret = clientId.equals(this.clientId) ? clientSecret : "";
+
+        return new GoogleRefreshTokenRequest(
+                new NetHttpTransport(),
+                new GsonFactory(),
+                refreshToken,
+                clientId,
+                secret).execute();
     }
 }

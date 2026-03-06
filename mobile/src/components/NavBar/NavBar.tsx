@@ -4,6 +4,7 @@ import {
   createBottomTabNavigator,
 } from "@react-navigation/bottom-tabs";
 import { RouteProp } from "@react-navigation/native";
+import { CalendarProvider } from "../../contexts/CalendarContext";
 import { UserProvider } from "../../contexts/UserContext";
 import HomeScreen from "../../screens/HomeScreen";
 import LocationScreen from "../../screens/LocationScreen";
@@ -40,12 +41,14 @@ const screenOptions = ({
 export default function HomeScreenNavBar() {
   return (
     <UserProvider>
-      <Tab.Navigator screenOptions={screenOptions}>
-        <Tab.Screen name="home" component={HomeScreen} />
-        <Tab.Screen name="location" component={LocationScreen} />
-        <Tab.Screen name="search" component={SearchScreen} />
-        <Tab.Screen name="menu" component={MenuScreen} />
-      </Tab.Navigator>
+      <CalendarProvider>
+        <Tab.Navigator screenOptions={screenOptions}>
+          <Tab.Screen name="home" component={HomeScreen} />
+          <Tab.Screen name="location" component={LocationScreen} />
+          <Tab.Screen name="search" component={SearchScreen} />
+          <Tab.Screen name="menu" component={MenuScreen} />
+        </Tab.Navigator>
+      </CalendarProvider>
     </UserProvider>
   );
 }

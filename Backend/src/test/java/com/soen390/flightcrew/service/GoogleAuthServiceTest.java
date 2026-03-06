@@ -43,4 +43,17 @@ class GoogleAuthServiceTest {
         String clientId = (String) ReflectionTestUtils.getField(googleAuthService, "clientId");
         assertEquals("test-client-id", clientId);
     }
+
+    @Test
+    void testRefreshAccessToken_ThrowsExceptionOnInvalidRefreshToken() {
+        // Similar to the previous test, we confirm that an IOException is thrown
+        // when the refresh token is invalid and the network call fails.
+
+        String fakeRefreshToken = "invalid-refresh-token";
+        String clientId = "test-client-id";
+
+        assertThrows(IOException.class, () -> {
+            googleAuthService.refreshAccessToken(fakeRefreshToken, clientId);
+        });
+    }
 }

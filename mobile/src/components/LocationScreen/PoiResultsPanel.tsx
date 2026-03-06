@@ -48,6 +48,73 @@ export default function PoiResultsPanel({
   const title =
     results.length > 0 ? categoryLabel(results[0].category) : "Results";
 
+  let content: React.ReactNode;
+  if (loading) {
+    content = (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={COLORS.concordiaMaroon} />
+        <Text style={styles.loadingText}>Searching…</Text>
+      </View>
+    );
+  } else if (error) {
+    content = <Text style={styles.errorText}>{error}</Text>;
+  } else if (results.length === 0) {
+    content = (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>No results found.</Text>
+      </View>
+    );
+  } else {
+    content = (
+      <ScrollView
+        style={styles.resultScroll}
+        contentContainerStyle={styles.resultScrollContent}
+        showsVerticalScrollIndicator
+        onStartShouldSetResponder={() => true}
+      >
+        {results.map((poi, idx) => (
+          <View
+            key={`poi-${poi.name}-${idx}`}
+            style={[styles.resultRow, idx % 2 !== 0 && styles.resultRowOdd]}
+          >
+            <View style={styles.resultContent}>
+              <Text style={styles.poiName}>{poi.name}</Text>
+              <Text style={styles.poiAddress}>{poi.address}</Text>
+            </View>
+
+            <View style={styles.iconRow}>
+              <Pressable
+                style={styles.iconButton}
+                onPress={() => onSelectPoi(poi)}
+                accessibilityLabel={`Show ${poi.name} on map`}
+                accessibilityRole="button"
+              >
+                <FontAwesome5
+                  name="map-pin"
+                  size={20}
+                  color={COLORS.concordiaMaroon}
+                />
+              </Pressable>
+
+              <Pressable
+                style={styles.iconButton}
+                onPress={() => onDirectionPress(poi)}
+                accessibilityLabel={`Get directions to ${poi.name}`}
+                accessibilityRole="button"
+              >
+                <FontAwesome5
+                  name="directions"
+                  size={20}
+                  color={COLORS.concordiaMaroon}
+                />
+              </Pressable>
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+    );
+  }
+
   return (
     <View style={styles.container} testID="poi-results-panel">
       {/* Header */}
@@ -74,65 +141,7 @@ export default function PoiResultsPanel({
       </View>
 
       {/* Content */}
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.concordiaMaroon} />
-          <Text style={styles.loadingText}>Searching…</Text>
-        </View>
-      ) : error ? (
-        <Text style={styles.errorText}>{error}</Text>
-      ) : results.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No results found.</Text>
-        </View>
-      ) : (
-        <ScrollView
-          style={styles.resultScroll}
-          contentContainerStyle={styles.resultScrollContent}
-          showsVerticalScrollIndicator
-          onStartShouldSetResponder={() => true}
-        >
-          {results.map((poi, idx) => (
-            <View
-              key={`poi-${poi.name}-${idx}`}
-              style={[styles.resultRow, idx % 2 !== 0 && styles.resultRowOdd]}
-            >
-              <View style={styles.resultContent}>
-                <Text style={styles.poiName}>{poi.name}</Text>
-                <Text style={styles.poiAddress}>{poi.address}</Text>
-              </View>
-
-              <View style={styles.iconRow}>
-                <Pressable
-                  style={styles.iconButton}
-                  onPress={() => onSelectPoi(poi)}
-                  accessibilityLabel={`Show ${poi.name} on map`}
-                  accessibilityRole="button"
-                >
-                  <FontAwesome5
-                    name="map-pin"
-                    size={20}
-                    color={COLORS.concordiaMaroon}
-                  />
-                </Pressable>
-
-                <Pressable
-                  style={styles.iconButton}
-                  onPress={() => onDirectionPress(poi)}
-                  accessibilityLabel={`Get directions to ${poi.name}`}
-                  accessibilityRole="button"
-                >
-                  <FontAwesome5
-                    name="directions"
-                    size={20}
-                    color={COLORS.concordiaMaroon}
-                  />
-                </Pressable>
-              </View>
-            </View>
-          ))}
-        </ScrollView>
-      )}
+      {content}
     </View>
   );
 }

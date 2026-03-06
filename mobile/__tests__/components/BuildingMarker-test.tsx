@@ -46,6 +46,8 @@ const createBuilding = (overrides: Partial<Building> = {}): Building => ({
   buildingCode: "H",
   buildingName: "Hall Building",
   buildingLongName: "Henry F. Hall Building",
+  accessibilityInfo:
+    "Accessible entrance: This building has an automated accessible entrance door.\nAccessible building elevator: This building entrance is equipped with an accessible elevator.",
   address: "1455 De Maisonneuve Blvd. W.",
   latitude: 45.4973,
   longitude: -73.5789,

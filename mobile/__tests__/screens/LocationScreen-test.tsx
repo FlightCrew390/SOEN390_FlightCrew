@@ -1,4 +1,4 @@
-import { fireEvent, render } from "@testing-library/react-native";
+import { fireEvent, render, screen } from "@testing-library/react-native";
 import React from "react";
 
 import LocationScreen from "../../src/screens/LocationScreen";
@@ -22,7 +22,7 @@ jest.mock("../../src/utils/campusDetection", () => ({
 
 // Mock child components
 jest.mock("../../src/components/LocationScreen/GoogleMaps", () => {
-  const { View, TouchableOpacity, Text } = require("react-native");
+  const { View, TouchableOpacity, Text } = jest.requireActual("react-native");
   return function MockGoogleMaps({ onRecenter }: { onRecenter: () => void }) {
     return (
       <View testID="mock-google-maps">
@@ -35,7 +35,7 @@ jest.mock("../../src/components/LocationScreen/GoogleMaps", () => {
 });
 
 jest.mock("../../src/components/LocationScreen/CampusSelection", () => {
-  const { View, TouchableOpacity, Text } = require("react-native");
+  const { View, TouchableOpacity, Text } = jest.requireActual("react-native");
   return function MockCampusSelection({
     onCampusChange,
     activeCampusId,
@@ -74,28 +74,28 @@ describe("LocationScreen", () => {
   });
 
   test("renders location screen with child components", () => {
-    const { getByTestId } = render(<LocationScreen />);
+    render(<LocationScreen />);
 
-    expect(getByTestId("location-screen")).toBeTruthy();
-    expect(getByTestId("mock-google-maps")).toBeTruthy();
-    expect(getByTestId("mock-campus-selection")).toBeTruthy();
+    expect(screen.getByTestId("location-screen")).toBeTruthy();
+    expect(screen.getByTestId("mock-google-maps")).toBeTruthy();
+    expect(screen.getByTestId("mock-campus-selection")).toBeTruthy();
   });
 
   test("passes currentCampusId to CampusSelection", () => {
-    const { getByTestId } = render(<LocationScreen />);
+    render(<LocationScreen />);
 
-    expect(getByTestId("current-campus").props.children).toBe("SGW");
+    expect(screen.getByTestId("current-campus").props.children).toBe("SGW");
   });
 
   test("recenter updates activeCampusId when onRecenter is called", () => {
-    const { getByTestId } = render(<LocationScreen />);
+    render(<LocationScreen />);
 
     // Initial campus is SGW (from getClosestCampusId mock)
-    expect(getByTestId("current-campus").props.children).toBe("SGW");
+    expect(screen.getByTestId("current-campus").props.children).toBe("SGW");
 
     // Press recenter - should reset to closest campus (SGW)
-    fireEvent.press(getByTestId("recenter-button"));
+    fireEvent.press(screen.getByTestId("recenter-button"));
 
-    expect(getByTestId("current-campus").props.children).toBe("SGW");
+    expect(screen.getByTestId("current-campus").props.children).toBe("SGW");
   });
 });

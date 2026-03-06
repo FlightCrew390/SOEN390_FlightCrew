@@ -8,11 +8,14 @@ import { useMapCamera } from "../../hooks/useMapCamera";
 import { useMapUI } from "../../hooks/useMapUI";
 import { LocationType } from "../../state/SearchPanelState";
 import styles from "../../styles/GoogleMaps";
-import { Building } from "../../types/Building";
+import { Building, StructureType } from "../../types/Building";
+import { PointOfInterest } from "../../types/PointOfInterest";
 import BuildingLayer from "./BuildingLayer";
 import DirectionPanel from "./DirectionPanel";
 import MapControls from "./MapControls";
 import MapOverlays from "./MapOverlays";
+import PoiMarker from "./PoiMarker";
+import PoiResultsPanel from "./PoiResultsPanel";
 import RoutePolyline from "./RoutePolyline";
 import SearchPanel from "./SearchPanel";
 import UserLocationMarker from "./UserLocationMarker";
@@ -20,6 +23,20 @@ import UserLocationMarker from "./UserLocationMarker";
 interface GoogleMapsProps {
   readonly mapRef?: React.RefObject<MapView | null>;
   readonly onRecenter?: () => void;
+}
+
+/** Convert a PointOfInterest to a minimal Building object for the directions flow. */
+function poiToBuilding(poi: PointOfInterest): Building {
+  return {
+    campus: poi.campus,
+    buildingCode: poi.name,
+    buildingName: poi.name,
+    buildingLongName: poi.name,
+    address: poi.address,
+    latitude: poi.latitude,
+    longitude: poi.longitude,
+    structureType: StructureType.Point,
+  };
 }
 
 export default function GoogleMaps({
@@ -43,6 +60,8 @@ export default function GoogleMaps({
     openDirections,
     handleSearch,
     handleTravelModeChange,
+    selectPoi,
+    clearPoi,
   } = useMapUI(buildings, location);
 
   const {
@@ -62,9 +81,28 @@ export default function GoogleMaps({
     openDirections(building);
   };
 
-  const onSearchSubmit = (query: string, locationType: LocationType) => {
-    const match = handleSearch(query, locationType);
+  const onSearchSubmit = (query: string, locationType: LocationType, radiusKm: number | null) => {
+    const match = handleSearch(query, locationType, radiusKm);
     if (match) onSelectBuilding(match);
+  };
+
+  const onSelectPoi = (poi: PointOfInterest) => {
+    selectPoi(poi);
+    mapRef.current?.animateToRegion(
+      {
+        latitude: poi.latitude,
+        longitude: poi.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      },
+      500,
+    );
+  };
+
+  const onPoiDirectionPress = (poi: PointOfInterest) => {
+    const building = poiToBuilding(poi);
+    animateToBuilding(building);
+    openDirections(building);
   };
 
   const displayError = error || locationError;
@@ -108,6 +146,13 @@ export default function GoogleMaps({
             longitude={location.coords.longitude}
           />
         )}
+
+        {state.selectedPoi && (
+          <PoiMarker
+            poi={state.selectedPoi}
+            onDirectionPress={() => onPoiDirectionPress(state.selectedPoi!)}
+          />
+        )}
       </MapView>
 
       <MapOverlays
@@ -132,6 +177,17 @@ export default function GoogleMaps({
         onShowSteps={() => dispatch({ type: "OPEN_STEPS" })}
         onHideSteps={() => dispatch({ type: "CLOSE_STEPS" })}
       />
+
+      {state.panel === "poi-results" && (
+        <PoiResultsPanel
+          results={state.poiResults}
+          loading={state.poiLoading}
+          error={state.poiError}
+          onBack={() => dispatch({ type: "BACK_TO_SEARCH" })}
+          onSelectPoi={onSelectPoi}
+          onDirectionPress={onPoiDirectionPress}
+        />
+      )}
 
       <SearchPanel
         visible={state.panel === "search"}

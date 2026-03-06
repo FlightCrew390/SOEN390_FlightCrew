@@ -15,20 +15,31 @@ import {
   initialSearchPanelState,
   searchPanelReducer,
 } from "../../reducers/searchPanelReducer";
-import { LocationType } from "../../state/SearchPanelState";
+import { LocationType, isPoi } from "../../state/SearchPanelState";
 import styles from "../../styles/SearchPanel";
 import { Building } from "../../types/Building";
 
 interface SearchPanelProps {
   readonly visible: boolean;
   readonly onClose: () => void;
-  readonly onSearch: (query: string, locationType: LocationType) => void;
+  readonly onSearch: (query: string, locationType: LocationType, radiusKm: number | null) => void;
   readonly onSelectBuilding: (building: Building) => void;
 }
 
 const LOCATION_OPTIONS: { key: LocationType; label: string }[] = [
   { key: "building", label: "Campus Building" },
+  { key: "cafe", label: "Cafe" },
   { key: "restaurant", label: "Restaurant" },
+  { key: "pharmacy", label: "Pharmacy" },
+  { key: "bar", label: "Bar" },
+  { key: "grocery", label: "Grocery" },
+];
+
+const RADIUS_OPTIONS: { value: number | null; label: string }[] = [
+  { value: null, label: "No limit" },
+  { value: 1, label: "1 km" },
+  { value: 2, label: "2 km" },
+  { value: 5, label: "5 km" },
 ];
 
 function LocationTypeDropdown({
@@ -71,6 +82,59 @@ function LocationTypeDropdown({
                   option.key === locationType && styles.dropdownOptionSelected,
                 ]}
                 onPress={() => onSelect(option.key)}
+                accessibilityLabel={option.label}
+                accessibilityRole="menuitem"
+              >
+                <Text style={styles.dropdownOptionText}>{option.label}</Text>
+              </Pressable>
+            </React.Fragment>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
+function RadiusDropdown({
+  selectedLabel,
+  isOpen,
+  radiusKm,
+  onToggle,
+  onSelect,
+}: Readonly<{
+  selectedLabel: string;
+  isOpen: boolean;
+  radiusKm: number | null;
+  onToggle: () => void;
+  onSelect: (value: number | null) => void;
+}>) {
+  return (
+    <View style={styles.dropdownMenuWrapper}>
+      <Pressable
+        style={[styles.dropdownTrigger, isOpen && styles.dropdownTriggerOpen]}
+        onPress={onToggle}
+        accessibilityLabel="Select distance radius"
+        accessibilityRole="button"
+      >
+        <Text style={styles.dropdownTriggerText}>{selectedLabel}</Text>
+        <FontAwesome5
+          name={isOpen ? "chevron-up" : "chevron-down"}
+          size={12}
+          color="#666"
+        />
+      </Pressable>
+
+      {isOpen && (
+        <View style={styles.dropdownMenu}>
+          {RADIUS_OPTIONS.map((option, idx) => (
+            <React.Fragment key={option.label}>
+              {idx > 0 && <View style={styles.dropdownDivider} />}
+              <Pressable
+                style={[
+                  styles.dropdownOption,
+                  option.value === radiusKm && styles.dropdownOptionSelected,
+                ]}
+                onPress={() => onSelect(option.value)}
                 accessibilityLabel={option.label}
                 accessibilityRole="menuitem"
               >
@@ -150,15 +214,22 @@ export default function SearchPanel({
   const selectedLabel =
     LOCATION_OPTIONS.find((o) => o.key === state.locationType)?.label ?? "";
 
+  const isPoiType = isPoi(state.locationType);
+
+  const radiusLabel =
+    RADIUS_OPTIONS.find((o) => o.value === state.radiusKm)?.label ?? "No limit";
+
   const placeholderText =
-    state.locationType === "building" ? "Building name" : "Restaurant name";
+    state.locationType === "building" ? "Building name" : "Location name";
 
   const handleSearch = () => {
     dispatch({ type: "BLUR_INPUT" });
-    if (state.selectedResult) {
+    if (isPoiType) {
+      onSearch("", state.locationType, state.radiusKm);
+    } else if (state.selectedResult) {
       onSelectBuilding(state.selectedResult);
     } else {
-      onSearch(state.query.trim(), state.locationType);
+      onSearch(state.query.trim(), state.locationType, state.radiusKm);
     }
   };
 
@@ -167,11 +238,12 @@ export default function SearchPanel({
     state.locationType === "building" &&
     state.query.trim().length > 0;
 
-  const isSearchDisabled =
-    state.query.trim().length === 0 ||
-    (state.locationType === "building" &&
-      autocompleteResults.length === 0 &&
-      !state.selectedResult);
+  const isSearchDisabled = isPoiType
+    ? false // POI search is always enabled (category is already selected)
+    : state.query.trim().length === 0 ||
+      (state.locationType === "building" &&
+        autocompleteResults.length === 0 &&
+        !state.selectedResult);
 
   return (
     <Animated.View
@@ -192,51 +264,71 @@ export default function SearchPanel({
         }
       />
 
-      {/* Search text input */}
-      <View
-        style={[
-          styles.textInputWrapper,
-          showAutocompleteList && styles.textInputWrapperOpen,
-        ]}
-      >
-        <TextInput
-          style={styles.textInputInner}
-          placeholder={placeholderText}
-          placeholderTextColor="#999"
-          value={state.query}
-          onChangeText={(text) => dispatch({ type: "UPDATE_QUERY", text })}
-          autoCapitalize="none"
-          autoCorrect={false}
-          returnKeyType="search"
-          onSubmitEditing={handleSearch}
-          accessibilityLabel={`Search ${placeholderText.toLowerCase()}`}
-          onBlur={() => setTimeout(() => dispatch({ type: "BLUR_INPUT" }), 200)}
-          onFocus={() => dispatch({ type: "FOCUS_INPUT" })}
-        />
-        {state.query.length > 0 && (
-          <Pressable
-            onPress={() => dispatch({ type: "CLEAR_QUERY" })}
-            accessibilityLabel="Clear search"
-            accessibilityRole="button"
-            style={styles.clearButton}
+      {/* POI: show radius dropdown instead of text input */}
+      {isPoiType ? (
+        <>
+          <Text style={styles.label}>Distance from location</Text>
+          <RadiusDropdown
+            selectedLabel={radiusLabel}
+            isOpen={state.radiusDropdownOpen}
+            radiusKm={state.radiusKm}
+            onToggle={() => dispatch({ type: "TOGGLE_RADIUS_DROPDOWN" })}
+            onSelect={(value) =>
+              dispatch({ type: "SELECT_RADIUS", radiusKm: value })
+            }
+          />
+        </>
+      ) : (
+        <>
+          {/* Search text input */}
+          <View
+            style={[
+              styles.textInputWrapper,
+              showAutocompleteList && styles.textInputWrapperOpen,
+            ]}
           >
-            <Text style={styles.clearButtonText}>×</Text>
-          </Pressable>
-        )}
-      </View>
+            <TextInput
+              style={styles.textInputInner}
+              placeholder={placeholderText}
+              placeholderTextColor="#999"
+              value={state.query}
+              onChangeText={(text) => dispatch({ type: "UPDATE_QUERY", text })}
+              autoCapitalize="none"
+              autoCorrect={false}
+              returnKeyType="search"
+              onSubmitEditing={handleSearch}
+              accessibilityLabel={`Search ${placeholderText.toLowerCase()}`}
+              onBlur={() =>
+                setTimeout(() => dispatch({ type: "BLUR_INPUT" }), 200)
+              }
+              onFocus={() => dispatch({ type: "FOCUS_INPUT" })}
+            />
+            {state.query.length > 0 && (
+              <Pressable
+                onPress={() => dispatch({ type: "CLEAR_QUERY" })}
+                accessibilityLabel="Clear search"
+                accessibilityRole="button"
+                style={styles.clearButton}
+              >
+                <Text style={styles.clearButtonText}>×</Text>
+              </Pressable>
+            )}
+          </View>
 
-      {/* Autocomplete results */}
-      {showAutocompleteList && (
-        <AutocompleteList
-          results={autocompleteResults}
-          activeIdx={state.autocompleteIdx}
-          onSelect={(building) =>
-            dispatch({
-              type: "SELECT_AUTOCOMPLETE",
-              building,
-            })
-          }
-        />
+          {/* Autocomplete results */}
+          {showAutocompleteList && (
+            <AutocompleteList
+              results={autocompleteResults}
+              activeIdx={state.autocompleteIdx}
+              onSelect={(building) =>
+                dispatch({
+                  type: "SELECT_AUTOCOMPLETE",
+                  building,
+                })
+              }
+            />
+          )}
+        </>
       )}
 
       {/* Search button */}

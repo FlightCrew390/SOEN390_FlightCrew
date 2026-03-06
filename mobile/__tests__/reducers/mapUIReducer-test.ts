@@ -4,6 +4,7 @@ import {
 } from "../../src/reducers/mapUIReducer";
 import { MapUIState } from "../../src/state/MapUIState";
 import { Building, StructureType } from "../../src/types/Building";
+import { PointOfInterest } from "../../src/types/PointOfInterest";
 
 const mockBuilding: Building = {
   structureType: StructureType.Building,
@@ -27,6 +28,16 @@ const mockBuilding2: Building = {
   longitude: -73.64,
 };
 
+const mockPoi: PointOfInterest = {
+  name: "Café Gentile",
+  category: "cafe",
+  campus: "SGW",
+  address: "4126 Ste-Catherine St W",
+  latitude: 45.496,
+  longitude: -73.5795,
+  description: "Italian-style café",
+};
+
 describe("mapUIReducer", () => {
   it("has correct initial state", () => {
     expect(initialMapUIState).toEqual({
@@ -39,6 +50,10 @@ describe("mapUIReducer", () => {
       route: null,
       routeLoading: false,
       routeError: null,
+      poiResults: [],
+      selectedPoi: null,
+      poiLoading: false,
+      poiError: null,
     });
   });
 
@@ -287,5 +302,110 @@ describe("mapUIReducer", () => {
       type: "UNKNOWN_ACTION" as any,
     });
     expect(state).toBe(initialMapUIState);
+  });
+
+  // ── POI actions ──
+
+  it("POI_LOADING sets poiLoading true and clears error", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      poiError: "old",
+    };
+    const state = mapUIReducer(prev, { type: "POI_LOADING" });
+    expect(state.poiLoading).toBe(true);
+    expect(state.poiError).toBeNull();
+  });
+
+  it("POI_LOADED sets results, clears loading, sets panel to poi-results", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      poiLoading: true,
+    };
+    const state = mapUIReducer(prev, {
+      type: "POI_LOADED",
+      results: [mockPoi],
+    });
+    expect(state.poiResults).toEqual([mockPoi]);
+    expect(state.poiLoading).toBe(false);
+    expect(state.panel).toBe("poi-results");
+  });
+
+  it("POI_ERROR sets error, clears loading and results", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      poiLoading: true,
+      poiResults: [mockPoi],
+    };
+    const state = mapUIReducer(prev, {
+      type: "POI_ERROR",
+      error: "Failed",
+    });
+    expect(state.poiLoading).toBe(false);
+    expect(state.poiError).toBe("Failed");
+    expect(state.poiResults).toEqual([]);
+  });
+
+  it("SELECT_POI sets selectedPoi and panel to none", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      panel: "poi-results",
+      poiResults: [mockPoi],
+    };
+    const state = mapUIReducer(prev, {
+      type: "SELECT_POI",
+      poi: mockPoi,
+    });
+    expect(state.selectedPoi).toBe(mockPoi);
+    expect(state.panel).toBe("none");
+  });
+
+  it("CLEAR_POI clears selectedPoi and poiResults", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      selectedPoi: mockPoi,
+      poiResults: [mockPoi],
+    };
+    const state = mapUIReducer(prev, { type: "CLEAR_POI" });
+    expect(state.selectedPoi).toBeNull();
+    expect(state.poiResults).toEqual([]);
+  });
+
+  it("BACK_TO_SEARCH sets panel to search and clears poi results", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      panel: "poi-results",
+      poiResults: [mockPoi],
+      poiError: "old",
+    };
+    const state = mapUIReducer(prev, { type: "BACK_TO_SEARCH" });
+    expect(state.panel).toBe("search");
+    expect(state.poiResults).toEqual([]);
+    expect(state.poiError).toBeNull();
+  });
+
+  it("TAP_MAP clears selectedPoi", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      panel: "none",
+      selectedPoi: mockPoi,
+    };
+    const state = mapUIReducer(prev, { type: "TAP_MAP" });
+    expect(state.selectedPoi).toBeNull();
+  });
+
+  it("CLOSE_PANEL clears all POI state", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      panel: "poi-results",
+      poiResults: [mockPoi],
+      selectedPoi: mockPoi,
+      poiLoading: true,
+      poiError: "err",
+    };
+    const state = mapUIReducer(prev, { type: "CLOSE_PANEL" });
+    expect(state.poiResults).toEqual([]);
+    expect(state.selectedPoi).toBeNull();
+    expect(state.poiLoading).toBe(false);
+    expect(state.poiError).toBeNull();
   });
 });

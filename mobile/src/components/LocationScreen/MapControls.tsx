@@ -4,7 +4,7 @@ import { COLORS } from "../../constants";
 import { SearchOrigin } from "../../state/MapUIState";
 import styles from "../../styles/GoogleMaps";
 
-type Panel = "none" | "search" | "directions" | "steps";
+type Panel = "none" | "search" | "directions" | "steps" | "poi-results";
 
 interface MapControlsProps {
   readonly panel: Panel;
@@ -49,7 +49,7 @@ export default function MapControls({
   return (
     <>
       {/* Search button */}
-      {panel !== "directions" && (
+      {panel !== "directions" && panel !== "poi-results" && (
         <Pressable
           style={[
             styles.searchButton,

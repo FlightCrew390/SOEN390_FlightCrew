@@ -11,6 +11,8 @@ const mockSelectBuilding = jest.fn();
 const mockOpenDirections = jest.fn();
 const mockHandleSearch = jest.fn();
 const mockHandleTravelModeChange = jest.fn();
+const mockSelectPoi = jest.fn();
+const mockClearPoi = jest.fn();
 
 const defaultMapUIState = {
   panel: "none" as const,
@@ -22,13 +24,17 @@ const defaultMapUIState = {
   route: null,
   routeLoading: false,
   routeError: null,
+  poiResults: [],
+  selectedPoi: null,
+  poiLoading: false,
+  poiError: null,
 } as const;
 
 // Remove duplicate mocks at the bottom of the import section
 // Convert the tests to use the second set of mocks (mockUseBuildingData and mockUseCurrentLocation) consistently
 
 type MapUIState = Omit<typeof defaultMapUIState, "panel" | "searchOrigin"> & {
-  panel: "none" | "directions" | "steps" | "search";
+  panel: "none" | "directions" | "steps" | "search" | "poi-results";
   searchOrigin: "default" | "directions";
 };
 
@@ -43,6 +49,8 @@ jest.mock("../../src/hooks/useMapUI", () => ({
     openDirections: mockOpenDirections,
     handleSearch: mockHandleSearch,
     handleTravelModeChange: mockHandleTravelModeChange,
+    selectPoi: mockSelectPoi,
+    clearPoi: mockClearPoi,
   }),
 }));
 
@@ -298,7 +306,7 @@ jest.mock("../../src/components/LocationScreen/SearchPanel", () => {
         />
         <Pressable
           testID="sp-search"
-          onPress={() => props.onSearch("Hall", "building")}
+          onPress={() => props.onSearch("Hall", "building", null)}
         />
       </View>
     ),
@@ -321,6 +329,32 @@ jest.mock("../../src/components/LocationScreen/MapControls", () => {
           testID="mc-return-directions"
           onPress={props.onReturnToDirections}
         />
+      </View>
+    ),
+  };
+});
+
+jest.mock("../../src/components/LocationScreen/PoiMarker", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View, Text } = require("react-native");
+  return {
+    __esModule: true,
+    default: (props: any) => (
+      <View testID="poi-marker">
+        <Text>{props.poi?.name}</Text>
+      </View>
+    ),
+  };
+});
+
+jest.mock("../../src/components/LocationScreen/PoiResultsPanel", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View, Text } = require("react-native");
+  return {
+    __esModule: true,
+    default: (props: any) => (
+      <View testID="poi-results-panel">
+        <Text testID="poi-results-count">{props.results?.length}</Text>
       </View>
     ),
   };
@@ -537,7 +571,7 @@ describe("GoogleMaps", () => {
     mockHandleSearch.mockReturnValue(hallBuilding);
     render(<GoogleMaps />);
     fireEvent.press(screen.getByTestId("sp-search"));
-    expect(mockHandleSearch).toHaveBeenCalledWith("Hall", "building");
+    expect(mockHandleSearch).toHaveBeenCalledWith("Hall", "building", null);
     expect(mockAnimateToBuilding).toHaveBeenCalledWith(hallBuilding);
     expect(mockSelectBuilding).toHaveBeenCalledWith(hallBuilding);
   });

@@ -30,6 +30,7 @@ export class UserService {
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
       expiresAt: Date.now() + data.expiresInSeconds * 1000,
+      clientId,
     };
 
     await TokenStorageService.saveTokens(tokens);
@@ -66,7 +67,6 @@ export class UserService {
       email: data.email,
       displayName: data.name,
       avatarUrl: data.picture ?? null,
-      studentId: undefined,
     };
   }
 
@@ -91,7 +91,10 @@ export class UserService {
     const response = await fetch(`${API_BASE_URL}/v1/auth/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refreshToken: tokens.refreshToken }),
+      body: JSON.stringify({
+        refreshToken: tokens.refreshToken,
+        clientId: tokens.clientId,
+      }),
     });
 
     if (!response.ok) {
@@ -104,6 +107,7 @@ export class UserService {
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
       expiresAt: Date.now() + data.expiresInSeconds * 1000,
+      clientId: tokens.clientId,
     };
 
     await TokenStorageService.saveTokens(refreshed);

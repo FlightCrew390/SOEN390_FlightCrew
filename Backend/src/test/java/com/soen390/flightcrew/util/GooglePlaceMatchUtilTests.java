@@ -1,4 +1,4 @@
-package com.soen390.flightcrew.service;
+package com.soen390.flightcrew.util;
 
 import com.soen390.flightcrew.model.GoogleGeocodeResponse;
 import org.junit.jupiter.api.Test;

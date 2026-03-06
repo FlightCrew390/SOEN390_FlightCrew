@@ -14,6 +14,7 @@ jest.mock("react-native-svg", () => {
 });
 
 const mockShowCallout = jest.fn();
+const mockHideCallout = jest.fn();
 const mockOnPress = jest.fn();
 const mockOnDirectionPress = jest.fn();
 
@@ -24,7 +25,10 @@ jest.mock("react-native-maps", () => {
   const { View, Text } = require("react-native");
   const MarkerComponent = React.forwardRef(
     ({ children, testID, coordinate, title, description, onPress, onCalloutPress }: any, ref: any) => {
-      React.useImperativeHandle(ref, () => ({ showCallout: mockShowCallout }));
+      React.useImperativeHandle(ref, () => ({
+        showCallout: mockShowCallout,
+        hideCallout: mockHideCallout,
+      }));
       return (
         <View
           testID={testID}
@@ -61,6 +65,7 @@ describe("PoiMarker", () => {
   beforeEach(() => {
     jest.useFakeTimers();
     mockShowCallout.mockClear();
+    mockHideCallout.mockClear();
     mockOnPress.mockClear();
     mockOnDirectionPress.mockClear();
   });
@@ -130,5 +135,24 @@ describe("PoiMarker", () => {
     expect(mockShowCallout).not.toHaveBeenCalled();
     jest.advanceTimersByTime(1000);
     expect(mockShowCallout).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not auto-show callout when directions are open", () => {
+    render(<PoiMarker poi={mockPoi} isDirectionsOpen={true} />);
+    jest.advanceTimersByTime(1000);
+    expect(mockShowCallout).not.toHaveBeenCalled();
+  });
+
+  it("hides callout when directions open", () => {
+    const { rerender } = render(<PoiMarker poi={mockPoi} isDirectionsOpen={false} />);
+    expect(mockHideCallout).not.toHaveBeenCalled();
+    rerender(<PoiMarker poi={mockPoi} isDirectionsOpen={true} />);
+    expect(mockHideCallout).toHaveBeenCalledTimes(1);
+  });
+
+  it("still renders SVG icon when directions are open", () => {
+    render(<PoiMarker poi={mockPoi} isDirectionsOpen={true} />);
+    expect(screen.getByTestId("svg-marker")).toBeTruthy();
+    expect(screen.getByTestId("poi-marker")).toBeTruthy();
   });
 });

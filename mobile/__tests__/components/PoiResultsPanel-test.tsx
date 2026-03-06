@@ -24,6 +24,7 @@ jest.mock("../../src/styles/PoiResultsPanel", () => ({
     headerTitle: {},
     headerSubtitle: {},
     resultScroll: {},
+    resultScrollContent: {},
     resultRow: {},
     resultRowOdd: {},
     resultContent: {},
@@ -143,5 +144,56 @@ describe("PoiResultsPanel", () => {
   it("shows error message", () => {
     renderPanel({ error: "Network error" });
     expect(screen.getByText("Network error")).toBeTruthy();
+  });
+
+  // ── Category label mapping ──
+
+  it("shows Restaurants title for restaurant category", () => {
+    const poi: PointOfInterest = { ...mockPoi, category: "restaurant" };
+    renderPanel({ results: [poi] });
+    expect(screen.getByText("Restaurants")).toBeTruthy();
+  });
+
+  it("shows Pharmacies title for pharmacy category", () => {
+    const poi: PointOfInterest = { ...mockPoi, category: "pharmacy" };
+    renderPanel({ results: [poi] });
+    expect(screen.getByText("Pharmacies")).toBeTruthy();
+  });
+
+  it("shows Bars title for bar category", () => {
+    const poi: PointOfInterest = { ...mockPoi, category: "bar" };
+    renderPanel({ results: [poi] });
+    expect(screen.getByText("Bars")).toBeTruthy();
+  });
+
+  it("shows Groceries title for grocery category", () => {
+    const poi: PointOfInterest = { ...mockPoi, category: "grocery" };
+    renderPanel({ results: [poi] });
+    expect(screen.getByText("Groceries")).toBeTruthy();
+  });
+
+  it("shows Results title for unknown category", () => {
+    const poi = { ...mockPoi, category: "unknown" as any };
+    renderPanel({ results: [poi] });
+    expect(screen.getByText("Results")).toBeTruthy();
+  });
+
+  it("shows Results title when results are empty", () => {
+    renderPanel({ results: [] });
+    expect(screen.getByText("Results")).toBeTruthy();
+  });
+
+  it("calls onSelectPoi for second result", () => {
+    const { props } = renderPanel();
+    const pinButtons = screen.getAllByLabelText(/Show .* on map/);
+    fireEvent.press(pinButtons[1]);
+    expect(props.onSelectPoi).toHaveBeenCalledWith(mockPoi2);
+  });
+
+  it("calls onDirectionPress for second result", () => {
+    const { props } = renderPanel();
+    const dirButtons = screen.getAllByLabelText(/Get directions to/);
+    fireEvent.press(dirButtons[1]);
+    expect(props.onDirectionPress).toHaveBeenCalledWith(mockPoi2);
   });
 });

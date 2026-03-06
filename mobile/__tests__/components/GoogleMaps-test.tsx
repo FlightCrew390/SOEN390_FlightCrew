@@ -28,14 +28,19 @@ const defaultMapUIState = {
   selectedPoi: null,
   poiLoading: false,
   poiError: null,
-} as const;
+};
 
 // Remove duplicate mocks at the bottom of the import section
 // Convert the tests to use the second set of mocks (mockUseBuildingData and mockUseCurrentLocation) consistently
 
-type MapUIState = Omit<typeof defaultMapUIState, "panel" | "searchOrigin"> & {
+type MapUIState = Omit<
+  typeof defaultMapUIState,
+  "panel" | "searchOrigin" | "poiResults" | "selectedPoi"
+> & {
   panel: "none" | "directions" | "steps" | "search" | "poi-results";
   searchOrigin: "default" | "directions";
+  poiResults: any[];
+  selectedPoi: any;
 };
 
 let mockMapUIState: MapUIState = { ...defaultMapUIState };
@@ -58,6 +63,7 @@ const mockHandleMapReady = jest.fn();
 const mockHandleRegionChangeComplete = jest.fn();
 const mockHandleRecenter = jest.fn();
 const mockAnimateToBuilding = jest.fn();
+const mockMapAnimateToRegion = jest.fn();
 
 jest.mock("../../src/hooks/useMapCamera", () => ({
   useMapCamera: () => ({
@@ -312,6 +318,7 @@ jest.mock("../../src/components/LocationScreen/SearchPanel", () => {
           testID="sp-search"
           onPress={() => props.onSearch("Hall", "building", null)}
         />
+        <Pressable testID="sp-close" onPress={props.onClose} />
       </View>
     ),
   };
@@ -340,12 +347,19 @@ jest.mock("../../src/components/LocationScreen/MapControls", () => {
 
 jest.mock("../../src/components/LocationScreen/PoiMarker", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View, Text } = require("react-native");
+  const { View, Text, Pressable } = require("react-native");
   return {
     __esModule: true,
     default: (props: any) => (
       <View testID="poi-marker">
         <Text>{props.poi?.name}</Text>
+        <Text testID="poi-marker-directions-open">
+          {String(!!props.isDirectionsOpen)}
+        </Text>
+        <Pressable
+          testID="poi-marker-direction-press"
+          onPress={props.onDirectionPress}
+        />
       </View>
     ),
   };
@@ -353,12 +367,21 @@ jest.mock("../../src/components/LocationScreen/PoiMarker", () => {
 
 jest.mock("../../src/components/LocationScreen/PoiResultsPanel", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View, Text } = require("react-native");
+  const { View, Text, Pressable } = require("react-native");
   return {
     __esModule: true,
     default: (props: any) => (
       <View testID="poi-results-panel">
         <Text testID="poi-results-count">{props.results?.length}</Text>
+        <Pressable
+          testID="poi-select-btn"
+          onPress={() => props.onSelectPoi?.(props.results?.[0])}
+        />
+        <Pressable
+          testID="poi-direction-btn"
+          onPress={() => props.onDirectionPress?.(props.results?.[0])}
+        />
+        <Pressable testID="poi-back-btn" onPress={props.onBack} />
       </View>
     ),
   };
@@ -367,14 +390,19 @@ jest.mock("../../src/components/LocationScreen/PoiResultsPanel", () => {
 // Mock react-native-maps
 jest.mock("react-native-maps", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View } = require("react-native");
+  const React = require("react");
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { forwardRef } = require("react");
-  const MockMapView = forwardRef((props: any, ref: any) => (
-    <View testID="map-view" ref={ref} {...props}>
-      {props.children}
-    </View>
-  ));
+  const { View } = require("react-native");
+  const MockMapView = React.forwardRef((props: any, ref: any) => {
+    React.useImperativeHandle(ref, () => ({
+      animateToRegion: mockMapAnimateToRegion,
+    }));
+    return (
+      <View testID="map-view" {...props}>
+        {props.children}
+      </View>
+    );
+  });
   MockMapView.displayName = "MockMapView";
   return {
     __esModule: true,
@@ -655,5 +683,158 @@ describe("GoogleMaps", () => {
       type: "SET_START_BUILDING",
       building: hallBuilding,
     });
+  });
+
+  // ── POI Results Panel ──
+
+  const mockTestPoi = {
+    name: "Test Cafe",
+    category: "cafe" as const,
+    campus: "SGW",
+    address: "123 Test St",
+    latitude: 45.496,
+    longitude: -73.5795,
+    description: "Test cafe",
+  };
+
+  it("renders PoiResultsPanel when panel is poi-results", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "poi-results",
+      poiResults: [mockTestPoi],
+    };
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("poi-results-panel")).toBeTruthy();
+    expect(screen.getByTestId("poi-results-count").children[0]).toBe("1");
+  });
+
+  it("does not render PoiResultsPanel when panel is not poi-results", () => {
+    mockMapUIState = { ...defaultMapUIState, panel: "none" };
+    render(<GoogleMaps />);
+    expect(screen.queryByTestId("poi-results-panel")).toBeNull();
+  });
+
+  it("calls selectPoi and animateToRegion when onSelectPoi is triggered", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "poi-results",
+      poiResults: [mockTestPoi],
+    };
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("poi-select-btn"));
+    expect(mockSelectPoi).toHaveBeenCalledWith(mockTestPoi);
+    expect(mockMapAnimateToRegion).toHaveBeenCalledWith(
+      {
+        latitude: mockTestPoi.latitude,
+        longitude: mockTestPoi.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      },
+      500,
+    );
+  });
+
+  it("calls onPoiDirectionPress — selectPoi, animateToBuilding, openDirections", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "poi-results",
+      poiResults: [mockTestPoi],
+    };
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("poi-direction-btn"));
+    expect(mockSelectPoi).toHaveBeenCalledWith(mockTestPoi);
+    expect(mockAnimateToBuilding).toHaveBeenCalled();
+    expect(mockOpenDirections).toHaveBeenCalled();
+  });
+
+  it("dispatches BACK_TO_SEARCH when PoiResultsPanel back is pressed", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "poi-results",
+      poiResults: [mockTestPoi],
+    };
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("poi-back-btn"));
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "BACK_TO_SEARCH" });
+  });
+
+  // ── PoiMarker rendering ──
+
+  it("renders PoiMarker when selectedPoi exists", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      selectedPoi: mockTestPoi,
+    };
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("poi-marker")).toBeTruthy();
+    expect(screen.getByText("Test Cafe")).toBeTruthy();
+  });
+
+  it("does not render PoiMarker when selectedPoi is null", () => {
+    mockMapUIState = { ...defaultMapUIState, selectedPoi: null };
+    render(<GoogleMaps />);
+    expect(screen.queryByTestId("poi-marker")).toBeNull();
+  });
+
+  it("passes isDirectionsOpen=true to PoiMarker when panel is directions", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      selectedPoi: mockTestPoi,
+      panel: "directions",
+    };
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("poi-marker-directions-open").children[0]).toBe(
+      "true",
+    );
+  });
+
+  it("passes isDirectionsOpen=false to PoiMarker when panel is none", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      selectedPoi: mockTestPoi,
+      panel: "none",
+    };
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("poi-marker-directions-open").children[0]).toBe(
+      "false",
+    );
+  });
+
+  it("triggers onPoiDirectionPress from PoiMarker direction callback", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      selectedPoi: mockTestPoi,
+    };
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("poi-marker-direction-press"));
+    expect(mockSelectPoi).toHaveBeenCalledWith(mockTestPoi);
+    expect(mockAnimateToBuilding).toHaveBeenCalled();
+    expect(mockOpenDirections).toHaveBeenCalled();
+  });
+
+  // ── SearchPanel close behaviour ──
+
+  it("dispatches RETURN_TO_DIRECTIONS when search panel closes in directions origin", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "search",
+      searchOrigin: "directions",
+    };
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("sp-close"));
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: "RETURN_TO_DIRECTIONS",
+    });
+  });
+
+  it("dispatches CLOSE_PANEL when search panel closes in default origin", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "search",
+      searchOrigin: "default",
+    };
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("sp-close"));
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "CLOSE_PANEL" });
   });
 });

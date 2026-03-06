@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react-native";
+import { act, renderHook, waitFor } from "@testing-library/react-native";
 import { useMapUI } from "../../src/hooks/useMapUI";
 import {
   hallBuilding,
@@ -18,6 +18,38 @@ jest.mock("../../src/utils/buildingDetection", () => ({
   findCurrentBuilding: (...args: any[]) => mockFindCurrentBuilding(...args),
 }));
 
+const mockFetchPois = jest.fn();
+jest.mock("../../src/services/PoiService", () => ({
+  PoiService: {
+    fetchPois: (...args: any[]) => mockFetchPois(...args),
+  },
+}));
+
+const mockHaversineDistance = jest.fn();
+jest.mock("../../src/utils/distanceUtils", () => ({
+  haversineDistance: (...args: any[]) => mockHaversineDistance(...args),
+}));
+
+const mockCafePoi = {
+  name: "Test Cafe",
+  category: "cafe",
+  campus: "SGW",
+  address: "123 Test St",
+  latitude: 45.496,
+  longitude: -73.5795,
+  description: "Test cafe",
+};
+
+const mockRestaurantPoi = {
+  name: "Test Restaurant",
+  category: "restaurant",
+  campus: "SGW",
+  address: "456 Test St",
+  latitude: 45.497,
+  longitude: -73.58,
+  description: "Test restaurant",
+};
+
 const mockLocation = {
   coords: { latitude: 45.4973, longitude: -73.5789 },
 };
@@ -26,6 +58,9 @@ describe("useMapUI", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockFindCurrentBuilding.mockReturnValue(null);
+    mockFetchPois.mockReset();
+    mockFetchPois.mockResolvedValue([]);
+    mockHaversineDistance.mockReset();
   });
 
   // ── Initial state ──
@@ -240,5 +275,130 @@ describe("useMapUI", () => {
       result.current.dispatch({ type: "RESET_START_BUILDING" });
     });
     expect(result.current.state.startBuilding).toBeNull();
+  });
+
+  // ── POI search ──
+
+  it("handleSearch with POI type returns null and triggers async fetch", () => {
+    mockFetchPois.mockResolvedValue([mockCafePoi, mockRestaurantPoi]);
+    const { result } = renderHook(() => useMapUI(testBuildings, null));
+    const returnValue = result.current.handleSearch("", "cafe");
+    expect(returnValue).toBeNull();
+    expect(mockFetchPois).toHaveBeenCalled();
+  });
+
+  it("dispatches POI_LOADED with filtered results on fetch success", async () => {
+    mockFetchPois.mockResolvedValue([mockCafePoi, mockRestaurantPoi]);
+    const { result } = renderHook(() => useMapUI(testBuildings, null));
+
+    act(() => {
+      result.current.handleSearch("", "cafe");
+    });
+
+    await waitFor(() => {
+      expect(result.current.state.panel).toBe("poi-results");
+    });
+
+    expect(result.current.state.poiResults).toEqual([mockCafePoi]);
+    expect(result.current.state.poiLoading).toBe(false);
+  });
+
+  it("dispatches POI_ERROR on fetch failure", async () => {
+    mockFetchPois.mockRejectedValue(new Error("Network error"));
+    const { result } = renderHook(() => useMapUI(testBuildings, null));
+
+    act(() => {
+      result.current.handleSearch("", "cafe");
+    });
+
+    await waitFor(() => {
+      expect(result.current.state.poiError).toBe("Network error");
+    });
+
+    expect(result.current.state.poiLoading).toBe(false);
+    expect(result.current.state.poiResults).toEqual([]);
+  });
+
+  it("dispatches generic POI_ERROR on non-Error rejection", async () => {
+    mockFetchPois.mockRejectedValue("something went wrong");
+    const { result } = renderHook(() => useMapUI(testBuildings, null));
+
+    act(() => {
+      result.current.handleSearch("", "cafe");
+    });
+
+    await waitFor(() => {
+      expect(result.current.state.poiError).toBe("Failed to load POIs");
+    });
+  });
+
+  it("filters POIs by radius when radiusKm and location are provided", async () => {
+    mockFetchPois.mockResolvedValue([mockCafePoi]);
+    mockHaversineDistance.mockReturnValue(0.5);
+    const { result } = renderHook(() => useMapUI(testBuildings, mockLocation));
+
+    act(() => {
+      result.current.handleSearch("", "cafe", 1);
+    });
+
+    await waitFor(() => {
+      expect(result.current.state.poiResults).toHaveLength(1);
+    });
+  });
+
+  it("excludes POIs beyond radius", async () => {
+    mockFetchPois.mockResolvedValue([mockCafePoi]);
+    mockHaversineDistance.mockReturnValue(5);
+    const { result } = renderHook(() => useMapUI(testBuildings, mockLocation));
+
+    act(() => {
+      result.current.handleSearch("", "cafe", 1);
+    });
+
+    await waitFor(() => {
+      expect(result.current.state.panel).toBe("poi-results");
+    });
+    expect(result.current.state.poiResults).toHaveLength(0);
+  });
+
+  it("does not apply radius filter when radiusKm is null", async () => {
+    mockFetchPois.mockResolvedValue([mockCafePoi]);
+    const { result } = renderHook(() => useMapUI(testBuildings, mockLocation));
+
+    act(() => {
+      result.current.handleSearch("", "cafe", null);
+    });
+
+    await waitFor(() => {
+      expect(result.current.state.poiResults).toHaveLength(1);
+    });
+    expect(mockHaversineDistance).not.toHaveBeenCalled();
+  });
+
+  // ── selectPoi / clearPoi ──
+
+  it("selectPoi sets the selected POI", () => {
+    const { result } = renderHook(() => useMapUI(testBuildings, null));
+
+    act(() => {
+      result.current.selectPoi(mockCafePoi as any);
+    });
+
+    expect(result.current.state.selectedPoi).toBe(mockCafePoi);
+    expect(result.current.state.panel).toBe("none");
+  });
+
+  it("clearPoi clears the selected POI and results", () => {
+    const { result } = renderHook(() => useMapUI(testBuildings, null));
+
+    act(() => {
+      result.current.selectPoi(mockCafePoi as any);
+    });
+    expect(result.current.state.selectedPoi).toBe(mockCafePoi);
+
+    act(() => {
+      result.current.clearPoi();
+    });
+    expect(result.current.state.selectedPoi).toBeNull();
   });
 });

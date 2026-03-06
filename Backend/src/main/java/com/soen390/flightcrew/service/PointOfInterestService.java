@@ -48,11 +48,11 @@ public class PointOfInterestService {
     }
 
     private List<PointOfInterest> filterByCampus(List<PointOfInterest> pois, String campus) {
-        if (campus == null || campus.isEmpty() || pois == null) {
-            return pois;
+        if (campus == null || campus.trim().isEmpty() || pois == null) {
+            return java.util.Collections.emptyList();
         }
         return pois.stream()
-                .filter(poi -> campus.equalsIgnoreCase(poi.getCampus()))
+                .filter(poi -> campus.trim().equalsIgnoreCase(poi.getCampus()))
                 .collect(Collectors.toList());
     }
 

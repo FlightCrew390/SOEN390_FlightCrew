@@ -61,7 +61,6 @@ export default function GoogleMaps({
     handleSearch,
     handleTravelModeChange,
     selectPoi,
-    clearPoi,
   } = useMapUI(buildings, location);
 
   const {
@@ -81,7 +80,11 @@ export default function GoogleMaps({
     openDirections(building);
   };
 
-  const onSearchSubmit = (query: string, locationType: LocationType, radiusKm: number | null) => {
+  const onSearchSubmit = (
+    query: string,
+    locationType: LocationType,
+    radiusKm: number | null,
+  ) => {
     const match = handleSearch(query, locationType, radiusKm);
     if (match) onSelectBuilding(match);
   };
@@ -151,7 +154,9 @@ export default function GoogleMaps({
         {state.selectedPoi && (
           <PoiMarker
             poi={state.selectedPoi}
-            isDirectionsOpen={state.panel === "directions" || state.panel === "steps"}
+            isDirectionsOpen={
+              state.panel === "directions" || state.panel === "steps"
+            }
             onDirectionPress={() => onPoiDirectionPress(state.selectedPoi!)}
           />
         )}

@@ -17,7 +17,11 @@ export function searchPanelReducer(
 ): SearchPanelState {
   switch (action.type) {
     case "TOGGLE_DROPDOWN":
-      return { ...state, dropdownOpen: !state.dropdownOpen, radiusDropdownOpen: false };
+      return {
+        ...state,
+        dropdownOpen: !state.dropdownOpen,
+        radiusDropdownOpen: false,
+      };
 
     case "SELECT_LOCATION_TYPE":
       return {
@@ -67,7 +71,11 @@ export function searchPanelReducer(
       return { ...state, dropdownOpen: false, radiusDropdownOpen: false };
 
     case "TOGGLE_RADIUS_DROPDOWN":
-      return { ...state, radiusDropdownOpen: !state.radiusDropdownOpen, dropdownOpen: false };
+      return {
+        ...state,
+        radiusDropdownOpen: !state.radiusDropdownOpen,
+        dropdownOpen: false,
+      };
 
     case "SELECT_RADIUS":
       return { ...state, radiusKm: action.radiusKm, radiusDropdownOpen: false };

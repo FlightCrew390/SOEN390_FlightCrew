@@ -2,7 +2,7 @@ import { PoiService } from "../../src/services/PoiService";
 
 // Mock fetch globally
 const mockFetch = jest.fn();
-global.fetch = mockFetch;
+(globalThis as unknown as { fetch: typeof mockFetch }).fetch = mockFetch;
 
 const mockApiResponse = [
   {

@@ -48,7 +48,10 @@ const styles = StyleSheet.create({
   },
   resultScroll: {
     flex: 1,
+  },
+  resultScrollContent: {
     paddingTop: 12,
+    paddingBottom: 8,
   },
   resultRow: {
     flexDirection: "row",

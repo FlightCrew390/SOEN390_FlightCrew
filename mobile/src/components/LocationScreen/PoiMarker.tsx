@@ -31,7 +31,12 @@ function CategoryPaths({ category }: Readonly<{ category: PoiCategory }>) {
             strokeWidth="1.5"
             fill="none"
           />
-          <Path d="M14 10Q16 8 18 10Q20 8 22 10" stroke={stroke} strokeWidth="1" fill="none" />
+          <Path
+            d="M14 10Q16 8 18 10Q20 8 22 10"
+            stroke={stroke}
+            strokeWidth="1"
+            fill="none"
+          />
         </>
       );
     // Fork & knife
@@ -40,17 +45,16 @@ function CategoryPaths({ category }: Readonly<{ category: PoiCategory }>) {
         <>
           <Path d="M16 10V22" stroke={stroke} strokeWidth="1.5" />
           <Path d="M16 10L18 15H14Z" fill={fill} />
-          <Path d="M22.5 10V13H24.5V10M23.5 13V22" stroke={stroke} strokeWidth="1.5" />
+          <Path
+            d="M22.5 10V13H24.5V10M23.5 13V22"
+            stroke={stroke}
+            strokeWidth="1.5"
+          />
         </>
       );
     // Plus / cross
     case "pharmacy":
-      return (
-        <Path
-          d="M18 12H22V15H25V19H22V22H18V19H15V15H18Z"
-          fill={fill}
-        />
-      );
+      return <Path d="M18 12H22V15H25V19H22V22H18V19H15V15H18Z" fill={fill} />;
     // Martini glass
     case "bar":
       return (
@@ -88,11 +92,7 @@ function PoiCustomMarker({ category }: Readonly<{ category: PoiCategory }>) {
   const size = { width: width * 1.3, height: height * 1.3 };
 
   return (
-    <Svg
-      width={size.width}
-      height={size.height}
-      viewBox="0 0 40 40"
-    >
+    <Svg width={size.width} height={size.height} viewBox="0 0 40 40">
       <Circle cx="20" cy="20" r="14" fill={COLORS.shadowBlack} />
       <Circle cx="20" cy="16" r="14" stroke={COLORS.white} strokeWidth="4" />
       <Circle cx="20" cy="16" r="12" fill={COLORS.concordiaBlue} />

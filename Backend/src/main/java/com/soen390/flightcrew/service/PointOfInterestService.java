@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 @Service
 public class PointOfInterestService {
 
-    Logger logger = LoggerFactory.getLogger(PointOfInterestService.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(PointOfInterestService.class);
 
     @Value("${app.poi.cache.file:poi_cache.json}")
     private String cacheFileName;
@@ -39,7 +39,7 @@ public class PointOfInterestService {
         }
 
         List<PointOfInterest> pois = loadStaticPois();
-        if (pois != null && !pois.isEmpty()) {
+        if (!pois.isEmpty()) {
             enrichWithGoogleData(pois);
             saveToCache(pois);
         }
@@ -110,7 +110,7 @@ public class PointOfInterestService {
                         bestMatch.getDisplayName().getText());
             }
             poi.setGooglePlaceInfo(bestMatch);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             logger.warn("Error fetching google info for POI {}: {}", poi.getName(), e.getMessage());
         }
     }

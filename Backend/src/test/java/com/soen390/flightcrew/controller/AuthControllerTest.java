@@ -79,4 +79,41 @@ class AuthControllerTest {
                 .content(jsonRequest))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void testExchangeCode_MissingParameters() throws Exception {
+        String jsonRequest = "{\"redirectUri\": \"http://localhost:3000/auth\", \"clientId\": \"test-client-id\"}";
+        mockMvc.perform(post("/api/v1/auth/google")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonRequest))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testRefreshToken_Failure() throws Exception {
+        when(googleAuthService.refreshAccessToken(anyString(), anyString()))
+                .thenThrow(new IOException("invalid_grant"));
+        String jsonRequest = "{\"refreshToken\": \"test_refresh_token\", \"clientId\": \"test-client-id\"}";
+        mockMvc.perform(post("/api/v1/auth/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonRequest))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testRefreshToken_Success() throws Exception {
+        GoogleTokenResponse fakeResponse = new GoogleTokenResponse();
+        fakeResponse.setAccessToken("new_mock_access_token");
+        fakeResponse.setRefreshToken("new_mock_refresh_token");
+        fakeResponse.setExpiresInSeconds(3600L);
+        when(googleAuthService.refreshAccessToken(anyString(), anyString())).thenReturn(fakeResponse);
+        String jsonRequest = "{\"refreshToken\": \"test_refresh_token\", \"clientId\": \"test-client-id\"}";
+        mockMvc.perform(post("/api/v1/auth/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonRequest))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("new_mock_access_token"))
+                .andExpect(jsonPath("$.refreshToken").value("new_mock_refresh_token"))
+                .andExpect(jsonPath("$.expiresIn").value(3600));
+    }
 }

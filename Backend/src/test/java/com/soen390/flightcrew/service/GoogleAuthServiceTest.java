@@ -1,7 +1,6 @@
 package com.soen390.flightcrew.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -17,21 +16,24 @@ class GoogleAuthServiceTest {
     @BeforeEach
     void setUp() {
         googleAuthService = new GoogleAuthService();
-        
+
         ReflectionTestUtils.setField(googleAuthService, "clientId", "test-client-id");
         ReflectionTestUtils.setField(googleAuthService, "clientSecret", "test-client-secret");
     }
 
     @Test
     void testExchangeCodeForTokens_ThrowsExceptionOnInvalidCode() {
-        // Since we can't easily mock the internal Google SDK 'new' call without advanced tools,
-        // this test confirms that the service properly propagates IOExceptions 
+        // Since we can't easily mock the internal Google SDK 'new' call without
+        // advanced tools,
+        // this test confirms that the service properly propagates IOExceptions
         // when the network call fails (which it will, because the code is fake).
-        
+
         String fakeCode = "invalid-code";
+        String redirectUri = "http://localhost:3000/auth";
+        String clientId = "test-client-id";
 
         assertThrows(IOException.class, () -> {
-            googleAuthService.exchangeCodeForTokens(fakeCode);
+            googleAuthService.exchangeCodeForTokens(fakeCode, redirectUri, clientId);
         });
     }
 

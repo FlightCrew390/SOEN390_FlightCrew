@@ -70,7 +70,7 @@ jest.mock("../../src/styles/SearchPanel", () => ({
 interface Props {
   visible?: boolean;
   onClose?: () => void;
-  onSearch?: (query: string, locationType: LocationType) => void;
+  onSearch?: (query: string, locationType: LocationType, radiusKm: number | null) => void;
   onSelectBuilding?: (building: Building) => void;
 }
 
@@ -144,10 +144,10 @@ describe("SearchPanel", () => {
     renderSearchPanel();
     // Open dropdown
     fireEvent.press(screen.getByLabelText("Select location type"));
-    // Select restaurant
-    fireEvent.press(screen.getByLabelText("Restaurant"));
-    // Placeholder should change
-    expect(screen.getByPlaceholderText("Restaurant name")).toBeTruthy();
+    // Select cafe (POI type)
+    fireEvent.press(screen.getByLabelText("Cafe"));
+    // For POI types, text input should not appear; distance dropdown should
+    expect(screen.getByText("Distance from location")).toBeTruthy();
   });
 
   // ── Text input ──
@@ -257,34 +257,27 @@ describe("SearchPanel", () => {
     mockUseAutocomplete.mockReturnValue([]);
     const { props } = renderSearchPanel();
 
-    // Switch to restaurant
+    // Switch to restaurant (POI type)
     fireEvent.press(screen.getByLabelText("Select location type"));
     fireEvent.press(screen.getByLabelText("Restaurant"));
 
-    // Type a query
-    fireEvent.changeText(
-      screen.getByLabelText("Search restaurant name"),
-      "Pizza",
-    );
-
-    // Submit via search button (restaurant type doesn't need autocomplete match)
+    // For POI type, search is always enabled — just press search
     fireEvent.press(screen.getByLabelText("Search"));
-    expect(props.onSearch).toHaveBeenCalledWith("Pizza", "restaurant");
+    expect(props.onSearch).toHaveBeenCalledWith("", "restaurant", null);
   });
 
   it("calls onSearch via keyboard submit", () => {
-    mockUseAutocomplete.mockReturnValue([]);
+    mockUseAutocomplete.mockReturnValue([hallBuilding]);
     const { props } = renderSearchPanel();
 
-    // Switch to restaurant
-    fireEvent.press(screen.getByLabelText("Select location type"));
-    fireEvent.press(screen.getByLabelText("Restaurant"));
+    // Building type — type and submit
+    const input = screen.getByLabelText("Search building name");
+    fireEvent.changeText(input, "Hall");
+    // Select from autocomplete first
+    fireEvent.press(screen.getByLabelText("Henry F. Hall Building"));
+    fireEvent(screen.getByLabelText("Search building name"), "submitEditing");
 
-    const input = screen.getByLabelText("Search restaurant name");
-    fireEvent.changeText(input, "Sushi");
-    fireEvent(input, "submitEditing");
-
-    expect(props.onSearch).toHaveBeenCalledWith("Sushi", "restaurant");
+    expect(props.onSelectBuilding).toHaveBeenCalledWith(hallBuilding);
   });
 
   // ── useAutocomplete called with correct args ──

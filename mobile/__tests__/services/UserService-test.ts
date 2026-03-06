@@ -13,6 +13,7 @@ const mockFetch = jest.fn();
 globalThis.fetch = mockFetch;
 
 const validTokens: AuthTokens = {
+  clientId: "client-id-456",
   accessToken: "access-123",
   refreshToken: "refresh-456",
   expiresAt: Date.now() + 3_600_000,
@@ -27,6 +28,7 @@ describe("UserService", () => {
   describe("authenticate", () => {
     it("exchanges auth code for tokens and saves them", async () => {
       const serverResponse = {
+        clientId: "client-id-456",
         accessToken: "new-access",
         refreshToken: "new-refresh",
         expiresInSeconds: 3600,

@@ -18,6 +18,7 @@ const mockedPrefs = UserPreferencesService as jest.Mocked<
 const mockedUserService = UserService as jest.Mocked<typeof UserService>;
 
 const mockTokens: AuthTokens = {
+  clientId: "client-id-456",
   accessToken: "access-123",
   refreshToken: "refresh-456",
   expiresAt: Date.now() + 3_600_000,
@@ -28,6 +29,7 @@ const mockUser: User = {
   email: "test@example.com",
   displayName: "Test User",
   avatarUrl: null,
+  studentId: "",
 };
 
 beforeEach(() => {

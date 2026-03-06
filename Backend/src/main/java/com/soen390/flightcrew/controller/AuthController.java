@@ -29,13 +29,13 @@ public class AuthController {
         String clientId = request.get("clientId");
 
         if (authCode == null || authCode.isEmpty()) {
-            throw new IllegalArgumentException("Missing authorization code");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing authorization code");
         }
         if (redirectUri == null || redirectUri.isEmpty()) {
-            throw new IllegalArgumentException("Missing redirect URI");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing redirect URI");
         }
         if (clientId == null || clientId.isEmpty()) {
-            throw new IllegalArgumentException("Missing client ID");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing client ID");
         }
 
         try {
@@ -48,6 +48,29 @@ public class AuthController {
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                     "Google exchange failed: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<GoogleTokenDTO> refreshToken(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+        String clientId = request.get("clientId");
+
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            throw new IllegalArgumentException("Missing refresh token");
+        }
+        if (clientId == null || clientId.isEmpty()) {
+            throw new IllegalArgumentException("Missing client ID");
+        }
+
+        try {
+            GoogleTokenResponse response = googleAuthService.refreshAccessToken(refreshToken, clientId);
+            return ResponseEntity.ok(new GoogleTokenDTO(
+                    response.getAccessToken(),
+                    response.getRefreshToken() != null ? response.getRefreshToken() : refreshToken,
+                    response.getExpiresInSeconds()));
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token refresh failed: " + e.getMessage());
         }
     }
 }

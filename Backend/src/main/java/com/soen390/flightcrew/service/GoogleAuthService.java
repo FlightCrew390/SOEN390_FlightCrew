@@ -20,6 +20,7 @@ public class GoogleAuthService {
 
     public GoogleTokenResponse exchangeCodeForTokens(
             String authCode, String redirectUri, String clientId) throws IOException {
+        String secret = clientId.equals(this.clientId) ? clientSecret : "";
 
         // iOS client IDs are public clients — no secret needed.
         // Use empty string for the secret parameter.
@@ -28,7 +29,7 @@ public class GoogleAuthService {
                 new GsonFactory(),
                 "https://oauth2.googleapis.com/token",
                 clientId,
-                "",
+                secret,
                 authCode,
                 redirectUri).execute();
     }

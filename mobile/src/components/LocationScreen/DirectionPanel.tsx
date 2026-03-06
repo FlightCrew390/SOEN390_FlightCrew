@@ -94,18 +94,20 @@ function StartLocationRow({
 function Tooltip({
   text,
   align = "center",
-}: {
+}: Readonly<{
   text: string;
   align?: "left" | "center" | "right";
-}) {
+}>) {
   const extraStyle = text.length > 15 ? { minWidth: 100 } : { minWidth: 80 };
 
-  const alignStyle =
-    align === "left"
-      ? { left: 0, alignSelf: "flex-start" }
-      : align === "right"
-        ? { right: 0, alignSelf: "flex-end" }
-        : { alignSelf: "center" };
+  let alignStyle;
+  if (align === "left") {
+    alignStyle = { left: 0, alignSelf: "flex-start" };
+  } else if (align === "right") {
+    alignStyle = { right: 0, alignSelf: "flex-end" };
+  } else {
+    alignStyle = { alignSelf: "center" };
+  }
 
   return (
     <View style={[styles.tooltip as any, extraStyle, alignStyle]}>

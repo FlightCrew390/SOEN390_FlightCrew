@@ -59,7 +59,7 @@ public class BuildingInfoService {
             return extractFallbackContent(accessibilityHeader);
 
         } catch (Exception e) {
-            logger.error("Error searching for building info at " + url + ": " + e.getMessage());
+            logger.error("Error searching for building info at {}: {}", url, e.getMessage());
         }
 
         return "N/A";

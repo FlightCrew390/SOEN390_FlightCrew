@@ -8,7 +8,8 @@
       "distribution": "internal",
       "ios": {
         "simulator": true
-      }
+      },
+      "prebuildCommand": "prebuild --npm"
     }
   }
 }

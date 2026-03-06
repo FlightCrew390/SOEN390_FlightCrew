@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import com.soen390.flightcrew.model.Building;
 import com.soen390.flightcrew.model.GoogleGeocodeResponse;
 import com.soen390.flightcrew.service.GoogleMapsService;
+import com.soen390.flightcrew.service.GooglePlaceMatchUtil;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.core.ParameterizedTypeReference;
@@ -128,7 +129,7 @@ public class ConcordiaController {
             String targetName = building.getBuildingLongName() != null
                     ? building.getBuildingLongName()
                     : building.getBuildingName();
-            GoogleGeocodeResponse.PrimaryPlace bestMatch = findBestMatch(targetName,
+            GoogleGeocodeResponse.PrimaryPlace bestMatch = GooglePlaceMatchUtil.findBestMatch(targetName,
                     googleResponse.getDestinations());
 
             if (bestMatch != null && bestMatch.getDisplayName() != null
@@ -140,26 +141,6 @@ public class ConcordiaController {
         } catch (Exception e) {
             logger.warn("Error fetching google info for building {}: {}", building.getBuildingCode(), e.getMessage());
         }
-    }
-
-    private GoogleGeocodeResponse.PrimaryPlace findBestMatch(String targetName,
-            List<GoogleGeocodeResponse.Destination> destinations) {
-        GoogleGeocodeResponse.PrimaryPlace bestMatch = destinations.get(0).getPrimary();
-        if (targetName == null) {
-            return bestMatch;
-        }
-
-        for (GoogleGeocodeResponse.Destination dest : destinations) {
-            if (dest.getPrimary() == null || dest.getPrimary().getDisplayName() == null) {
-                continue;
-            }
-            String destName = dest.getPrimary().getDisplayName().getText();
-            if (destName.toLowerCase().contains(targetName.toLowerCase()) ||
-                    targetName.toLowerCase().contains(destName.toLowerCase())) {
-                return dest.getPrimary();
-            }
-        }
-        return bestMatch;
     }
 
     private void saveToCache(List<Building> buildings) {

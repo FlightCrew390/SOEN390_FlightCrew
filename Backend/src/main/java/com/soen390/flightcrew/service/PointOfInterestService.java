@@ -101,7 +101,7 @@ public class PointOfInterestService {
             }
 
             String targetName = poi.getName();
-            GoogleGeocodeResponse.PrimaryPlace bestMatch = findBestMatch(targetName,
+            GoogleGeocodeResponse.PrimaryPlace bestMatch = GooglePlaceMatchUtil.findBestMatch(targetName,
                     googleResponse.getDestinations());
 
             if (bestMatch != null && bestMatch.getDisplayName() != null
@@ -113,26 +113,6 @@ public class PointOfInterestService {
         } catch (Exception e) {
             logger.warn("Error fetching google info for POI {}: {}", poi.getName(), e.getMessage());
         }
-    }
-
-    private GoogleGeocodeResponse.PrimaryPlace findBestMatch(String targetName,
-            List<GoogleGeocodeResponse.Destination> destinations) {
-        GoogleGeocodeResponse.PrimaryPlace bestMatch = destinations.get(0).getPrimary();
-        if (targetName == null) {
-            return bestMatch;
-        }
-
-        for (GoogleGeocodeResponse.Destination dest : destinations) {
-            if (dest.getPrimary() == null || dest.getPrimary().getDisplayName() == null) {
-                continue;
-            }
-            String destName = dest.getPrimary().getDisplayName().getText();
-            if (destName.toLowerCase().contains(targetName.toLowerCase()) ||
-                    targetName.toLowerCase().contains(destName.toLowerCase())) {
-                return dest.getPrimary();
-            }
-        }
-        return bestMatch;
     }
 
     private void saveToCache(List<PointOfInterest> pois) {

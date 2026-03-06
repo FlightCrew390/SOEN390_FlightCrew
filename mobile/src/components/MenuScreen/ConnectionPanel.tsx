@@ -3,7 +3,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useAuthRequest } from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -14,6 +14,7 @@ import {
   View,
 } from "react-native";
 import { COLORS } from "../../constants";
+import { useCalendar } from "../../contexts/CalendarContext";
 import { useUser } from "../../contexts/UserContext";
 import styles from "../../styles/ConnectionPanelStyle";
 
@@ -40,6 +41,8 @@ const redirectUri =
     ? `${getReversedClientId(IOS_CLIENT_ID)}:/oauthredirect`
     : `com.soen390.flightcrew:/oauthredirect`;
 
+type ActiveFlow = "none" | "signin" | "calendar";
+
 export default function ConnectionPanel() {
   const {
     user,
@@ -52,6 +55,14 @@ export default function ConnectionPanel() {
   } = useUser();
   const [studentId, setStudentId] = useState<string>(user?.studentId ?? "");
   const [isEditing, setIsEditing] = useState(false);
+  const {
+    isConnected: isCalendarConnected,
+    loading: calendarLoading,
+    error: calendarError,
+    connectCalendar,
+    disconnectCalendar,
+  } = useCalendar();
+  const activeFlow = useRef<ActiveFlow>("none");
 
   useEffect(() => {
     if (!isEditing && user?.studentId !== undefined) {
@@ -59,7 +70,7 @@ export default function ConnectionPanel() {
     }
   }, [user?.studentId, isEditing]);
 
-  const [request, response, promptAsync] = useAuthRequest(
+  const [signInRequest, signInResponse, signInPrompt] = useAuthRequest(
     {
       clientId,
       scopes: ["openid", "profile", "email"],
@@ -70,11 +81,55 @@ export default function ConnectionPanel() {
     GOOGLE_AUTH_DISCOVERY,
   );
 
+  const [calendarRequest, calendarResponse, calendarPrompt] = useAuthRequest(
+    {
+      clientId,
+      scopes: [
+        "https://www.googleapis.com/auth/calendar.readonly",
+        "https://www.googleapis.com/auth/calendar.events.readonly",
+      ],
+      responseType: "code",
+      redirectUri,
+      usePKCE: false,
+      extraParams: {
+        access_type: "offline",
+        prompt: "consent",
+      },
+    },
+    GOOGLE_AUTH_DISCOVERY,
+  );
+
   useEffect(() => {
-    if (response?.type === "success" && response.params?.code) {
-      signIn(response.params.code, redirectUri, clientId);
+    if (
+      activeFlow.current === "signin" &&
+      signInResponse?.type === "success" &&
+      signInResponse.params?.code
+    ) {
+      activeFlow.current = "none";
+      signIn(signInResponse.params.code, redirectUri, clientId);
     }
-  }, [response, signIn]);
+  }, [signInResponse, signIn]);
+
+  useEffect(() => {
+    if (
+      activeFlow.current === "calendar" &&
+      calendarResponse?.type === "success" &&
+      calendarResponse.params?.code
+    ) {
+      activeFlow.current = "none";
+      connectCalendar(calendarResponse.params.code, redirectUri, clientId);
+    }
+  }, [calendarResponse, connectCalendar]);
+
+  const handleSignIn = () => {
+    activeFlow.current = "signin";
+    signInPrompt();
+  };
+
+  const handleCalendarConnect = () => {
+    activeFlow.current = "calendar";
+    calendarPrompt();
+  };
 
   if (loading) {
     return (
@@ -88,6 +143,8 @@ export default function ConnectionPanel() {
       </View>
     );
   }
+
+  const displayError = error || calendarError;
 
   return (
     <View style={styles.container} testID="connection-panel">
@@ -132,24 +189,64 @@ export default function ConnectionPanel() {
               </View>
             </View>
 
-            <Pressable
-              style={styles.calendarConnection}
-              onPress={() => {
-                // TODO: Launch Google Calendar OAuth consent flow
-              }}
-              accessibilityLabel="Connect to Google Calendar"
-              accessibilityRole="button"
-            >
-              <FontAwesome6 name="google" size={24} color="black" />
-              <Text style={styles.calendarText}>
-                Connect to Google Calendar
-              </Text>
-              <Feather name="external-link" size={24} color="grey" />
-            </Pressable>
+            {displayError != null && (
+              <View style={styles.errorRow}>
+                <MaterialIcons
+                  name="error-outline"
+                  size={18}
+                  color={COLORS.error}
+                />
+                <Text style={styles.errorText}>{displayError}</Text>
+              </View>
+            )}
+
+            {isCalendarConnected ? (
+              <View style={styles.calendarConnected}>
+                <FontAwesome6 name="google" size={24} color="green" />
+                <Text style={styles.calendarConnectedText}>
+                  Google Calendar connected
+                </Text>
+                <Pressable
+                  onPress={disconnectCalendar}
+                  accessibilityLabel="Disconnect Google Calendar"
+                  accessibilityRole="button"
+                >
+                  <MaterialIcons name="link-off" size={24} color="grey" />
+                </Pressable>
+              </View>
+            ) : (
+              <Pressable
+                style={[
+                  styles.calendarConnection,
+                  (!calendarRequest || calendarLoading) &&
+                    styles.calendarConnectionDisabled,
+                ]}
+                onPress={handleCalendarConnect}
+                disabled={!calendarRequest || calendarLoading}
+                accessibilityLabel="Connect to Google Calendar"
+                accessibilityRole="button"
+              >
+                {calendarLoading ? (
+                  <ActivityIndicator
+                    size="small"
+                    color={COLORS.concordiaMaroon}
+                  />
+                ) : (
+                  <FontAwesome6 name="google" size={24} color="black" />
+                )}
+                <Text style={styles.calendarText}>
+                  Connect to Google Calendar
+                </Text>
+                <Feather name="external-link" size={24} color="grey" />
+              </Pressable>
+            )}
 
             <Pressable
               style={styles.signOutButton}
-              onPress={signOut}
+              onPress={async () => {
+                await disconnectCalendar();
+                await signOut();
+              }}
               accessibilityLabel="Sign out"
               accessibilityRole="button"
             >
@@ -159,23 +256,23 @@ export default function ConnectionPanel() {
           </>
         ) : (
           <>
-            {error != null && (
+            {displayError != null && (
               <View style={styles.errorRow}>
                 <MaterialIcons
                   name="error-outline"
                   size={18}
                   color={COLORS.error}
                 />
-                <Text style={styles.errorText}>{error}</Text>
+                <Text style={styles.errorText}>{displayError}</Text>
               </View>
             )}
             <Pressable
               style={[
                 styles.signInButton,
-                !request && styles.signInButtonDisabled,
+                !signInRequest && styles.signInButtonDisabled,
               ]}
-              onPress={() => promptAsync()}
-              disabled={!request}
+              onPress={handleSignIn}
+              disabled={!signInRequest}
               accessibilityLabel="Sign in with Google"
               accessibilityRole="button"
             >

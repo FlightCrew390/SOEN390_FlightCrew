@@ -13,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import com.soen390.flightcrew.model.Building;
 import com.soen390.flightcrew.model.GoogleGeocodeResponse;
 import com.soen390.flightcrew.service.GoogleMapsService;
-import com.soen390.flightcrew.service.GooglePlaceMatchUtil;
+import com.soen390.flightcrew.util.GooglePlaceMatchUtil;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.core.ParameterizedTypeReference;

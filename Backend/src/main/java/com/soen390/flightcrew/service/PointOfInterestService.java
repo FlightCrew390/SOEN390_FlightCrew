@@ -5,6 +5,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import com.soen390.flightcrew.model.PointOfInterest;
 import com.soen390.flightcrew.model.GoogleGeocodeResponse;
+import com.soen390.flightcrew.util.GooglePlaceMatchUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.File;

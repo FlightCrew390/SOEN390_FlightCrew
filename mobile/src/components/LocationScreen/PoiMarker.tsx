@@ -1,8 +1,10 @@
-import React, { useEffect, useRef } from "react";
-import { MapMarker, Marker } from "react-native-maps";
-import Svg, { Circle, Path } from "react-native-svg";
-import { COLORS, MAP_CONFIG } from "../../constants";
+import React from "react";
+import { Marker } from "react-native-maps";
+import { Circle, Path } from "react-native-svg";
+import { COLORS } from "../../constants";
+import useMarkerCallout from "../../hooks/useMarkerCallout";
 import { PointOfInterest, PoiCategory } from "../../types/PointOfInterest";
+import BaseMarkerIcon from "./BaseMarkerIcon";
 
 interface PoiMarkerProps {
   readonly poi: PointOfInterest;
@@ -83,48 +85,17 @@ function CategoryPaths({ category }: Readonly<{ category: PoiCategory }>) {
   }
 }
 
-/**
- * Pure-SVG marker matching the BuildingMarker visual style.
- * No View wrapper or async icon fonts — renders reliably with tracksViewChanges=false.
- */
-function PoiCustomMarker({ category }: Readonly<{ category: PoiCategory }>) {
-  const { width, height } = MAP_CONFIG.markerSize;
-  const size = { width: width * 1.3, height: height * 1.3 };
-
-  return (
-    <Svg width={size.width} height={size.height} viewBox="0 0 40 40">
-      <Circle cx="20" cy="20" r="14" fill={COLORS.shadowBlack} />
-      <Circle cx="20" cy="16" r="14" stroke={COLORS.white} strokeWidth="4" />
-      <Circle cx="20" cy="16" r="12" fill={COLORS.concordiaBlue} />
-      <CategoryPaths category={category} />
-    </Svg>
-  );
-}
-
 export default function PoiMarker({
   poi,
   isDirectionsOpen = false,
   onPress,
   onDirectionPress,
 }: Readonly<PoiMarkerProps>) {
-  const markerRef = useRef<MapMarker>(null);
-
-  // Auto-show callout when the marker appears (and directions are not open)
-  useEffect(() => {
-    if (markerRef.current && !isDirectionsOpen) {
-      const timer = setTimeout(() => {
-        markerRef.current?.showCallout();
-      }, 900);
-      return () => clearTimeout(timer);
-    }
-  }, [poi, isDirectionsOpen]);
-
-  // Hide callout when directions panel opens so it doesn't overlap
-  useEffect(() => {
-    if (isDirectionsOpen && markerRef.current) {
-      markerRef.current.hideCallout();
-    }
-  }, [isDirectionsOpen]);
+  const markerRef = useMarkerCallout({
+    showCallout: !isDirectionsOpen,
+    hideCallout: isDirectionsOpen,
+    deps: [poi],
+  });
 
   return (
     <Marker
@@ -137,7 +108,9 @@ export default function PoiMarker({
       onCalloutPress={onDirectionPress}
       testID="poi-marker"
     >
-      <PoiCustomMarker category={poi.category} />
+      <BaseMarkerIcon color={COLORS.concordiaBlue} scale={1.3}>
+        <CategoryPaths category={poi.category} />
+      </BaseMarkerIcon>
     </Marker>
   );
 }

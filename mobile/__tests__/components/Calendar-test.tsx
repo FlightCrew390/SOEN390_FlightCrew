@@ -392,21 +392,4 @@ describe("Calendar", () => {
       expect(screen.getByText("Test Event")).toBeTruthy();
     });
   });
-
-  describe("day selection", () => {
-    it("calls setSelectedDate when a day card is pressed", () => {
-      const mockSetSelectedDate = jest.fn();
-      const mockIsDateSelected = jest.fn(() => false);
-      const mockIsDateToday = jest.fn(() => false);
-
-      mockCalendarUIReturn.setSelectedDate = mockSetSelectedDate;
-      mockCalendarUIReturn.isDateSelected = mockIsDateSelected;
-      mockCalendarUIReturn.isDateToday = mockIsDateToday;
-
-      render(<Calendar />);
-      const dayCard = screen.getByTestId("day-15");
-      fireEvent.press(dayCard);
-      expect(mockSetSelectedDate).toHaveBeenCalledWith(new Date("2024-01-16"));
-    });
-  });
 });

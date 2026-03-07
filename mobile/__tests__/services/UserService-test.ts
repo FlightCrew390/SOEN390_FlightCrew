@@ -1,12 +1,17 @@
-import { TokenStorageService } from "../../src/services/TokenStorageService";
+import { userTokenStore } from "../../src/services/TokenStore";
 import { UserService } from "../../src/services/UserService";
 import { AuthTokens } from "../../src/types/User";
 
-jest.mock("../../src/services/TokenStorageService");
-
-const mockedTokenStorage = TokenStorageService as jest.Mocked<
-  typeof TokenStorageService
->;
+jest.mock("../../src/services/TokenStore", () => ({
+  userTokenStore: {
+    saveTokens: jest.fn((tokens: AuthTokens) => Promise.resolve()),
+    getTokens: jest.fn(() => Promise.resolve(null)),
+    clearTokens: jest.fn(() => Promise.resolve()),
+    isExpired: jest.fn((tokens: AuthTokens) => {
+      return false;
+    }),
+  },
+}));
 
 // Mock global fetch
 const mockFetch = jest.fn();
@@ -21,7 +26,6 @@ const validTokens: AuthTokens = {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockedTokenStorage.isExpired.mockReturnValue(false);
 });
 
 describe("UserService", () => {
@@ -39,7 +43,7 @@ describe("UserService", () => {
       });
 
       const before = Date.now();
-      const result = await UserService.authenticate(
+      const result: AuthTokens = await UserService.authenticate(
         "auth-code-123",
         "com.test:/redirect",
         "client-id-456",
@@ -59,7 +63,7 @@ describe("UserService", () => {
       expect(result.accessToken).toBe("new-access");
       expect(result.refreshToken).toBe("new-refresh");
       expect(result.expiresAt).toBeGreaterThanOrEqual(before + 3_600_000);
-      expect(mockedTokenStorage.saveTokens).toHaveBeenCalledWith(result);
+      expect(userTokenStore.saveTokens).toHaveBeenCalledWith(result);
     });
 
     it("throws on non-OK response", async () => {
@@ -122,7 +126,7 @@ describe("UserService", () => {
       await expect(UserService.fetchUser(validTokens)).rejects.toThrow(
         "Session expired",
       );
-      expect(mockedTokenStorage.clearTokens).toHaveBeenCalled();
+      expect(userTokenStore.clearTokens).toHaveBeenCalled();
     });
 
     it("throws on other non-OK responses", async () => {
@@ -138,7 +142,7 @@ describe("UserService", () => {
     it("clears stored tokens", async () => {
       await UserService.signOut();
 
-      expect(mockedTokenStorage.clearTokens).toHaveBeenCalled();
+      expect(userTokenStore.clearTokens).toHaveBeenCalled();
     });
   });
 });

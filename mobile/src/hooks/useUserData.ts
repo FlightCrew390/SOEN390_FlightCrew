@@ -75,7 +75,9 @@ export const useUserData = () => {
         setTokens(newTokens);
         setUser(mergePreferences(fetchedUser, prefs));
       } catch (err) {
-        setError(toErrorMessage(err, "Authentication failed"));
+        setTokens(null);
+        setUser(null);
+        setError(toErrorMessage(err, "Sign-in failed"));
       } finally {
         setLoading(false);
       }

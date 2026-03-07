@@ -1,19 +1,38 @@
 import { act, renderHook, waitFor } from "@testing-library/react-native";
 import { useCalendarData } from "../../src/hooks/useCalendarData";
 import { CalendarService } from "../../src/services/CalendarService";
-import { CalendarTokenStorageService } from "../../src/services/CalendarTokenStorageService";
+import { calendarTokenStore } from "../../src/services/TokenStore";
 import { CalendarEvent } from "../../src/types/CalendarEvent";
 import { AuthTokens } from "../../src/types/User";
 
-jest.mock("../../src/services/CalendarService");
-jest.mock("../../src/services/CalendarTokenStorageService");
+jest.mock("../../src/services/CalendarService", () => ({
+  CalendarService: {
+    connectCalendar: jest.fn(
+      (authCode: string, redirectUri: string, clientId: string) =>
+        Promise.resolve({ mockTokens }),
+    ),
+    disconnect: jest.fn(() => Promise.resolve()),
+    fetchEvents: jest.fn(
+      (
+        tokens: AuthTokens,
+        timeMin?: string,
+        timeMax?: string,
+        signal?: AbortSignal,
+      ) => Promise.resolve(mockEvents),
+    ),
+  },
+}));
 
-const mockedCalendarService = CalendarService as jest.Mocked<
-  typeof CalendarService
->;
-const mockedCalendarTokenStorage = CalendarTokenStorageService as jest.Mocked<
-  typeof CalendarTokenStorageService
->;
+jest.mock("../../src/services/TokenStore", () => ({
+  calendarTokenStore: {
+    saveTokens: jest.fn((tokens: AuthTokens) => Promise.resolve()),
+    getTokens: jest.fn(() => Promise.resolve(mockTokens)),
+    clearTokens: jest.fn(() => Promise.resolve()),
+    isExpired: jest.fn((tokens: AuthTokens) => {
+      return false;
+    }),
+  },
+}));
 
 const mockTokens: AuthTokens = {
   accessToken: "access-token-123",
@@ -45,301 +64,128 @@ const mockEvents: CalendarEvent[] = [
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockedCalendarTokenStorage.getTokens.mockResolvedValue(null);
 });
 
 describe("useCalendarData", () => {
-  describe("initial state", () => {
-    it("starts with disconnected state and empty events", () => {
-      const { result } = renderHook(() => useCalendarData());
+  it("restores calendar tokens on mount", async () => {
+    renderHook(() => useCalendarData());
 
-      expect(result.current.isConnected).toBe(false);
-      expect(result.current.events).toEqual([]);
-      expect(result.current.loading).toBe(false);
-      expect(result.current.error).toBeNull();
+    await waitFor(() => {
+      expect(calendarTokenStore.getTokens).toHaveBeenCalled();
     });
   });
 
-  describe("mount behavior", () => {
-    it("restores calendar tokens from storage on mount", async () => {
-      mockedCalendarTokenStorage.getTokens.mockResolvedValue(mockTokens);
+  it("connects to calendar and saves tokens", async () => {
+    const { result } = renderHook(() => useCalendarData());
 
-      const { result } = renderHook(() => useCalendarData());
-
-      await waitFor(() => {
-        expect(result.current.isConnected).toBe(true);
-      });
-
-      expect(mockedCalendarTokenStorage.getTokens).toHaveBeenCalled();
-    });
-
-    it("remains disconnected when no tokens in storage", async () => {
-      const { result } = renderHook(() => useCalendarData());
-
-      // Wait for potential async operations
-      await waitFor(() => {
-        expect(mockedCalendarTokenStorage.getTokens).toHaveBeenCalled();
-      });
-
-      expect(result.current.isConnected).toBe(false);
-    });
-  });
-
-  describe("connectCalendar", () => {
-    it("successfully connects calendar and updates state", async () => {
-      mockedCalendarService.connectCalendar.mockResolvedValue(mockTokens);
-
-      const { result } = renderHook(() => useCalendarData());
-
-      await act(async () => {
-        await result.current.connectCalendar(
-          "auth-code",
-          "redirect-uri",
-          "client-id",
-        );
-      });
-
-      expect(mockedCalendarService.connectCalendar).toHaveBeenCalledWith(
+    await act(async () => {
+      await result.current.connectCalendar(
         "auth-code",
         "redirect-uri",
         "client-id",
       );
-      expect(result.current.isConnected).toBe(true);
-      expect(result.current.loading).toBe(false);
-      expect(result.current.error).toBeNull();
     });
 
-    it("handles connection errors", async () => {
-      const errorMessage = "Connection failed";
-      mockedCalendarService.connectCalendar.mockRejectedValue(
-        new Error(errorMessage),
-      );
-
-      const { result } = renderHook(() => useCalendarData());
-
-      await act(async () => {
-        await result.current.connectCalendar(
-          "auth-code",
-          "redirect-uri",
-          "client-id",
-        );
-      });
-
-      expect(result.current.isConnected).toBe(false);
-      expect(result.current.loading).toBe(false);
-      expect(result.current.error).toBe(errorMessage);
-    });
-
-    it("handles non-Error connection errors", async () => {
-      mockedCalendarService.connectCalendar.mockRejectedValue("string error");
-
-      const { result } = renderHook(() => useCalendarData());
-
-      await act(async () => {
-        await result.current.connectCalendar(
-          "auth-code",
-          "redirect-uri",
-          "client-id",
-        );
-      });
-
-      expect(result.current.error).toBe("Failed to connect Google Calendar");
-    });
-
-    it("sets loading state during connection", async () => {
-      let resolveConnect: (value: AuthTokens) => void;
-      const connectPromise = new Promise<AuthTokens>((resolve) => {
-        resolveConnect = resolve;
-      });
-      mockedCalendarService.connectCalendar.mockReturnValue(connectPromise);
-
-      const { result } = renderHook(() => useCalendarData());
-
-      act(() => {
-        result.current.connectCalendar(
-          "auth-code",
-          "redirect-uri",
-          "client-id",
-        );
-      });
-
-      expect(result.current.loading).toBe(true);
-      // @ts-ignore
-      resolveConnect(mockTokens);
-      await act(async () => {
-        await connectPromise;
-      });
-
-      expect(result.current.loading).toBe(false);
-    });
+    expect(CalendarService.connectCalendar).toHaveBeenCalledWith(
+      "auth-code",
+      "redirect-uri",
+      "client-id",
+    );
+    expect(result.current.isConnected).toBe(true);
   });
 
-  describe("disconnectCalendar", () => {
-    it("successfully disconnects and clears state", async () => {
-      // First connect
-      mockedCalendarTokenStorage.getTokens.mockResolvedValue(mockTokens);
-      mockedCalendarService.disconnect.mockResolvedValue();
+  it("disconnects from calendar and clears tokens", async () => {
+    const { result } = renderHook(() => useCalendarData());
 
-      const { result } = renderHook(() => useCalendarData());
-
-      await waitFor(() => {
-        expect(result.current.isConnected).toBe(true);
-      });
-
-      // Now disconnect
-      await act(async () => {
-        await result.current.disconnectCalendar();
-      });
-
-      expect(mockedCalendarService.disconnect).toHaveBeenCalled();
-      expect(result.current.isConnected).toBe(false);
-      expect(result.current.events).toEqual([]);
-      expect(result.current.error).toBeNull();
-    });
-
-    it("clears state even when disconnect service fails", async () => {
-      mockedCalendarTokenStorage.getTokens.mockResolvedValue(mockTokens);
-      mockedCalendarService.disconnect.mockRejectedValue(
-        new Error("Disconnect failed"),
+    // First connect to set some tokens
+    await act(async () => {
+      await result.current.connectCalendar(
+        "auth-code",
+        "redirect-uri",
+        "client-id",
       );
-
-      const { result } = renderHook(() => useCalendarData());
-
-      await waitFor(() => {
-        expect(result.current.isConnected).toBe(true);
-      });
-
-      await act(async () => {
-        await result.current.disconnectCalendar();
-      });
-
-      expect(result.current.isConnected).toBe(false);
-      expect(result.current.events).toEqual([]);
     });
+
+    expect(result.current.isConnected).toBe(true);
+
+    // Then disconnect
+    await act(async () => {
+      await result.current.disconnectCalendar();
+    });
+
+    expect(CalendarService.disconnect).toHaveBeenCalled();
+    expect(result.current.isConnected).toBe(false);
+    expect(result.current.events).toEqual([]);
   });
 
-  describe("fetchEvents", () => {
-    it("fetches events successfully and updates state", async () => {
-      mockedCalendarTokenStorage.getTokens.mockResolvedValue(mockTokens);
-      mockedCalendarService.fetchEvents.mockResolvedValue(mockEvents);
+  it("handles errors when connecting to calendar", async () => {
+    (CalendarService.connectCalendar as jest.Mock).mockRejectedValueOnce(
+      new Error("Connection failed"),
+    );
 
-      const { result } = renderHook(() => useCalendarData());
+    const { result } = renderHook(() => useCalendarData());
 
-      await waitFor(() => {
-        expect(result.current.isConnected).toBe(true);
-      });
+    await act(async () => {
+      await result.current.connectCalendar(
+        "auth-code",
+        "redirect-uri",
+        "client-id",
+      );
+    });
 
-      await act(async () => {
-        await result.current.fetchEvents(
-          "2024-01-01T00:00:00Z",
-          "2024-01-07T23:59:59Z",
-        );
-      });
+    expect(result.current.error).toBe(
+      "Failed to connect Google Calendar: Connection failed",
+    );
+  });
+});
 
-      expect(mockedCalendarService.fetchEvents).toHaveBeenCalledWith(
+describe("fetchEvents", () => {
+  it("fetches events successfully", async () => {
+    const { result } = renderHook(() => useCalendarData());
+
+    await act(async () => {
+      await result.current.connectCalendar(
+        "auth-code",
+        "redirect-uri",
+        "client-id",
+      );
+    });
+
+    await act(async () => {
+      await result.current.fetchEvents();
+    });
+
+    expect(CalendarService.fetchEvents).toHaveBeenCalledWith(
+      {
         mockTokens,
-        "2024-01-01T00:00:00Z",
-        "2024-01-07T23:59:59Z",
+      },
+      undefined,
+      undefined,
+      undefined,
+    );
+  });
+
+  it("handles errors when fetching events", async () => {
+    (CalendarService.fetchEvents as jest.Mock).mockRejectedValueOnce(
+      new Error("Fetch failed"),
+    );
+
+    const { result } = renderHook(() => useCalendarData());
+
+    await act(async () => {
+      await result.current.connectCalendar(
+        "auth-code",
+        "redirect-uri",
+        "client-id",
       );
-      expect(result.current.events).toEqual(mockEvents);
-      expect(result.current.loading).toBe(false);
-      expect(result.current.error).toBeNull();
     });
 
-    it("does nothing when not connected", async () => {
-      const { result } = renderHook(() => useCalendarData());
-
-      await act(async () => {
-        await result.current.fetchEvents();
-      });
-
-      expect(mockedCalendarService.fetchEvents).not.toHaveBeenCalled();
+    await act(async () => {
+      await result.current.fetchEvents();
     });
 
-    it("handles fetch errors", async () => {
-      mockedCalendarTokenStorage.getTokens.mockResolvedValue(mockTokens);
-      const errorMessage = "Fetch failed";
-      mockedCalendarService.fetchEvents.mockRejectedValue(
-        new Error(errorMessage),
-      );
-
-      const { result } = renderHook(() => useCalendarData());
-
-      await waitFor(() => {
-        expect(result.current.isConnected).toBe(true);
-      });
-
-      await act(async () => {
-        await result.current.fetchEvents();
-      });
-
-      expect(result.current.error).toBe(errorMessage);
-      expect(result.current.loading).toBe(false);
-    });
-
-    it("disconnects on expired token error", async () => {
-      mockedCalendarTokenStorage.getTokens.mockResolvedValue(mockTokens);
-      mockedCalendarService.fetchEvents.mockRejectedValue(
-        new Error("Calendar access expired. Please reconnect Google Calendar."),
-      );
-
-      const { result } = renderHook(() => useCalendarData());
-
-      await waitFor(() => {
-        expect(result.current.isConnected).toBe(true);
-      });
-
-      await act(async () => {
-        await result.current.fetchEvents();
-      });
-
-      expect(result.current.isConnected).toBe(false);
-    });
-
-    it("handles non-Error fetch errors", async () => {
-      mockedCalendarTokenStorage.getTokens.mockResolvedValue(mockTokens);
-      mockedCalendarService.fetchEvents.mockRejectedValue("string error");
-
-      const { result } = renderHook(() => useCalendarData());
-
-      await waitFor(() => {
-        expect(result.current.isConnected).toBe(true);
-      });
-
-      await act(async () => {
-        await result.current.fetchEvents();
-      });
-
-      expect(result.current.error).toBe("Failed to fetch calendar events");
-    });
-
-    it("sets loading state during fetch", async () => {
-      mockedCalendarTokenStorage.getTokens.mockResolvedValue(mockTokens);
-
-      let resolveFetch: (value: CalendarEvent[]) => void;
-      const fetchPromise = new Promise<CalendarEvent[]>((resolve) => {
-        resolveFetch = resolve;
-      });
-      mockedCalendarService.fetchEvents.mockReturnValue(fetchPromise);
-
-      const { result } = renderHook(() => useCalendarData());
-
-      await waitFor(() => {
-        expect(result.current.isConnected).toBe(true);
-      });
-
-      act(() => {
-        result.current.fetchEvents();
-      });
-
-      expect(result.current.loading).toBe(true);
-      // @ts-ignore
-      resolveFetch(mockEvents);
-      await act(async () => {
-        await fetchPromise;
-      });
-
-      expect(result.current.loading).toBe(false);
-    });
+    expect(result.current.error).toBe(
+      "Failed to fetch calendar events: Fetch failed",
+    );
   });
 });

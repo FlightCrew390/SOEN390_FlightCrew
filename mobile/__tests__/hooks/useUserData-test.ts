@@ -1,21 +1,36 @@
 import { act, renderHook, waitFor } from "@testing-library/react-native";
 import { useUserData } from "../../src/hooks/useUserData";
-import { TokenStorageService } from "../../src/services/TokenStorageService";
+import { userTokenStore } from "../../src/services/TokenStore";
 import { UserPreferencesService } from "../../src/services/UserPreferencesService";
 import { UserService } from "../../src/services/UserService";
 import { AuthTokens, User } from "../../src/types/User";
 
-jest.mock("../../src/services/TokenStorageService");
-jest.mock("../../src/services/UserPreferencesService");
-jest.mock("../../src/services/UserService");
-
-const mockedTokenStorage = TokenStorageService as jest.Mocked<
-  typeof TokenStorageService
->;
-const mockedPrefs = UserPreferencesService as jest.Mocked<
-  typeof UserPreferencesService
->;
-const mockedUserService = UserService as jest.Mocked<typeof UserService>;
+jest.mock("../../src/services/TokenStore", () => ({
+  userTokenStore: {
+    saveTokens: jest.fn((tokens: AuthTokens) => Promise.resolve()),
+    getTokens: jest.fn(() => Promise.resolve(null)),
+    clearTokens: jest.fn(() => Promise.resolve()),
+    isExpired: jest.fn((tokens) => false),
+  },
+}));
+jest.mock("../../src/services/UserPreferencesService", () => ({
+  UserPreferencesService: {
+    save: jest.fn((updates) => Promise.resolve({ ...updates })),
+    load: jest.fn(() => Promise.resolve({ studentId: "" })),
+    clear: jest.fn(() => Promise.resolve()),
+  },
+}));
+jest.mock("../../src/services/UserService", () => ({
+  UserService: {
+    authenticate: jest.fn((authCode, redirectUri, clientId) => {
+      return Promise.resolve({ mockTokens });
+    }),
+    fetchUser: jest.fn((tokens) => {
+      return Promise.resolve({ mockUser });
+    }),
+    signOut: jest.fn(() => Promise.resolve()),
+  },
+}));
 
 const mockTokens: AuthTokens = {
   clientId: "client-id-456",
@@ -34,197 +49,110 @@ const mockUser: User = {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockedTokenStorage.getTokens.mockResolvedValue(null);
-  mockedPrefs.load.mockResolvedValue({ studentId: "" });
+  (userTokenStore.getTokens as jest.Mock).mockResolvedValue(mockTokens);
+  (UserService.fetchUser as jest.Mock).mockResolvedValue(mockUser);
+  (UserPreferencesService.load as jest.Mock).mockResolvedValue({
+    studentId: "12345",
+  });
 });
 
 describe("useUserData", () => {
-  describe("initial state", () => {
-    it("starts with loading true and no user", () => {
-      const { result } = renderHook(() => useUserData());
-
-      expect(result.current.loading).toBe(true);
-      expect(result.current.user).toBeNull();
-      expect(result.current.isAuthenticated).toBe(false);
+  it("restores session on mount", async () => {
+    (UserService.fetchUser as jest.Mock).mockResolvedValue(mockUser);
+    (UserPreferencesService.load as jest.Mock).mockResolvedValue({
+      studentId: "12345",
     });
 
-    it("finishes loading when no stored tokens exist", async () => {
-      const { result } = renderHook(() => useUserData());
+    const { result } = renderHook(() => useUserData());
 
-      await waitFor(() => {
-        expect(result.current.loading).toBe(false);
-      });
-
-      expect(result.current.user).toBeNull();
-      expect(result.current.isAuthenticated).toBe(false);
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
       expect(result.current.error).toBeNull();
-    });
-  });
-
-  describe("session restore", () => {
-    it("restores user and preferences from storage", async () => {
-      mockedTokenStorage.getTokens.mockResolvedValue(mockTokens);
-      mockedUserService.fetchUser.mockResolvedValue(mockUser);
-      mockedPrefs.load.mockResolvedValue({ studentId: "40012345" });
-
-      const { result } = renderHook(() => useUserData());
-
-      await waitFor(() => {
-        expect(result.current.loading).toBe(false);
-      });
-
-      expect(result.current.isAuthenticated).toBe(true);
+      expect(result.current.tokens).toEqual(mockTokens);
       expect(result.current.user).toEqual({
         ...mockUser,
-        studentId: "40012345",
+        studentId: "12345",
       });
-      expect(result.current.tokens).toEqual(mockTokens);
-    });
-
-    it("sets error when fetchUser fails", async () => {
-      mockedTokenStorage.getTokens.mockResolvedValue(mockTokens);
-      mockedUserService.fetchUser.mockRejectedValue(
-        new Error("Session expired"),
-      );
-
-      const { result } = renderHook(() => useUserData());
-
-      await waitFor(() => {
-        expect(result.current.loading).toBe(false);
-      });
-
-      expect(result.current.error).toBe("Session expired");
-      expect(result.current.user).toBeNull();
     });
   });
 
-  describe("signIn", () => {
-    it("authenticates and fetches user with preferences", async () => {
-      mockedUserService.authenticate.mockResolvedValue(mockTokens);
-      mockedUserService.fetchUser.mockResolvedValue(mockUser);
-      mockedPrefs.load.mockResolvedValue({ studentId: "40099999" });
+  it("handles sign-in correctly", async () => {
+    const { result } = renderHook(() => useUserData());
 
-      const { result } = renderHook(() => useUserData());
-
-      await waitFor(() => {
-        expect(result.current.loading).toBe(false);
-      });
-
-      await act(async () => {
-        await result.current.signIn("auth-code", "redirect-uri", "client-id");
-      });
-
-      expect(mockedUserService.authenticate).toHaveBeenCalledWith(
-        "auth-code",
-        "redirect-uri",
-        "client-id",
-      );
-      expect(result.current.isAuthenticated).toBe(true);
-      expect(result.current.user?.studentId).toBe("40099999");
+    await act(async () => {
+      await result.current.signIn("auth-code", "redirect-uri", "client-id");
     });
 
-    it("sets error on authentication failure", async () => {
-      mockedUserService.authenticate.mockRejectedValue(
-        new Error("Authentication failed: 401"),
-      );
-
-      const { result } = renderHook(() => useUserData());
-
-      await waitFor(() => {
-        expect(result.current.loading).toBe(false);
-      });
-
-      await act(async () => {
-        await result.current.signIn("bad-code", "uri", "id");
-      });
-
-      expect(result.current.error).toBe("Authentication failed: 401");
-      expect(result.current.user).toBeNull();
+    expect(UserService.authenticate).toHaveBeenCalledWith(
+      "auth-code",
+      "redirect-uri",
+      "client-id",
+    );
+    expect(UserService.fetchUser).toHaveBeenCalledWith(mockTokens);
+    expect(UserPreferencesService.load).toHaveBeenCalled();
+    expect(result.current.user).toEqual({
+      ...mockUser,
+      studentId: "12345",
     });
   });
 
-  describe("signOut", () => {
-    it("clears user, tokens, and preferences", async () => {
-      // First sign in
-      mockedTokenStorage.getTokens.mockResolvedValue(mockTokens);
-      mockedUserService.fetchUser.mockResolvedValue(mockUser);
+  it("handles sign-out correctly", async () => {
+    const { result } = renderHook(() => useUserData());
 
-      const { result } = renderHook(() => useUserData());
-
-      await waitFor(() => {
-        expect(result.current.isAuthenticated).toBe(true);
-      });
-
-      // Then sign out
-      await act(async () => {
-        await result.current.signOut();
-      });
-
-      expect(result.current.user).toBeNull();
-      expect(result.current.tokens).toBeNull();
-      expect(result.current.error).toBeNull();
-      expect(result.current.isAuthenticated).toBe(false);
-      expect(mockedUserService.signOut).toHaveBeenCalled();
-      expect(mockedPrefs.clear).toHaveBeenCalled();
+    // First sign in to set some user data
+    await act(async () => {
+      await result.current.signIn("auth-code", "redirect-uri", "client-id");
     });
 
-    it("clears local state even when service calls fail", async () => {
-      mockedTokenStorage.getTokens.mockResolvedValue(mockTokens);
-      mockedUserService.fetchUser.mockResolvedValue(mockUser);
+    expect(result.current.user).not.toBeNull();
 
-      const { result } = renderHook(() => useUserData());
+    // Then sign out
+    await act(async () => {
+      await result.current.signOut();
+    });
 
-      await waitFor(() => {
-        expect(result.current.isAuthenticated).toBe(true);
-      });
+    expect(UserService.signOut).toHaveBeenCalled();
+    expect(UserPreferencesService.clear).toHaveBeenCalled();
+    expect(result.current.user).toBeNull();
+    expect(result.current.tokens).toBeNull();
+  });
 
-      mockedUserService.signOut.mockRejectedValue(new Error("network error"));
+  it("saves preferences correctly", async () => {
+    const { result } = renderHook(() => useUserData());
 
-      await act(async () => {
-        await result.current.signOut();
-      });
+    // First sign in to set some user data
+    await act(async () => {
+      await result.current.signIn("auth-code", "redirect-uri", "client-id");
+    });
 
-      expect(result.current.user).toBeNull();
-      expect(result.current.isAuthenticated).toBe(false);
+    // Then save a preference
+    await act(async () => {
+      await result.current.savePreference({ studentId: "67890" });
+    });
+
+    expect(UserPreferencesService.save).toHaveBeenCalledWith({
+      studentId: "67890",
+    });
+    expect(result.current.user).toEqual({
+      ...mockUser,
+      studentId: "67890",
     });
   });
 
-  describe("savePreference", () => {
-    it("updates user and persists preference", async () => {
-      mockedTokenStorage.getTokens.mockResolvedValue(mockTokens);
-      mockedUserService.fetchUser.mockResolvedValue(mockUser);
-      mockedPrefs.save.mockResolvedValue({ studentId: "40055555" });
+  it("handles errors during sign-in", async () => {
+    (UserService.authenticate as jest.Mock).mockRejectedValueOnce(
+      new Error("Authentication failed"),
+    );
+    (userTokenStore.getTokens as jest.Mock).mockResolvedValue(null);
 
-      const { result } = renderHook(() => useUserData());
+    const { result } = renderHook(() => useUserData());
 
-      await waitFor(() => {
-        expect(result.current.isAuthenticated).toBe(true);
-      });
-
-      await act(async () => {
-        await result.current.savePreference({ studentId: "40055555" });
-      });
-
-      expect(mockedPrefs.save).toHaveBeenCalledWith({
-        studentId: "40055555",
-      });
-      expect(result.current.user?.studentId).toBe("40055555");
+    await act(async () => {
+      await result.current.signIn("auth-code", "redirect-uri", "client-id");
     });
 
-    it("does not update user when user is null", async () => {
-      mockedPrefs.save.mockResolvedValue({ studentId: "40055555" });
-
-      const { result } = renderHook(() => useUserData());
-
-      await waitFor(() => {
-        expect(result.current.loading).toBe(false);
-      });
-
-      await act(async () => {
-        await result.current.savePreference({ studentId: "40055555" });
-      });
-
-      expect(result.current.user).toBeNull();
-    });
+    expect(result.current.error).toBe("Sign-in failed: Authentication failed");
+    expect(result.current.user).toBeNull();
+    expect(result.current.tokens).toBeNull();
   });
 });

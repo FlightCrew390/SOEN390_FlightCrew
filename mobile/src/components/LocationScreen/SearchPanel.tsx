@@ -15,6 +15,7 @@ import {
   initialSearchPanelState,
   searchPanelReducer,
 } from "../../reducers/searchPanelReducer";
+import { LOCATION_OPTIONS, RADIUS_OPTIONS } from "../../constants/searchPanel";
 import { LocationType, isPoi } from "../../state/SearchPanelState";
 import styles from "../../styles/SearchPanel";
 import { Building } from "../../types/Building";
@@ -29,22 +30,6 @@ interface SearchPanelProps {
   ) => void;
   readonly onSelectBuilding: (building: Building) => void;
 }
-
-const LOCATION_OPTIONS: { key: LocationType; label: string }[] = [
-  { key: "building", label: "Campus Building" },
-  { key: "cafe", label: "Cafe" },
-  { key: "restaurant", label: "Restaurant" },
-  { key: "pharmacy", label: "Pharmacy" },
-  { key: "bar", label: "Bar" },
-  { key: "grocery", label: "Grocery" },
-];
-
-const RADIUS_OPTIONS: { value: number | null; label: string }[] = [
-  { value: null, label: "No limit" },
-  { value: 1, label: "1 km" },
-  { value: 2, label: "2 km" },
-  { value: 5, label: "5 km" },
-];
 
 function LocationTypeDropdown({
   selectedLabel,

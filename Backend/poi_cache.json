@@ -1,1 +1,212 @@
-[{"Name":"Café Gentile","Category":"cafe","Campus":"SGW","Address":"4126 Ste-Catherine St W, Montreal, QC","Latitude":45.496,"Longitude":-73.5795,"Description":"Italian-style café with espresso, pastries, and light meals","Google_Place_Info":null},{"Name":"Tim Hortons (Guy St)","Category":"cafe","Campus":"SGW","Address":"1432 Guy St, Montreal, QC","Latitude":45.4968,"Longitude":-73.5787,"Description":"Canadian coffee chain with donuts and quick bites","Google_Place_Info":null},{"Name":"Starbucks (Ste-Catherine)","Category":"cafe","Campus":"SGW","Address":"1500 Ste-Catherine St W, Montreal, QC","Latitude":45.4953,"Longitude":-73.5775,"Description":"Popular coffee chain with specialty drinks","Google_Place_Info":null},{"Name":"La Belle & La Boeuf","Category":"restaurant","Campus":"SGW","Address":"1595 Blvd De Maisonneuve W, Montreal, QC","Latitude":45.4963,"Longitude":-73.579,"Description":"Burger bar with gourmet burgers and cocktails","Google_Place_Info":null},{"Name":"Boustan (Guy St)","Category":"restaurant","Campus":"SGW","Address":"2020 Guy St, Montreal, QC","Latitude":45.4975,"Longitude":-73.5793,"Description":"Lebanese restaurant known for shawarma and falafel","Google_Place_Info":null},{"Name":"Burger King (Ste-Catherine)","Category":"restaurant","Campus":"SGW","Address":"1510 Ste-Catherine St W, Montreal, QC","Latitude":45.4953,"Longitude":-73.5778,"Description":"Fast-food chain with flame-grilled burgers","Google_Place_Info":null},{"Name":"Subway (Peel)","Category":"restaurant","Campus":"SGW","Address":"2055 Peel St, Montreal, QC","Latitude":45.4979,"Longitude":-73.5774,"Description":"Sandwich chain with build-your-own subs","Google_Place_Info":null},{"Name":"Jean Coutu (Ste-Catherine)","Category":"pharmacy","Campus":"SGW","Address":"1675 Ste-Catherine St W, Montreal, QC","Latitude":45.4942,"Longitude":-73.5806,"Description":"Pharmacy and convenience store","Google_Place_Info":null},{"Name":"Pharmaprix (Guy)","Category":"pharmacy","Campus":"SGW","Address":"1500 Guy St, Montreal, QC","Latitude":45.4946,"Longitude":-73.5781,"Description":"Pharmacy with health and beauty products","Google_Place_Info":null},{"Name":"Bar Brutus","Category":"bar","Campus":"SGW","Address":"1290 Ste-Catherine St W, Montreal, QC","Latitude":45.496,"Longitude":-73.5756,"Description":"Craft beer bar with rotating taps","Google_Place_Info":null},{"Name":"IGA Express","Category":"grocery","Campus":"SGW","Address":"2100 Guy St, Montreal, QC","Latitude":45.4982,"Longitude":-73.5797,"Description":"Compact grocery store for quick shopping","Google_Place_Info":null},{"Name":"Tim Hortons (Sherbrooke W)","Category":"cafe","Campus":"LOY","Address":"7141 Sherbrooke St W, Montreal, QC","Latitude":45.458,"Longitude":-73.64,"Description":"Canadian coffee chain near Loyola campus","Google_Place_Info":null},{"Name":"Second Cup (NDG)","Category":"cafe","Campus":"LOY","Address":"5551 Monkland Ave, Montreal, QC","Latitude":45.4729,"Longitude":-73.6218,"Description":"Canadian specialty coffee chain","Google_Place_Info":null},{"Name":"A&W (Sherbrooke)","Category":"restaurant","Campus":"LOY","Address":"6225 Sherbrooke St W, Montreal, QC","Latitude":45.4612,"Longitude":-73.6313,"Description":"Fast-food chain known for root beer and burgers","Google_Place_Info":null},{"Name":"McDonalds (Sherbrooke)","Category":"restaurant","Campus":"LOY","Address":"6930 Sherbrooke St W, Montreal, QC","Latitude":45.4589,"Longitude":-73.6379,"Description":"Global fast-food chain","Google_Place_Info":null},{"Name":"Chez Teta","Category":"restaurant","Campus":"LOY","Address":"6900 Sherbrooke St W, Montreal, QC","Latitude":45.459,"Longitude":-73.6375,"Description":"Middle Eastern cuisine with homestyle cooking","Google_Place_Info":null},{"Name":"Thai Express (Monkland)","Category":"restaurant","Campus":"LOY","Address":"5523 Monkland Ave, Montreal, QC","Latitude":45.4729,"Longitude":-73.6215,"Description":"Thai fast-casual restaurant","Google_Place_Info":null},{"Name":"Jean Coutu (Sherbrooke)","Category":"pharmacy","Campus":"LOY","Address":"7070 Sherbrooke St W, Montreal, QC","Latitude":45.4584,"Longitude":-73.6392,"Description":"Pharmacy and convenience store near campus","Google_Place_Info":null},{"Name":"Pharmaprix (NDG)","Category":"pharmacy","Campus":"LOY","Address":"5510 Monkland Ave, Montreal, QC","Latitude":45.473,"Longitude":-73.6211,"Description":"Pharmacy with health and beauty products","Google_Place_Info":null},{"Name":"Ye Olde Orchard Pub","Category":"bar","Campus":"LOY","Address":"5563 Monkland Ave, Montreal, QC","Latitude":45.4728,"Longitude":-73.622,"Description":"Classic pub with live music and pub food","Google_Place_Info":null},{"Name":"IGA (Sherbrooke)","Category":"grocery","Campus":"LOY","Address":"6800 Sherbrooke St W, Montreal, QC","Latitude":45.4592,"Longitude":-73.6365,"Description":"Full-service grocery store","Google_Place_Info":null}]
+[
+  {
+    "Name": "Café Gentile",
+    "Category": "cafe",
+    "Campus": "SGW",
+    "Address": "4126 Ste-Catherine St W, Montreal, QC",
+    "Latitude": 45.496,
+    "Longitude": -73.5795,
+    "Description": "Italian-style café with espresso, pastries, and light meals",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "Tim Hortons (Guy St)",
+    "Category": "cafe",
+    "Campus": "SGW",
+    "Address": "1432 Guy St, Montreal, QC",
+    "Latitude": 45.4968,
+    "Longitude": -73.5787,
+    "Description": "Canadian coffee chain with donuts and quick bites",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "Starbucks (Ste-Catherine)",
+    "Category": "cafe",
+    "Campus": "SGW",
+    "Address": "1500 Ste-Catherine St W, Montreal, QC",
+    "Latitude": 45.4953,
+    "Longitude": -73.5775,
+    "Description": "Popular coffee chain with specialty drinks",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "La Belle & La Boeuf",
+    "Category": "restaurant",
+    "Campus": "SGW",
+    "Address": "1595 Blvd De Maisonneuve W, Montreal, QC",
+    "Latitude": 45.4963,
+    "Longitude": -73.579,
+    "Description": "Burger bar with gourmet burgers and cocktails",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "Boustan (Guy St)",
+    "Category": "restaurant",
+    "Campus": "SGW",
+    "Address": "2020 Guy St, Montreal, QC",
+    "Latitude": 45.4975,
+    "Longitude": -73.5793,
+    "Description": "Lebanese restaurant known for shawarma and falafel",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "Burger King (Ste-Catherine)",
+    "Category": "restaurant",
+    "Campus": "SGW",
+    "Address": "1510 Ste-Catherine St W, Montreal, QC",
+    "Latitude": 45.4953,
+    "Longitude": -73.5778,
+    "Description": "Fast-food chain with flame-grilled burgers",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "Subway (Peel)",
+    "Category": "restaurant",
+    "Campus": "SGW",
+    "Address": "2055 Peel St, Montreal, QC",
+    "Latitude": 45.4979,
+    "Longitude": -73.5774,
+    "Description": "Sandwich chain with build-your-own subs",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "Jean Coutu (Ste-Catherine)",
+    "Category": "pharmacy",
+    "Campus": "SGW",
+    "Address": "1675 Ste-Catherine St W, Montreal, QC",
+    "Latitude": 45.4942,
+    "Longitude": -73.5806,
+    "Description": "Pharmacy and convenience store",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "Pharmaprix (Guy)",
+    "Category": "pharmacy",
+    "Campus": "SGW",
+    "Address": "1500 Guy St, Montreal, QC",
+    "Latitude": 45.4946,
+    "Longitude": -73.5781,
+    "Description": "Pharmacy with health and beauty products",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "Bar Brutus",
+    "Category": "bar",
+    "Campus": "SGW",
+    "Address": "1290 Ste-Catherine St W, Montreal, QC",
+    "Latitude": 45.496,
+    "Longitude": -73.5756,
+    "Description": "Craft beer bar with rotating taps",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "IGA Express",
+    "Category": "grocery",
+    "Campus": "SGW",
+    "Address": "2100 Guy St, Montreal, QC",
+    "Latitude": 45.4982,
+    "Longitude": -73.5797,
+    "Description": "Compact grocery store for quick shopping",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "Tim Hortons (Sherbrooke W)",
+    "Category": "cafe",
+    "Campus": "LOY",
+    "Address": "7141 Sherbrooke St W, Montreal, QC",
+    "Latitude": 45.458,
+    "Longitude": -73.64,
+    "Description": "Canadian coffee chain near Loyola campus",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "Second Cup (NDG)",
+    "Category": "cafe",
+    "Campus": "LOY",
+    "Address": "5551 Monkland Ave, Montreal, QC",
+    "Latitude": 45.4729,
+    "Longitude": -73.6218,
+    "Description": "Canadian specialty coffee chain",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "A&W (Sherbrooke)",
+    "Category": "restaurant",
+    "Campus": "LOY",
+    "Address": "6225 Sherbrooke St W, Montreal, QC",
+    "Latitude": 45.4612,
+    "Longitude": -73.6313,
+    "Description": "Fast-food chain known for root beer and burgers",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "McDonalds (Sherbrooke)",
+    "Category": "restaurant",
+    "Campus": "LOY",
+    "Address": "6930 Sherbrooke St W, Montreal, QC",
+    "Latitude": 45.4589,
+    "Longitude": -73.6379,
+    "Description": "Global fast-food chain",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "Chez Teta",
+    "Category": "restaurant",
+    "Campus": "LOY",
+    "Address": "6900 Sherbrooke St W, Montreal, QC",
+    "Latitude": 45.459,
+    "Longitude": -73.6375,
+    "Description": "Middle Eastern cuisine with homestyle cooking",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "Thai Express (Monkland)",
+    "Category": "restaurant",
+    "Campus": "LOY",
+    "Address": "5523 Monkland Ave, Montreal, QC",
+    "Latitude": 45.4729,
+    "Longitude": -73.6215,
+    "Description": "Thai fast-casual restaurant",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "Jean Coutu (Sherbrooke)",
+    "Category": "pharmacy",
+    "Campus": "LOY",
+    "Address": "7070 Sherbrooke St W, Montreal, QC",
+    "Latitude": 45.4584,
+    "Longitude": -73.6392,
+    "Description": "Pharmacy and convenience store near campus",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "Pharmaprix (NDG)",
+    "Category": "pharmacy",
+    "Campus": "LOY",
+    "Address": "5510 Monkland Ave, Montreal, QC",
+    "Latitude": 45.473,
+    "Longitude": -73.6211,
+    "Description": "Pharmacy with health and beauty products",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "Ye Olde Orchard Pub",
+    "Category": "bar",
+    "Campus": "LOY",
+    "Address": "5563 Monkland Ave, Montreal, QC",
+    "Latitude": 45.4728,
+    "Longitude": -73.622,
+    "Description": "Classic pub with live music and pub food",
+    "Google_Place_Info": null
+  },
+  {
+    "Name": "IGA (Sherbrooke)",
+    "Category": "grocery",
+    "Campus": "LOY",
+    "Address": "6800 Sherbrooke St W, Montreal, QC",
+    "Latitude": 45.4592,
+    "Longitude": -73.6365,
+    "Description": "Full-service grocery store",
+    "Google_Place_Info": null
+  }
+]

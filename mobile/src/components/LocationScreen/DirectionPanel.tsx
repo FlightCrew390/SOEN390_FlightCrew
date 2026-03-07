@@ -2,9 +2,16 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useState } from "react";
-import { Animated, Pressable, ScrollView, Text, View } from "react-native";
+import {
+  Animated,
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 
-import { COLORS } from "../../constants";
+import { COLORS, METRO_ACCESS_BUILDINGS } from "../../constants";
 import { usePanelAnimation } from "../../hooks/usePanelAnimation";
 import styles from "../../styles/DirectionPanel";
 import { Building } from "../../types/Building";
@@ -197,6 +204,25 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
                 >
                   <MaterialIcons name="elevator" size={22} color="#2E7D32" />
                   {activeTooltip === "Elevator" && <Tooltip text="Elevator" />}
+                </Pressable>
+              )}
+              {METRO_ACCESS_BUILDINGS.includes(building.buildingCode) && (
+                <Pressable
+                  onPress={() => handlePress("Metro Access")}
+                  style={{
+                    marginRight: 10,
+                    alignItems: "center",
+                    zIndex: 10,
+                  }}
+                >
+                  <Image
+                    source={require("../../../assets/metro.png")}
+                    style={{ width: 22, height: 22 }}
+                    resizeMode="contain"
+                  />
+                  {activeTooltip === "Metro Access" && (
+                    <Tooltip text="Metro Access" />
+                  )}
                 </Pressable>
               )}
             </>

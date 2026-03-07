@@ -140,7 +140,7 @@ export default function WeeklyGrid({
   }, []);
 
   return (
-    <View style={styles.weeklyContainer}>
+    <View style={styles.weeklyContainer} testID="weekly-grid-container">
       <WeeklyDayHeader
         weekDates={weekDates}
         getDayLetter={getDayLetter}

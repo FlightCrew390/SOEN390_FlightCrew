@@ -68,6 +68,7 @@ export class BuildingDataService {
           address: building.Address,
           latitude: building.Latitude,
           longitude: building.Longitude,
+          accessibilityInfo: building.Accessibility_Info,
           structureType:
             (building.Google_Place_Info?.structureType as StructureType) ||
             StructureType.Point,

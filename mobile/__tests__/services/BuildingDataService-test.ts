@@ -193,3 +193,18 @@ test("returns empty polygons when no displayPolygon", async () => {
 
   expect(result[0].polygons).toEqual([]);
 });
+
+test("maps Accessibility_Info field correctly", async () => {
+  const apiBuilding = createApiBuilding({
+    Accessibility_Info: "Some accessibility info",
+  });
+
+  mockFetch.mockResolvedValueOnce({
+    ok: true,
+    json: async () => [apiBuilding],
+  });
+
+  const result = await BuildingDataService.fetchBuildings();
+
+  expect(result[0].accessibilityInfo).toBe("Some accessibility info");
+});

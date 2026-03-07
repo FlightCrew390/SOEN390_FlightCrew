@@ -12,6 +12,8 @@ const mockBuilding: Building = {
   buildingName: "Hall",
   buildingLongName: "Henry F. Hall Building",
   address: "1455 De Maisonneuve Blvd. W.",
+  accessibilityInfo:
+    "Wheelchair accessible entrance at 1455 De Maisonneuve Blvd. W.",
   latitude: 45.4973,
   longitude: -73.5789,
 };
@@ -22,6 +24,7 @@ const mockBuilding2: Building = {
   buildingCode: "CC",
   buildingName: "Central",
   buildingLongName: "Central Building",
+  accessibilityInfo: "Wheelchair accessible entrance at 7141 Sherbrooke St. W.",
   address: "7141 Sherbrooke St. W.",
   latitude: 45.458,
   longitude: -73.64,

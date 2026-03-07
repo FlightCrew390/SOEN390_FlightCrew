@@ -156,6 +156,8 @@ const mockBuildings: Building[] = [
     address: "1455 De Maisonneuve Blvd. W.",
     latitude: 45.4973,
     longitude: -73.5789,
+    accessibilityInfo:
+      "Wheelchair accessible entrance at 1455 De Maisonneuve Blvd. W.",
   },
   {
     structureType: StructureType.Building,
@@ -167,6 +169,8 @@ const mockBuildings: Building[] = [
     address: "1515 St. Catherine W.",
     latitude: 45.4957,
     longitude: -73.5773,
+    accessibilityInfo:
+      "Wheelchair accessible entrance at 1515 St. Catherine W.",
   },
 ];
 

@@ -14,6 +14,8 @@ const mockBuildings: Building[] = [
     address: "1455 De Maisonneuve Blvd. W.",
     latitude: 45.4973,
     longitude: -73.5789,
+    accessibilityInfo:
+      "Wheelchair accessible entrance at 1455 De Maisonneuve Blvd. W.",
   },
   {
     structureType: StructureType.Building,
@@ -24,6 +26,8 @@ const mockBuildings: Building[] = [
     address: "7141 Sherbrooke St. W.",
     latitude: 45.4582,
     longitude: -73.6405,
+    accessibilityInfo:
+      "Wheelchair accessible entrance at 7141 Sherbrooke St. W.",
   },
 ];
 
@@ -122,6 +126,7 @@ describe("findCurrentBuilding", () => {
         address: "Unknown",
         latitude: undefined as unknown as number,
         longitude: undefined as unknown as number,
+        accessibilityInfo: "N/A",
       },
       mockBuildings[0],
     ];

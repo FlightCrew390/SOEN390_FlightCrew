@@ -208,6 +208,7 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
               )}
               {METRO_ACCESS_BUILDINGS.includes(building.buildingCode) && (
                 <Pressable
+                  testID="btn-metro-access"
                   onPress={() => handlePress("Metro Access")}
                   style={{
                     marginRight: 10,

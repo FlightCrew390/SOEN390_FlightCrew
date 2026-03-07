@@ -124,15 +124,23 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
       <View style={styles.addressRow}>
         <Text style={styles.buildingAddress}>{building.address}</Text>
       </View>
-      {building.structureType === StructureType.Point ? (
-        building.description ? (
-          <Text style={styles.buildingDetail}>{building.description}</Text>
-        ) : null
-      ) : (
-        <Text style={styles.buildingDetail}>
-          Building Code: {building.buildingCode}
-        </Text>
-      )}
+      {/* Extracted nested ternary for maintainability */}
+      {(() => {
+        if (building.structureType === StructureType.Point) {
+          if (building.description) {
+            return (
+              <Text style={styles.buildingDetail}>{building.description}</Text>
+            );
+          }
+          return null;
+        } else {
+          return (
+            <Text style={styles.buildingDetail}>
+              Building Code: {building.buildingCode}
+            </Text>
+          );
+        }
+      })()}
       <Text style={styles.buildingDetail}>
         Campus: {building.campus === "SGW" ? "Sir George Williams" : "Loyola"}
       </Text>

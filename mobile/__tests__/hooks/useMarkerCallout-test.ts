@@ -1,5 +1,6 @@
 import { renderHook, act } from "@testing-library/react-native";
 import useMarkerCallout from "../../src/hooks/useMarkerCallout";
+import type { UseMarkerCalloutOptions } from "../../src/hooks/useMarkerCallout";
 
 jest.mock("react-native-maps", () => ({ MapMarker: {} }));
 
@@ -33,7 +34,7 @@ describe("useMarkerCallout", () => {
 
   it("calls showCallout after 900 ms when showCallout becomes true", () => {
     const { result, rerender } = renderHook(
-      (props) => useMarkerCallout(props),
+      (props: UseMarkerCalloutOptions) => useMarkerCallout(props),
       { initialProps: { showCallout: false, hideCallout: false } },
     );
 
@@ -57,7 +58,7 @@ describe("useMarkerCallout", () => {
 
   it("cancels the timer when showCallout flips back to false before 900 ms", () => {
     const { result, rerender } = renderHook(
-      (props) => useMarkerCallout(props),
+      (props: UseMarkerCalloutOptions) => useMarkerCallout(props),
       { initialProps: { showCallout: false, hideCallout: false } },
     );
 
@@ -71,7 +72,7 @@ describe("useMarkerCallout", () => {
 
   it("calls hideCallout immediately when hideCallout becomes true", () => {
     const { result, rerender } = renderHook(
-      (props) => useMarkerCallout(props),
+      (props: UseMarkerCalloutOptions) => useMarkerCallout(props),
       { initialProps: { showCallout: false, hideCallout: false } },
     );
 
@@ -94,7 +95,7 @@ describe("useMarkerCallout", () => {
     const dep2 = { id: 2 };
 
     const { result, rerender } = renderHook(
-      (props) => useMarkerCallout(props),
+      (props: UseMarkerCalloutOptions) => useMarkerCallout(props),
       {
         initialProps: {
           showCallout: false,

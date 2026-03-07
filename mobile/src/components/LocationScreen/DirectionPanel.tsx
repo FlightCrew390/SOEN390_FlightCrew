@@ -5,7 +5,7 @@ import { Animated, Pressable, ScrollView, Text, View } from "react-native";
 import { COLORS } from "../../constants";
 import { usePanelAnimation } from "../../hooks/usePanelAnimation";
 import styles from "../../styles/DirectionPanel";
-import { Building } from "../../types/Building";
+import { Building, StructureType } from "../../types/Building";
 import { RouteInfo, TravelMode } from "../../types/Directions";
 import { formatDistance, formatDuration } from "../../utils/formatHelper";
 import RouteStatusDisplay from "./RouteStatusDisplay";
@@ -99,9 +99,15 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
       <View style={styles.addressRow}>
         <Text style={styles.buildingAddress}>{building.address}</Text>
       </View>
-      <Text style={styles.buildingDetail}>
-        Building Code: {building.buildingCode}
-      </Text>
+      {building.structureType === StructureType.Point ? (
+        building.description ? (
+          <Text style={styles.buildingDetail}>{building.description}</Text>
+        ) : null
+      ) : (
+        <Text style={styles.buildingDetail}>
+          Building Code: {building.buildingCode}
+        </Text>
+      )}
       <Text style={styles.buildingDetail}>
         Campus: {building.campus === "SGW" ? "Sir George Williams" : "Loyola"}
       </Text>

@@ -8,8 +8,9 @@ import { useMapCamera } from "../../hooks/useMapCamera";
 import { useMapUI } from "../../hooks/useMapUI";
 import { LocationType } from "../../state/SearchPanelState";
 import styles from "../../styles/GoogleMaps";
-import { Building, StructureType } from "../../types/Building";
+import { Building } from "../../types/Building";
 import { PointOfInterest } from "../../types/PointOfInterest";
+import { poiToBuilding } from "../../utils/poiUtils";
 import BuildingLayer from "./BuildingLayer";
 import DirectionPanel from "./DirectionPanel";
 import MapControls from "./MapControls";
@@ -23,20 +24,6 @@ import UserLocationMarker from "./UserLocationMarker";
 interface GoogleMapsProps {
   readonly mapRef?: React.RefObject<MapView | null>;
   readonly onRecenter?: () => void;
-}
-
-/** Convert a PointOfInterest to a minimal Building object for the directions flow. */
-function poiToBuilding(poi: PointOfInterest): Building {
-  return {
-    campus: poi.campus,
-    buildingCode: poi.name,
-    buildingName: poi.name,
-    buildingLongName: poi.name,
-    address: poi.address,
-    latitude: poi.latitude,
-    longitude: poi.longitude,
-    structureType: StructureType.Point,
-  };
 }
 
 export default function GoogleMaps({

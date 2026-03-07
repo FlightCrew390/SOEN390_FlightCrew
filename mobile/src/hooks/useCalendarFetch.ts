@@ -6,26 +6,37 @@ interface UseCalendarFetchParams {
   /** The 7 dates currently displayed. Used to derive timeMin/timeMax. */
   weekDates: Date[];
   /** Callback into the context to fetch events for a time range. */
-  fetchEvents: (timeMin?: string, timeMax?: string) => Promise<void>;
+  fetchEvents: (
+    timeMin?: string,
+    timeMax?: string,
+    signal?: AbortSignal,
+  ) => Promise<void>;
+  /** Whether the user is authenticated, used to trigger refetch on login. */
+  isAuthenticated: boolean;
 }
 
 /**
- * Auto-fetches calendar events whenever the visible week or connection
- * state changes, following the useDirections pattern.
+ * Auto-fetches calendar events whenever the visible week, connection
+ * state, or authentication state changes.
+ *
+ * The AbortController signal is threaded all the way down to the
+ * underlying fetch call so that stale requests are genuinely cancelled.
  */
 export function useCalendarFetch({
   isConnected,
   weekDates,
   fetchEvents,
+  isAuthenticated,
 }: UseCalendarFetchParams) {
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    if (!isConnected || weekDates.length === 0) return;
+    if (!isConnected || !isAuthenticated || weekDates.length === 0) return;
 
     // Derive the ISO time bounds for the displayed week
     const timeMin = weekDates[0].toISOString();
-    const weekEnd = new Date(weekDates.at(weekDates.length - 1)!);
+    const lastDay = weekDates[weekDates.length - 1];
+    const weekEnd = new Date(lastDay);
     weekEnd.setDate(weekEnd.getDate() + 1); // end of last day
     const timeMax = weekEnd.toISOString();
 
@@ -34,22 +45,12 @@ export function useCalendarFetch({
     const controller = new AbortController();
     abortRef.current = controller;
 
-    let cancelled = false;
-
-    const doFetch = async () => {
-      try {
-        await fetchEvents(timeMin, timeMax);
-      } catch {
-        // Errors are handled by useCalendarData via its own state
-      }
-    };
-
-    if (!cancelled) doFetch();
+    fetchEvents(timeMin, timeMax, controller.signal).catch(() => {
+      // Errors are surfaced via useCalendarData state
+    });
 
     return () => {
-      cancelled = true;
       controller.abort();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchEvents is stable from context
-  }, [isConnected, weekDates]);
+  }, [isConnected, isAuthenticated, weekDates, fetchEvents]);
 }

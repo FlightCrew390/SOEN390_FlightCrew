@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { MapMarker } from "react-native-maps";
 
-interface UseMarkerCalloutOptions {
+export interface UseMarkerCalloutOptions {
   /** When true the callout is auto-shown after a short delay. */
   showCallout: boolean;
   /** When true a previously visible callout is hidden. */

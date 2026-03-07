@@ -23,20 +23,16 @@ export const useUserData = () => {
 
     const restoreSession = async () => {
       try {
-        console.log("Attempting to restore session...");
         const storedTokens = await TokenStorageService.getTokens();
         if (!storedTokens) {
-          console.log("No stored tokens found");
           if (isMounted) setLoading(false);
           return;
         }
-        console.log("Stored tokens found, fetching user data...");
 
         const [fetchedUser, prefs] = await Promise.all([
           UserService.fetchUser(storedTokens),
           UserPreferencesService.load(),
         ]);
-        console.log("User data fetched successfully");
 
         if (isMounted) {
           setTokens(storedTokens);

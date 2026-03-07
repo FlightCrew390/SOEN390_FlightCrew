@@ -1,7 +1,8 @@
 import { API_CONFIG } from "../constants";
 import { CalendarEvent } from "../types/CalendarEvent";
 import { AuthTokens } from "../types/User";
-import { CalendarTokenStorageService } from "./CalendarTokenStorageService";
+import { ensureValidTokens } from "./EnsureValidTokens";
+import { calendarTokenStore } from "./TokenStore";
 
 const API_BASE_URL = API_CONFIG.getBaseUrl();
 
@@ -32,20 +33,24 @@ export class CalendarService {
       clientId,
     };
 
-    await CalendarTokenStorageService.saveTokens(tokens);
+    await calendarTokenStore.saveTokens(tokens);
     return tokens;
   }
 
   /**
    * Fetch calendar events from the backend.
-   * The backend proxies the request to Google Calendar API.
+   * Accepts an optional AbortSignal so callers can cancel in-flight requests.
    */
   static async fetchEvents(
     calendarTokens: AuthTokens,
     timeMin?: string,
     timeMax?: string,
+    signal?: AbortSignal,
   ): Promise<CalendarEvent[]> {
-    const validTokens = await CalendarService.ensureValidTokens(calendarTokens);
+    const validTokens = await ensureValidTokens(
+      calendarTokens,
+      calendarTokenStore,
+    );
 
     const params = new URLSearchParams();
     if (timeMin) params.set("timeMin", timeMin);
@@ -57,11 +62,12 @@ export class CalendarService {
       headers: {
         Authorization: `Bearer ${validTokens.accessToken}`,
       },
+      signal,
     });
 
     if (!response.ok) {
       if (response.status === 401) {
-        await CalendarTokenStorageService.clearTokens();
+        await calendarTokenStore.clearTokens();
         throw new Error(
           "Calendar access expired. Please reconnect Google Calendar.",
         );
@@ -76,44 +82,6 @@ export class CalendarService {
    * Disconnect Google Calendar — clear stored calendar tokens.
    */
   static async disconnect(): Promise<void> {
-    await CalendarTokenStorageService.clearTokens();
-  }
-
-  /**
-   * Refresh calendar tokens if expired.
-   */
-  private static async ensureValidTokens(
-    tokens: AuthTokens,
-  ): Promise<AuthTokens> {
-    if (!CalendarTokenStorageService.isExpired(tokens)) {
-      return tokens;
-    }
-
-    const response = await fetch(`${API_BASE_URL}/v1/auth/refresh`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        refreshToken: tokens.refreshToken,
-        clientId: tokens.clientId,
-      }),
-    });
-
-    if (!response.ok) {
-      await CalendarTokenStorageService.clearTokens();
-      throw new Error(
-        "Calendar access expired. Please reconnect Google Calendar.",
-      );
-    }
-
-    const data = await response.json();
-    const refreshed: AuthTokens = {
-      accessToken: data.accessToken,
-      refreshToken: data.refreshToken ?? tokens.refreshToken,
-      expiresAt: Date.now() + data.expiresInSeconds * 1000,
-      clientId: tokens.clientId,
-    };
-
-    await CalendarTokenStorageService.saveTokens(refreshed);
-    return refreshed;
+    await calendarTokenStore.clearTokens();
   }
 }

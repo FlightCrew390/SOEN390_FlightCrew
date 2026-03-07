@@ -1,94 +1,18 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import {
-  Pressable,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { TabActions, useNavigation } from "@react-navigation/native";
+import { useCallback } from "react";
+import { Pressable, Text, TouchableOpacity, View } from "react-native";
 import { COLORS } from "../../constants";
 import { useCalendar } from "../../contexts/CalendarContext";
+import { useUser } from "../../contexts/UserContext";
 import { useCalendarFetch } from "../../hooks/useCalendarFetch";
 import { useCalendarUI } from "../../hooks/useCalendarUI";
 import styles from "../../styles/Calendar";
 import { CalendarEvent } from "../../types/CalendarEvent";
-import { formatTime } from "../../utils/formatHelper";
+import DailyEventList from "./DailyEventList";
 import EventDetailPanel from "./EventDetailPanel";
+import WeekDayCard from "./WeekDayCard";
 import WeeklyGrid from "./WeeklyGrid";
-
-function WeekDayCard({
-  date,
-  isSelected,
-  isToday,
-  dayLetter,
-  onPress,
-}: Readonly<{
-  date: Date;
-  isSelected: boolean;
-  isToday: boolean;
-  dayLetter: string;
-  onPress: () => void;
-}>) {
-  return (
-    <TouchableOpacity
-      style={[
-        styles.dayCard,
-        isSelected && styles.dayCardSelected,
-        !isSelected && isToday && styles.dayCardCurrent,
-      ]}
-      onPress={onPress}
-      testID={`day-${date.getDate()}`}
-    >
-      <Text
-        style={[
-          styles.dayDate,
-          isSelected && styles.dayDateSelected,
-          !isSelected && isToday && styles.dayDateCurrent,
-        ]}
-      >
-        {date.getDate()}
-      </Text>
-      <Text
-        style={[
-          styles.dayLetter,
-          isSelected && styles.dayLetterSelected,
-          !isSelected && isToday && styles.dayLetterCurrent,
-        ]}
-      >
-        {dayLetter}
-      </Text>
-    </TouchableOpacity>
-  );
-}
-
-function EventItem({
-  event,
-  onPress,
-}: Readonly<{ event: CalendarEvent; onPress: () => void }>) {
-  const startTime = formatTime(event.start);
-  const endTime = formatTime(event.end);
-
-  return (
-    <Pressable
-      style={styles.eventItem}
-      testID={`event-${event.id}`}
-      onPress={onPress}
-    >
-      <View style={styles.eventContent}>
-        <Text style={styles.eventSummary}>{event.summary}</Text>
-        <Text style={styles.eventDetails}>
-          {event.allDay ? "All day" : `${startTime} - ${endTime}`}
-        </Text>
-        {!!event.location && (
-          <Text style={styles.eventDetails}>{event.location}</Text>
-        )}
-      </View>
-      <MaterialIcons name="chevron-right" size={30} color="black" />
-    </Pressable>
-  );
-}
-
-/* ── Main component ── */
 
 export default function Calendar() {
   const { events, loading, error, isConnected, fetchEvents } = useCalendar();
@@ -110,37 +34,55 @@ export default function Calendar() {
     navigateWeekForward,
   } = useCalendarUI(events);
 
-  // Auto-fetch events when week or connection state changes
-  useCalendarFetch({ isConnected, weekDates, fetchEvents });
+  const { isAuthenticated } = useUser();
+
+  const navigation = useNavigation();
+
+  // Auto-fetch events when week, auth, or connection state changes
+  useCalendarFetch({ isConnected, weekDates, fetchEvents, isAuthenticated });
+
+  /**
+   * Navigate to the location/map tab and request directions to the
+   * selected event's location. GoogleMaps will resolve the free-text
+   * location to a building and open the directions panel.
+   */
+  const handleDirections = useCallback(
+    (event: CalendarEvent) => {
+      clearSelectedEvent();
+
+      if (!event.location) return;
+
+      const jumpAction = TabActions.jumpTo("location", {
+        directionsTo: event.location,
+      });
+      navigation.dispatch(jumpAction);
+    },
+    [clearSelectedEvent, navigation],
+  );
 
   const isWeekly = viewMode === "weekly";
 
-  const sortedEvents = [...eventsForSelectedDate].sort(
-    (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime(),
-  );
-
-  let dailyContent;
-  if (!isConnected) {
-    dailyContent = (
-      <Text style={styles.emptyText}>
-        Connect Google Calendar to see your events
-      </Text>
-    );
-  } else if (loading) {
-    dailyContent = <Text style={styles.emptyText}>Loading events…</Text>;
-  } else if (error) {
-    dailyContent = <Text style={styles.errorText}>{error}</Text>;
-  } else if (sortedEvents.length > 0) {
-    dailyContent = sortedEvents.map((event) => (
-      <EventItem
-        key={event.id}
-        event={event}
-        onPress={() => selectEvent(event)}
-      />
-    ));
-  } else {
-    dailyContent = (
-      <Text style={styles.emptyText}>No events scheduled for this day</Text>
+  if (!isAuthenticated) {
+    return (
+      <View style={styles.container} testID="calendar-component">
+        <View style={styles.panel}>
+          <Text style={styles.title}>My Schedule</Text>
+          <View style={styles.notAuthenticated}>
+            <Text style={styles.emptyText}>
+              Connect Google Calendar to see your events
+            </Text>
+            <Pressable
+              style={styles.navToMenuButton}
+              onPress={() => navigation.dispatch(TabActions.jumpTo("menu"))}
+              accessibilityLabel="Go to menu to connect calendar"
+              accessibilityRole="button"
+            >
+              <Text style={styles.navToMenuButtonText}>To Menu</Text>
+              <MaterialIcons name="menu" size={16} color={COLORS.white} />
+            </Pressable>
+          </View>
+        </View>
+      </View>
     );
   }
 
@@ -149,6 +91,7 @@ export default function Calendar() {
       <View style={styles.panel}>
         <Text style={styles.title}>My Schedule</Text>
 
+        {/* ── Header ── */}
         <View style={styles.headerRow}>
           <Text style={styles.monthText}>{currentMonth}</Text>
           <Pressable
@@ -179,6 +122,7 @@ export default function Calendar() {
           </Pressable>
         </View>
 
+        {/* ── Week strip ── */}
         <View
           style={[
             styles.weekContainer,
@@ -225,6 +169,7 @@ export default function Calendar() {
           </TouchableOpacity>
         </View>
 
+        {/* ── Event content ── */}
         {isWeekly ? (
           <WeeklyGrid
             weekDates={weekDates}
@@ -234,7 +179,13 @@ export default function Calendar() {
             onEventPress={selectEvent}
           />
         ) : (
-          <ScrollView style={styles.events}>{dailyContent}</ScrollView>
+          <DailyEventList
+            isConnected={isConnected}
+            loading={loading}
+            error={error}
+            events={eventsForSelectedDate}
+            onEventPress={selectEvent}
+          />
         )}
       </View>
 
@@ -242,8 +193,7 @@ export default function Calendar() {
         event={selectedEvent}
         onClose={clearSelectedEvent}
         onDirections={() => {
-          // TODO: navigate to directions for event.location
-          clearSelectedEvent();
+          if (selectedEvent) handleDirections(selectedEvent);
         }}
       />
     </View>

@@ -71,13 +71,21 @@ export function useCalendarUI(events: CalendarEvent[]) {
     [events, weekDates],
   );
 
-  const getDayLetter = (date: Date): string => DAY_LETTERS[date.getDay()];
+  const getDayLetter = useCallback(
+    (date: Date): string => DAY_LETTERS[date.getDay()],
+    [],
+  );
 
-  const isDateSelected = (date: Date): boolean =>
-    date.toDateString() === selectedDate.toDateString();
+  const isDateSelected = useCallback(
+    (date: Date): boolean =>
+      date.toDateString() === selectedDate.toDateString(),
+    [selectedDate],
+  );
 
-  const isDateToday = (date: Date): boolean =>
-    date.toDateString() === new Date().toDateString();
+  const isDateToday = useCallback(
+    (date: Date): boolean => date.toDateString() === new Date().toDateString(),
+    [],
+  );
 
   const toggleViewMode = useCallback(
     () => setViewMode((prev) => (prev === "daily" ? "weekly" : "daily")),
@@ -95,6 +103,17 @@ export function useCalendarUI(events: CalendarEvent[]) {
 
   const clearSelectedEvent = useCallback(() => setSelectedEvent(null), []);
 
+  // Use functional updates to avoid stale closure over weekOffset
+  const navigateWeekBack = useCallback(
+    () => setWeekOffset((prev) => prev - 1),
+    [],
+  );
+
+  const navigateWeekForward = useCallback(
+    () => setWeekOffset((prev) => prev + 1),
+    [],
+  );
+
   return {
     selectedDate,
     setSelectedDate,
@@ -111,7 +130,7 @@ export function useCalendarUI(events: CalendarEvent[]) {
     getDayLetter,
     isDateSelected,
     isDateToday,
-    navigateWeekBack: () => setWeekOffset(weekOffset - 1),
-    navigateWeekForward: () => setWeekOffset(weekOffset + 1),
+    navigateWeekBack,
+    navigateWeekForward,
   };
 }

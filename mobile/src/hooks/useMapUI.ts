@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer } from "react";
 import { initialMapUIState, mapUIReducer } from "../reducers/mapUIReducer";
 import { LocationType } from "../state/SearchPanelState";
 import { Building } from "../types/Building";
@@ -42,12 +42,16 @@ export function useMapUI(
   );
 
   // ── Derived user coordinates ──
-  const userCoords: UserCoords | null = location
-    ? {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-    }
-    : null;
+  const userCoords: UserCoords | null = useMemo(
+    () =>
+      location
+        ? {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        }
+        : null,
+    [location?.coords.latitude, location?.coords.longitude],
+  );
 
   // ── Wire direction fetching ──
   useDirections({
@@ -110,12 +114,7 @@ export function useMapUI(
 
     const eligible = isShuttleEligible(originCampus, destCampus);
     dispatch({ type: "SET_SHUTTLE_ELIGIBLE", eligible });
-  }, [
-    state.panel,
-    state.selectedBuilding,
-    state.startBuilding,
-    userCoords,
-  ]);
+  }, [state.panel, state.selectedBuilding, state.startBuilding, userCoords]);
 
   // ── Handlers ──
   const selectBuilding = useCallback((building: Building) => {

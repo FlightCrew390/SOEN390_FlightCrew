@@ -318,17 +318,46 @@ export default function DirectionPanel({
                   }
                 />
               ))}
-              <TransportCard
-                key="SHUTTLE"
-                icon={require("../../../assets/shuttle.png")}
-                label="Shuttle"
-                isActive={travelMode === "SHUTTLE"}
-                duration={getDuration("SHUTTLE")}
-                disabled={!shuttleEligible}
-                onPress={() =>
-                  onTravelModeChange(travelMode === "SHUTTLE" ? null : "SHUTTLE")
+              <Pressable
+                style={[
+                  styles.transportCard,
+                  travelMode === "SHUTTLE" && styles.transportCardActive,
+                  !shuttleEligible && styles.transportCardDisabled,
+                ]}
+                onPress={
+                  !shuttleEligible
+                    ? undefined
+                    : () =>
+                      onTravelModeChange(
+                        travelMode === "SHUTTLE" ? null : "SHUTTLE",
+                      )
                 }
-              />
+                disabled={!shuttleEligible}
+                accessibilityLabel="Get directions by Shuttle"
+                accessibilityRole="button"
+                accessibilityState={{ disabled: !shuttleEligible }}
+              >
+                <MaterialCommunityIcons
+                  name="bus"
+                  size={36}
+                  color={
+                    !shuttleEligible
+                      ? "#B0B0B0"
+                      : travelMode === "SHUTTLE"
+                        ? "#9C2D2D"
+                        : "#6B6B6B"
+                  }
+                />
+                <Text
+                  style={[
+                    styles.transportTime,
+                    travelMode === "SHUTTLE" && styles.transportTimeActive,
+                    !shuttleEligible && styles.transportTimeDisabled,
+                  ]}
+                >
+                  {!shuttleEligible ? "N/A" : getDuration("SHUTTLE")}
+                </Text>
+              </Pressable>
             </View>
 
             <RouteStatusDisplay loading={routeLoading} error={routeError} />
@@ -341,8 +370,7 @@ export default function DirectionPanel({
                 <View style={styles.errorRow}>
                   <MaterialIcons name="info-outline" size={18} color="#888" />
                   <Text style={styles.shuttleUnavailableText}>
-                    Shuttle is not available at the selected time. Please try a
-                    different departure time.
+                    Shuttle is not available at the selected time. Please try another transport method.
                   </Text>
                 </View>
               )}

@@ -19,7 +19,11 @@ export default function RoutePolyline({
   return (
     <Polyline
       coordinates={route.coordinates}
-      strokeColor={COLORS.mapPolylineWalk}
+      strokeColor={
+        travelMode === "SHUTTLE"
+          ? COLORS.concordiaMaroon
+          : COLORS.mapPolylineWalk
+      }
       strokeWidth={5}
       lineDashPattern={travelMode === "WALK" ? [8, 6] : undefined}
     />

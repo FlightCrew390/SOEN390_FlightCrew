@@ -14,8 +14,15 @@ export default function TransitBadge({ transit }: Readonly<TransitBadgeProps>) {
   const departureParsed = parseTime(transit.departureTime);
   const arrivalParsed = parseTime(transit.arrivalTime);
 
+  const isShuttle = transit.lineName === "Concordia Shuttle";
+
   return (
-    <View style={styles.transitBadge}>
+    <View
+      style={[
+        styles.transitBadge,
+        isShuttle && { backgroundColor: COLORS.concordiaMaroon },
+      ]}
+    >
       <View style={styles.transitLineRow}>
         <MaterialIcons
           name={getManeuverIcon(transit.vehicleType)}

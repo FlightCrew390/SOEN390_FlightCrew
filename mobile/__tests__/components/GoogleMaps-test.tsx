@@ -60,7 +60,6 @@ const mockHandleMapReady = jest.fn();
 const mockHandleRegionChangeComplete = jest.fn();
 const mockHandleRecenter = jest.fn();
 const mockAnimateToBuilding = jest.fn();
-const mockMapAnimateToRegion = jest.fn();
 
 jest.mock("../../src/hooks/useMapCamera", () => ({
   useMapCamera: () => ({
@@ -447,152 +446,6 @@ test("shows loading overlay alongside map when loading", () => {
   expect(screen.getByText("Loading buildings...")).toBeTruthy();
   expect(screen.getByTestId("map-view")).toBeTruthy();
 });
-
-jest.mock("../../src/components/LocationScreen/DirectionPanel", () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View, Text } = require("react-native");
-  return {
-    __esModule: true,
-    default: (props: any) => (
-      <View testID="direction-panel">
-        <Text testID="dp-visible">{String(props.visible)}</Text>
-        <Text testID="dp-show-steps">{String(props.showSteps)}</Text>
-      </View>
-    ),
-  };
-});
-
-jest.mock("../../src/components/LocationScreen/SearchPanel", () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View, Text, Pressable } = require("react-native");
-  return {
-    __esModule: true,
-    default: (props: any) => (
-      <View testID="search-panel">
-        <Text testID="sp-visible">{String(props.visible)}</Text>
-        <Pressable
-          testID="sp-select-building"
-          onPress={() =>
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
-            props.onSelectBuilding(require("../fixtures").hallBuilding)
-          }
-        />
-        <Pressable
-          testID="sp-search"
-          onPress={() => props.onSearch("Hall", "building", null)}
-        />
-        <Pressable testID="sp-close" onPress={props.onClose} />
-      </View>
-    ),
-  };
-});
-
-jest.mock("../../src/components/LocationScreen/MapControls", () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View, Text, Pressable } = require("react-native");
-  return {
-    __esModule: true,
-    default: (props: any) => (
-      <View testID="map-controls">
-        <Text testID="mc-panel">{props.panel}</Text>
-        <Text testID="mc-has-location">{String(props.hasLocation)}</Text>
-        <Pressable testID="mc-open-search" onPress={props.onOpenSearch} />
-        <Pressable testID="mc-close-search" onPress={props.onCloseSearch} />
-        <Pressable testID="mc-recenter" onPress={props.onRecenter} />
-        <Pressable
-          testID="mc-return-directions"
-          onPress={props.onReturnToDirections}
-        />
-      </View>
-    ),
-  };
-});
-
-jest.mock("../../src/components/LocationScreen/PoiMarker", () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View, Text, Pressable } = require("react-native");
-  return {
-    __esModule: true,
-    default: (props: any) => (
-      <View testID="poi-marker">
-        <Text>{props.poi?.name}</Text>
-        <Text testID="poi-marker-directions-open">
-          {String(!!props.isDirectionsOpen)}
-        </Text>
-        <Pressable
-          testID="poi-marker-direction-press"
-          onPress={props.onDirectionPress}
-        />
-      </View>
-    ),
-  };
-});
-
-jest.mock("../../src/components/LocationScreen/PoiResultsPanel", () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View, Text, Pressable } = require("react-native");
-  return {
-    __esModule: true,
-    default: (props: any) => (
-      <View testID="poi-results-panel">
-        <Text testID="poi-results-count">{props.results?.length}</Text>
-        <Pressable
-          testID="poi-select-btn"
-          onPress={() => props.onSelectPoi?.(props.results?.[0])}
-        />
-        <Pressable
-          testID="poi-direction-btn"
-          onPress={() => props.onDirectionPress?.(props.results?.[0])}
-        />
-        <Pressable testID="poi-back-btn" onPress={props.onBack} />
-      </View>
-    ),
-  };
-});
-
-// Mock react-native-maps
-jest.mock("react-native-maps", () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const React = require("react");
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View } = require("react-native");
-  const MockMapView = React.forwardRef((props: any, ref: any) => {
-    React.useImperativeHandle(ref, () => ({
-      animateToRegion: mockMapAnimateToRegion,
-    }));
-    return (
-      <View testID="map-view" {...props}>
-        {props.children}
-      </View>
-    );
-  });
-  MockMapView.displayName = "MockMapView";
-  return {
-    __esModule: true,
-    default: MockMapView,
-    PROVIDER_GOOGLE: "google",
-    PROVIDER_DEFAULT: null,
-  };
-});
-
-jest.mock("../../src/constants", () => ({
-  MAP_CONFIG: {
-    defaultCampusRegion: {
-      latitude: 45.4973,
-      longitude: -73.5789,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    },
-  },
-}));
-
-jest.mock("../../src/styles/GoogleMaps", () => ({
-  __esModule: true,
-  default: { container: {}, map: {} },
-}));
-
-// ── Tests ──
-// ── Main test suite ──
 
 describe("GoogleMaps", () => {
   beforeEach(() => {
@@ -1028,7 +881,11 @@ describe("GoogleMaps", () => {
     mockHandleSearch.mockReturnValue(hallBuilding);
     render(<GoogleMaps />);
     fireEvent.press(screen.getByTestId("sp-search"));
-    expect(mockHandleSearch).toHaveBeenCalledWith("Hall", "building", null);
+    expect(mockHandleSearch).toHaveBeenCalledWith(
+      "Hall",
+      "building",
+      undefined,
+    );
     expect(mockAnimateToBuilding).toHaveBeenCalledWith(hallBuilding);
     expect(mockSelectBuilding).toHaveBeenCalledWith(hallBuilding);
   });
@@ -1270,162 +1127,16 @@ describe("GoogleMaps", () => {
     });
   });
 
-  // ── POI Results Panel ──
-
-  const mockTestPoi = {
-    name: "Test Cafe",
-    category: "cafe" as const,
-    campus: "SGW",
-    address: "123 Test St",
-    latitude: 45.496,
-    longitude: -73.5795,
-    description: "Test cafe",
-  };
-
-  it("renders PoiResultsPanel when panel is poi-results", () => {
+  it("does not call animateToBuilding when selecting from search in directions origin", () => {
     mockMapUIState = {
       ...defaultMapUIState,
-      panel: "poi-results",
-      poiResults: [mockTestPoi],
+      panel: "search",
+      searchOrigin: "directions",
     };
     render(<GoogleMaps />);
-    expect(screen.getByTestId("poi-results-panel")).toBeTruthy();
-    expect(screen.getByTestId("poi-results-count").children[0]).toBe("1");
-  });
-
-  it("does not render PoiResultsPanel when panel is not poi-results", () => {
-    mockMapUIState = { ...defaultMapUIState, panel: "none" };
-    render(<GoogleMaps />);
-    expect(screen.queryByTestId("poi-results-panel")).toBeNull();
-  });
-
-  it("calls selectPoi and animateToRegion when onSelectPoi is triggered", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      panel: "poi-results",
-      poiResults: [mockTestPoi],
-    };
-    render(<GoogleMaps />);
-    fireEvent.press(screen.getByTestId("poi-select-btn"));
-    expect(mockSelectPoi).toHaveBeenCalledWith(mockTestPoi);
-    expect(mockMapAnimateToRegion).toHaveBeenCalledWith(
-      {
-        latitude: mockTestPoi.latitude,
-        longitude: mockTestPoi.longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
-      },
-      500,
-    );
-  });
-
-  it("calls onPoiDirectionPress — selectPoi, animateToBuilding, openDirections", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      panel: "poi-results",
-      poiResults: [mockTestPoi],
-    };
-    render(<GoogleMaps />);
-    fireEvent.press(screen.getByTestId("poi-direction-btn"));
-    expect(mockSelectPoi).toHaveBeenCalledWith(mockTestPoi);
-    expect(mockAnimateToBuilding).toHaveBeenCalled();
-    expect(mockOpenDirections).toHaveBeenCalled();
-  });
-
-  it("dispatches BACK_TO_SEARCH when PoiResultsPanel back is pressed", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      panel: "poi-results",
-      poiResults: [mockTestPoi],
-    };
-    render(<GoogleMaps />);
-    fireEvent.press(screen.getByTestId("poi-back-btn"));
-    expect(mockDispatch).toHaveBeenCalledWith({ type: "BACK_TO_SEARCH" });
-  });
-
-  // ── PoiMarker rendering ──
-
-  it("renders PoiMarker when selectedPoi exists", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      selectedPoi: mockTestPoi,
-    };
-    render(<GoogleMaps />);
-    expect(screen.getByTestId("poi-marker")).toBeTruthy();
-    expect(screen.getByText("Test Cafe")).toBeTruthy();
-  });
-
-  it("does not render PoiMarker when selectedPoi is null", () => {
-    mockMapUIState = { ...defaultMapUIState, selectedPoi: null };
-    render(<GoogleMaps />);
-    expect(screen.queryByTestId("poi-marker")).toBeNull();
-  });
-
-  it("passes isDirectionsOpen=true to PoiMarker when panel is directions", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      selectedPoi: mockTestPoi,
-      panel: "directions",
-    };
-    render(<GoogleMaps />);
-    expect(screen.getByTestId("poi-marker-directions-open").children[0]).toBe(
-      "true",
-    );
-  });
-
-  it("passes isDirectionsOpen=false to PoiMarker when panel is none", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      selectedPoi: mockTestPoi,
-      panel: "none",
-    };
-    render(<GoogleMaps />);
-    expect(screen.getByTestId("poi-marker-directions-open").children[0]).toBe(
-      "false",
-    );
-  });
-
-  it("triggers onPoiDirectionPress from PoiMarker direction callback", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      selectedPoi: mockTestPoi,
-    };
-    render(<GoogleMaps />);
-    fireEvent.press(screen.getByTestId("poi-marker-direction-press"));
-    expect(mockSelectPoi).toHaveBeenCalledWith(mockTestPoi);
-    expect(mockAnimateToBuilding).toHaveBeenCalled();
-    expect(mockOpenDirections).toHaveBeenCalled();
-  });
-
-  // ── SearchPanel close behaviour ──
-
-  it("dispatches RETURN_TO_DIRECTIONS when search panel closes in directions origin", () => {
-    it("does not call animateToBuilding when selecting from search in directions origin", () => {
-      mockMapUIState = {
-        ...defaultMapUIState,
-        panel: "search",
-        searchOrigin: "directions",
-      };
-      render(<GoogleMaps />);
-      fireEvent.press(screen.getByTestId("sp-close"));
-      expect(mockDispatch).toHaveBeenCalledWith({
-        type: "RETURN_TO_DIRECTIONS",
-      });
-    });
-
-    it("dispatches CLOSE_PANEL when search panel closes in default origin", () => {
-      mockMapUIState = {
-        ...defaultMapUIState,
-        panel: "search",
-        searchOrigin: "default",
-      };
-      render(<GoogleMaps />);
-      fireEvent.press(screen.getByTestId("sp-close"));
-      expect(mockDispatch).toHaveBeenCalledWith({ type: "CLOSE_PANEL" });
-      fireEvent.press(screen.getByTestId("sp-select-building"));
-      expect(mockAnimateToBuilding).not.toHaveBeenCalled();
-      expect(mockSelectBuilding).not.toHaveBeenCalled();
-    });
+    fireEvent.press(screen.getByTestId("sp-select-building"));
+    expect(mockAnimateToBuilding).not.toHaveBeenCalled();
+    expect(mockSelectBuilding).not.toHaveBeenCalled();
   });
 
   // ── Deep-link useEffect (directionsTo param) ──

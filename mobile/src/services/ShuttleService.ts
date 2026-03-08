@@ -1,4 +1,6 @@
-import shuttleData from "../../assets/shuttle_schedule.json";
+import { API_CONFIG } from "../constants";
+
+const API_BASE_URL = API_CONFIG.getBaseUrl();
 
 /* ── Types ── */
 
@@ -28,90 +30,28 @@ export interface ShuttleRoute {
   loyola_to_sgw: ShuttleRouteCoord[];
 }
 
-/* ── Raw JSON shape ── */
-
-interface RawDeparture {
-  loyola?: string;
-  sgw?: string;
-  last_bus?: boolean;
-}
-
-interface RawScheduleData {
-  duration: string;
-  distance: string;
-  monday_thursday: RawDeparture[];
-  friday: RawDeparture[];
-  sgw_to_loyola_route: ShuttleRouteCoord[];
-}
-
-/* ── Convert raw departures to our DTO ── */
-
-function convertDepartures(raw: RawDeparture[]): ShuttleDeparture[] {
-  return raw.map((d) => ({
-    loyola_departure: d.loyola ?? null,
-    sgw_departure: d.sgw ?? null,
-    last_bus: d.last_bus ?? false,
-  }));
-}
-
-/* ── Service (reads from embedded JSON, no backend needed) ── */
-
-const data = shuttleData as RawScheduleData;
-const monThuDeps = convertDepartures(data.monday_thursday);
-const fridayDeps = convertDepartures(data.friday);
-
-const NO_SERVICE_DAYS = new Set(["SATURDAY", "SUNDAY"]);
-
 export class ShuttleService {
   /**
-   * Get the shuttle schedule for a given day.
-   * Reads from embedded JSON – no network call needed.
+   * Get the shuttle schedule for a given day from the backend.
+   * Omit day to let the backend default to today.
    */
   static async fetchSchedule(day?: string): Promise<ShuttleSchedule> {
-    const dayUpper = (day ?? "").toUpperCase();
-
-    if (NO_SERVICE_DAYS.has(dayUpper)) {
-      return {
-        day: dayUpper,
-        no_service: true,
-        service_start: null,
-        service_end: null,
-        departures: [],
-      };
+    const params = day ? `?day=${encodeURIComponent(day.toUpperCase())}` : "";
+    const response = await fetch(`${API_BASE_URL}/shuttle/schedule${params}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch shuttle schedule: ${response.status}`);
     }
-
-    const isFriday = dayUpper === "FRIDAY";
-    const departures = isFriday ? fridayDeps : monThuDeps;
-
-    // Derive service start/end from first & last departure
-    const firstLoy =
-      departures.find((d) => d.loyola_departure)?.loyola_departure ?? null;
-    const lastEntry = departures.at(-1);
-    const serviceEnd =
-      lastEntry?.loyola_departure ?? lastEntry?.sgw_departure ?? null;
-
-    return {
-      day: dayUpper,
-      no_service: false,
-      service_start: firstLoy,
-      service_end: serviceEnd,
-      departures,
-    };
+    return response.json() as Promise<ShuttleSchedule>;
   }
 
   /**
-   * Get the shuttle route polyline.
-   * Reads from embedded JSON – no network call needed.
+   * Get the shuttle route polyline from the backend.
    */
   static async fetchRoute(): Promise<ShuttleRoute> {
-    const sgwToLoyola = data.sgw_to_loyola_route;
-    const loyolaToSgw = [...sgwToLoyola].reverse();
-
-    return {
-      duration: data.duration,
-      distance: data.distance,
-      sgw_to_loyola: sgwToLoyola,
-      loyola_to_sgw: loyolaToSgw,
-    };
+    const response = await fetch(`${API_BASE_URL}/shuttle/route`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch shuttle route: ${response.status}`);
+    }
+    return response.json() as Promise<ShuttleRoute>;
   }
 }

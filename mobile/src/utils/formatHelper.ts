@@ -38,7 +38,7 @@ export function formatDate(d: Date): string {
 
 export function formatDateTime(d: Date): string {
   return d.toLocaleTimeString(undefined, {
-    hour: "2-digit",
+    hour: "numeric",
     minute: "2-digit",
   });
 }

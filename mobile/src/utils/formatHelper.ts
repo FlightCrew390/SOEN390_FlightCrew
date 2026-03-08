@@ -28,8 +28,8 @@ export function formatDatetime(d: Date): string {
   });
 }
 
-export function formatTime(isoString: string): string {
-  const date = new Date(isoString);
+export function formatTime(input: Date | string): string {
+  const date = typeof input === "string" ? new Date(input) : input;
   const hours = date.getHours();
   const minutes = date.getMinutes();
   const period = hours >= 12 ? "PM" : "AM";

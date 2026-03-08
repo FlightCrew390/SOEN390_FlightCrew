@@ -214,7 +214,7 @@ jest.mock("../../src/components/LocationScreen/SearchPanel", () => {
           testID="sp-search"
           onPress={() => props.onSearch("Hall", "building")}
         />
-        <Pressable testID="sp-close" onPress={props.onClose} />
+        {/* Only one sp-close button to avoid duplicate testID issues */}
       </View>
     ),
   };

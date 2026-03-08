@@ -26,15 +26,15 @@ const TRANSPORT_OPTIONS: {
   icon: ReturnType<typeof require>;
   label: string;
 }[] = [
-    { mode: "WALK", icon: require("../../../assets/walk.png"), label: "Walk" },
-    { mode: "BICYCLE", icon: require("../../../assets/bike.png"), label: "Bike" },
-    {
-      mode: "TRANSIT",
-      icon: require("../../../assets/train.png"),
-      label: "Transit",
-    },
-    { mode: "DRIVE", icon: require("../../../assets/car.png"), label: "Drive" },
-  ];
+  { mode: "WALK", icon: require("../../../assets/walk.png"), label: "Walk" },
+  { mode: "BICYCLE", icon: require("../../../assets/bike.png"), label: "Bike" },
+  {
+    mode: "TRANSIT",
+    icon: require("../../../assets/train.png"),
+    label: "Transit",
+  },
+  { mode: "DRIVE", icon: require("../../../assets/car.png"), label: "Drive" },
+];
 
 interface DirectionPanelProps {
   readonly visible: boolean;
@@ -159,56 +159,56 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
                 building.accessibilityInfo
                   .toLowerCase()
                   .includes("accessible")) && (
-                  <Pressable
-                    onPress={() => handlePress("Wheelchair Accessible")}
-                    style={{
-                      marginRight: 10,
-                      alignItems: "center",
-                      zIndex: 10,
-                    }}
-                  >
-                    <MaterialIcons name="accessible" size={22} color="#2E7D32" />
-                    {activeTooltip === "Wheelchair Accessible" && (
-                      <Tooltip text="Wheelchair Accessible" align="left" />
-                    )}
-                  </Pressable>
-                )}
+                <Pressable
+                  onPress={() => handlePress("Wheelchair Accessible")}
+                  style={{
+                    marginRight: 10,
+                    alignItems: "center",
+                    zIndex: 10,
+                  }}
+                >
+                  <MaterialIcons name="accessible" size={22} color="#2E7D32" />
+                  {activeTooltip === "Wheelchair Accessible" && (
+                    <Tooltip text="Wheelchair Accessible" align="left" />
+                  )}
+                </Pressable>
+              )}
               {(building.accessibilityInfo.toLowerCase().includes("door") ||
                 building.accessibilityInfo
                   .toLowerCase()
                   .includes("entrance")) && (
-                  <Pressable
-                    onPress={() => handlePress("Automatic Door")}
-                    style={{
-                      marginRight: 10,
-                      alignItems: "center",
-                      zIndex: 10,
-                    }}
-                  >
-                    <MaterialCommunityIcons
-                      name="door-sliding"
-                      size={22}
-                      color="#2E7D32"
-                    />
-                    {activeTooltip === "Automatic Door" && (
-                      <Tooltip text="Automatic Door" />
-                    )}
-                  </Pressable>
-                )}
+                <Pressable
+                  onPress={() => handlePress("Automatic Door")}
+                  style={{
+                    marginRight: 10,
+                    alignItems: "center",
+                    zIndex: 10,
+                  }}
+                >
+                  <MaterialCommunityIcons
+                    name="door-sliding"
+                    size={22}
+                    color="#2E7D32"
+                  />
+                  {activeTooltip === "Automatic Door" && (
+                    <Tooltip text="Automatic Door" />
+                  )}
+                </Pressable>
+              )}
               {(building.accessibilityInfo.toLowerCase().includes("elevator") ||
                 building.accessibilityInfo.toLowerCase().includes("lift")) && (
-                  <Pressable
-                    onPress={() => handlePress("Elevator")}
-                    style={{
-                      marginRight: 10,
-                      alignItems: "center",
-                      zIndex: 10,
-                    }}
-                  >
-                    <MaterialIcons name="elevator" size={22} color="#2E7D32" />
-                    {activeTooltip === "Elevator" && <Tooltip text="Elevator" />}
-                  </Pressable>
-                )}
+                <Pressable
+                  onPress={() => handlePress("Elevator")}
+                  style={{
+                    marginRight: 10,
+                    alignItems: "center",
+                    zIndex: 10,
+                  }}
+                >
+                  <MaterialIcons name="elevator" size={22} color="#2E7D32" />
+                  {activeTooltip === "Elevator" && <Tooltip text="Elevator" />}
+                </Pressable>
+              )}
             </>
           )}
         </View>
@@ -328,9 +328,9 @@ export default function DirectionPanel({
                   !shuttleEligible
                     ? undefined
                     : () =>
-                      onTravelModeChange(
-                        travelMode === "SHUTTLE" ? null : "SHUTTLE",
-                      )
+                        onTravelModeChange(
+                          travelMode === "SHUTTLE" ? null : "SHUTTLE",
+                        )
                 }
                 disabled={!shuttleEligible}
                 accessibilityLabel="Get directions by Shuttle"
@@ -370,7 +370,8 @@ export default function DirectionPanel({
                 <View style={styles.errorRow}>
                   <MaterialIcons name="info-outline" size={18} color="#888" />
                   <Text style={styles.shuttleUnavailableText}>
-                    Shuttle is not available at the selected time. Please try another transport method.
+                    Shuttle is not available at the selected time. Please try
+                    another transport method.
                   </Text>
                 </View>
               )}

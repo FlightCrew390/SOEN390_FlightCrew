@@ -150,8 +150,8 @@ export default function GoogleMaps({
         onSelectBuilding={
           state.searchOrigin === "directions"
             ? (building: Building) => {
-              dispatch({ type: "SET_START_BUILDING", building });
-            }
+                dispatch({ type: "SET_START_BUILDING", building });
+              }
             : onSelectBuilding
         }
       />

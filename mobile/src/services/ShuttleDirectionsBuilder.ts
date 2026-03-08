@@ -8,7 +8,6 @@ import {
     getCampusForBuilding,
     getNextDeparture,
     getDayOfWeek,
-    parseScheduleTime,
 } from "../utils/shuttleUtils";
 import type { Building } from "../types/Building";
 
@@ -47,12 +46,12 @@ export class ShuttleDirectionsBuilder {
             ? getCampusForBuilding(destBuilding)
             : getCampusForLocation(destLat, destLng);
 
-        if (!originCampus || !destCampus || originCampus === destCampus) return null;
+        if (!originCampus || !destCampus || originCampus === destCampus)
+            return null;
 
         // Fetch schedule and route in parallel
-        const now = departureConfig.option === "now"
-            ? new Date()
-            : departureConfig.date;
+        const now =
+            departureConfig.option === "now" ? new Date() : departureConfig.date;
 
         const [schedule, shuttleRoute] = await Promise.all([
             ShuttleService.fetchSchedule(getDayOfWeek(now)),
@@ -72,13 +71,17 @@ export class ShuttleDirectionsBuilder {
         // Fetch walking directions in parallel
         const [walkToStop, walkFromStop] = await Promise.all([
             DirectionsService.fetchDirections(
-                originLat, originLng,
-                originStop.latitude, originStop.longitude,
+                originLat,
+                originLng,
+                originStop.latitude,
+                originStop.longitude,
                 "WALK",
             ),
             DirectionsService.fetchDirections(
-                destStop.latitude, destStop.longitude,
-                destLat, destLng,
+                destStop.latitude,
+                destStop.longitude,
+                destLat,
+                destLng,
                 "WALK",
             ),
         ]);
@@ -106,10 +109,14 @@ function buildShuttleLeg(
     const coordinates =
         originCampus === "SGW" ? route.sgw_to_loyola : route.loyola_to_sgw;
 
-    const arrivalTime = new Date(departureTime.getTime() + SHUTTLE_DURATION_SECONDS * 1000);
+    const arrivalTime = new Date(
+        departureTime.getTime() + SHUTTLE_DURATION_SECONDS * 1000,
+    );
 
-    const originLabel = originCampus === "SGW" ? "SGW (Hall Building)" : "Loyola Campus";
-    const destLabel = originCampus === "SGW" ? "Loyola Campus" : "SGW (Hall Building)";
+    const originLabel =
+        originCampus === "SGW" ? "SGW (Hall Building)" : "Loyola Campus";
+    const destLabel =
+        originCampus === "SGW" ? "Loyola Campus" : "SGW (Hall Building)";
 
     const step: StepInfo = {
         distanceMeters: SHUTTLE_DISTANCE_METERS,

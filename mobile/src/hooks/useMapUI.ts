@@ -100,7 +100,10 @@ export function useMapUI(
     if (state.startBuilding) {
       originCampus = getCampusForBuilding(state.startBuilding);
     } else if (userCoords) {
-      originCampus = getCampusForLocation(userCoords.latitude, userCoords.longitude);
+      originCampus = getCampusForLocation(
+        userCoords.latitude,
+        userCoords.longitude,
+      );
     } else {
       originCampus = null;
     }
@@ -109,10 +112,9 @@ export function useMapUI(
     dispatch({ type: "SET_SHUTTLE_ELIGIBLE", eligible });
   }, [
     state.panel,
-    state.selectedBuilding?.buildingCode,
-    state.startBuilding?.buildingCode,
-    userCoords?.latitude,
-    userCoords?.longitude,
+    state.selectedBuilding,
+    state.startBuilding,
+    userCoords,
   ]);
 
   // ── Handlers ──

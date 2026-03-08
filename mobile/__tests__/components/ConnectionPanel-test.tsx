@@ -1,4 +1,9 @@
-import { fireEvent, render, screen } from "@testing-library/react-native";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react-native";
 import ConnectionPanel from "../../src/components/MenuScreen/ConnectionPanel";
 import { User } from "../../src/types/User";
 
@@ -8,6 +13,8 @@ const mockSignIn = jest.fn();
 const mockSignOut = jest.fn();
 const mockSavePreference = jest.fn();
 const mockPromptAsync = jest.fn();
+const mockConnectCalendar = jest.fn();
+const mockDisconnectCalendar = jest.fn();
 
 // Default: unauthenticated state
 let mockUserContext = {
@@ -21,8 +28,22 @@ let mockUserContext = {
   savePreference: mockSavePreference,
 };
 
+let mockCalendarContext = {
+  isConnected: false,
+  events: [],
+  loading: false,
+  error: null as string | null,
+  connectCalendar: mockConnectCalendar,
+  disconnectCalendar: mockDisconnectCalendar,
+  fetchEvents: jest.fn(),
+};
+
 jest.mock("../../src/contexts/UserContext", () => ({
   useUser: () => mockUserContext,
+}));
+
+jest.mock("../../src/contexts/CalendarContext", () => ({
+  useCalendar: () => mockCalendarContext,
 }));
 
 jest.mock("expo-web-browser", () => ({
@@ -57,6 +78,15 @@ beforeEach(() => {
     signIn: mockSignIn,
     signOut: mockSignOut,
     savePreference: mockSavePreference,
+  };
+  mockCalendarContext = {
+    isConnected: false,
+    events: [],
+    loading: false,
+    error: null,
+    connectCalendar: mockConnectCalendar,
+    disconnectCalendar: mockDisconnectCalendar,
+    fetchEvents: jest.fn(),
   };
 });
 
@@ -134,12 +164,14 @@ describe("ConnectionPanel", () => {
       expect(screen.getByText("Sign Out")).toBeTruthy();
     });
 
-    it("calls signOut when sign-out button is pressed", () => {
+    it("calls signOut when sign-out button is pressed", async () => {
       render(<ConnectionPanel />);
 
       fireEvent.press(screen.getByLabelText("Sign out"));
 
-      expect(mockSignOut).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(mockSignOut).toHaveBeenCalled();
+      });
     });
 
     it("renders Google Calendar connection button", () => {

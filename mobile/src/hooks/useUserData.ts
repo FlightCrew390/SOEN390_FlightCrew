@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { TokenStorageService } from "../services/TokenStorageService";
+import { userTokenStore } from "../services/TokenStore";
 import {
   UserPreferences,
   UserPreferencesService,
 } from "../services/UserPreferencesService";
 import { UserService } from "../services/UserService";
 import { AuthTokens, User } from "../types/User";
+import { toErrorMessage } from "../utils/toErrorMessage";
 
 function mergePreferences(user: User, prefs: UserPreferences): User {
   return { ...user, studentId: prefs.studentId || undefined };
@@ -23,20 +24,16 @@ export const useUserData = () => {
 
     const restoreSession = async () => {
       try {
-        console.log("Attempting to restore session...");
-        const storedTokens = await TokenStorageService.getTokens();
+        const storedTokens = await userTokenStore.getTokens();
         if (!storedTokens) {
-          console.log("No stored tokens found");
           if (isMounted) setLoading(false);
           return;
         }
-        console.log("Stored tokens found, fetching user data...");
 
         const [fetchedUser, prefs] = await Promise.all([
           UserService.fetchUser(storedTokens),
           UserPreferencesService.load(),
         ]);
-        console.log("User data fetched successfully");
 
         if (isMounted) {
           setTokens(storedTokens);
@@ -44,9 +41,7 @@ export const useUserData = () => {
         }
       } catch (err) {
         if (isMounted) {
-          setError(
-            err instanceof Error ? err.message : "Failed to restore session",
-          );
+          setError(toErrorMessage(err, "Failed to restore session"));
         }
       } finally {
         if (isMounted) setLoading(false);
@@ -80,7 +75,9 @@ export const useUserData = () => {
         setTokens(newTokens);
         setUser(mergePreferences(fetchedUser, prefs));
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Authentication failed");
+        setTokens(null);
+        setUser(null);
+        setError(toErrorMessage(err, "Sign-in failed"));
       } finally {
         setLoading(false);
       }
@@ -103,10 +100,6 @@ export const useUserData = () => {
     }
   }, []);
 
-  /**
-   * Persist a partial preference update and sync it into the user object.
-   * Uses functional setUser to avoid stale closure issues.
-   */
   const savePreference = useCallback(
     async (updates: Partial<UserPreferences>) => {
       const merged = await UserPreferencesService.save(updates);

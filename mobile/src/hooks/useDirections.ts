@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { DirectionsService } from "../services/DirectionsService";
+import { ShuttleDirectionsBuilder } from "../services/ShuttleDirectionsBuilder";
 import { Building } from "../types/Building";
 import {
   DepartureTimeConfig,
@@ -73,15 +74,28 @@ export function useDirections({
     const fetchRoute = async () => {
       onLoading();
       try {
-        const route = await DirectionsService.fetchDirections(
-          originLat,
-          originLng,
-          destination.latitude,
-          destination.longitude,
-          travelMode,
-          departureTime,
-          arrivalTime,
-        );
+        let route;
+        if (travelMode === "SHUTTLE") {
+          route = await ShuttleDirectionsBuilder.buildShuttleRoute(
+            originLat,
+            originLng,
+            destination.latitude,
+            destination.longitude,
+            departureConfig,
+            startBuilding,
+            destination,
+          );
+        } else {
+          route = await DirectionsService.fetchDirections(
+            originLat,
+            originLng,
+            destination.latitude,
+            destination.longitude,
+            travelMode,
+            departureTime,
+            arrivalTime,
+          );
+        }
         if (!cancelled) onLoaded(route);
       } catch (err) {
         if (!cancelled) {

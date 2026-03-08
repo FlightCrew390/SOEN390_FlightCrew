@@ -39,6 +39,7 @@ export default function GoogleMaps({
   const {
     state,
     dispatch,
+    routePreviews,
     selectBuilding,
     openDirections,
     handleSearch,
@@ -134,6 +135,8 @@ export default function GoogleMaps({
         showSteps={state.panel === "steps"}
         onShowSteps={() => dispatch({ type: "OPEN_STEPS" })}
         onHideSteps={() => dispatch({ type: "CLOSE_STEPS" })}
+        shuttleEligible={state.shuttleEligible}
+        routePreviews={routePreviews}
       />
 
       <SearchPanel
@@ -147,8 +150,8 @@ export default function GoogleMaps({
         onSelectBuilding={
           state.searchOrigin === "directions"
             ? (building: Building) => {
-                dispatch({ type: "SET_START_BUILDING", building });
-              }
+              dispatch({ type: "SET_START_BUILDING", building });
+            }
             : onSelectBuilding
         }
       />

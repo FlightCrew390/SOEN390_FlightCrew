@@ -20,6 +20,8 @@ export interface MapUIState {
   route: RouteInfo | null;
   routeLoading: boolean;
   routeError: string | null;
+  // Shuttle eligibility
+  shuttleEligible: boolean;
 }
 
 export type MapUIAction =
@@ -41,4 +43,5 @@ export type MapUIAction =
   | { type: "ROUTE_LOADED"; route: RouteInfo | null }
   | { type: "ROUTE_ERROR"; error: string }
   | { type: "OPEN_STEPS" }
-  | { type: "CLOSE_STEPS" };
+  | { type: "CLOSE_STEPS" }
+  | { type: "SET_SHUTTLE_ELIGIBLE"; eligible: boolean };

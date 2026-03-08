@@ -7,11 +7,12 @@ interface TransportCardProps {
   readonly duration: string;
   readonly isActive: boolean;
   readonly onPress: () => void;
+  readonly disabled?: boolean;
 }
 
 /**
- * A single transport mode card (Walk, Bike, Transit, Drive)
- * displayed in the direction panel.
+ * A single transport mode card (Walk, Bike, Transit, Drive, Shuttle)
+ * displayed in the direction panel. Supports a disabled/greyed-out state.
  */
 export default function TransportCard({
   icon,
@@ -19,23 +20,38 @@ export default function TransportCard({
   duration,
   isActive,
   onPress,
+  disabled,
 }: Readonly<TransportCardProps>) {
   return (
     <Pressable
-      style={[styles.transportCard, isActive && styles.transportCardActive]}
-      onPress={onPress}
+      style={[
+        styles.transportCard,
+        isActive && styles.transportCardActive,
+        disabled && styles.transportCardDisabled,
+      ]}
+      onPress={disabled ? undefined : onPress}
+      disabled={disabled}
       accessibilityLabel={`Get directions by ${label}`}
       accessibilityRole="button"
+      accessibilityState={{ disabled }}
     >
       <Image
         source={icon}
-        style={[styles.transportIcon, isActive && styles.transportIconActive]}
+        style={[
+          styles.transportIcon,
+          isActive && styles.transportIconActive,
+          disabled && styles.transportIconDisabled,
+        ]}
         resizeMode="contain"
       />
       <Text
-        style={[styles.transportTime, isActive && styles.transportTimeActive]}
+        style={[
+          styles.transportTime,
+          isActive && styles.transportTimeActive,
+          disabled && styles.transportTimeDisabled,
+        ]}
       >
-        {duration}
+        {disabled ? "N/A" : duration}
       </Text>
     </Pressable>
   );

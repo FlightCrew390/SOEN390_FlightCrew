@@ -12,6 +12,7 @@ export const initialMapUIState: MapUIState = {
   route: null,
   routeLoading: false,
   routeError: null,
+  shuttleEligible: false,
 };
 
 export function mapUIReducer(
@@ -32,6 +33,7 @@ export function mapUIReducer(
         route: null,
         routeLoading: false,
         routeError: null,
+        shuttleEligible: false,
       };
 
     case "SELECT_BUILDING":
@@ -59,6 +61,7 @@ export function mapUIReducer(
         route: null,
         routeLoading: false,
         routeError: null,
+        shuttleEligible: false,
       };
 
     case "SET_CURRENT_BUILDING":
@@ -133,6 +136,9 @@ export function mapUIReducer(
 
     case "CLOSE_STEPS":
       return { ...state, panel: "directions" };
+
+    case "SET_SHUTTLE_ELIGIBLE":
+      return { ...state, shuttleEligible: action.eligible };
 
     case "SET_DEPARTURE_CONFIG":
       return {

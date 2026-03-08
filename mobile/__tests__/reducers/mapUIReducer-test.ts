@@ -43,6 +43,7 @@ describe("mapUIReducer", () => {
       route: null,
       routeLoading: false,
       routeError: null,
+      shuttleEligible: false,
     });
   });
 

@@ -5,6 +5,12 @@ import { Building } from "../types/Building";
 import { DepartureTimeConfig, TravelMode } from "../types/Directions";
 import { findCurrentBuilding } from "../utils/buildingDetection";
 import { useDirections } from "./useDirections";
+import { useRoutePreviews } from "./useRoutePreviews";
+import {
+  getCampusForBuilding,
+  getCampusForLocation,
+  isShuttleEligible,
+} from "../utils/shuttleUtils";
 
 interface UserCoords {
   latitude: number;
@@ -38,9 +44,9 @@ export function useMapUI(
   // ── Derived user coordinates ──
   const userCoords: UserCoords | null = location
     ? {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      }
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    }
     : null;
 
   // ── Wire direction fetching ──
@@ -54,6 +60,15 @@ export function useMapUI(
     onLoading: onRouteLoading,
     onLoaded: onRouteLoaded,
     onError: onRouteError,
+  });
+
+  // ── Pre-fetch route previews for all modes ──
+  const routePreviews = useRoutePreviews({
+    destination: state.selectedBuilding,
+    startBuilding: state.startBuilding,
+    userLocation: userCoords,
+    departureConfig: state.departureConfig,
+    active: state.panel === "directions",
   });
 
   // ── Detect current building ──
@@ -71,6 +86,34 @@ export function useMapUI(
       dispatch({ type: "SET_CURRENT_BUILDING", building: null });
     }
   }, [location, buildings]);
+
+  // ── Shuttle eligibility check (pure cross-campus detection, no backend needed) ──
+  useEffect(() => {
+    if (state.panel !== "directions" || !state.selectedBuilding) {
+      dispatch({ type: "SET_SHUTTLE_ELIGIBLE", eligible: false });
+      return;
+    }
+
+    const destCampus = getCampusForBuilding(state.selectedBuilding);
+
+    let originCampus;
+    if (state.startBuilding) {
+      originCampus = getCampusForBuilding(state.startBuilding);
+    } else if (userCoords) {
+      originCampus = getCampusForLocation(userCoords.latitude, userCoords.longitude);
+    } else {
+      originCampus = null;
+    }
+
+    const eligible = isShuttleEligible(originCampus, destCampus);
+    dispatch({ type: "SET_SHUTTLE_ELIGIBLE", eligible });
+  }, [
+    state.panel,
+    state.selectedBuilding?.buildingCode,
+    state.startBuilding?.buildingCode,
+    userCoords?.latitude,
+    userCoords?.longitude,
+  ]);
 
   // ── Handlers ──
   const selectBuilding = useCallback((building: Building) => {
@@ -119,6 +162,7 @@ export function useMapUI(
     state,
     dispatch,
     userCoords,
+    routePreviews,
     selectBuilding,
     openDirections,
     handleSearch,

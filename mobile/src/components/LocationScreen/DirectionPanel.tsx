@@ -6,6 +6,7 @@ import { Animated, Pressable, ScrollView, Text, View } from "react-native";
 
 import { COLORS } from "../../constants";
 import { usePanelAnimation } from "../../hooks/usePanelAnimation";
+import type { RoutePreviews } from "../../hooks/useRoutePreviews";
 import styles from "../../styles/DirectionPanel";
 import { Building } from "../../types/Building";
 import {
@@ -25,15 +26,15 @@ const TRANSPORT_OPTIONS: {
   icon: ReturnType<typeof require>;
   label: string;
 }[] = [
-  { mode: "WALK", icon: require("../../../assets/walk.png"), label: "Walk" },
-  { mode: "BICYCLE", icon: require("../../../assets/bike.png"), label: "Bike" },
-  {
-    mode: "TRANSIT",
-    icon: require("../../../assets/train.png"),
-    label: "Transit",
-  },
-  { mode: "DRIVE", icon: require("../../../assets/car.png"), label: "Drive" },
-];
+    { mode: "WALK", icon: require("../../../assets/walk.png"), label: "Walk" },
+    { mode: "BICYCLE", icon: require("../../../assets/bike.png"), label: "Bike" },
+    {
+      mode: "TRANSIT",
+      icon: require("../../../assets/train.png"),
+      label: "Transit",
+    },
+    { mode: "DRIVE", icon: require("../../../assets/car.png"), label: "Drive" },
+  ];
 
 interface DirectionPanelProps {
   readonly visible: boolean;
@@ -52,6 +53,8 @@ interface DirectionPanelProps {
   readonly showSteps: boolean;
   readonly onShowSteps: () => void;
   readonly onHideSteps: () => void;
+  readonly shuttleEligible?: boolean;
+  readonly routePreviews?: RoutePreviews;
 }
 
 function StartLocationRow({
@@ -115,11 +118,11 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
   };
 
   return (
-        <ScrollView
+    <ScrollView
       style={styles.descriptionScroll}
       contentContainerStyle={{ paddingBottom: 40 }}
       showsVerticalScrollIndicator={false}
-        >
+    >
       <Text style={styles.buildingLongName}>{building.buildingLongName}</Text>
       <View style={styles.addressRow}>
         <Text style={styles.buildingAddress}>{building.address}</Text>
@@ -156,56 +159,56 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
                 building.accessibilityInfo
                   .toLowerCase()
                   .includes("accessible")) && (
-                <Pressable
-                  onPress={() => handlePress("Wheelchair Accessible")}
-                  style={{
-                    marginRight: 10,
-                    alignItems: "center",
-                    zIndex: 10,
-                  }}
-                >
-                  <MaterialIcons name="accessible" size={22} color="#2E7D32" />
-                  {activeTooltip === "Wheelchair Accessible" && (
-                    <Tooltip text="Wheelchair Accessible" align="left" />
-                  )}
-                </Pressable>
-              )}
+                  <Pressable
+                    onPress={() => handlePress("Wheelchair Accessible")}
+                    style={{
+                      marginRight: 10,
+                      alignItems: "center",
+                      zIndex: 10,
+                    }}
+                  >
+                    <MaterialIcons name="accessible" size={22} color="#2E7D32" />
+                    {activeTooltip === "Wheelchair Accessible" && (
+                      <Tooltip text="Wheelchair Accessible" align="left" />
+                    )}
+                  </Pressable>
+                )}
               {(building.accessibilityInfo.toLowerCase().includes("door") ||
                 building.accessibilityInfo
                   .toLowerCase()
                   .includes("entrance")) && (
-                <Pressable
-                  onPress={() => handlePress("Automatic Door")}
-                  style={{
-                    marginRight: 10,
-                    alignItems: "center",
-                    zIndex: 10,
-                  }}
-                >
-                  <MaterialCommunityIcons
-                    name="door-sliding"
-                    size={22}
-                    color="#2E7D32"
-                  />
-                  {activeTooltip === "Automatic Door" && (
-                    <Tooltip text="Automatic Door" />
-                  )}
-                </Pressable>
-              )}
+                  <Pressable
+                    onPress={() => handlePress("Automatic Door")}
+                    style={{
+                      marginRight: 10,
+                      alignItems: "center",
+                      zIndex: 10,
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name="door-sliding"
+                      size={22}
+                      color="#2E7D32"
+                    />
+                    {activeTooltip === "Automatic Door" && (
+                      <Tooltip text="Automatic Door" />
+                    )}
+                  </Pressable>
+                )}
               {(building.accessibilityInfo.toLowerCase().includes("elevator") ||
                 building.accessibilityInfo.toLowerCase().includes("lift")) && (
-                <Pressable
-                  onPress={() => handlePress("Elevator")}
-                  style={{
-                    marginRight: 10,
-                    alignItems: "center",
-                    zIndex: 10,
-                  }}
-                >
-                  <MaterialIcons name="elevator" size={22} color="#2E7D32" />
-                  {activeTooltip === "Elevator" && <Tooltip text="Elevator" />}
-                </Pressable>
-              )}
+                  <Pressable
+                    onPress={() => handlePress("Elevator")}
+                    style={{
+                      marginRight: 10,
+                      alignItems: "center",
+                      zIndex: 10,
+                    }}
+                  >
+                    <MaterialIcons name="elevator" size={22} color="#2E7D32" />
+                    {activeTooltip === "Elevator" && <Tooltip text="Elevator" />}
+                  </Pressable>
+                )}
             </>
           )}
         </View>
@@ -231,8 +234,22 @@ export default function DirectionPanel({
   showSteps,
   onShowSteps,
   onHideSteps,
+  shuttleEligible,
+  routePreviews,
 }: Readonly<DirectionPanelProps>) {
   const { animatedStyle } = usePanelAnimation(visible);
+
+  // helper: get duration label for a mode
+  const getDuration = (mode: TravelMode): string => {
+    // If this mode is the active one and we have a full route, prefer that
+    if (travelMode === mode && route) {
+      return formatDuration(route.durationSeconds);
+    }
+    // Otherwise use the preview
+    const preview = routePreviews?.[mode];
+    if (preview != null) return formatDuration(preview);
+    return "-- min";
+  };
 
   const distanceText = route ? formatDistance(route.distanceMeters) : "-- m";
 
@@ -295,19 +312,40 @@ export default function DirectionPanel({
                   icon={icon}
                   label={label}
                   isActive={travelMode === mode}
-                  duration={
-                    travelMode === mode && route
-                      ? formatDuration(route.durationSeconds)
-                      : "-- min"
-                  }
+                  duration={getDuration(mode)}
                   onPress={() =>
                     onTravelModeChange(travelMode === mode ? null : mode)
                   }
                 />
               ))}
+              <TransportCard
+                key="SHUTTLE"
+                icon={require("../../../assets/shuttle.png")}
+                label="Shuttle"
+                isActive={travelMode === "SHUTTLE"}
+                duration={getDuration("SHUTTLE")}
+                disabled={!shuttleEligible}
+                onPress={() =>
+                  onTravelModeChange(travelMode === "SHUTTLE" ? null : "SHUTTLE")
+                }
+              />
             </View>
 
             <RouteStatusDisplay loading={routeLoading} error={routeError} />
+
+            {/* Shuttle unavailable message */}
+            {travelMode === "SHUTTLE" &&
+              !routeLoading &&
+              !routeError &&
+              !route && (
+                <View style={styles.errorRow}>
+                  <MaterialIcons name="info-outline" size={18} color="#888" />
+                  <Text style={styles.shuttleUnavailableText}>
+                    Shuttle is not available at the selected time. Please try a
+                    different departure time.
+                  </Text>
+                </View>
+              )}
 
             <View style={styles.divider} />
 

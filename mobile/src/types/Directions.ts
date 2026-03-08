@@ -1,4 +1,4 @@
-export type TravelMode = "WALK" | "DRIVE" | "BICYCLE" | "TRANSIT";
+export type TravelMode = "WALK" | "DRIVE" | "BICYCLE" | "TRANSIT" | "SHUTTLE";
 
 export interface DirectionsResponse {
   routes: Route[];

@@ -114,6 +114,11 @@ export function useCalendarUI(events: CalendarEvent[]) {
     [],
   );
 
+  const navigateToToday = useCallback(() => {
+    setSelectedDate(new Date());
+    setWeekOffset(0);
+  }, []);
+
   return {
     selectedDate,
     setSelectedDate,
@@ -132,5 +137,6 @@ export function useCalendarUI(events: CalendarEvent[]) {
     isDateToday,
     navigateWeekBack,
     navigateWeekForward,
+    navigateToToday,
   };
 }

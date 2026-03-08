@@ -31,6 +31,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginVertical: 8,
   },
+  todayButton: {
+    padding: 8,
+    backgroundColor: "#F5F5F5",
+    borderRadius: 16,
+  },
   monthText: {
     fontSize: 16,
     fontWeight: "600",

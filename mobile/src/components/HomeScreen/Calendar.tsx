@@ -32,6 +32,7 @@ export default function Calendar() {
     setSelectedDate,
     navigateWeekBack,
     navigateWeekForward,
+    navigateToToday,
   } = useCalendarUI(events);
 
   const { isAuthenticated } = useUser();
@@ -93,6 +94,18 @@ export default function Calendar() {
 
         {/* ── Header ── */}
         <View style={styles.headerRow}>
+          <Pressable
+            style={styles.todayButton}
+            onPress={() => navigateToToday()}
+            accessibilityLabel="Go to today's date"
+            accessibilityRole="button"
+          >
+            <MaterialIcons
+              name="today"
+              size={16}
+              color={COLORS.concordiaMaroon}
+            />
+          </Pressable>
           <Text style={styles.monthText}>{currentMonth}</Text>
           <Pressable
             style={[

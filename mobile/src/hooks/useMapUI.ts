@@ -50,7 +50,7 @@ export function useMapUI(
           longitude: location.coords.longitude,
         }
         : null,
-    [location?.coords.latitude, location?.coords.longitude],
+    [location],
   );
 
   // ── Wire direction fetching ──

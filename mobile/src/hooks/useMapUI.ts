@@ -39,16 +39,17 @@ export function useMapUI(
     [],
   );
 
-  // ── Derived user coordinates ──
-  const userCoords: UserCoords | null = useMemo(
-    () =>
+  const userCoords = useMemo(
+    (): UserCoords | null =>
       location
         ? {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
           }
         : null,
-    [location],
+    // Stable by coords to avoid DirectionPanel effect loop when location object reference changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [location?.coords.latitude, location?.coords.longitude],
   );
 
   const userCampus = useMemo(
@@ -174,6 +175,7 @@ export function useMapUI(
     state,
     dispatch,
     userCoords,
+    userCampus,
     selectBuilding,
     openDirections,
     handleSearch,

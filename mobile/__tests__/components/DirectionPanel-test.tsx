@@ -457,8 +457,8 @@ describe("DirectionPanel", () => {
     expect(props.onShowSteps).toHaveBeenCalledTimes(1);
   });
 
-  it("does not show view steps when route has no steps", () => {
-    const route = makeRoute({ steps: [] });
+  it("does not show view steps when route has no steps and no path", () => {
+    const route = makeRoute({ steps: [], coordinates: [] });
     renderPanel({ route });
     expect(screen.queryByLabelText("View route")).toBeNull();
   });

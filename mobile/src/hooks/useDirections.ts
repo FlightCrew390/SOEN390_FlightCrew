@@ -2,12 +2,42 @@ import { useEffect, useRef } from "react";
 import { SHUTTLE_STOPS } from "../constants/shuttle";
 import { DirectionsService } from "../services/DirectionsService";
 import { normalizeCampus } from "../services/GoogleDirectionsService";
+import { ShuttleService } from "../services/ShuttleService";
 import { Building } from "../types/Building";
 import {
   DepartureTimeConfig,
   RouteInfo,
   TravelMode,
 } from "../types/Directions";
+
+/** Parse backend duration string (e.g. "21 mins", "1 hr 5 min") into seconds */
+function parseShuttleDurationToSeconds(durationStr: string): number {
+  let seconds = 0;
+  const hrMatch = durationStr.match(/(\d+)\s*(?:hr|hrs?)\b/i);
+  if (hrMatch) seconds += Number.parseInt(hrMatch[1], 10) * 3600;
+  const minMatch = durationStr.match(/(\d+)\s*(?:min|mins?)\b/i);
+  if (minMatch) seconds += Number.parseInt(minMatch[1], 10) * 60;
+  return seconds || 60; // fallback 1 min if unparseable
+}
+
+/** Normalize "H:MM" or "HH:MM" to "HH:MM" for reliable string comparison */
+function toHHMM(timeStr: string | null | undefined): string {
+  if (timeStr == null || timeStr === "") return "";
+  const parts = timeStr.trim().split(":");
+  const h = parts[0]?.replace(/\D/g, "") ?? "0";
+  const m = parts[1]?.replace(/\D/g, "") ?? "0";
+  return `${h.padStart(2, "0")}:${m.padStart(2, "0")}`;
+}
+
+const DAY_NAMES = [
+  "SUNDAY",
+  "MONDAY",
+  "TUESDAY",
+  "WEDNESDAY",
+  "THURSDAY",
+  "FRIDAY",
+  "SATURDAY",
+] as const;
 
 interface UseDirectionsParams {
   /** The destination building (required for non-shuttle modes). */
@@ -55,21 +85,110 @@ export function useDirections({
       if (!userCampus) return;
       const normalized = normalizeCampus(userCampus) as "SGW" | "LOY";
       const other = normalized === "SGW" ? "LOY" : "SGW";
-      const origin = SHUTTLE_STOPS[normalized].coordinate;
-      const dest = SHUTTLE_STOPS[other].coordinate;
+      const originStop = SHUTTLE_STOPS[normalized];
+      const destStop = SHUTTLE_STOPS[other];
 
       let cancelled = false;
       const fetchShuttle = async () => {
         onLoading();
         try {
-          const route = await DirectionsService.fetchDirections(
-            origin.latitude,
-            origin.longitude,
-            dest.latitude,
-            dest.longitude,
-            "DRIVE",
+          const routeData = await ShuttleService.getRoute();
+          if (cancelled) return;
+
+          const rideDurationSeconds = parseShuttleDurationToSeconds(
+            routeData.duration,
           );
-          if (!cancelled) onLoaded(route);
+          const refDate =
+            departureConfig.option === "depart_at"
+              ? departureConfig.date
+              : departureConfig.option === "arrive_by"
+                ? new Date(
+                    departureConfig.date.getTime() - rideDurationSeconds * 1000,
+                  )
+                : new Date();
+          const day = DAY_NAMES[refDate.getDay()];
+          const refHHMM = toHHMM(
+            `${refDate.getHours()}:${refDate.getMinutes()}`,
+          );
+
+          const scheduleData = await ShuttleService.getSchedule(day);
+          if (cancelled) return;
+
+          const coords =
+            normalized === "SGW"
+              ? routeData.sgw_to_loyola
+              : routeData.loyola_to_sgw;
+
+          const coordinates = coords.map((c) => ({
+            latitude: c.latitude,
+            longitude: c.longitude,
+          }));
+
+          const departureKey =
+            normalized === "SGW" ? "sgw_departure" : "loyola_departure";
+
+          const isArriveBy = departureConfig.option === "arrive_by";
+          const nextDepartures = scheduleData.no_service
+            ? []
+            : scheduleData.departures
+                .filter((d) => {
+                  const dep = d[departureKey];
+                  const depHHMM = toHHMM(dep);
+                  if (depHHMM === "") return false;
+                  return isArriveBy ? depHHMM <= refHHMM : depHHMM >= refHHMM;
+                })
+                .slice(isArriveBy ? -3 : 0, isArriveBy ? undefined : 3)
+                .map((d) => d[departureKey] as string);
+          if (isArriveBy) nextDepartures.reverse();
+
+          const hasUpcomingDepartures = nextDepartures.length > 0;
+          if (!hasUpcomingDepartures) {
+            onLoaded(null);
+            onError("No shuttle available");
+            return;
+          }
+
+          const departureInfo = `Next departures: ${nextDepartures.join(", ")}`;
+
+          const route: RouteInfo = {
+            coordinates,
+            distanceMeters: 0,
+            durationSeconds: rideDurationSeconds,
+            durationText: routeData.duration,
+            distanceText: routeData.distance,
+            steps: [
+              {
+                instruction: `Board at ${originStop.name} (${originStop.address})`,
+                maneuver: "depart",
+                distanceMeters: 0,
+                durationSeconds: 0,
+                coordinates: [coordinates[0]],
+              },
+              {
+                instruction: `Ride Concordia Shuttle to ${destStop.name} (~${routeData.duration})`,
+                maneuver: "straight",
+                distanceMeters: 0,
+                durationSeconds: rideDurationSeconds,
+                coordinates,
+              },
+              {
+                instruction: `Get off at ${destStop.name} (${destStop.address})`,
+                maneuver: "arrive",
+                distanceMeters: 0,
+                durationSeconds: 0,
+                coordinates: [coordinates[coordinates.length - 1]],
+              },
+              {
+                instruction: departureInfo,
+                maneuver: "straight",
+                distanceMeters: 0,
+                durationSeconds: 0,
+                coordinates: [coordinates[0]],
+              },
+            ],
+          };
+
+          onLoaded(route);
         } catch (err) {
           if (!cancelled) {
             onError(
@@ -96,13 +215,18 @@ export function useDirections({
     abortRef.current = controller;
     let cancelled = false;
 
-    // Derive departure/arrival time strings from config
+    // Derive departure/arrival time strings from config.
+    // Drive ignores time: backend returns route as "leaving now" so we get steps + polyline and "View route".
+    const useTime =
+      travelMode !== "DRIVE" &&
+      (departureConfig.option === "depart_at" ||
+        departureConfig.option === "arrive_by");
     const departureTime =
-      departureConfig.option === "depart_at"
+      useTime && departureConfig.option === "depart_at"
         ? departureConfig.date.toISOString()
         : undefined;
     const arrivalTime =
-      departureConfig.option === "arrive_by"
+      useTime && departureConfig.option === "arrive_by"
         ? departureConfig.date.toISOString()
         : undefined;
 

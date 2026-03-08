@@ -1,11 +1,5 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Platform, View } from "react-native";
 import MapView, {
   Polyline,
@@ -22,7 +16,6 @@ import styles from "../../styles/GoogleMaps";
 import { Building } from "../../types/Building";
 import { LocationScreenParams } from "../../types/LocationScreenParams";
 import { PointOfInterest } from "../../types/PointOfInterest";
-import { getClosestCampusId } from "../../utils/campusDetection";
 import { findBuildingByLocation } from "../../utils/findBuildingByLocation";
 import { poiToBuilding } from "../../utils/poiUtils";
 import BuildingLayer from "./BuildingLayer";
@@ -55,28 +48,6 @@ export default function GoogleMaps({
   const mapRef = mapRefProp ?? internalMapRef;
   const [routeSegments, setRouteSegments] = useState<RouteSegment[]>([]);
 
-  const userLocation = useMemo(
-    () =>
-      location
-        ? {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-          }
-        : null,
-    [location],
-  );
-
-  const userCampus = useMemo(
-    () =>
-      location
-        ? getClosestCampusId(
-            location.coords.latitude,
-            location.coords.longitude,
-          )
-        : null,
-    [location],
-  );
-
   const navigation = useNavigation();
   const route = useRoute();
   const params = (route.params ?? {}) as LocationScreenParams;
@@ -84,6 +55,8 @@ export default function GoogleMaps({
   const {
     state,
     dispatch,
+    userCoords,
+    userCampus,
     selectBuilding,
     openDirections,
     handleSearch,
@@ -232,12 +205,8 @@ export default function GoogleMaps({
           <Polyline
             key={`route-segment-${index}`}
             coordinates={segment.coordinates}
-            strokeColor={
-              segment.mode === "shuttle"
-                ? COLORS.concordiaMaroon
-                : COLORS.mapPolylineWalk
-            }
-            strokeWidth={segment.mode === "shuttle" ? 6 : 4}
+            strokeColor={COLORS.mapPolylineWalk}
+            strokeWidth={4}
             lineDashPattern={segment.mode === "walk" ? [8, 6] : undefined}
           />
         ))}
@@ -275,13 +244,15 @@ export default function GoogleMaps({
         routeError={state.routeError}
         travelMode={state.travelMode}
         onTravelModeChange={onTravelModeChange}
+        departureConfig={state.departureConfig}
+        onDepartureConfigChange={handleDepartureConfigChange}
         onClose={onCloseDirectionPanel}
         onOpenSearch={onOpenSearchForStart}
         onResetStart={onResetStartBuilding}
         showSteps={state.panel === "steps"}
         onShowSteps={onShowSteps}
         onHideSteps={onHideSteps}
-        userLocation={userLocation}
+        userLocation={userCoords}
         userCampus={userCampus}
         onRouteReady={setRouteSegments}
       />

@@ -63,7 +63,6 @@
     "@jest/globals": "^30.2.0",
     "@testing-library/react-native": "^13.3.3",
     "@types/jest": "29.5.14",
-    "@types/mapbox__polyline": "^1.0.5",
     "@types/node": "^25.1.0",
     "@types/react": "19.1.10",
     "eslint": "^9.39.2",

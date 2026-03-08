@@ -1,3 +1,4 @@
+import React from "react";
 import { act, render, screen, userEvent } from "@testing-library/react-native";
 
 import { CAMPUSES } from "../src/constants/campuses";

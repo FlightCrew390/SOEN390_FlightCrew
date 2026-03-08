@@ -10,3 +10,10 @@ external:
 google:
   api:
     key: "${GOOGLE_API_KEY}"
+  client-id: "${GOOGLE_CLIENT_ID}"
+  client-secret: "${GOOGLE_CLIENT_SECRET}"
+
+app:
+  poi:
+    cache:
+      file: poi_cache.json

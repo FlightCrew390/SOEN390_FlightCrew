@@ -7,6 +7,7 @@
     "Address": "7141, Sherbrooke West",
     "Latitude": 45.457984,
     "Longitude": -73.639834,
+    "Accessibility_Info": "Accessibility ramp: This building entrance is equipped with an accessibility ramp.\nAccessible entrance: This building has an automated accessible entrance door.\nAccessible building elevator: This building entrance is equipped with an accessible elevator.",
     "Google_Place_Info": {
       "place": "places/ChIJsaXjk50XyUwR0NQ2S1GkU8o",
       "displayName": { "text": "RBC Royal Bank ATM", "languageCode": "en" },
@@ -90,6 +91,7 @@
     "Address": "2160 Bishop Street",
     "Latitude": 45.4978832,
     "Longitude": -73.5794593,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJZVuHnWoayUwRS8jvER5aWas",
       "displayName": { "text": "Room 306", "languageCode": "en" },
@@ -124,6 +126,7 @@
     "Address": "3502 Bermore Avenue",
     "Latitude": 45.459758,
     "Longitude": -73.6391771,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJEXkslDEXyUwRfwbOOWg4yoM",
       "displayName": null,
@@ -157,6 +160,7 @@
     "Address": "3500 Bermore Avenue",
     "Latitude": 45.4597276,
     "Longitude": -73.6390972,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJEXkslDEXyUwRfwbOOWg4yoM",
       "displayName": null,
@@ -190,6 +194,7 @@
     "Address": "7141 Sherbrooke West",
     "Latitude": 45.458204,
     "Longitude": -73.6403,
+    "Accessibility_Info": "Wheelchair lift: This building is equipped with a wheelchair lift.\nAccessible entrance: This building has an automated accessible entrance door.\nAccessible building elevator: This building entrance is equipped with an accessible elevator.",
     "Google_Place_Info": {
       "place": "places/ChIJERHb3zEXyUwRPdbqFL-zXAU",
       "displayName": { "text": "Refectory", "languageCode": "en" },
@@ -224,6 +229,7 @@
     "Address": "2149 Mackay Street",
     "Latitude": 45.497467,
     "Longitude": -73.579925,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJ8XHGm2oayUwRo657rUu4TwQ",
       "displayName": {
@@ -264,6 +270,7 @@
     "Address": "7141, Sherbrooke Wes",
     "Latitude": 45.457478,
     "Longitude": -73.640354,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJ-5sJFC4XyUwRw3DB9cV7A00",
       "displayName": { "text": "405", "languageCode": "en" },
@@ -284,6 +291,7 @@
     "Address": "7141, Sherbrooke Wes",
     "Latitude": 45.457478,
     "Longitude": -73.640354,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJ-5sJFC4XyUwRw3DB9cV7A00",
       "displayName": { "text": "405", "languageCode": "en" },
@@ -348,6 +356,7 @@
     "Address": "7141, Sherbrooke Wes",
     "Latitude": 45.457478,
     "Longitude": -73.640354,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJ-5sJFC4XyUwRw3DB9cV7A00",
       "displayName": { "text": "405", "languageCode": "en" },
@@ -368,6 +377,7 @@
     "Address": "1665 Ste-Catherine W",
     "Latitude": 45.494259,
     "Longitude": -73.579007,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJbYEXvmsayUwR7_9Wa1R9I0w",
       "displayName": {
@@ -406,6 +416,7 @@
     "Address": "2140 Bishop Street",
     "Latitude": 45.497812,
     "Longitude": -73.5793021,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJjU46nWoayUwRl3VnMUW8x2k",
       "displayName": null,
@@ -443,6 +454,7 @@
     "Address": "2070 Mackay Street",
     "Latitude": 45.4968936,
     "Longitude": -73.5795569,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJ5T8fjGoayUwRX1nzPwg9FJ4",
       "displayName": {
@@ -481,6 +493,7 @@
     "Address": "2155 Guy Street",
     "Latitude": 45.496428,
     "Longitude": -73.57999,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJ5zkn8moayUwRYIiNdSRrmmA",
       "displayName": {
@@ -521,6 +534,7 @@
     "Address": "2135 Guy Street",
     "Latitude": 45.4961397,
     "Longitude": -73.5799474,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJUzxL92oayUwR0b2ZkF3xFz4",
       "displayName": null,
@@ -554,6 +568,7 @@
     "Address": "2125-2127 Guy Street",
     "Latitude": 45.4961019,
     "Longitude": -73.5798726,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJUzxL92oayUwR0b2ZkF3xFz4",
       "displayName": null,
@@ -591,6 +606,7 @@
     "Address": "1515 Ste-Catherine W",
     "Latitude": 45.495376,
     "Longitude": -73.577997,
+    "Accessibility_Info": "Accessible entrance: This building has an automated accessible entrance door.\nAccessible building elevator: This building entrance is equipped with an accessible elevator.",
     "Google_Place_Info": {
       "place": "places/ChIJt0NyM2oayUwRSt-nqBgM40U",
       "displayName": { "text": "Pavillon Ev Building", "languageCode": "en" },
@@ -637,6 +653,7 @@
     "Address": "2060 Mackay Street",
     "Latitude": 45.496874,
     "Longitude": -73.579468,
+    "Accessibility_Info": "This building is not accessible. It is not equipped with an accessibility ramp, automated door, elevator or wheelchair lift.",
     "Google_Place_Info": {
       "place": "places/ChIJfZELi2oayUwRwTj4X8RGrWA",
       "displayName": { "text": "2050 Mackay", "languageCode": "en" },
@@ -669,6 +686,7 @@
     "Address": "1250 Guy Street",
     "Latitude": 45.494666,
     "Longitude": -73.577603,
+    "Accessibility_Info": "Wheelchair lift: This building is equipped with a wheelchair lift.\nAccessible entrance: This building has an automated accessible entrance door.\nAccessible building elevator: This building entrance is equipped with an accessible elevator.",
     "Google_Place_Info": {
       "place": "places/ChIJpULw0GsayUwRtSBeUV9tK8Q",
       "displayName": { "text": "Faubourg Tower", "languageCode": "en" },
@@ -711,6 +729,7 @@
     "Address": "7141 Sherbrooke West",
     "Latitude": 45.458493,
     "Longitude": -73.639287,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJAcTa3zEXyUwRAHQnQj9LdGg",
       "displayName": { "text": "Refectory", "languageCode": "en" },
@@ -770,6 +789,7 @@
     "Address": "1610 Ste-Catherine",
     "Latitude": 45.494381,
     "Longitude": -73.578425,
+    "Accessibility_Info": "Wheelchair lift: This building is equipped with a wheelchair lift.\nAccessibility ramp: This building entrance is equipped with an accessibility ramp.\nAccessible entrance: This building has an automated accessible entrance door.\nAccessible building elevator: This building entrance is equipped with an accessible elevator.",
     "Google_Place_Info": {
       "place": "places/ChIJnaT6wmsayUwRyMiU1oua_cg",
       "displayName": {
@@ -823,6 +843,7 @@
     "Address": "1211-1215 St-Mathieu",
     "Latitude": 45.494123,
     "Longitude": -73.57787,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJ4Qwd3GsayUwRbthZ9YIe90M",
       "displayName": null,
@@ -854,6 +875,7 @@
     "Address": "7141 Sherbrooke W",
     "Latitude": 45.457017,
     "Longitude": -73.640432,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJhwIFcC4XyUwRjjIXKLk338Q",
       "displayName": {
@@ -897,6 +919,7 @@
     "Address": "1550 DeMaisonneuve W",
     "Latitude": 45.495983,
     "Longitude": -73.578824,
+    "Accessibility_Info": "Accessible entrance: This building has an automated accessible entrance door.\nAccessible building elevator: This building entrance is equipped with an accessible elevator.",
     "Google_Place_Info": {
       "place": "places/ChIJ--2VWmoayUwR3muvlPMsIrc",
       "displayName": null,
@@ -939,6 +962,7 @@
     "Address": "1190 Guy Street",
     "Latitude": 45.493622,
     "Longitude": -73.577003,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJV-mGQ2kayUwRT2vvO_XjKtE",
       "displayName": null,
@@ -962,6 +986,7 @@
     "Address": "1190 Guy Street",
     "Latitude": 45.493622,
     "Longitude": -73.577003,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJV-mGQ2kayUwRT2vvO_XjKtE",
       "displayName": null,
@@ -1109,6 +1134,7 @@
     "Address": "1190 Guy Street",
     "Latitude": 45.493622,
     "Longitude": -73.577003,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJV-mGQ2kayUwRT2vvO_XjKtE",
       "displayName": null,
@@ -1132,6 +1158,7 @@
     "Address": "1190 Guy Street",
     "Latitude": 45.493622,
     "Longitude": -73.577003,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJV-mGQ2kayUwRT2vvO_XjKtE",
       "displayName": null,
@@ -1155,6 +1182,7 @@
     "Address": "1538, Sherbrooke W",
     "Latitude": 45.496673,
     "Longitude": -73.581409,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJ3eOLxWoayUwRO0wbbFd9VEk",
       "displayName": {
@@ -1197,6 +1225,7 @@
     "Address": "1455 DeMaisonneuve W",
     "Latitude": 45.497092,
     "Longitude": -73.5788,
+    "Accessibility_Info": "Accessible entrance: This building has an automated accessible entrance door.\nAccessible building elevator: This building entrance is equipped with an accessible elevator.",
     "Google_Place_Info": {
       "place": "places/ChIJtd6Zh2oayUwRAu_CnRIfoBw",
       "displayName": null,
@@ -1228,6 +1257,7 @@
     "Address": "7141 Sherbrooke West",
     "Latitude": 45.459356,
     "Longitude": -73.64127,
+    "Accessibility_Info": "Accessible entrance: This building has an automated accessible entrance door.",
     "Google_Place_Info": {
       "place": "places/ChIJ15NUMzAXyUwRMoIkjm8hhQ4",
       "displayName": { "text": "Hingston Hall A", "languageCode": "en" },
@@ -1284,6 +1314,7 @@
     "Address": "7141 Sherbrooke West",
     "Latitude": 45.459308,
     "Longitude": -73.641849,
+    "Accessibility_Info": "Accessible entrance: This building has an automated accessible entrance door.",
     "Google_Place_Info": {
       "place": "places/ChIJb5eaYyAXyUwRxHtg38ER_5c",
       "displayName": { "text": "Hingston Cafe", "languageCode": "en" },
@@ -1357,6 +1388,7 @@
     "Address": "7141 Sherbrooke West",
     "Latitude": 45.459663,
     "Longitude": -73.64208,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJH9e_OTAXyUwRHXYtNjcDQQU",
       "displayName": { "text": "Hingston Hall C", "languageCode": "en" },
@@ -1396,6 +1428,7 @@
     "Address": "7141, Sherbrooke W",
     "Latitude": 45.458513,
     "Longitude": -73.641921,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJGz0xAAsXyUwRAEJgG33sYjg",
       "displayName": {
@@ -1441,6 +1474,7 @@
     "Address": "7141 Sherbrooke West",
     "Latitude": 45.458432,
     "Longitude": -73.643235,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJp3MoHy4XyUwRs6lNreW0-fE",
       "displayName": { "text": "Jesuit Residence", "languageCode": "en" },
@@ -1486,6 +1520,7 @@
     "Address": "2150 Bishop Street",
     "Latitude": 45.4978579,
     "Longitude": -73.5793646,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJk55lnWoayUwRW8qZRcaQPiY",
       "displayName": null,
@@ -1529,6 +1564,7 @@
     "Address": "1400 DeMaisonneuve W",
     "Latitude": 45.49705,
     "Longitude": -73.578009,
+    "Accessibility_Info": "Accessible entrance: This building has an automated accessible entrance door.\nAccessible building elevator: This building entrance is equipped with an accessible elevator.",
     "Google_Place_Info": {
       "place": "places/ChIJN-9RgI0byUwRfSIxvYGihTE",
       "displayName": {
@@ -1589,6 +1625,7 @@
     "Address": "1426 Bishop Street",
     "Latitude": 45.496782,
     "Longitude": -73.577358,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJ5brkAqsXtCkRv6DOcDBmlQ0",
       "displayName": { "text": "MiaSanMontreal", "languageCode": "en" },
@@ -1624,6 +1661,7 @@
     "Address": "1424 Bishop Street",
     "Latitude": 45.496697,
     "Longitude": -73.577312,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJ352jE2oayUwRBIqjmLgfesw",
       "displayName": { "text": "1", "languageCode": "en" },
@@ -1659,6 +1697,7 @@
     "Address": "2135 Mackay Street",
     "Latitude": 45.497368,
     "Longitude": -73.579777,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJf9KSmmoayUwRNvoDLZmSFR4",
       "displayName": null,
@@ -1690,6 +1729,7 @@
     "Address": "1450 Guy Street",
     "Latitude": 45.495304,
     "Longitude": -73.579044,
+    "Accessibility_Info": "Accessible entrance: This building has an automated accessible entrance door.\nAccessible building elevator: This building entrance is equipped with an accessible elevator.",
     "Google_Place_Info": {
       "place": "places/ChIJF8BztGsayUwRYIE08bzpVxY",
       "displayName": null,
@@ -1726,6 +1766,7 @@
     "Address": "2130 Bishop Street",
     "Latitude": 45.4977799,
     "Longitude": -73.5792074,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJ67bogmoayUwRHJggbqfgv4A",
       "displayName": null,
@@ -1760,6 +1801,7 @@
     "Address": "2000-2002 Mackay St",
     "Latitude": 45.496606,
     "Longitude": -73.579025,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJVd1fYGoayUwRlRwsg-nj-Vk",
       "displayName": null,
@@ -1796,6 +1838,7 @@
     "Address": "1209 Guy Street",
     "Latitude": 45.494665,
     "Longitude": -73.576365,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJpQgnemkayUwR5bRdihrToC4",
       "displayName": null,
@@ -1829,6 +1872,7 @@
     "Address": "1205-1207 Guy Street",
     "Latitude": 45.494568,
     "Longitude": -73.576315,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJ6bpxemkayUwRVxQlRdq7Z1k",
       "displayName": null,
@@ -1860,6 +1904,7 @@
     "Address": "1195 Guy Street",
     "Latitude": 45.494442,
     "Longitude": -73.576108,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJ-dizcWkayUwRDTzc9NInRVw",
       "displayName": { "text": "Conference Services", "languageCode": "en" },
@@ -1897,6 +1942,7 @@
     "Address": "2170 Bishop Street",
     "Latitude": 45.497923,
     "Longitude": -73.5795303,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJC_0JJ0AayUwRrVVxeC6JTuo",
       "displayName": null,
@@ -1934,6 +1980,7 @@
     "Address": "2020 Mackay Street",
     "Latitude": 45.4966541,
     "Longitude": -73.5791822,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJd8A4HAAbyUwRBucBrAMRrXo",
       "displayName": { "text": "Msa Concordia library", "languageCode": "en" },
@@ -1966,6 +2013,7 @@
     "Address": "7200 Sherbrooke W",
     "Latitude": 45.456534,
     "Longitude": -73.638106,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJlwLXwC0XyUwRbh6ntzJOzCw",
       "displayName": null,
@@ -1997,6 +2045,7 @@
     "Address": "7200 Sherbrooke W",
     "Latitude": 45.457088,
     "Longitude": -73.637683,
+    "Accessibility_Info": "Accessibility ramp: This building entrance is equipped with an accessibility ramp.\nAccessible entrance: This building has an automated accessible entrance door.\nAccessible building elevator: This building entrance is equipped with an accessible elevator.",
     "Google_Place_Info": {
       "place": "places/ChIJCcCnNAAXyUwRBgK0p1yk5R4",
       "displayName": {
@@ -2040,6 +2089,7 @@
     "Address": "2100 Mackay Street",
     "Latitude": 45.4970026,
     "Longitude": -73.5798071,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJOdZtY2oayUwR8CdYQcbKhZ4",
       "displayName": { "text": "Concordia University", "languageCode": "en" },
@@ -2210,6 +2260,7 @@
     "Address": "7141 Sherbrooke W",
     "Latitude": 45.459636,
     "Longitude": -73.639758,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJhwdpvzEXyUwReUM8wFnsnb8",
       "displayName": { "text": "Physical Services", "languageCode": "en" },
@@ -2251,6 +2302,7 @@
     "Address": "7141 Sherbrooke W",
     "Latitude": 45.459308,
     "Longitude": -73.638941,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJQXsO_bcXyUwRW7XK-Eqmd9g",
       "displayName": { "text": "Buzz Dining Hall", "languageCode": "zh" },
@@ -2291,6 +2343,7 @@
     "Address": "7141 Sherbrooke W",
     "Latitude": 45.458938,
     "Longitude": -73.640467,
+    "Accessibility_Info": "Accessible entrance: This building has an automated accessible entrance door.\nAccessible building elevator: This building entrance is equipped with an accessible elevator.",
     "Google_Place_Info": {
       "place": "places/ChIJAcTa3zEXyUwR9_Uj5tJHrmg",
       "displayName": { "text": "Refectory", "languageCode": "en" },
@@ -2348,6 +2401,7 @@
     "Address": "2010 Mackay Street",
     "Latitude": 45.496648,
     "Longitude": -73.579094,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJITNpYGoayUwRwEY2XL2Z2DM",
       "displayName": null,
@@ -2390,6 +2444,7 @@
     "Address": "2050 Mackay Street",
     "Latitude": 45.496826,
     "Longitude": -73.579389,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJAce6i2oayUwRLVNlFl8X3VM",
       "displayName": null,
@@ -2423,6 +2478,7 @@
     "Address": "7200 Sherbrooke W",
     "Latitude": 45.456774,
     "Longitude": -73.63761,
+    "Accessibility_Info": "Wheelchair lift: This building is equipped with a wheelchair lift.\nAccessibility ramp: This building entrance is equipped with an accessibility ramp.\nAccessible entrance: This building has an automated accessible entrance door.",
     "Google_Place_Info": {
       "place": "places/ChIJz5jeF0AayUwRhq9dZjQi6z0",
       "displayName": { "text": "Ed Meagher Arena", "languageCode": "en" },
@@ -2468,6 +2524,7 @@
     "Address": "7141 Sherbrooke W",
     "Latitude": 45.458489,
     "Longitude": -73.641028,
+    "Accessibility_Info": "Wheelchair lift: This building is equipped with a wheelchair lift.\nAccessible entrance: This building has an automated accessible entrance door.",
     "Google_Place_Info": {
       "place": "places/ChIJ5-iCkyQXyUwRsbQ9j4Ylcyw",
       "displayName": {
@@ -2519,6 +2576,7 @@
     "Address": "2040 Mackay Street",
     "Latitude": 45.4967387,
     "Longitude": -73.5793291,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJi1JZimoayUwRJK1MvEVZK74",
       "displayName": null,
@@ -2557,6 +2615,7 @@
     "Address": "1535 De Maisonneuve Blvd. W.",
     "Latitude": 45.4963501,
     "Longitude": -73.5794859,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": null,
       "displayName": null,
@@ -2590,6 +2649,7 @@
     "Address": "2145 Mackay Street",
     "Latitude": 45.497423,
     "Longitude": -73.579851,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJa5L-mmoayUwR92Wz5qmZBhw",
       "displayName": { "text": "105", "languageCode": "en" },
@@ -2627,6 +2687,7 @@
     "Address": "1590 Doctor Penfield",
     "Latitude": 45.4966,
     "Longitude": -73.58609,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJUTVSqhUayUwRFJGgrRDet0c",
       "displayName": null,
@@ -2670,6 +2731,7 @@
     "Address": "7141 Sherbrooke W",
     "Latitude": 45.459131,
     "Longitude": -73.639251,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJQXsO_bcXyUwRW7XK-Eqmd9g",
       "displayName": { "text": "Buzz Dining Hall", "languageCode": "zh" },
@@ -2716,6 +2778,7 @@
     "Address": "7141 Sherbrooke W",
     "Latitude": 45.459298,
     "Longitude": -73.642478,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJp3MoHy4XyUwRkr_5bwBScNw",
       "displayName": {
@@ -2780,6 +2843,7 @@
     "Address": "7141 Sherbrooke W",
     "Latitude": 45.457881,
     "Longitude": -73.641565,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJp_rxOS4XyUwRR0dJdyOlMlY",
       "displayName": {
@@ -2861,6 +2925,7 @@
     "Address": "2030 Mackay Street",
     "Latitude": 45.49671,
     "Longitude": -73.57927,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJuXGXimoayUwRLQlF_Y6DNyY",
       "displayName": { "text": "1", "languageCode": "en" },
@@ -2892,6 +2957,7 @@
     "Address": "7079 Terrebonne",
     "Latitude": 45.459992,
     "Longitude": -73.640897,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJ-xNXszEXyUwRNPHfxuF8xAE",
       "displayName": {
@@ -2928,6 +2994,7 @@
     "Address": "7075 Terrebonne",
     "Latitude": 45.460051,
     "Longitude": -73.640842,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJPbapSQAXyUwRGm9AytMAD2E",
       "displayName": {
@@ -2951,6 +3018,7 @@
     "Address": "1410 Guy Street",
     "Latitude": 45.495103,
     "Longitude": -73.578375,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJN6hPymsayUwRhmRapvEsFFQ",
       "displayName": null,
@@ -2986,6 +3054,7 @@
     "Address": "1550 DeMaisonneuve",
     "Latitude": 45.49648,
     "Longitude": -73.578918,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJrXPGXWoayUwRurmMiIcOEog",
       "displayName": { "text": "Bixi", "languageCode": "fr" },
@@ -3019,6 +3088,7 @@
     "Address": "2110 Mackay Street",
     "Latitude": 45.4970475,
     "Longitude": -73.5798721,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJOdZtY2oayUwR8CdYQcbKhZ4",
       "displayName": { "text": "Concordia University", "languageCode": "en" },
@@ -3057,6 +3127,7 @@
     "Address": "1395 Rene Levesque W",
     "Latitude": 45.495543,
     "Longitude": -73.573795,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJrQ3XtmkayUwRhIUKi0PSTqg",
       "displayName": { "text": "DvT Montreal", "languageCode": "fr-CA" },
@@ -3094,6 +3165,7 @@
     "Address": "7141 Sherbrooke W",
     "Latitude": 45.459026,
     "Longitude": -73.638606,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJYbkD3jEXyUwRea_8qmZorvM",
       "displayName": { "text": "Loyola Quad", "languageCode": "en" },
@@ -3146,6 +3218,7 @@
     "Address": "7141 Sherbrooke W",
     "Latitude": 45.459026,
     "Longitude": -73.638606,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJYbkD3jEXyUwRea_8qmZorvM",
       "displayName": { "text": "Loyola Quad", "languageCode": "en" },
@@ -3166,6 +3239,7 @@
     "Address": "2080 Mackay Street",
     "Latitude": 45.49694,
     "Longitude": -73.579593,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJ5T8fjGoayUwRX1nzPwg9FJ4",
       "displayName": {
@@ -3211,6 +3285,7 @@
     "Address": "2090 Mackay Street",
     "Latitude": 45.496981,
     "Longitude": -73.579705,
+    "Accessibility_Info": "N/A",
     "Google_Place_Info": {
       "place": "places/ChIJW-70jGoayUwRxZdxulZroTU",
       "displayName": { "text": "2070 Mackay", "languageCode": "en" },

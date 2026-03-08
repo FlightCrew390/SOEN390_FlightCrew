@@ -1,6 +1,16 @@
 import { Building } from "../types/Building";
 
-export type LocationType = "building" | "restaurant";
+export type LocationType =
+  | "building"
+  | "restaurant"
+  | "cafe"
+  | "pharmacy"
+  | "bar"
+  | "grocery";
+
+export function isPoi(type: LocationType): boolean {
+  return type !== "building";
+}
 
 export interface SearchPanelState {
   locationType: LocationType;
@@ -9,6 +19,8 @@ export interface SearchPanelState {
   showAutocomplete: boolean;
   autocompleteIdx: number;
   selectedResult: Building | null;
+  radiusKm: number | null;
+  radiusDropdownOpen: boolean;
 }
 
 export type SearchPanelAction =
@@ -19,4 +31,6 @@ export type SearchPanelAction =
   | { type: "SELECT_AUTOCOMPLETE"; building: Building }
   | { type: "FOCUS_INPUT" }
   | { type: "BLUR_INPUT" }
-  | { type: "PANEL_CLOSED" };
+  | { type: "PANEL_CLOSED" }
+  | { type: "TOGGLE_RADIUS_DROPDOWN" }
+  | { type: "SELECT_RADIUS"; radiusKm: number | null };

@@ -1,6 +1,7 @@
 package com.soen390.flightcrew.controller;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -13,11 +14,13 @@ import org.springframework.web.client.RestTemplate;
 import com.soen390.flightcrew.model.Building;
 import com.soen390.flightcrew.model.GoogleGeocodeResponse;
 import com.soen390.flightcrew.service.GoogleMapsService;
+import com.soen390.flightcrew.service.BuildingInfoService;
+import com.soen390.flightcrew.util.GooglePlaceMatchUtil;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.core.ParameterizedTypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.File;
 import java.io.IOException;
 import org.slf4j.Logger;
@@ -43,28 +46,61 @@ public class ConcordiaController {
 
     private final RestTemplate restTemplate;
     private final GoogleMapsService googleMapsService;
+    private final BuildingInfoService buildingInfoService;
     private final ObjectMapper objectMapper;
 
     public ConcordiaController(RestTemplate restTemplate, GoogleMapsService googleMapsService,
-            ObjectMapper objectMapper) {
+            BuildingInfoService buildingInfoService, ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
         this.googleMapsService = googleMapsService;
+        this.buildingInfoService = buildingInfoService;
         this.objectMapper = objectMapper;
     }
 
     @GetMapping("/facilities/buildinglist")
     public ResponseEntity<List<Building>> getBuildingList() {
+        List<Building> buildings;
         Optional<List<Building>> cached = loadFromCache();
+
         if (cached.isPresent()) {
-            return ResponseEntity.ok(cached.get());
+            buildings = cached.get();
+        } else {
+            buildings = fetchBuildingsFromApi();
+            if (buildings != null && !buildings.isEmpty()) {
+                enrichWithGoogleData(buildings);
+            }
         }
 
-        List<Building> buildings = fetchBuildingsFromApi();
         if (buildings != null && !buildings.isEmpty()) {
-            enrichWithGoogleData(buildings);
-            saveToCache(buildings);
+            boolean updated = enrichWithAccessibilityInfo(buildings);
+            if (updated || !cached.isPresent()) {
+                saveToCache(buildings);
+            }
         }
+
         return ResponseEntity.ok(buildings);
+    }
+
+    private boolean enrichWithAccessibilityInfo(List<Building> buildings) {
+        boolean updated = false;
+        for (Building building : buildings) {
+            // Only fetch if not already present
+            if (building.getAccessibilityInfo() == null || building.getAccessibilityInfo().isEmpty()) {
+                // If the page is missing, the service will return "N/A" instead of null, so we
+                // can check for that to avoid retries.
+                try {
+                    String accessibilityInfo = buildingInfoService.fetchAccessibilityInfo(building);
+                    if (accessibilityInfo != null) {
+                        building.setAccessibilityInfo(accessibilityInfo);
+                        updated = true;
+                    }
+                } catch (Exception e) {
+                    logger.warn("Failed to enrich building {} with accessibility info: {}", building.getBuildingCode(),
+                            e.getMessage());
+                }
+            }
+        }
+        return updated;
     }
 
     private Optional<List<Building>> loadFromCache() {
@@ -115,6 +151,9 @@ public class ConcordiaController {
     }
 
     private void enrichBuilding(Building building) {
+        if (building.getGooglePlaceInfo() != null) {
+            return;
+        }
         try {
             // Note: This API call is rate-limited and costs money. Be careful with loops.
             GoogleGeocodeResponse googleResponse = googleMapsService
@@ -128,7 +167,7 @@ public class ConcordiaController {
             String targetName = building.getBuildingLongName() != null
                     ? building.getBuildingLongName()
                     : building.getBuildingName();
-            GoogleGeocodeResponse.PrimaryPlace bestMatch = findBestMatch(targetName,
+            GoogleGeocodeResponse.PrimaryPlace bestMatch = GooglePlaceMatchUtil.findBestMatch(targetName,
                     googleResponse.getDestinations());
 
             if (bestMatch != null && bestMatch.getDisplayName() != null
@@ -140,26 +179,6 @@ public class ConcordiaController {
         } catch (Exception e) {
             logger.warn("Error fetching google info for building {}: {}", building.getBuildingCode(), e.getMessage());
         }
-    }
-
-    private GoogleGeocodeResponse.PrimaryPlace findBestMatch(String targetName,
-            List<GoogleGeocodeResponse.Destination> destinations) {
-        GoogleGeocodeResponse.PrimaryPlace bestMatch = destinations.get(0).getPrimary();
-        if (targetName == null) {
-            return bestMatch;
-        }
-
-        for (GoogleGeocodeResponse.Destination dest : destinations) {
-            if (dest.getPrimary() == null || dest.getPrimary().getDisplayName() == null) {
-                continue;
-            }
-            String destName = dest.getPrimary().getDisplayName().getText();
-            if (destName.toLowerCase().contains(targetName.toLowerCase()) ||
-                    targetName.toLowerCase().contains(destName.toLowerCase())) {
-                return dest.getPrimary();
-            }
-        }
-        return bestMatch;
     }
 
     private void saveToCache(List<Building> buildings) {

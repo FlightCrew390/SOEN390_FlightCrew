@@ -26,6 +26,8 @@ const makeBuilding = (overrides: Partial<Building> = {}): Building => ({
   address: "1455 De Maisonneuve Blvd. W.",
   latitude: 45.4973,
   longitude: -73.5789,
+  accessibilityInfo:
+    "Wheelchair accessible entrance at 1455 De Maisonneuve Blvd. W.",
   ...overrides,
 });
 

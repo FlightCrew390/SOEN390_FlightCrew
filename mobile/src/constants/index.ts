@@ -18,6 +18,8 @@ export const COLORS = {
   mapPolylineWalk: "#40509F",
 };
 
+export const METRO_ACCESS_BUILDINGS = ["H", "EV", "MB", "LB"];
+
 // API Configuration
 export const API_CONFIG = {
   getBaseUrl: () => {

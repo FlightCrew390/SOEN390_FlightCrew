@@ -21,9 +21,25 @@ export function formatDate(d: Date): string {
   });
 }
 
-export function formatTime(d: Date): string {
+export function formatDatetime(d: Date): string {
   return d.toLocaleTimeString(undefined, {
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+export function formatTime(isoString: string): string {
+  const date = new Date(isoString);
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const period = hours >= 12 ? "PM" : "AM";
+  const displayHour = hours % 12 || 12;
+  const displayMinutes = minutes.toString().padStart(2, "0");
+  return `${displayHour}:${displayMinutes} ${period}`;
+}
+
+export function formatHourLabel(hour: number): string {
+  const period = hour >= 12 ? "PM" : "AM";
+  const display = hour % 12 || 12;
+  return `${display} ${period}`;
 }

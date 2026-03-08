@@ -70,7 +70,11 @@ jest.mock("../../src/styles/SearchPanel", () => ({
 interface Props {
   visible?: boolean;
   onClose?: () => void;
-  onSearch?: (query: string, locationType: LocationType) => void;
+  onSearch?: (
+    query: string,
+    locationType: LocationType,
+    radiusKm: number | null,
+  ) => void;
   onSelectBuilding?: (building: Building) => void;
 }
 
@@ -144,10 +148,10 @@ describe("SearchPanel", () => {
     renderSearchPanel();
     // Open dropdown
     fireEvent.press(screen.getByLabelText("Select location type"));
-    // Select restaurant
-    fireEvent.press(screen.getByLabelText("Restaurant"));
-    // Placeholder should change
-    expect(screen.getByPlaceholderText("Restaurant name")).toBeTruthy();
+    // Select cafe (POI type)
+    fireEvent.press(screen.getByLabelText("Cafe"));
+    // For POI types, text input should not appear; distance dropdown should
+    expect(screen.getByText("Distance from location")).toBeTruthy();
   });
 
   // ── Text input ──
@@ -257,34 +261,27 @@ describe("SearchPanel", () => {
     mockUseAutocomplete.mockReturnValue([]);
     const { props } = renderSearchPanel();
 
-    // Switch to restaurant
+    // Switch to restaurant (POI type)
     fireEvent.press(screen.getByLabelText("Select location type"));
     fireEvent.press(screen.getByLabelText("Restaurant"));
 
-    // Type a query
-    fireEvent.changeText(
-      screen.getByLabelText("Search restaurant name"),
-      "Pizza",
-    );
-
-    // Submit via search button (restaurant type doesn't need autocomplete match)
+    // For POI type, search is always enabled — just press search
     fireEvent.press(screen.getByLabelText("Search"));
-    expect(props.onSearch).toHaveBeenCalledWith("Pizza", "restaurant");
+    expect(props.onSearch).toHaveBeenCalledWith("", "restaurant", null);
   });
 
   it("calls onSearch via keyboard submit", () => {
-    mockUseAutocomplete.mockReturnValue([]);
+    mockUseAutocomplete.mockReturnValue([hallBuilding]);
     const { props } = renderSearchPanel();
 
-    // Switch to restaurant
-    fireEvent.press(screen.getByLabelText("Select location type"));
-    fireEvent.press(screen.getByLabelText("Restaurant"));
+    // Building type — type and submit
+    const input = screen.getByLabelText("Search building name");
+    fireEvent.changeText(input, "Hall");
+    // Select from autocomplete first
+    fireEvent.press(screen.getByLabelText("Henry F. Hall Building"));
+    fireEvent(screen.getByLabelText("Search building name"), "submitEditing");
 
-    const input = screen.getByLabelText("Search restaurant name");
-    fireEvent.changeText(input, "Sushi");
-    fireEvent(input, "submitEditing");
-
-    expect(props.onSearch).toHaveBeenCalledWith("Sushi", "restaurant");
+    expect(props.onSelectBuilding).toHaveBeenCalledWith(hallBuilding);
   });
 
   // ── useAutocomplete called with correct args ──
@@ -317,5 +314,83 @@ describe("SearchPanel", () => {
     renderSearchPanel();
     fireEvent.press(screen.getByLabelText("Select location type"));
     expect(screen.getByTestId("fa5-chevron-up")).toBeTruthy();
+  });
+
+  // ── POI type: radius dropdown ──
+
+  it("shows radius dropdown when POI type is selected", () => {
+    renderSearchPanel();
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Cafe"));
+    expect(screen.getByText("Distance from location")).toBeTruthy();
+    expect(screen.getByText("No limit")).toBeTruthy();
+  });
+
+  it("opens radius dropdown when toggle is pressed", () => {
+    renderSearchPanel();
+    // Switch to POI type
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Pharmacy"));
+    // Open radius dropdown
+    fireEvent.press(screen.getByLabelText("Select distance radius"));
+    expect(screen.getByLabelText("1 km")).toBeTruthy();
+    expect(screen.getByLabelText("2 km")).toBeTruthy();
+    expect(screen.getByLabelText("5 km")).toBeTruthy();
+  });
+
+  it("selects a radius value from the dropdown", () => {
+    renderSearchPanel();
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Bar"));
+    // Open radius dropdown and select 2 km
+    fireEvent.press(screen.getByLabelText("Select distance radius"));
+    fireEvent.press(screen.getByLabelText("2 km"));
+    // After selecting, the trigger should show "2 km"
+    expect(screen.getByText("2 km")).toBeTruthy();
+  });
+
+  it("calls onSearch with empty query, POI type, and radius when search is pressed", () => {
+    const { props } = renderSearchPanel();
+    // Switch to grocery
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Grocery"));
+    // Select 5 km radius
+    fireEvent.press(screen.getByLabelText("Select distance radius"));
+    fireEvent.press(screen.getByLabelText("5 km"));
+    // Press search
+    fireEvent.press(screen.getByLabelText("Search"));
+    expect(props.onSearch).toHaveBeenCalledWith("", "grocery", 5);
+  });
+
+  it("enables search button for POI type even without query", () => {
+    renderSearchPanel();
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Restaurant"));
+    const btn = screen.getByLabelText("Search");
+    expect(btn.props.accessibilityState?.disabled).toBeFalsy();
+  });
+
+  it("hides text input when POI type is selected", () => {
+    renderSearchPanel();
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Cafe"));
+    expect(screen.queryByLabelText("Search building name")).toBeNull();
+  });
+
+  it("calls onSearch with no limit radius by default for POI type", () => {
+    const { props } = renderSearchPanel();
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Cafe"));
+    fireEvent.press(screen.getByLabelText("Search"));
+    expect(props.onSearch).toHaveBeenCalledWith("", "cafe", null);
+  });
+
+  it("fires blur handler after timeout", () => {
+    jest.useFakeTimers();
+    renderSearchPanel();
+    fireEvent(screen.getByLabelText("Search building name"), "focus");
+    fireEvent(screen.getByLabelText("Search building name"), "blur");
+    jest.advanceTimersByTime(250);
+    jest.useRealTimers();
   });
 });

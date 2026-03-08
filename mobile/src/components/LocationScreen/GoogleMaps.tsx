@@ -9,10 +9,14 @@ import { useMapUI } from "../../hooks/useMapUI";
 import { LocationType } from "../../state/SearchPanelState";
 import styles from "../../styles/GoogleMaps";
 import { Building } from "../../types/Building";
+import { PointOfInterest } from "../../types/PointOfInterest";
+import { poiToBuilding } from "../../utils/poiUtils";
 import BuildingLayer from "./BuildingLayer";
 import DirectionPanel from "./DirectionPanel";
 import MapControls from "./MapControls";
 import MapOverlays from "./MapOverlays";
+import PoiMarker from "./PoiMarker";
+import PoiResultsPanel from "./PoiResultsPanel";
 import RoutePolyline from "./RoutePolyline";
 import SearchPanel from "./SearchPanel";
 import UserLocationMarker from "./UserLocationMarker";
@@ -43,6 +47,7 @@ export default function GoogleMaps({
     openDirections,
     handleSearch,
     handleTravelModeChange,
+    selectPoi,
   } = useMapUI(buildings, location);
 
   const {
@@ -62,9 +67,33 @@ export default function GoogleMaps({
     openDirections(building);
   };
 
-  const onSearchSubmit = (query: string, locationType: LocationType) => {
-    const match = handleSearch(query, locationType);
+  const onSearchSubmit = (
+    query: string,
+    locationType: LocationType,
+    radiusKm: number | null,
+  ) => {
+    const match = handleSearch(query, locationType, radiusKm);
     if (match) onSelectBuilding(match);
+  };
+
+  const onSelectPoi = (poi: PointOfInterest) => {
+    selectPoi(poi);
+    mapRef.current?.animateToRegion(
+      {
+        latitude: poi.latitude,
+        longitude: poi.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      },
+      500,
+    );
+  };
+
+  const onPoiDirectionPress = (poi: PointOfInterest) => {
+    const building = poiToBuilding(poi);
+    selectPoi(poi);
+    animateToBuilding(building);
+    openDirections(building);
   };
 
   const displayError = error || locationError;
@@ -108,6 +137,16 @@ export default function GoogleMaps({
             longitude={location.coords.longitude}
           />
         )}
+
+        {state.selectedPoi && (
+          <PoiMarker
+            poi={state.selectedPoi}
+            isDirectionsOpen={
+              state.panel === "directions" || state.panel === "steps"
+            }
+            onDirectionPress={() => onPoiDirectionPress(state.selectedPoi!)}
+          />
+        )}
       </MapView>
 
       <MapOverlays
@@ -132,6 +171,17 @@ export default function GoogleMaps({
         onShowSteps={() => dispatch({ type: "OPEN_STEPS" })}
         onHideSteps={() => dispatch({ type: "CLOSE_STEPS" })}
       />
+
+      {state.panel === "poi-results" && (
+        <PoiResultsPanel
+          results={state.poiResults}
+          loading={state.poiLoading}
+          error={state.poiError}
+          onBack={() => dispatch({ type: "BACK_TO_SEARCH" })}
+          onSelectPoi={onSelectPoi}
+          onDirectionPress={onPoiDirectionPress}
+        />
+      )}
 
       <SearchPanel
         visible={state.panel === "search"}

@@ -5,6 +5,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import com.soen390.flightcrew.model.PointOfInterest;
 import com.soen390.flightcrew.model.GoogleGeocodeResponse;
+import com.soen390.flightcrew.util.GooglePlaceMatchUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.File;
@@ -47,11 +48,14 @@ public class PointOfInterestService {
     }
 
     private List<PointOfInterest> filterByCampus(List<PointOfInterest> pois, String campus) {
-        if (campus == null || campus.isEmpty() || pois == null) {
+        if (pois == null) {
+            return java.util.Collections.emptyList();
+        }
+        if (campus == null || campus.trim().isEmpty()) {
             return pois;
         }
         return pois.stream()
-                .filter(poi -> campus.equalsIgnoreCase(poi.getCampus()))
+                .filter(poi -> campus.trim().equalsIgnoreCase(poi.getCampus()))
                 .collect(Collectors.toList());
     }
 

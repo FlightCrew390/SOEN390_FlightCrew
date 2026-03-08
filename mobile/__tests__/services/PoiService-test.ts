@@ -87,7 +87,9 @@ describe("PoiService", () => {
       status: 500,
     });
 
-    await expect(PoiService.fetchPois()).rejects.toThrow("HTTP error! status: 500");
+    await expect(PoiService.fetchPois()).rejects.toThrow(
+      "HTTP error! status: 500",
+    );
   });
 
   it("throws network error with helpful message", async () => {

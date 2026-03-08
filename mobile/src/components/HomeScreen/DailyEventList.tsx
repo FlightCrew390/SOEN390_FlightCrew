@@ -8,7 +8,26 @@ interface DailyEventListProps {
   loading: boolean;
   error: string | null;
   events: CalendarEvent[];
+  /** Whether the currently selected date is today. */
+  isToday: boolean;
   onEventPress: (event: CalendarEvent) => void;
+  onDirections?: (event: CalendarEvent) => void;
+}
+
+/**
+ * Find the first event that is either currently happening or upcoming
+ * (i.e. its end time is still in the future). Returns the event id
+ * or null if every event has already ended.
+ */
+function findUpcomingEventId(sortedEvents: CalendarEvent[]): string | null {
+  const now = new Date();
+  for (const event of sortedEvents) {
+    if (event.allDay) continue;
+    if (new Date(event.end).getTime() > now.getTime()) {
+      return event.id;
+    }
+  }
+  return null;
 }
 
 /**
@@ -21,11 +40,16 @@ export default function DailyEventList({
   loading,
   error,
   events,
+  isToday,
   onEventPress,
+  onDirections,
 }: Readonly<DailyEventListProps>) {
   const sorted = [...events].sort(
     (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime(),
   );
+
+  // Only highlight upcoming/current events when viewing today
+  const upcomingId = isToday ? findUpcomingEventId(sorted) : null;
 
   let content;
 
@@ -44,7 +68,9 @@ export default function DailyEventList({
       <EventItem
         key={event.id}
         event={event}
+        isUpcoming={event.id === upcomingId}
         onPress={() => onEventPress(event)}
+        onDirections={onDirections}
       />
     ));
   } else {

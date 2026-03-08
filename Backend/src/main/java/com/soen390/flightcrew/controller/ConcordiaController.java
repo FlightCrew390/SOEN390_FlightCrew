@@ -57,7 +57,7 @@ public class ConcordiaController {
         this.objectMapper = objectMapper;
     }
 
-    @GetMapping("/facilities/buildinglist")
+    @GetMapping({ "/facilities/buildinglist", "/facilities/buildinglist/" })
     public ResponseEntity<List<Building>> getBuildingList() {
         List<Building> buildings;
         Optional<List<Building>> cached = loadFromCache();

@@ -223,4 +223,50 @@ describe("CalendarService", () => {
       expect(calendarTokenStore.clearTokens).toHaveBeenCalled();
     });
   });
+
+  describe("fetchCalendarList", () => {
+    it("successfully fetches calendar list with valid tokens", async () => {
+      const mockCalendarList = [
+        { id: "cal1", summary: "Calendar 1" },
+        { id: "cal2", summary: "Calendar 2" },
+      ];
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValue(mockCalendarList),
+      });
+
+      const result = await CalendarService.fetchCalendarList(mockTokens);
+
+      expect(ensureValidTokens).toHaveBeenCalledWith(
+        mockTokens,
+        calendarTokenStore,
+      );
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        "http://localhost:9090/api/v1/calendar/list",
+        {
+          headers: {
+            Authorization: `Bearer ${mockTokens.accessToken}`,
+          },
+        },
+      );
+
+      expect(result).toEqual(mockCalendarList);
+    });
+    it("clears tokens and throws error on 401 unauthorized", async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+      });
+
+      await expect(
+        CalendarService.fetchCalendarList(mockTokens),
+      ).rejects.toThrow(
+        "Calendar access expired. Please reconnect Google Calendar.",
+      );
+
+      expect(calendarTokenStore.clearTokens).toHaveBeenCalled();
+    });
+  });
 });

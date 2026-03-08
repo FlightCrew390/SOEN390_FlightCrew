@@ -18,6 +18,7 @@ jest.mock("../../src/services/CalendarService", () => ({
         timeMin?: string,
         timeMax?: string,
         signal?: AbortSignal,
+        calendarId?: string,
       ) => Promise.resolve(mockEvents),
     ),
   },
@@ -159,6 +160,7 @@ describe("fetchEvents", () => {
       {
         mockTokens,
       },
+      undefined,
       undefined,
       undefined,
       undefined,

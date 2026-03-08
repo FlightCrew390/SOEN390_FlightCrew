@@ -17,6 +17,7 @@ import { COLORS } from "../../constants";
 import { useCalendar } from "../../contexts/CalendarContext";
 import { useUser } from "../../contexts/UserContext";
 import styles from "../../styles/ConnectionPanelStyle";
+import CalendarPickerPanel from "./CalendarPickerPanel";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -61,6 +62,13 @@ export default function ConnectionPanel() {
     error: calendarError,
     connectCalendar,
     disconnectCalendar,
+    // Calendar picker
+    calendarList,
+    calendarListLoading,
+    selectedCalendarId,
+    showCalendarPicker,
+    confirmCalendarSelection,
+    dismissCalendarPicker,
   } = useCalendar();
   const activeFlow = useRef<ActiveFlow>("none");
 
@@ -282,6 +290,16 @@ export default function ConnectionPanel() {
           </>
         )}
       </View>
+
+      {/* Calendar picker popup — shown after Google Calendar is connected */}
+      <CalendarPickerPanel
+        visible={showCalendarPicker}
+        calendars={calendarList}
+        loading={calendarListLoading}
+        preSelectedId={selectedCalendarId}
+        onConfirm={confirmCalendarSelection}
+        onDismiss={dismissCalendarPicker}
+      />
     </View>
   );
 }

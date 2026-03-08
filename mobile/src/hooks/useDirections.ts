@@ -22,7 +22,12 @@ function parseShuttleDurationToSeconds(durationStr: string): number {
     if (Number.isNaN(num)) continue;
     const afterNum = parts[i].slice(String(num).length).toLowerCase();
     const next = (parts[i + 1] ?? "").toLowerCase();
-    if (next === "hr" || next === "hrs" || afterNum === "hr" || afterNum === "hrs") {
+    if (
+      next === "hr" ||
+      next === "hrs" ||
+      afterNum === "hr" ||
+      afterNum === "hrs"
+    ) {
       seconds += num * 3600;
     } else if (
       next === "min" ||
@@ -84,7 +89,10 @@ function getNextDepartures(
     if (depHHMM === "") return false;
     return isArriveBy ? depHHMM <= refHHMM : depHHMM >= refHHMM;
   });
-  const sliced = filtered.slice(isArriveBy ? -3 : 0, isArriveBy ? undefined : 3);
+  const sliced = filtered.slice(
+    isArriveBy ? -3 : 0,
+    isArriveBy ? undefined : 3,
+  );
   const times = sliced.map((d) => d[departureKey] as string);
   if (isArriveBy) times.reverse();
   return times;

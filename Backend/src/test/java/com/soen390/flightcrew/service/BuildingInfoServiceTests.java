@@ -10,10 +10,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
-public class BuildingInfoServiceTests {
+class BuildingInfoServiceTests {
 
     @Test
-    public void testFetchAccessibilityInfo_Success() {
+    void testFetchAccessibilityInfo_Success() {
         RestTemplate restTemplate = new RestTemplate();
         MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
 
@@ -33,7 +33,7 @@ public class BuildingInfoServiceTests {
     }
 
     @Test
-    public void testFetchAccessibilityInfo_NotFound() {
+    void testFetchAccessibilityInfo_NotFound() {
         RestTemplate restTemplate = new RestTemplate();
         MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
 
@@ -52,7 +52,7 @@ public class BuildingInfoServiceTests {
     }
 
     @Test
-    public void testFetchAccessibilityInfo_NullCode() {
+    void testFetchAccessibilityInfo_NullCode() {
         RestTemplate restTemplate = new RestTemplate();
         BuildingInfoService service = new BuildingInfoService(restTemplate);
         Building building = new Building();
@@ -63,7 +63,7 @@ public class BuildingInfoServiceTests {
     }
 
     @Test
-    public void testFetchAccessibilityInfo_EmptyCode() {
+    void testFetchAccessibilityInfo_EmptyCode() {
         RestTemplate restTemplate = new RestTemplate();
         BuildingInfoService service = new BuildingInfoService(restTemplate);
         Building building = new Building();
@@ -74,7 +74,7 @@ public class BuildingInfoServiceTests {
     }
 
     @Test
-    public void testFetchAccessibilityInfo_ComplexTraverse() {
+    void testFetchAccessibilityInfo_ComplexTraverse() {
         RestTemplate restTemplate = new RestTemplate();
         MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
 
@@ -99,7 +99,7 @@ public class BuildingInfoServiceTests {
     }
 
     @Test
-    public void testFetchAccessibilityInfo_TextImage() {
+    void testFetchAccessibilityInfo_TextImage() {
         RestTemplate restTemplate = new RestTemplate();
         MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
 
@@ -121,7 +121,7 @@ public class BuildingInfoServiceTests {
     }
 
     @Test
-    public void testFetchAccessibilityInfo_TextImageNoBold() {
+    void testFetchAccessibilityInfo_TextImageNoBold() {
         RestTemplate restTemplate = new RestTemplate();
         MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
 
@@ -143,7 +143,7 @@ public class BuildingInfoServiceTests {
     }
 
     @Test
-    public void testFetchAccessibilityInfo_StopAtNextHeader() {
+    void testFetchAccessibilityInfo_StopAtNextHeader() {
         RestTemplate restTemplate = new RestTemplate();
         MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
 
@@ -166,7 +166,7 @@ public class BuildingInfoServiceTests {
     }
 
     @Test
-    public void testFetchAccessibilityInfo_Exception() {
+    void testFetchAccessibilityInfo_Exception() {
         RestTemplate restTemplate = new RestTemplate();
         MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
 

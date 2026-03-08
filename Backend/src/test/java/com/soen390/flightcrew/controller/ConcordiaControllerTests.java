@@ -800,9 +800,10 @@ public class ConcordiaControllerTests {
     assertNotNull(buildings);
     assertEquals(1, buildings.length);
 
-    String expectedInfo = "Accessibility ramp: This building entrance is equipped with an accessibility ramp.\n" +
-        "Accessible entrance: This building has an automated accessible entrance door.\n" +
-        "Accessible elevator: This building is equipped with an elevator.";
+    String expectedInfo = """
+        Accessibility ramp: This building entrance is equipped with an accessibility ramp.
+        Accessible entrance: This building has an automated accessible entrance door.
+        Accessible elevator: This building is equipped with an elevator.""";
     assertEquals(expectedInfo, buildings[0].getAccessibilityInfo());
 
     mockServer.verify();

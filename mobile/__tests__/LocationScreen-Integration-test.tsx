@@ -37,7 +37,7 @@ jest.mock("react-native-maps", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View } = require("react-native");
 
-  const MockMapView = forwardRef((props: JSX.IntrinsicAttributes, ref: any) => {
+  const MockMapView = forwardRef((props, ref: any) => {
     MockMapView.displayName = "MockMapView";
     useImperativeHandle(ref, () => ({
       animateToRegion: mockAnimateToRegion,

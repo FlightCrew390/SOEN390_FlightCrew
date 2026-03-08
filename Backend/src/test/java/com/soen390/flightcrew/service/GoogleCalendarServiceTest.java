@@ -1,45 +1,160 @@
 package com.soen390.flightcrew.service;
 
+import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.CalendarList;
+import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
-import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.model.Events;
 import com.soen390.flightcrew.model.CalendarEventDTO;
 import com.soen390.flightcrew.model.CalendarInfoDTO;
-
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 class GoogleCalendarServiceTest {
 
         private final GoogleCalendarService googleCalendarService = new GoogleCalendarService();
 
         @Test
-        void fetchEvents_InvalidToken_ThrowsException() {
-                // Test that invalid tokens cause exceptions to be thrown
-                // Since we can't easily mock the Google API calls, we test that the service
-                // properly propagates exceptions when the API calls fail
+        void fetchCalendarList_ReturnsMappedCalendars() throws Exception {
+                Calendar calendarApi = mock(Calendar.class);
+                Calendar.CalendarList calendarListApi = mock(Calendar.CalendarList.class);
+                Calendar.CalendarList.List request = mock(Calendar.CalendarList.List.class);
 
-                String invalidToken = "invalid-token";
+                CalendarListEntry entry = new CalendarListEntry()
+                                .setId("calendar-id")
+                                .setSummary("My Calendar")
+                                .setDescription("Team events")
+                                .setBackgroundColor("#ffffff")
+                                .setPrimary(true);
+                CalendarList payload = new CalendarList().setItems(List.of(entry));
 
-                assertThrows(Exception.class, () -> {
-                        googleCalendarService.fetchEvents(invalidToken, null, null, null);
-                });
+                when(calendarApi.calendarList()).thenReturn(calendarListApi);
+                when(calendarListApi.list()).thenReturn(request);
+                when(request.setMinAccessRole("reader")).thenReturn(request);
+                when(request.execute()).thenReturn(payload);
+
+                GoogleCalendarService service = new TestableGoogleCalendarService(calendarApi);
+
+                List<CalendarInfoDTO> result = service.fetchCalendarList("token");
+
+                assertEquals(1, result.size());
+                assertEquals("calendar-id", result.get(0).getId());
+                assertEquals("My Calendar", result.get(0).getSummary());
+                assertEquals("Team events", result.get(0).getDescription());
+                assertEquals("#ffffff", result.get(0).getBackgroundColor());
+                assertTrue(result.get(0).isPrimary());
+                verify(request).setMinAccessRole("reader");
+                verify(request).execute();
         }
 
         @Test
-        void fetchEvents_WithTimeParameters_InvalidToken_ThrowsException() {
-                // Test that invalid tokens cause exceptions even with time parameters
+        void fetchCalendarList_WhenApiThrows_MapsToUnauthorized() throws Exception {
+                Calendar calendarApi = mock(Calendar.class);
+                Calendar.CalendarList calendarListApi = mock(Calendar.CalendarList.class);
+                Calendar.CalendarList.List request = mock(Calendar.CalendarList.List.class);
 
-                String invalidToken = "invalid-token";
-                String timeMin = "2023-01-01T00:00:00Z";
-                String timeMax = "2023-01-02T00:00:00Z";
+                when(calendarApi.calendarList()).thenReturn(calendarListApi);
+                when(calendarListApi.list()).thenReturn(request);
+                when(request.setMinAccessRole("reader")).thenReturn(request);
+                when(request.execute()).thenThrow(new IOException("boom"));
 
-                assertThrows(Exception.class, () -> {
-                        googleCalendarService.fetchEvents(invalidToken, timeMin, timeMax, null);
-                });
+                GoogleCalendarService service = new TestableGoogleCalendarService(calendarApi);
+
+                ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                                () -> service.fetchCalendarList("token"));
+
+                assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
+                assertTrue(ex.getReason().contains("Failed to fetch calendar list"));
+        }
+
+        @Test
+        void fetchEvents_UsesPrimaryCalendarWhenCalendarIdMissing() throws Exception {
+                Calendar calendarApi = mock(Calendar.class);
+                Calendar.Events eventsApi = mock(Calendar.Events.class);
+                Calendar.Events.List request = mock(Calendar.Events.List.class);
+
+                Event event = new Event()
+                                .setId("e1")
+                                .setSummary("Standup")
+                                .setDescription("Daily sync")
+                                .setLocation("Room A")
+                                .setStart(new EventDateTime().setDateTime(new DateTime("2026-03-08T10:00:00Z")))
+                                .setEnd(new EventDateTime().setDateTime(new DateTime("2026-03-08T10:15:00Z")));
+                Events payload = new Events().setItems(List.of(event));
+
+                when(calendarApi.events()).thenReturn(eventsApi);
+                when(eventsApi.list("primary")).thenReturn(request);
+                when(request.setSingleEvents(true)).thenReturn(request);
+                when(request.setOrderBy("startTime")).thenReturn(request);
+                when(request.execute()).thenReturn(payload);
+
+                GoogleCalendarService service = new TestableGoogleCalendarService(calendarApi);
+
+                List<CalendarEventDTO> result = service.fetchEvents("token", null, null, "");
+
+                assertEquals(1, result.size());
+                assertEquals("e1", result.get(0).getId());
+                verify(eventsApi).list("primary");
+                verify(request, never()).setTimeMin(any(DateTime.class));
+                verify(request, never()).setTimeMax(any(DateTime.class));
+                verify(request).execute();
+        }
+
+        @Test
+        void fetchEvents_WithTimeMinMaxAndCalendarId_AppliesFilters() throws Exception {
+                Calendar calendarApi = mock(Calendar.class);
+                Calendar.Events eventsApi = mock(Calendar.Events.class);
+                Calendar.Events.List request = mock(Calendar.Events.List.class);
+
+                when(calendarApi.events()).thenReturn(eventsApi);
+                when(eventsApi.list("team-calendar")).thenReturn(request);
+                when(request.setSingleEvents(true)).thenReturn(request);
+                when(request.setOrderBy("startTime")).thenReturn(request);
+                when(request.setTimeMin(any(DateTime.class))).thenReturn(request);
+                when(request.setTimeMax(any(DateTime.class))).thenReturn(request);
+                when(request.execute()).thenReturn(new Events().setItems(List.of()));
+
+                GoogleCalendarService service = new TestableGoogleCalendarService(calendarApi);
+
+                service.fetchEvents("token", "2026-03-01T00:00:00Z", "2026-03-31T23:59:59Z", "team-calendar");
+
+                verify(eventsApi).list("team-calendar");
+                verify(request).setTimeMin(eq(new DateTime("2026-03-01T00:00:00Z")));
+                verify(request).setTimeMax(eq(new DateTime("2026-03-31T23:59:59Z")));
+                verify(request).execute();
+        }
+
+        @Test
+        void fetchEvents_WhenApiThrows_MapsToUnauthorized() throws Exception {
+                Calendar calendarApi = mock(Calendar.class);
+                Calendar.Events eventsApi = mock(Calendar.Events.class);
+                Calendar.Events.List request = mock(Calendar.Events.List.class);
+
+                when(calendarApi.events()).thenReturn(eventsApi);
+                when(eventsApi.list("primary")).thenReturn(request);
+                when(request.setSingleEvents(true)).thenReturn(request);
+                when(request.setOrderBy("startTime")).thenReturn(request);
+                when(request.execute()).thenThrow(new IOException("boom"));
+
+                GoogleCalendarService service = new TestableGoogleCalendarService(calendarApi);
+
+                ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                                () -> service.fetchEvents("token", null, null, null));
+
+                assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
+                assertTrue(ex.getReason().contains("Failed to fetch calendar events"));
         }
 
         @Test
@@ -136,16 +251,6 @@ class GoogleCalendarServiceTest {
         }
 
         @Test
-        void fetchCalendarList_InvalidToken_ThrowsException() {
-                // Test that invalid tokens cause exceptions when fetching calendar list
-
-                String invalidToken = "invalid-token";
-                assertThrows(Exception.class, () -> {
-                        googleCalendarService.fetchCalendarList(invalidToken);
-                });
-        }
-
-        @Test
         void toCalendarInfoDTO_NullFields() throws Exception {
                 // Test the toCalendarInfoDTO method with null/empty fields
                 Method toCalendarInfoDTOMethod = GoogleCalendarService.class.getDeclaredMethod("toCalendarInfoDTO",
@@ -160,6 +265,19 @@ class GoogleCalendarServiceTest {
                 assertNull(result.getDescription());
                 assertNull(result.getBackgroundColor());
                 assertFalse(result.isPrimary());
+        }
+
+        private static final class TestableGoogleCalendarService extends GoogleCalendarService {
+                private final Calendar calendarApi;
+
+                private TestableGoogleCalendarService(Calendar calendarApi) {
+                        this.calendarApi = calendarApi;
+                }
+
+                @Override
+                protected Calendar buildCalendarClient(String accessToken) {
+                        return calendarApi;
+                }
         }
 
 }

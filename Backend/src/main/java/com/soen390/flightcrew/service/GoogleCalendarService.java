@@ -84,7 +84,7 @@ public class GoogleCalendarService {
                 }
         }
 
-        private Calendar buildCalendarClient(String accessToken) {
+        protected Calendar buildCalendarClient(String accessToken) {
                 // Provide a future expiry so the Google client library never attempts
                 // its own token refresh — the mobile app handles refresh before calling us.
                 java.util.Date futureExpiry = new java.util.Date(System.currentTimeMillis() + 3_600_000);

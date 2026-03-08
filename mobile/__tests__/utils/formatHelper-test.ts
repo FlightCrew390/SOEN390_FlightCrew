@@ -1,4 +1,9 @@
-import { formatDate, formatDistance, formatDuration, formatTime } from "../../src/utils/formatHelper";
+import {
+  formatDate,
+  formatDistance,
+  formatDuration,
+  formatTime,
+} from "../../src/utils/formatHelper";
 
 describe("formatDuration", () => {
   it("returns '-- min' for zero or negative", () => {
@@ -56,19 +61,17 @@ describe("formatDate", () => {
 });
 
 describe("formatTime", () => {
-  it("delegates to toLocaleTimeString with the correct options", () => {
+  it("formats a morning Date as h:mm AM", () => {
     const d = new Date("2026-03-03T10:05:00");
-    const spy = jest
-      .spyOn(d, "toLocaleTimeString")
-      .mockReturnValue("10:05 AM");
+    expect(formatTime(d)).toBe("10:05 AM");
+  });
 
-    const result = formatTime(d);
+  it("formats an afternoon Date as h:mm PM", () => {
+    const d = new Date("2026-03-03T14:30:00");
+    expect(formatTime(d)).toBe("2:30 PM");
+  });
 
-    expect(spy).toHaveBeenCalledWith(undefined, {
-      hour: "numeric",
-      minute: "2-digit",
-    });
-    expect(result).toBe("10:05 AM");
-    spy.mockRestore();
+  it("formats an ISO string", () => {
+    expect(formatTime("2026-03-03T10:05:00")).toBe("10:05 AM");
   });
 });

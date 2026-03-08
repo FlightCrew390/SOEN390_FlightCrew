@@ -1,8 +1,8 @@
 import {
   formatDate,
+  formatDateTime,
   formatDistance,
   formatDuration,
-  formatTime,
 } from "../../src/utils/formatHelper";
 
 describe("formatDuration", () => {
@@ -65,7 +65,7 @@ describe("formatTime", () => {
     const d = new Date("2026-03-03T10:05:00");
     const spy = jest.spyOn(d, "toLocaleTimeString").mockReturnValue("10:05 AM");
 
-    const result = formatTime(d);
+    const result = formatDateTime(d);
 
     expect(spy).toHaveBeenCalledWith(undefined, {
       hour: "numeric",

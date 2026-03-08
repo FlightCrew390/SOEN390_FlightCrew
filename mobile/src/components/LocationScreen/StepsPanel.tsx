@@ -8,7 +8,7 @@ import { DepartureTimeConfig, RouteInfo } from "../../types/Directions";
 import {
   formatDistance,
   formatDuration,
-  formatTime,
+  formatDatetime,
 } from "../../utils/formatHelper";
 import {
   computeStepTimeline,
@@ -75,14 +75,14 @@ export default function StepsPanel({
           <FontAwesome5 name="clock" size={13} color={COLORS.concordiaMaroon} />
           <Text style={styles.timeSummaryLabel}>Depart</Text>
           <Text style={styles.timeSummaryValue}>
-            {formatTime(departureDate)}
+            {formatDatetime(departureDate)}
           </Text>
         </View>
         <View style={styles.timeSummaryDivider} />
         <View style={styles.timeSummaryItem}>
           <FontAwesome5 name="flag-checkered" size={13} color="#555" />
           <Text style={styles.timeSummaryLabel}>Arrive</Text>
-          <Text style={styles.timeSummaryValue}>{formatTime(arrivalDate)}</Text>
+          <Text style={styles.timeSummaryValue}>{formatDatetime(arrivalDate)}</Text>
         </View>
         <View style={styles.timeSummaryDivider} />
         <View style={styles.timeSummaryItem}>
@@ -123,7 +123,7 @@ export default function StepsPanel({
           >
             <View style={styles.stepContent}>
               <Text style={styles.stepTimestamp}>
-                {formatTime(stepTimes[idx])}
+                {formatDatetime(stepTimes[idx])}
               </Text>
               <Text style={styles.stepInstruction}>{step.instruction}</Text>
               <Text style={styles.stepMeta}>
@@ -147,7 +147,7 @@ export default function StepsPanel({
         {/* Arrival row */}
         <View style={styles.stepRow}>
           <View style={styles.stepContent}>
-            <Text style={styles.stepTimestamp}>{formatTime(arrivalDate)}</Text>
+            <Text style={styles.stepTimestamp}>{formatDatetime(arrivalDate)}</Text>
             <Text style={styles.stepInstruction}>
               Arrive at {building.buildingName ?? building.buildingCode}
             </Text>

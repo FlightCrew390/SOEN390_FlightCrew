@@ -13,7 +13,7 @@ import {
 } from "../../reducers/departureTimePickerReducer";
 import styles from "../../styles/DirectionPanel";
 import { DepartureOption, DepartureTimeConfig } from "../../types/Directions";
-import { formatDate, formatTime } from "../../utils/formatHelper";
+import { formatDate, formatDatetime } from "../../utils/formatHelper";
 
 interface DepartureTimePickerProps {
   readonly config: DepartureTimeConfig;
@@ -89,7 +89,7 @@ export default function DepartureTimePicker({
             accessibilityRole="button"
           >
             <Text style={styles.departureToggleTime}>
-              {formatDate(config.date)}, {formatTime(config.date)}
+              {formatDate(config.date)}, {formatDatetime(config.date)}
             </Text>
           </Pressable>
         )}

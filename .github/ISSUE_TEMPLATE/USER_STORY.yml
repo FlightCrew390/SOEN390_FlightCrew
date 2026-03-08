@@ -35,7 +35,7 @@ body:
       placeholder: "e.g., I can save my preferences, the team can track progress"
     validations:
       required: true
-      
+
   - type: textarea
     id: acceptance-criteria
     attributes:

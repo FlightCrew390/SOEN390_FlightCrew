@@ -2,7 +2,10 @@ import { renderHook, waitFor } from "@testing-library/react-native";
 import { useDirections } from "../../src/hooks/useDirections";
 import { DirectionsService } from "../../src/services/DirectionsService";
 import { Building, StructureType } from "../../src/types/Building";
-import { DEFAULT_DEPARTURE_CONFIG, RouteInfo } from "../../src/types/Directions";
+import {
+  DEFAULT_DEPARTURE_CONFIG,
+  RouteInfo,
+} from "../../src/types/Directions";
 
 jest.mock("../../src/services/DirectionsService");
 

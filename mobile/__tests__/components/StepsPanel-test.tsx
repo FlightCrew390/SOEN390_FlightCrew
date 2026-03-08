@@ -274,7 +274,7 @@ describe("StepsPanel", () => {
     const buildingNoLongName = {
       ...startBuilding,
       buildingLongName: undefined,
-    } as unknown as (typeof startBuilding);
+    } as unknown as typeof startBuilding;
     render(
       <StepsPanel
         building={building}

@@ -20,7 +20,7 @@ const ROUTE_COORDS = [
 ];
 
 function mockFetchJson(data: unknown) {
-  global.fetch = jest.fn().mockResolvedValue({
+  (globalThis as any).fetch = jest.fn().mockResolvedValue({
     ok: true,
     json: () => Promise.resolve(data),
   } as unknown as Response);
@@ -116,7 +116,7 @@ describe("ShuttleService", () => {
     });
 
     it("throws on non-ok response", async () => {
-      global.fetch = jest.fn().mockResolvedValue({
+      (globalThis as any).fetch = jest.fn().mockResolvedValue({
         ok: false,
         status: 400,
       } as unknown as Response);
@@ -160,7 +160,7 @@ describe("ShuttleService", () => {
     });
 
     it("throws on non-ok response", async () => {
-      global.fetch = jest.fn().mockResolvedValue({
+      (globalThis as any).fetch = jest.fn().mockResolvedValue({
         ok: false,
         status: 500,
       } as unknown as Response);

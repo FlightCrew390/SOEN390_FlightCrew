@@ -188,21 +188,18 @@ jest.mock("../../src/components/LocationScreen/StepsPanel", () => {
   };
 });
 
-jest.mock(
-  "../../src/components/LocationScreen/DepartureTimePicker",
-  () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { View, Text } = require("react-native");
-    return {
-      __esModule: true,
-      default: ({ config }: any) => (
-        <View testID="departure-time-picker">
-          <Text>{config.option}</Text>
-        </View>
-      ),
-    };
-  },
-);
+jest.mock("../../src/components/LocationScreen/DepartureTimePicker", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View, Text } = require("react-native");
+  return {
+    __esModule: true,
+    default: ({ config }: any) => (
+      <View testID="departure-time-picker">
+        <Text>{config.option}</Text>
+      </View>
+    ),
+  };
+});
 
 // Asset requires
 jest.mock("../../../assets/walk.png", () => 1, { virtual: true });

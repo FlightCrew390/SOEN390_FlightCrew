@@ -14,7 +14,7 @@ describe("haversineDistance", () => {
 
   it("computes a short distance accurately within ~10%", () => {
     // Two points ~1 km apart in Montreal
-    const dist = haversineDistance(45.4973, -73.5789, 45.4973, -73.5660);
+    const dist = haversineDistance(45.4973, -73.5789, 45.4973, -73.566);
     expect(dist).toBeGreaterThan(0.5);
     expect(dist).toBeLessThan(2);
   });

@@ -1,4 +1,5 @@
 import { API_CONFIG } from "../constants";
+const API_BASE_URL = API_CONFIG.getBaseUrl();
 
 const API_BASE_URL = API_CONFIG.getBaseUrl();
 

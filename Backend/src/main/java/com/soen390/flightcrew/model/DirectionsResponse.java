@@ -55,6 +55,78 @@ public class DirectionsResponse {
 
         @JsonProperty("navigationInstruction")
         private NavigationInstruction navigationInstruction;
+
+        @JsonProperty("travelMode")
+        private String travelMode;
+
+        @JsonProperty("transitDetails")
+        private TransitDetails transitDetails;
+    }
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class TransitDetails {
+        @JsonProperty("stopDetails")
+        private StopDetails stopDetails;
+
+        @JsonProperty("transitLine")
+        private TransitLine transitLine;
+
+        @JsonProperty("stopCount")
+        private Integer stopCount;
+    }
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class StopDetails {
+        @JsonProperty("arrivalStop")
+        private TransitStop arrivalStop;
+
+        @JsonProperty("departureStop")
+        private TransitStop departureStop;
+
+        @JsonProperty("arrivalTime")
+        private String arrivalTime;
+
+        @JsonProperty("departureTime")
+        private String departureTime;
+    }
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class TransitStop {
+        @JsonProperty("name")
+        private String name;
+    }
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class TransitLine {
+        @JsonProperty("name")
+        private String name;
+
+        @JsonProperty("nameShort")
+        private String nameShort;
+
+        @JsonProperty("vehicle")
+        private TransitVehicle vehicle;
+    }
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class TransitVehicle {
+        @JsonProperty("name")
+        private TransitVehicleName name;
+
+        @JsonProperty("type")
+        private String type;
+    }
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class TransitVehicleName {
+        @JsonProperty("text")
+        private String text;
     }
 
     @Data

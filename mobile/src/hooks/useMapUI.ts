@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer } from "react";
 import { initialMapUIState, mapUIReducer } from "../reducers/mapUIReducer";
 import { LocationType } from "../state/SearchPanelState";
 import { Building } from "../types/Building";
-import { TravelMode } from "../types/Directions";
+import { DepartureTimeConfig, TravelMode } from "../types/Directions";
 import { findCurrentBuilding } from "../utils/buildingDetection";
+import { getClosestCampusId } from "../utils/campusDetection";
 import { useDirections } from "./useDirections";
 
 interface UserCoords {
@@ -35,20 +36,37 @@ export function useMapUI(
     [],
   );
 
-  // ── Derived user coordinates ──
-  const userCoords: UserCoords | null = location
-    ? {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      }
-    : null;
+  const userCoords = useMemo(
+    (): UserCoords | null =>
+      location
+        ? {
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          }
+        : null,
+    // Stable by coords to avoid DirectionPanel effect loop when location object reference changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [location?.coords.latitude, location?.coords.longitude],
+  );
 
-  // ── Wire direction fetching ──
+  const userCampus = useMemo(
+    () =>
+      location
+        ? getClosestCampusId(
+            location.coords.latitude,
+            location.coords.longitude,
+          )
+        : null,
+    [location],
+  );
+
   useDirections({
     destination: state.selectedBuilding,
     startBuilding: state.startBuilding,
     userLocation: userCoords,
+    userCampus,
     travelMode: state.travelMode,
+    departureConfig: state.departureConfig,
     active: state.panel === "directions",
     onLoading: onRouteLoading,
     onLoaded: onRouteLoaded,
@@ -107,13 +125,22 @@ export function useMapUI(
     }
   }, []);
 
+  const handleDepartureConfigChange = useCallback(
+    (config: DepartureTimeConfig) => {
+      dispatch({ type: "SET_DEPARTURE_CONFIG", config });
+    },
+    [],
+  );
+
   return {
     state,
     dispatch,
     userCoords,
+    userCampus,
     selectBuilding,
     openDirections,
     handleSearch,
     handleTravelModeChange,
+    handleDepartureConfigChange,
   };
 }

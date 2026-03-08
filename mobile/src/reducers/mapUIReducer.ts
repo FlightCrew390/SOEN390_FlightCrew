@@ -1,4 +1,5 @@
 import { MapUIAction, MapUIState } from "../state/MapUIState";
+import { DEFAULT_DEPARTURE_CONFIG } from "../types/Directions";
 
 export const initialMapUIState: MapUIState = {
   panel: "none",
@@ -7,6 +8,7 @@ export const initialMapUIState: MapUIState = {
   searchOrigin: "default",
   startBuilding: null,
   travelMode: null,
+  departureConfig: DEFAULT_DEPARTURE_CONFIG,
   route: null,
   routeLoading: false,
   routeError: null,
@@ -26,6 +28,7 @@ export function mapUIReducer(
         panel: "none",
         searchOrigin: "default",
         travelMode: null,
+        departureConfig: DEFAULT_DEPARTURE_CONFIG,
         route: null,
         routeLoading: false,
         routeError: null,
@@ -52,6 +55,7 @@ export function mapUIReducer(
         selectedBuilding: action.building,
         startBuilding: null,
         travelMode: null,
+        departureConfig: DEFAULT_DEPARTURE_CONFIG,
         route: null,
         routeLoading: false,
         routeError: null,
@@ -129,6 +133,15 @@ export function mapUIReducer(
 
     case "CLOSE_STEPS":
       return { ...state, panel: "directions" };
+
+    case "SET_DEPARTURE_CONFIG":
+      return {
+        ...state,
+        departureConfig: action.config,
+        route: null,
+        routeLoading: false,
+        routeError: null,
+      };
 
     default:
       return state;

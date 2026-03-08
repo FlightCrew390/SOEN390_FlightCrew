@@ -4,56 +4,24 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import { COLORS } from "../../constants";
 import styles from "../../styles/StepsPanel";
 import { Building } from "../../types/Building";
-import { RouteInfo } from "../../types/Directions";
-import { formatDistance, formatDuration } from "../../utils/formatHelper";
-
-function getManeuverIcon(maneuver: string): any {
-  switch (maneuver) {
-    case "DEPART":
-      return "start";
-    case "STRAIGHT":
-      return "straight";
-    case "RAMP_LEFT":
-      return "ramp-left";
-    case "RAMP_RIGHT":
-      return "ramp-right";
-    case "MERGE":
-      return "merge";
-    case "FORK_LEFT":
-      return "fork-left";
-    case "FORK_RIGHT":
-      return "fork-right";
-    case "FERRY":
-      return "directions-ferry";
-    case "TURN_LEFT":
-      return "turn-left";
-    case "TURN_SLIGHT_LEFT":
-      return "turn-slight-left";
-    case "TURN_SHARP_LEFT":
-      return "turn-sharp-left";
-    case "TURN_RIGHT":
-      return "turn-right";
-    case "TURN_SLIGHT_RIGHT":
-      return "turn-slight-right";
-    case "TURN_SHARP_RIGHT":
-      return "turn-sharp-right";
-    case "ROUNDABOUT_LEFT":
-      return "roundabout-left";
-    case "ROUNDABOUT_RIGHT":
-      return "roundabout-right";
-    case "UTURN_LEFT":
-      return "u-turn-left";
-    case "UTURN_RIGHT":
-      return "u-turn-right";
-    default:
-      return "dot-circle";
-  }
-}
+import { DepartureTimeConfig, RouteInfo } from "../../types/Directions";
+import {
+  formatDistance,
+  formatDuration,
+  formatTime,
+} from "../../utils/formatHelper";
+import {
+  computeStepTimeline,
+  getDepartureDate,
+  getManeuverIcon,
+} from "../../utils/directionsUtils";
+import TransitBadge from "./TransitBadge";
 
 interface StepsPanelProps {
   readonly building: Building;
   readonly startBuilding?: Building | null;
   readonly route: RouteInfo;
+  readonly departureConfig: DepartureTimeConfig;
   readonly onBack: () => void;
 }
 
@@ -61,9 +29,17 @@ export default function StepsPanel({
   building,
   startBuilding,
   route,
+  departureConfig,
   onBack,
 }: Readonly<StepsPanelProps>) {
-  const distanceText = formatDistance(route.distanceMeters);
+  const distanceText =
+    route.distanceText ?? formatDistance(route.distanceMeters);
+  const initialDeparture = getDepartureDate(
+    departureConfig,
+    route.durationSeconds,
+  );
+  const { visibleSteps, stepTimes, departureDate, arrivalDate } =
+    computeStepTimeline(route.steps, initialDeparture);
 
   return (
     <View style={styles.container}>
@@ -94,9 +70,34 @@ export default function StepsPanel({
         <Text style={styles.distanceText}>{distanceText}</Text>
       </View>
 
+      {/* Departure & arrival summary */}
+      <View style={styles.timeSummaryRow}>
+        <View style={styles.timeSummaryItem}>
+          <FontAwesome5 name="clock" size={13} color={COLORS.concordiaMaroon} />
+          <Text style={styles.timeSummaryLabel}>Depart</Text>
+          <Text style={styles.timeSummaryValue}>
+            {formatTime(departureDate)}
+          </Text>
+        </View>
+        <View style={styles.timeSummaryDivider} />
+        <View style={styles.timeSummaryItem}>
+          <FontAwesome5 name="flag-checkered" size={13} color="#555" />
+          <Text style={styles.timeSummaryLabel}>Arrive</Text>
+          <Text style={styles.timeSummaryValue}>{formatTime(arrivalDate)}</Text>
+        </View>
+        <View style={styles.timeSummaryDivider} />
+        <View style={styles.timeSummaryItem}>
+          <MaterialIcons name="timer" size={15} color="#555" />
+          <Text style={styles.timeSummaryValue}>
+            {route.durationText ?? formatDuration(route.durationSeconds)}
+          </Text>
+        </View>
+      </View>
+
       {/* Step-by-step directions */}
       <ScrollView
         style={styles.stepScroll}
+        contentContainerStyle={{ paddingBottom: 20 }}
         showsVerticalScrollIndicator
         onStartShouldSetResponder={() => true}
       >
@@ -116,29 +117,48 @@ export default function StepsPanel({
             </View>
           </View>
         )}
-        {route.steps
-          .filter((step) => step.instruction.length > 0)
-          .map((step, idx) => (
-            <View
-              key={`step-${step.instruction}-${idx}`}
-              style={[styles.stepRow, idx % 2 !== 1 && styles.stepRowOdd]}
-            >
-              <View style={styles.stepContent}>
-                <Text style={styles.stepInstruction}>{step.instruction}</Text>
-                <Text style={styles.stepMeta}>
-                  {formatDistance(step.distanceMeters)}
-                  {step.durationSeconds > 0
-                    ? ` · ${formatDuration(step.durationSeconds)}`
-                    : ""}
-                </Text>
-              </View>
-              <MaterialIcons
-                name={getManeuverIcon(step.maneuver)}
-                size={42}
-                color={COLORS.textSecondary}
-              />
+        {visibleSteps.map((step, idx) => (
+          <View
+            key={`step-${step.instruction}-${idx}`}
+            style={[styles.stepRow, idx % 2 === 0 && styles.stepRowOdd]}
+          >
+            <View style={styles.stepContent}>
+              <Text style={styles.stepTimestamp}>
+                {formatTime(stepTimes[idx])}
+              </Text>
+              <Text style={styles.stepInstruction}>{step.instruction}</Text>
+              <Text style={styles.stepMeta}>
+                {formatDistance(step.distanceMeters)}
+                {step.durationSeconds > 0
+                  ? ` · ${formatDuration(step.durationSeconds)}`
+                  : ""}
+              </Text>
+              {step.transitDetails && (
+                <TransitBadge transit={step.transitDetails} />
+              )}
             </View>
-          ))}
+            <MaterialIcons
+              name={getManeuverIcon(step.maneuver)}
+              size={42}
+              color={COLORS.textSecondary}
+            />
+          </View>
+        ))}
+
+        {/* Arrival row */}
+        <View style={styles.stepRow}>
+          <View style={styles.stepContent}>
+            <Text style={styles.stepTimestamp}>{formatTime(arrivalDate)}</Text>
+            <Text style={styles.stepInstruction}>
+              Arrive at {building.buildingName ?? building.buildingCode}
+            </Text>
+          </View>
+          <MaterialIcons
+            name="place"
+            size={42}
+            color={COLORS.concordiaMaroon}
+          />
+        </View>
       </ScrollView>
     </View>
   );

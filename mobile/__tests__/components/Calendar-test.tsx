@@ -71,6 +71,11 @@ jest.mock("../../src/utils/formatHelper", () => ({
       hour12: true,
     });
   }),
+  formatHourLabel: jest.fn((hour: number) => {
+    const period = hour >= 12 ? "PM" : "AM";
+    const display = hour % 12 || 12;
+    return `${display} ${period}`;
+  }),
 }));
 
 // Animation hook used by real EventDetailPanel

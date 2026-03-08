@@ -7,7 +7,7 @@ import {
 } from "../../hooks/useCalendarUI";
 import styles from "../../styles/Calendar";
 import { CalendarEvent } from "../../types/CalendarEvent";
-import { formatTime } from "../../utils/formatHelper";
+import { formatHourLabel, formatTime } from "../../utils/formatHelper";
 
 function WeeklyDayHeader({
   weekDates,
@@ -108,12 +108,6 @@ function NowIndicator({ weekDates }: Readonly<{ weekDates: Date[] }>) {
       <View style={[styles.weeklyNowLine, { top: topOffset }]} />
     </>
   );
-}
-
-function formatHourLabel(hour: number): string {
-  const period = hour >= 12 ? "PM" : "AM";
-  const display = hour % 12 || 12;
-  return `${display} ${period}`;
 }
 
 interface WeeklyGridProps {

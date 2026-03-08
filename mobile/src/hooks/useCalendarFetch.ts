@@ -13,11 +13,13 @@ interface UseCalendarFetchParams {
   ) => Promise<void>;
   /** Whether the user is authenticated, used to trigger refetch on login. */
   isAuthenticated: boolean;
+  /** The currently selected calendar ID — triggers refetch when changed. */
+  selectedCalendarId?: string | null;
 }
 
 /**
  * Auto-fetches calendar events whenever the visible week, connection
- * state, or authentication state changes.
+ * state, authentication state, or selected calendar changes.
  *
  * The AbortController signal is threaded all the way down to the
  * underlying fetch call so that stale requests are genuinely cancelled.
@@ -27,6 +29,7 @@ export function useCalendarFetch({
   weekDates,
   fetchEvents,
   isAuthenticated,
+  selectedCalendarId,
 }: UseCalendarFetchParams) {
   const abortRef = useRef<AbortController | null>(null);
 
@@ -35,7 +38,7 @@ export function useCalendarFetch({
 
     // Derive the ISO time bounds for the displayed week
     const timeMin = weekDates[0].toISOString();
-    const lastDay = weekDates[weekDates.length - 1];
+    const lastDay = weekDates.at(-1)!;
     const weekEnd = new Date(lastDay);
     weekEnd.setDate(weekEnd.getDate() + 1); // end of last day
     const timeMax = weekEnd.toISOString();
@@ -52,5 +55,11 @@ export function useCalendarFetch({
     return () => {
       controller.abort();
     };
-  }, [isConnected, isAuthenticated, weekDates, fetchEvents]);
+  }, [
+    isConnected,
+    isAuthenticated,
+    weekDates,
+    fetchEvents,
+    selectedCalendarId,
+  ]);
 }

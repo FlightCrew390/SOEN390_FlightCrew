@@ -15,7 +15,14 @@ import WeekDayCard from "./WeekDayCard";
 import WeeklyGrid from "./WeeklyGrid";
 
 export default function Calendar() {
-  const { events, loading, error, isConnected, fetchEvents } = useCalendar();
+  const {
+    events,
+    loading,
+    error,
+    isConnected,
+    fetchEvents,
+    selectedCalendarId,
+  } = useCalendar();
   const {
     weekDates,
     currentMonth,
@@ -39,8 +46,14 @@ export default function Calendar() {
 
   const navigation = useNavigation();
 
-  // Auto-fetch events when week, auth, or connection state changes
-  useCalendarFetch({ isConnected, weekDates, fetchEvents, isAuthenticated });
+  // Auto-fetch events when week, auth, connection, or calendar selection changes
+  useCalendarFetch({
+    isConnected,
+    weekDates,
+    fetchEvents,
+    isAuthenticated,
+    selectedCalendarId,
+  });
 
   /**
    * Navigate to the location/map tab and request directions to the

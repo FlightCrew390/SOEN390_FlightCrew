@@ -2,7 +2,10 @@ import { useEffect, useRef } from "react";
 import { SHUTTLE_STOPS } from "../constants/shuttle";
 import { DirectionsService } from "../services/DirectionsService";
 import { normalizeCampus } from "../services/GoogleDirectionsService";
-import { ShuttleService } from "../services/ShuttleService";
+import {
+  ShuttleScheduleResponse,
+  ShuttleService,
+} from "../services/ShuttleService";
 import { Building } from "../types/Building";
 import {
   DepartureTimeConfig,
@@ -10,17 +13,26 @@ import {
   TravelMode,
 } from "../types/Directions";
 
-/** Parse backend duration string (e.g. "21 mins", "1 hr 5 min") into seconds. Uses lookahead+backreference to avoid ReDoS. */
+/** Parse backend duration string (e.g. "21 mins", "1 hr 5 min") into seconds. No regex to avoid ReDoS. */
 function parseShuttleDurationToSeconds(durationStr: string): number {
   let seconds = 0;
-  const hrMatch = durationStr.match(
-    /(?=(\d+)\s*(?:hr|hrs?)\b)\1\s*(?:hr|hrs?)\b/i,
-  );
-  if (hrMatch) seconds += Number.parseInt(hrMatch[1], 10) * 3600;
-  const minMatch = durationStr.match(
-    /(?=(\d+)\s*(?:min|mins?)\b)\1\s*(?:min|mins?)\b/i,
-  );
-  if (minMatch) seconds += Number.parseInt(minMatch[1], 10) * 60;
+  const parts = durationStr.split(" ");
+  for (let i = 0; i < parts.length; i++) {
+    const num = Number.parseInt(parts[i], 10);
+    if (Number.isNaN(num)) continue;
+    const afterNum = parts[i].slice(String(num).length).toLowerCase();
+    const next = (parts[i + 1] ?? "").toLowerCase();
+    if (next === "hr" || next === "hrs" || afterNum === "hr" || afterNum === "hrs") {
+      seconds += num * 3600;
+    } else if (
+      next === "min" ||
+      next === "mins" ||
+      afterNum === "min" ||
+      afterNum === "mins"
+    ) {
+      seconds += num * 60;
+    }
+  }
   return seconds || 60; // fallback 1 min if unparseable
 }
 
@@ -42,6 +54,41 @@ const DAY_NAMES = [
   "FRIDAY",
   "SATURDAY",
 ] as const;
+
+function getShuttleRefDate(
+  departureConfig: DepartureTimeConfig,
+  rideDurationSeconds: number,
+): Date {
+  if (departureConfig.option === "depart_at") return departureConfig.date;
+  if (departureConfig.option === "arrive_by") {
+    return new Date(
+      departureConfig.date.getTime() - rideDurationSeconds * 1000,
+    );
+  }
+  return new Date();
+}
+
+type DepartureKey = "sgw_departure" | "loyola_departure";
+
+function getNextDepartures(
+  scheduleData: ShuttleScheduleResponse,
+  departureKey: DepartureKey,
+  refHHMM: string,
+  option: DepartureTimeConfig["option"],
+): string[] {
+  if (scheduleData.no_service) return [];
+  const isArriveBy = option === "arrive_by";
+  const filtered = scheduleData.departures.filter((d) => {
+    const dep = d[departureKey];
+    const depHHMM = toHHMM(dep);
+    if (depHHMM === "") return false;
+    return isArriveBy ? depHHMM <= refHHMM : depHHMM >= refHHMM;
+  });
+  const sliced = filtered.slice(isArriveBy ? -3 : 0, isArriveBy ? undefined : 3);
+  const times = sliced.map((d) => d[departureKey] as string);
+  if (isArriveBy) times.reverse();
+  return times;
+}
 
 interface UseDirectionsParams {
   /** The destination building (required for non-shuttle modes). */
@@ -102,14 +149,10 @@ export function useDirections({
           const rideDurationSeconds = parseShuttleDurationToSeconds(
             routeData.duration,
           );
-          const refDate =
-            departureConfig.option === "depart_at"
-              ? departureConfig.date
-              : departureConfig.option === "arrive_by"
-                ? new Date(
-                    departureConfig.date.getTime() - rideDurationSeconds * 1000,
-                  )
-                : new Date();
+          const refDate = getShuttleRefDate(
+            departureConfig,
+            rideDurationSeconds,
+          );
           const day = DAY_NAMES[refDate.getDay()];
           const refHHMM = toHHMM(
             `${refDate.getHours()}:${refDate.getMinutes()}`,
@@ -122,38 +165,27 @@ export function useDirections({
             normalized === "SGW"
               ? routeData.sgw_to_loyola
               : routeData.loyola_to_sgw;
-
           const coordinates = coords.map((c) => ({
             latitude: c.latitude,
             longitude: c.longitude,
           }));
 
-          const departureKey =
+          const departureKey: DepartureKey =
             normalized === "SGW" ? "sgw_departure" : "loyola_departure";
+          const nextDepartures = getNextDepartures(
+            scheduleData,
+            departureKey,
+            refHHMM,
+            departureConfig.option,
+          );
 
-          const isArriveBy = departureConfig.option === "arrive_by";
-          const nextDepartures = scheduleData.no_service
-            ? []
-            : scheduleData.departures
-                .filter((d) => {
-                  const dep = d[departureKey];
-                  const depHHMM = toHHMM(dep);
-                  if (depHHMM === "") return false;
-                  return isArriveBy ? depHHMM <= refHHMM : depHHMM >= refHHMM;
-                })
-                .slice(isArriveBy ? -3 : 0, isArriveBy ? undefined : 3)
-                .map((d) => d[departureKey] as string);
-          if (isArriveBy) nextDepartures.reverse();
-
-          const hasUpcomingDepartures = nextDepartures.length > 0;
-          if (!hasUpcomingDepartures) {
+          if (nextDepartures.length === 0) {
             onLoaded(null);
             onError("No shuttle available");
             return;
           }
 
           const departureInfo = `Next departures: ${nextDepartures.join(", ")}`;
-
           const route: RouteInfo = {
             coordinates,
             distanceMeters: 0,

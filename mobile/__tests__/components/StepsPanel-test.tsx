@@ -16,6 +16,8 @@ const building: Building = {
   latitude: 45.497,
   longitude: -73.579,
   structureType: StructureType.Building,
+  accessibilityInfo:
+    "Wheelchair accessible entrance at 1455 De Maisonneuve Blvd. W.",
 };
 
 const startBuilding: Building = {
@@ -27,6 +29,8 @@ const startBuilding: Building = {
   latitude: 45.495,
   longitude: -73.577,
   structureType: StructureType.Building,
+  accessibilityInfo:
+    "Wheelchair accessible entrance at 1515 St. Catherine St. W.",
 };
 
 const route: RouteInfo = {

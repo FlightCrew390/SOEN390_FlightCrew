@@ -28,6 +28,8 @@ const destination: Building = {
   latitude: 45.4973,
   longitude: -73.5789,
   structureType: StructureType.Building,
+  accessibilityInfo:
+    "Wheelchair accessible entrance at 1455 De Maisonneuve Blvd. W.",
 };
 
 const startBuilding: Building = {
@@ -39,6 +41,7 @@ const startBuilding: Building = {
   latitude: 45.4582,
   longitude: -73.6405,
   structureType: StructureType.Building,
+  accessibilityInfo: "Wheelchair accessible entrance at 7141 Sherbrooke St. W.",
 };
 
 const mockRoute: RouteInfo = {

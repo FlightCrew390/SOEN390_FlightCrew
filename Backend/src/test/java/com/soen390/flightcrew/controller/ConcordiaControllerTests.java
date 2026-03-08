@@ -74,6 +74,12 @@ public class ConcordiaControllerTests {
         .andExpect(method(HttpMethod.GET))
         .andRespond(withSuccess(jsonResponse, MediaType.APPLICATION_JSON));
 
+    // Mock Accessibility Page for building H
+    mockServer.expect(requestTo("https://www.concordia.ca/maps/buildings/H.html"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(withSuccess("<html><h2>Building accessibility</h2><p>Wheelchair accessible.</p></html>",
+            MediaType.TEXT_HTML));
+
     // Act
     RestTemplate client = new RestTemplate();
     String url = "http://localhost:" + port + "/api/facilities/buildinglist";
@@ -88,6 +94,9 @@ public class ConcordiaControllerTests {
     assertEquals("H", buildings[0].getBuildingCode());
     assertEquals("Hall Building", buildings[0].getBuildingName());
     assertEquals("Henry F. Hall Building", buildings[0].getBuildingLongName());
+
+    // Verify Accessibility Info
+    assertEquals("Wheelchair accessible.", buildings[0].getAccessibilityInfo());
 
     mockServer.verify();
   }
@@ -125,6 +134,12 @@ public class ConcordiaControllerTests {
         .andExpect(method(HttpMethod.POST))
         .andRespond(withSuccess(googleJson, MediaType.APPLICATION_JSON));
 
+    // Mock Accessibility Page for building H
+    mockServer.expect(requestTo("https://www.concordia.ca/maps/buildings/H.html"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(withSuccess("<html><h2>Building accessibility</h2><p>Wheelchair accessible.</p></html>",
+            MediaType.TEXT_HTML));
+
     // Act
     RestTemplate client = new RestTemplate();
     String url = "http://localhost:" + port + "/api/facilities/buildinglist";
@@ -159,6 +174,13 @@ public class ConcordiaControllerTests {
     }
 
     // No mock server setup — the external API should NOT be called
+    MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate).build();
+
+    // Accessibility Mock for AD IS needed because it's missing in cache
+    mockServer.expect(requestTo("https://www.concordia.ca/maps/buildings/AD.html"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(
+            withSuccess("<html><h2>Building accessibility</h2><p>Ramp access.</p></html>", MediaType.TEXT_HTML));
 
     // Act
     RestTemplate client = new RestTemplate();
@@ -173,6 +195,9 @@ public class ConcordiaControllerTests {
     assertEquals("LOY", buildings[0].getCampus());
     assertEquals("AD", buildings[0].getBuildingCode());
     assertEquals("Administration Building", buildings[0].getBuildingLongName());
+    assertEquals("Ramp access.", buildings[0].getAccessibilityInfo());
+
+    mockServer.verify();
   }
 
   @Test
@@ -190,6 +215,12 @@ public class ConcordiaControllerTests {
         .andExpect(method(HttpMethod.GET))
         .andRespond(withSuccess(jsonResponse, MediaType.APPLICATION_JSON));
 
+    // Mock Accessibility Page for EV
+    mockServer.expect(requestTo("https://www.concordia.ca/maps/buildings/EV.html"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(withSuccess("<html><h2>Building accessibility</h2><p>Accessible via funky elevator.</p></html>",
+            MediaType.TEXT_HTML));
+
     // Act
     RestTemplate client = new RestTemplate();
     String url = "http://localhost:" + port + "/api/facilities/buildinglist";
@@ -201,6 +232,7 @@ public class ConcordiaControllerTests {
     assertNotNull(buildings);
     assertEquals(1, buildings.length);
     assertEquals("EV", buildings[0].getBuildingCode());
+    assertEquals("Accessible via funky elevator.", buildings[0].getAccessibilityInfo());
 
     mockServer.verify();
   }
@@ -265,6 +297,12 @@ public class ConcordiaControllerTests {
 
     // No Google API mock — it should never be called
 
+    // Mock Accessibility Page for H
+    mockServer.expect(requestTo("https://www.concordia.ca/maps/buildings/H.html"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(withSuccess("<html><h2>Building accessibility</h2><p>Wheelchair accessible.</p></html>",
+            MediaType.TEXT_HTML));
+
     // Act
     RestTemplate client = new RestTemplate();
     String url = "http://localhost:" + port + "/api/facilities/buildinglist";
@@ -276,6 +314,7 @@ public class ConcordiaControllerTests {
     assertNotNull(buildings);
     assertEquals(1, buildings.length);
     assertNull(buildings[0].getGooglePlaceInfo());
+    assertEquals("Wheelchair accessible.", buildings[0].getAccessibilityInfo());
 
     mockServer.verify();
   }
@@ -298,17 +337,24 @@ public class ConcordiaControllerTests {
         .andExpect(method(HttpMethod.POST))
         .andRespond(withSuccess(googleJson, MediaType.APPLICATION_JSON));
 
+    // Mock Accessibility Page for H
+    mockServer.expect(requestTo("https://www.concordia.ca/maps/buildings/H.html"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(withSuccess("<html><h2>Building accessibility</h2><p>Wheelchair accessible.</p></html>",
+            MediaType.TEXT_HTML));
+
     // Act
     RestTemplate client = new RestTemplate();
     String url = "http://localhost:" + port + "/api/facilities/buildinglist";
     ResponseEntity<Building[]> response = client.getForEntity(url, Building[].class);
 
-    // Assert — enrichBuilding early-returns, googlePlaceInfo stays null
+    // Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
     Building[] buildings = response.getBody();
     assertNotNull(buildings);
     assertEquals(1, buildings.length);
     assertNull(buildings[0].getGooglePlaceInfo());
+    assertEquals("Wheelchair accessible.", buildings[0].getAccessibilityInfo());
 
     mockServer.verify();
   }
@@ -329,6 +375,12 @@ public class ConcordiaControllerTests {
         .andExpect(method(HttpMethod.POST))
         .andRespond(withServerError());
 
+    // Mock Accessibility Page for H
+    mockServer.expect(requestTo("https://www.concordia.ca/maps/buildings/H.html"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(
+            withSuccess("<html><h2>Building accessibility</h2><p>Access info.</p></html>", MediaType.TEXT_HTML));
+
     // Act
     RestTemplate client = new RestTemplate();
     String url = "http://localhost:" + port + "/api/facilities/buildinglist";
@@ -341,6 +393,7 @@ public class ConcordiaControllerTests {
     assertEquals(1, buildings.length);
     assertEquals("H", buildings[0].getBuildingCode());
     assertNull(buildings[0].getGooglePlaceInfo());
+    assertEquals("Access info.", buildings[0].getAccessibilityInfo());
 
     mockServer.verify();
   }
@@ -380,6 +433,15 @@ public class ConcordiaControllerTests {
         .andExpect(method(HttpMethod.POST))
         .andRespond(withSuccess(googleJson, MediaType.APPLICATION_JSON));
 
+    // Mock Accessibility
+    mockServer.expect(requestTo("https://www.concordia.ca/maps/buildings/H.html"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(withSuccess("<html><h2>Building accessibility</h2><p>H Access.</p></html>", MediaType.TEXT_HTML));
+
+    mockServer.expect(requestTo("https://www.concordia.ca/maps/buildings/SP.html"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(withSuccess("<html><h2>Building accessibility</h2><p>SP Access.</p></html>", MediaType.TEXT_HTML));
+
     // Act
     RestTemplate client = new RestTemplate();
     String url = "http://localhost:" + port + "/api/facilities/buildinglist";
@@ -394,9 +456,11 @@ public class ConcordiaControllerTests {
     // H building should be enriched
     assertNotNull(buildings[0].getGooglePlaceInfo());
     assertEquals("places/ChIJHall", buildings[0].getGooglePlaceInfo().getPlaceId());
+    assertEquals("H Access.", buildings[0].getAccessibilityInfo());
 
     // SP building should NOT be enriched
     assertNull(buildings[1].getGooglePlaceInfo());
+    assertEquals("SP Access.", buildings[1].getAccessibilityInfo());
 
     mockServer.verify();
   }
@@ -439,6 +503,12 @@ public class ConcordiaControllerTests {
         .andExpect(method(HttpMethod.POST))
         .andRespond(withSuccess(googleJson, MediaType.APPLICATION_JSON));
 
+    // Mock Accessibility
+    mockServer.expect(requestTo("https://www.concordia.ca/maps/buildings/H.html"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(
+            withSuccess("<html><h2>Building accessibility</h2><p>Access info.</p></html>", MediaType.TEXT_HTML));
+
     // Act
     RestTemplate client = new RestTemplate();
     String url = "http://localhost:" + port + "/api/facilities/buildinglist";
@@ -453,6 +523,7 @@ public class ConcordiaControllerTests {
     assertEquals("places/CorrectPlace", buildings[0].getGooglePlaceInfo().getPlaceId());
     assertEquals("1455 De Maisonneuve Blvd W, Montreal",
         buildings[0].getGooglePlaceInfo().getFormattedAddress());
+    assertEquals("Access info.", buildings[0].getAccessibilityInfo());
 
     mockServer.verify();
   }
@@ -492,6 +563,12 @@ public class ConcordiaControllerTests {
         .andExpect(method(HttpMethod.POST))
         .andRespond(withSuccess(googleJson, MediaType.APPLICATION_JSON));
 
+    // Mock Accessibility
+    mockServer.expect(requestTo("https://www.concordia.ca/maps/buildings/H.html"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(
+            withSuccess("<html><h2>Building accessibility</h2><p>Access info.</p></html>", MediaType.TEXT_HTML));
+
     // Act
     RestTemplate client = new RestTemplate();
     String url = "http://localhost:" + port + "/api/facilities/buildinglist";
@@ -504,6 +581,7 @@ public class ConcordiaControllerTests {
     assertEquals(1, buildings.length);
     assertNotNull(buildings[0].getGooglePlaceInfo());
     assertEquals("places/FirstPlace", buildings[0].getGooglePlaceInfo().getPlaceId());
+    assertEquals("Access info.", buildings[0].getAccessibilityInfo());
 
     mockServer.verify();
   }
@@ -544,6 +622,12 @@ public class ConcordiaControllerTests {
         .andExpect(method(HttpMethod.POST))
         .andRespond(withSuccess(googleJson, MediaType.APPLICATION_JSON));
 
+    // Mock Accessibility Page for H
+    mockServer.expect(requestTo("https://www.concordia.ca/maps/buildings/H.html"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(
+            withSuccess("<html><h2>Building accessibility</h2><p>Access info.</p></html>", MediaType.TEXT_HTML));
+
     // Act
     RestTemplate client = new RestTemplate();
     String url = "http://localhost:" + port + "/api/facilities/buildinglist";
@@ -555,6 +639,7 @@ public class ConcordiaControllerTests {
     assertNotNull(buildings);
     assertNotNull(buildings[0].getGooglePlaceInfo());
     assertEquals("places/CorrectPlace", buildings[0].getGooglePlaceInfo().getPlaceId());
+    assertEquals("Access info.", buildings[0].getAccessibilityInfo());
 
     mockServer.verify();
   }
@@ -570,6 +655,11 @@ public class ConcordiaControllerTests {
         .andExpect(method(HttpMethod.GET))
         .andRespond(withSuccess(jsonResponse, MediaType.APPLICATION_JSON));
 
+    mockServer.expect(requestTo("https://www.concordia.ca/maps/buildings/MB.html"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(
+            withSuccess("<html><h2>Building accessibility</h2><p>Access info.</p></html>", MediaType.TEXT_HTML));
+
     // Act — first call
     RestTemplate client = new RestTemplate();
     String url = "http://localhost:" + port + "/api/facilities/buildinglist";
@@ -578,6 +668,7 @@ public class ConcordiaControllerTests {
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(1, response.getBody().length);
     assertEquals("MB", response.getBody()[0].getBuildingCode());
+    assertEquals("Access info.", response.getBody()[0].getAccessibilityInfo());
 
     // Verify cache file was created
     File cacheFile = new File("non_existent_cache.json");
@@ -622,6 +713,12 @@ public class ConcordiaControllerTests {
         .andExpect(method(HttpMethod.POST))
         .andRespond(withSuccess(googleJson, MediaType.APPLICATION_JSON));
 
+    // Mock Accessibility Page for H
+    mockServer.expect(requestTo("https://www.concordia.ca/maps/buildings/H.html"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(
+            withSuccess("<html><h2>Building accessibility</h2><p>Access info.</p></html>", MediaType.TEXT_HTML));
+
     // Act
     RestTemplate client = new RestTemplate();
     String url = "http://localhost:" + port + "/api/facilities/buildinglist";
@@ -633,6 +730,78 @@ public class ConcordiaControllerTests {
     assertNotNull(buildings);
     assertNotNull(buildings[0].getGooglePlaceInfo());
     assertEquals("places/MatchPlace", buildings[0].getGooglePlaceInfo().getPlaceId());
+    assertEquals("Access info.", buildings[0].getAccessibilityInfo());
+
+    mockServer.verify();
+  }
+
+  @Test
+  void getBuildingList_ParsesStructuredAccessibilityInfo() {
+    // Arrange
+    MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate).build();
+
+    // Concordia API mock
+    String jsonResponse = "[{\"Campus\":\"LOY\",\"Building\":\"SP\",\"Building_Name\":\"Science Pavilion\",\"Building_Long_Name\":\"Richard J. Renaud Science Complex\",\"Address\":\"7141 Sherbrooke\",\"Latitude\":45.4582,\"Longitude\":-73.6405}]";
+    mockServer.expect(requestTo("http://mock-api.com/facilities/buildinglist/"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(withSuccess(jsonResponse, MediaType.APPLICATION_JSON));
+
+    // Google API Mock (generic success)
+    String googleJson = "{\"destinations\": []}";
+    mockServer.expect(requestTo("https://geocode.googleapis.com/v4alpha/geocode/destinations"))
+        .andExpect(method(HttpMethod.POST))
+        .andRespond(withSuccess(googleJson, MediaType.APPLICATION_JSON));
+
+    // Mock Accessibility Page for SP with structured HTML
+    String accessibilityHtml = """
+        <html>
+            <h2>Building accessibility</h2>
+            <div class="c-textimage textimage">
+                <div class="text">
+                    <p>
+                        <b>Accessibility ramp</b>
+                        This building entrance is equipped with an accessibility ramp.
+                    </p>
+                </div>
+            </div>
+            <div class="c-textimage textimage">
+                <div class="text">
+                    <p>
+                        <b>Accessible entrance</b>
+                        This building has an automated accessible entrance door.
+                    </p>
+                </div>
+            </div>
+            <div class="c-textimage textimage">
+                <div class="text">
+                    <p>
+                        <b>Accessible elevator</b>
+                        This building is equipped with an elevator.
+                    </p>
+                </div>
+            </div>
+        </html>
+        """;
+
+    mockServer.expect(requestTo("https://www.concordia.ca/maps/buildings/SP.html"))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(withSuccess(accessibilityHtml, MediaType.TEXT_HTML));
+
+    // Act
+    RestTemplate client = new RestTemplate();
+    String url = "http://localhost:" + port + "/api/facilities/buildinglist";
+    ResponseEntity<Building[]> response = client.getForEntity(url, Building[].class);
+
+    // Assert
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    Building[] buildings = response.getBody();
+    assertNotNull(buildings);
+    assertEquals(1, buildings.length);
+
+    String expectedInfo = "Accessibility ramp: This building entrance is equipped with an accessibility ramp.\n" +
+        "Accessible entrance: This building has an automated accessible entrance door.\n" +
+        "Accessible elevator: This building is equipped with an elevator.";
+    assertEquals(expectedInfo, buildings[0].getAccessibilityInfo());
 
     mockServer.verify();
   }

@@ -1,10 +1,19 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import React, { useCallback, useEffect, useState } from "react";
-import { Animated, Pressable, ScrollView, Text, View } from "react-native";
 
-import { COLORS } from "../../constants";
 import { SHUTTLE_RIDE_MINUTES } from "../../constants/shuttle";
+import {
+  Animated,
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
+
+import { COLORS, METRO_ACCESS_BUILDINGS } from "../../constants";
 import { usePanelAnimation } from "../../hooks/usePanelAnimation";
 import {
   getAllTravelTimes,
@@ -20,6 +29,7 @@ import {
 import { formatDistance, formatDuration } from "../../utils/formatHelper";
 import { decodePolyline } from "../../utils/polylineDecode";
 import DepartureTimePicker from "./DepartureTimePicker";
+import Tooltip from "../common/Tooltip";
 import RouteStatusDisplay from "./RouteStatusDisplay";
 import StepsPanel from "./StepsPanel";
 import TransportCard from "./TransportCard";
@@ -124,10 +134,24 @@ function StartLocationRow({
 }
 
 function BuildingDetails({ building }: Readonly<{ building: Building }>) {
+  const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+
+  const handlePress = (text: string) => {
+    if (activeTooltip === text) {
+      setActiveTooltip(null);
+    } else {
+      setActiveTooltip(text);
+      // Auto-hide after 3 seconds
+      setTimeout(() => {
+        setActiveTooltip((current) => (current === text ? null : current));
+      }, 3000);
+    }
+  };
+
   return (
     <ScrollView
       style={styles.descriptionScroll}
-      contentContainerStyle={{ paddingBottom: 16 }}
+      contentContainerStyle={{ paddingBottom: 40 }}
       showsVerticalScrollIndicator={false}
     >
       <Text style={styles.buildingLongName}>{building.buildingLongName}</Text>
@@ -140,6 +164,106 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
       <Text style={styles.buildingDetail}>
         Campus: {building.campus === "SGW" ? "Sir George Williams" : "Loyola"}
       </Text>
+      {!!building.accessibilityInfo && building.accessibilityInfo !== "N/A" && (
+        <View
+          style={{ flexDirection: "row", alignItems: "center", marginTop: 8 }}
+        >
+          {building.accessibilityInfo
+            .toLowerCase()
+            .includes("not accessible") ? (
+            <Pressable
+              onPress={() => handlePress("Not Accessible")}
+              style={{ alignItems: "center", zIndex: 10 }}
+            >
+              <MaterialIcons
+                name="not-accessible"
+                size={22}
+                color={COLORS.concordiaMaroon}
+              />
+              {activeTooltip === "Not Accessible" && (
+                <Tooltip text="Not Accessible" align="left" />
+              )}
+            </Pressable>
+          ) : (
+            <>
+              {(building.accessibilityInfo.toLowerCase().includes("ramp") ||
+                building.accessibilityInfo
+                  .toLowerCase()
+                  .includes("accessible")) && (
+                <Pressable
+                  onPress={() => handlePress("Wheelchair Accessible")}
+                  style={{
+                    marginRight: 10,
+                    alignItems: "center",
+                    zIndex: 10,
+                  }}
+                >
+                  <MaterialIcons name="accessible" size={22} color="#2E7D32" />
+                  {activeTooltip === "Wheelchair Accessible" && (
+                    <Tooltip text="Wheelchair Accessible" align="left" />
+                  )}
+                </Pressable>
+              )}
+              {(building.accessibilityInfo.toLowerCase().includes("door") ||
+                building.accessibilityInfo
+                  .toLowerCase()
+                  .includes("entrance")) && (
+                <Pressable
+                  onPress={() => handlePress("Automatic Door")}
+                  style={{
+                    marginRight: 10,
+                    alignItems: "center",
+                    zIndex: 10,
+                  }}
+                >
+                  <MaterialCommunityIcons
+                    name="door-sliding"
+                    size={22}
+                    color="#2E7D32"
+                  />
+                  {activeTooltip === "Automatic Door" && (
+                    <Tooltip text="Automatic Door" />
+                  )}
+                </Pressable>
+              )}
+              {(building.accessibilityInfo.toLowerCase().includes("elevator") ||
+                building.accessibilityInfo.toLowerCase().includes("lift")) && (
+                <Pressable
+                  onPress={() => handlePress("Elevator")}
+                  style={{
+                    marginRight: 10,
+                    alignItems: "center",
+                    zIndex: 10,
+                  }}
+                >
+                  <MaterialIcons name="elevator" size={22} color="#2E7D32" />
+                  {activeTooltip === "Elevator" && <Tooltip text="Elevator" />}
+                </Pressable>
+              )}
+              {METRO_ACCESS_BUILDINGS.includes(building.buildingCode) && (
+                <Pressable
+                  testID="btn-metro-access"
+                  onPress={() => handlePress("Metro Access")}
+                  style={{
+                    marginRight: 10,
+                    alignItems: "center",
+                    zIndex: 10,
+                  }}
+                >
+                  <Image
+                    source={require("../../../assets/metro.png")}
+                    style={{ width: 22, height: 22 }}
+                    resizeMode="contain"
+                  />
+                  {activeTooltip === "Metro Access" && (
+                    <Tooltip text="Metro Access" />
+                  )}
+                </Pressable>
+              )}
+            </>
+          )}
+        </View>
+      )}
     </ScrollView>
   );
 }

@@ -1,8 +1,6 @@
 import { API_CONFIG } from "../constants";
 const API_BASE_URL = API_CONFIG.getBaseUrl();
 
-const API_BASE_URL = API_CONFIG.getBaseUrl();
-
 export interface ShuttleDeparture {
   loyola_departure: string | null;
   sgw_departure: string | null;

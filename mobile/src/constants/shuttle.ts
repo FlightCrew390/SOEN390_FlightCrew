@@ -11,5 +11,5 @@ export const SHUTTLE_STOPS = {
   },
 } as const;
 
-/** Approximate one-way shuttle ride time in minutes */
-export const SHUTTLE_RIDE_MINUTES = 30;
+/** Approximate one-way shuttle ride time in minutes (matches backend duration) */
+export const SHUTTLE_RIDE_MINUTES = 21;

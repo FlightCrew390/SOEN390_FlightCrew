@@ -32,7 +32,8 @@ export default function StepsPanel({
   departureConfig,
   onBack,
 }: Readonly<StepsPanelProps>) {
-  const distanceText = formatDistance(route.distanceMeters);
+  const distanceText =
+    route.distanceText ?? formatDistance(route.distanceMeters);
   const initialDeparture = getDepartureDate(
     departureConfig,
     route.durationSeconds,
@@ -88,7 +89,7 @@ export default function StepsPanel({
         <View style={styles.timeSummaryItem}>
           <MaterialIcons name="timer" size={15} color="#555" />
           <Text style={styles.timeSummaryValue}>
-            {formatDuration(route.durationSeconds)}
+            {route.durationText ?? formatDuration(route.durationSeconds)}
           </Text>
         </View>
       </View>

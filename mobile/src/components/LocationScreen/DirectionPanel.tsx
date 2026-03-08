@@ -3,7 +3,6 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import React, { useCallback, useEffect, useState } from "react";
 import { Animated, Pressable, ScrollView, Text, View } from "react-native";
 
-import polyline from "@mapbox/polyline";
 import { COLORS } from "../../constants";
 import { SHUTTLE_RIDE_MINUTES } from "../../constants/shuttle";
 import { usePanelAnimation } from "../../hooks/usePanelAnimation";
@@ -19,6 +18,7 @@ import {
   TravelMode,
 } from "../../types/Directions";
 import { formatDistance, formatDuration } from "../../utils/formatHelper";
+import { decodePolyline } from "../../utils/polylineDecode";
 import DepartureTimePicker from "./DepartureTimePicker";
 import RouteStatusDisplay from "./RouteStatusDisplay";
 import StepsPanel from "./StepsPanel";
@@ -47,16 +47,6 @@ const SHUTTLE_OPTION: {
 export interface RouteSegment {
   coordinates: { latitude: number; longitude: number }[];
   mode: "walk" | "shuttle";
-}
-
-function decodePolylineToCoords(
-  encoded: string,
-): { latitude: number; longitude: number }[] {
-  if (!encoded) return [];
-  return polyline.decode(encoded).map(([lat, lng]) => ({
-    latitude: lat,
-    longitude: lng,
-  }));
 }
 
 interface TravelTimesState {
@@ -231,7 +221,7 @@ export default function DirectionPanel({
           if (onRouteReady) {
             onRouteReady([
               {
-                coordinates: decodePolylineToCoords(result.walk.polyline),
+                coordinates: decodePolyline(result.walk.polyline),
                 mode: "walk",
               },
             ]);
@@ -241,7 +231,7 @@ export default function DirectionPanel({
       .catch(() => {
         if (!cancelled) {
           setTravelTimes(null);
-          setError(true);
+          setError(false);
           onRouteReady?.([]);
         }
       })
@@ -263,14 +253,14 @@ export default function DirectionPanel({
   const distanceText = travelTimes
     ? `${travelTimes.walk} min walk`
     : route
-      ? formatDistance(route.distanceMeters)
+      ? (route.distanceText ?? formatDistance(route.distanceMeters))
       : "-- m";
 
   const getDurationForMode = (mode: TravelMode): string => {
     if (mode === "SHUTTLE") {
       if (travelTimes) return `~${SHUTTLE_RIDE_MINUTES} min`;
       if (travelMode === "SHUTTLE" && route) {
-        return formatDuration(route.durationSeconds);
+        return route.durationText ?? formatDuration(route.durationSeconds);
       }
       return "-- min";
     }
@@ -369,7 +359,8 @@ export default function DirectionPanel({
 
             <View style={styles.divider} />
 
-            {route && route.steps.length > 0 ? (
+            {route &&
+            (route.steps.length > 0 || route.coordinates.length >= 2) ? (
               <Pressable
                 style={styles.viewStepsButton}
                 onPress={onShowSteps}

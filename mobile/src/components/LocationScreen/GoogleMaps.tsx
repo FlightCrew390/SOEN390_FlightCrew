@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Platform, View } from "react-native";
 import MapView, {
   Polyline,
@@ -8,7 +8,6 @@ import MapView, {
 import { COLORS, MAP_CONFIG } from "../../constants";
 import { useBuildings } from "../../contexts/BuildingContext";
 import { useLocation } from "../../contexts/LocationContext";
-import { getClosestCampusId } from "../../utils/campusDetection";
 import { useMapCamera } from "../../hooks/useMapCamera";
 import { useMapUI } from "../../hooks/useMapUI";
 import { LocationType } from "../../state/SearchPanelState";
@@ -42,31 +41,11 @@ export default function GoogleMaps({
   const mapRef = mapRefProp ?? internalMapRef;
   const [routeSegments, setRouteSegments] = useState<RouteSegment[]>([]);
 
-  const userLocation = useMemo(
-    () =>
-      location
-        ? {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-          }
-        : null,
-    [location]
-  );
-
-  const userCampus = useMemo(
-    () =>
-      location
-        ? getClosestCampusId(
-            location.coords.latitude,
-            location.coords.longitude
-          )
-        : null,
-    [location]
-  );
-
   const {
     state,
     dispatch,
+    userCoords,
+    userCampus,
     selectBuilding,
     openDirections,
     handleSearch,
@@ -84,27 +63,27 @@ export default function GoogleMaps({
       setRouteSegments([]);
       handleTravelModeChange(mode);
     },
-    [handleTravelModeChange]
+    [handleTravelModeChange],
   );
 
   const onOpenSearchForStart = useCallback(
     () => dispatch({ type: "OPEN_SEARCH_FOR_START" }),
-    [dispatch]
+    [dispatch],
   );
 
   const onResetStartBuilding = useCallback(
     () => dispatch({ type: "RESET_START_BUILDING" }),
-    [dispatch]
+    [dispatch],
   );
 
   const onShowSteps = useCallback(
     () => dispatch({ type: "OPEN_STEPS" }),
-    [dispatch]
+    [dispatch],
   );
 
   const onHideSteps = useCallback(
     () => dispatch({ type: "CLOSE_STEPS" }),
-    [dispatch]
+    [dispatch],
   );
 
   const {
@@ -170,12 +149,8 @@ export default function GoogleMaps({
           <Polyline
             key={`route-segment-${index}`}
             coordinates={segment.coordinates}
-            strokeColor={
-              segment.mode === "shuttle"
-                ? COLORS.concordiaMaroon
-                : COLORS.mapPolylineWalk
-            }
-            strokeWidth={segment.mode === "shuttle" ? 6 : 4}
+            strokeColor={COLORS.mapPolylineWalk}
+            strokeWidth={4}
             lineDashPattern={segment.mode === "walk" ? [8, 6] : undefined}
           />
         ))}
@@ -203,13 +178,15 @@ export default function GoogleMaps({
         routeError={state.routeError}
         travelMode={state.travelMode}
         onTravelModeChange={onTravelModeChange}
+        departureConfig={state.departureConfig}
+        onDepartureConfigChange={handleDepartureConfigChange}
         onClose={onCloseDirectionPanel}
         onOpenSearch={onOpenSearchForStart}
         onResetStart={onResetStartBuilding}
         showSteps={state.panel === "steps"}
         onShowSteps={onShowSteps}
         onHideSteps={onHideSteps}
-        userLocation={userLocation}
+        userLocation={userCoords}
         userCampus={userCampus}
         onRouteReady={setRouteSegments}
       />

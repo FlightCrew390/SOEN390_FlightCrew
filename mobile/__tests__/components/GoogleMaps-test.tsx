@@ -40,6 +40,7 @@ jest.mock("../../src/hooks/useMapUI", () => ({
     state: mockMapUIState,
     dispatch: mockDispatch,
     userCoords: null,
+    userCampus: null,
     selectBuilding: mockSelectBuilding,
     openDirections: mockOpenDirections,
     handleSearch: mockHandleSearch,

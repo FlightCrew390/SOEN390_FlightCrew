@@ -109,73 +109,6 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
-  shuttleButtonWrap: {
-    flexShrink: 0,
-    zIndex: 10,
-  },
-  shuttleButton: {
-    padding: 10,
-    minWidth: 44,
-    minHeight: 44,
-    borderRadius: 22,
-    borderWidth: 1.5,
-    borderColor: COLORS.concordiaMaroon,
-    backgroundColor: "transparent",
-    justifyContent: "center",
-    alignItems: "center",
-    flexShrink: 0,
-  },
-  shuttleButtonSelected: {
-    backgroundColor: COLORS.concordiaMaroon,
-  },
-  shuttleInfoRow: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: "#f5f0f1",
-    borderRadius: 8,
-    marginHorizontal: 16,
-    marginBottom: 8,
-  },
-  shuttleInfoText: {
-    fontSize: 13,
-    color: COLORS.textPrimary,
-  },
-  shuttleTotalText: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: COLORS.concordiaMaroon,
-    marginTop: 4,
-  },
-  shuttleStepsContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-  },
-  shuttleStepRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  shuttleStepRowLast: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  shuttleStepTextContainer: {
-    marginLeft: 10,
-  },
-  shuttleStepName: {
-    fontWeight: "bold",
-    fontSize: 14,
-    color: COLORS.textPrimary,
-  },
-  shuttleStepAddress: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-  },
-  shuttleStepRide: {
-    marginLeft: 10,
-    fontSize: 14,
-    color: COLORS.textPrimary,
-  },
   changeStartRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -255,20 +188,6 @@ const styles = StyleSheet.create({
   transportTimeActive: {
     color: COLORS.concordiaMaroon,
     fontWeight: "700",
-  },
-  shuttleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 16,
-    marginBottom: 6,
-  },
-  shuttleBreakdown: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    paddingHorizontal: 16,
-    marginBottom: 12,
-    lineHeight: 18,
   },
 
   /* ── Loading & error ── */

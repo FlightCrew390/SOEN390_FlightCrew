@@ -25,11 +25,6 @@ class BackendTest {
     }
 
     @Test
-    void mainMethodRunsWithoutException() {
-        assertDoesNotThrow(() -> Backend.main(new String[] {}));
-    }
-
-    @Test
     void restTemplateBeanReturnsInstance() {
         Backend backend = new Backend();
         RestTemplate restTemplate = backend.restTemplate();

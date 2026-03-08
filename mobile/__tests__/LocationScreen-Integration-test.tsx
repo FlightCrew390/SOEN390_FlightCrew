@@ -1,8 +1,5 @@
-import { NavigationContainer } from "@react-navigation/native";
 import { act, render, screen, userEvent } from "@testing-library/react-native";
 
-import { createStackNavigator } from "@react-navigation/stack";
-import { JSX } from "react";
 import { CAMPUSES } from "../src/constants/campuses";
 import LocationScreen from "../src/screens/LocationScreen";
 import { Building, StructureType } from "../src/types/Building";
@@ -20,16 +17,14 @@ jest.mock("react-native/Libraries/Utilities/Platform", () => ({
   },
 }));
 
-// Helper: Wrap LocationScreen in a Stack Navigator to provide route context
-const Stack = createStackNavigator();
+jest.mock("@react-navigation/native", () => ({
+  useNavigation: () => ({ setParams: jest.fn(), navigate: jest.fn() }),
+  useRoute: () => ({ params: {} }),
+  NavigationContainer: ({ children }: any) => children,
+}));
+
 function LocationScreenWithNav() {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Location" component={LocationScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+  return <LocationScreen />;
 }
 const mockAnimateToRegion = jest.fn();
 const mockSetMapBoundaries = jest.fn();

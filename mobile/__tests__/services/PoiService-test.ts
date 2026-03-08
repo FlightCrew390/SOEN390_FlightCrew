@@ -27,8 +27,13 @@ const mockApiResponse = [
 ];
 
 describe("PoiService", () => {
+  let consoleErrorSpy: jest.SpyInstance;
   beforeEach(() => {
     jest.clearAllMocks();
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+  });
+  afterEach(() => {
+    consoleErrorSpy.mockRestore();
   });
 
   it("fetches and maps POIs correctly", async () => {

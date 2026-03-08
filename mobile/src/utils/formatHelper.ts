@@ -12,3 +12,19 @@ export function formatDistance(meters: number): string {
   if (meters < 1000) return `${Math.round(meters)} m`;
   return `${(meters / 1000).toFixed(1)} km`;
 }
+
+export function formatTime(isoString: string): string {
+  const date = new Date(isoString);
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const period = hours >= 12 ? "PM" : "AM";
+  const displayHour = hours % 12 || 12;
+  const displayMinutes = minutes.toString().padStart(2, "0");
+  return `${displayHour}:${displayMinutes} ${period}`;
+}
+
+export function formatHourLabel(hour: number): string {
+  const period = hour >= 12 ? "PM" : "AM";
+  const display = hour % 12 || 12;
+  return `${display} ${period}`;
+}

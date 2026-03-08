@@ -34,7 +34,9 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
     "external.api.user=testUser",
     "external.api.key=testKey",
     "google.api.key=testGoogleKey",
-    "app.cache.file=non_existent_cache.json"
+    "app.cache.file=non_existent_cache.json",
+    "google.client-id=test-id",
+    "google.client-secret=test-secret",
 })
 public class ConcordiaControllerTests {
 

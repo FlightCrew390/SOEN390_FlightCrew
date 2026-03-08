@@ -34,8 +34,13 @@ Thumbs.db
 # Mobile (Expo/React Native)
 # ===========================
 
+mobile/.tool-versions
+
 # dependencies
 mobile/node_modules/
+
+# Builds
+mobile/mobile.app
 
 # Expo
 mobile/.expo/

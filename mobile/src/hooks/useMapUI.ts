@@ -46,9 +46,9 @@ export function useMapUI(
     () =>
       location
         ? {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        }
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          }
         : null,
     [location],
   );

@@ -4,6 +4,8 @@ import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.client.util.DateTime;
 import com.soen390.flightcrew.model.CalendarEventDTO;
+import com.soen390.flightcrew.model.CalendarInfoDTO;
+
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -23,7 +25,7 @@ class GoogleCalendarServiceTest {
                 String invalidToken = "invalid-token";
 
                 assertThrows(Exception.class, () -> {
-                        googleCalendarService.fetchEvents(invalidToken, null, null);
+                        googleCalendarService.fetchEvents(invalidToken, null, null, null);
                 });
         }
 
@@ -36,14 +38,14 @@ class GoogleCalendarServiceTest {
                 String timeMax = "2023-01-02T00:00:00Z";
 
                 assertThrows(Exception.class, () -> {
-                        googleCalendarService.fetchEvents(invalidToken, timeMin, timeMax);
+                        googleCalendarService.fetchEvents(invalidToken, timeMin, timeMax, null);
                 });
         }
 
         @Test
         void toDTO_RegularEvent() throws Exception {
-                // Test the toDTO method for regular (timed) events
-                Method toDTOMethod = GoogleCalendarService.class.getDeclaredMethod("toDTO", Event.class);
+                // Test the toEventDTO method for regular (timed) events
+                Method toDTOMethod = GoogleCalendarService.class.getDeclaredMethod("toEventDTO", Event.class);
                 toDTOMethod.setAccessible(true);
 
                 Event event = new Event()
@@ -74,8 +76,8 @@ class GoogleCalendarServiceTest {
 
         @Test
         void toDTO_AllDayEvent() throws Exception {
-                // Test the toDTO method for all-day events
-                Method toDTOMethod = GoogleCalendarService.class.getDeclaredMethod("toDTO", Event.class);
+                // Test the toEventDTO method for all-day events
+                Method toDTOMethod = GoogleCalendarService.class.getDeclaredMethod("toEventDTO", Event.class);
                 toDTOMethod.setAccessible(true);
 
                 Event event = new Event()
@@ -107,7 +109,7 @@ class GoogleCalendarServiceTest {
         @Test
         void toDTO_EventWithNullFields() throws Exception {
                 // Test the toDTO method with null/empty fields
-                Method toDTOMethod = GoogleCalendarService.class.getDeclaredMethod("toDTO", Event.class);
+                Method toDTOMethod = GoogleCalendarService.class.getDeclaredMethod("toEventDTO", Event.class);
                 toDTOMethod.setAccessible(true);
 
                 Event event = new Event()
@@ -132,4 +134,32 @@ class GoogleCalendarServiceTest {
                 assertEquals("2023-01-01T11:00:00.000Z", result.getEnd());
                 assertFalse(result.isAllDay());
         }
+
+        @Test
+        void fetchCalendarList_InvalidToken_ThrowsException() {
+                // Test that invalid tokens cause exceptions when fetching calendar list
+
+                String invalidToken = "invalid-token";
+                assertThrows(Exception.class, () -> {
+                        googleCalendarService.fetchCalendarList(invalidToken);
+                });
+        }
+
+        @Test
+        void toCalendarInfoDTO_NullFields() throws Exception {
+                // Test the toCalendarInfoDTO method with null/empty fields
+                Method toCalendarInfoDTOMethod = GoogleCalendarService.class.getDeclaredMethod("toCalendarInfoDTO",
+                                com.google.api.services.calendar.model.CalendarListEntry.class);
+                toCalendarInfoDTOMethod.setAccessible(true);
+                com.google.api.services.calendar.model.CalendarListEntry entry = new com.google.api.services.calendar.model.CalendarListEntry()
+                                .setId("calendar-id");
+                CalendarInfoDTO result = (CalendarInfoDTO) toCalendarInfoDTOMethod.invoke(googleCalendarService, entry);
+                assertNotNull(result);
+                assertEquals("calendar-id", result.getId());
+                assertNull(result.getSummary());
+                assertNull(result.getDescription());
+                assertNull(result.getBackgroundColor());
+                assertFalse(result.isPrimary());
+        }
+
 }

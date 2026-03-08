@@ -24,6 +24,7 @@ export default function Calendar() {
     selectedCalendarId,
   } = useCalendar();
   const {
+    selectedDate,
     weekDates,
     currentMonth,
     eventsForSelectedDate,
@@ -210,7 +211,9 @@ export default function Calendar() {
             loading={loading}
             error={error}
             events={eventsForSelectedDate}
+            isToday={isDateToday(selectedDate)}
             onEventPress={selectEvent}
+            onDirections={handleDirections}
           />
         )}
       </View>

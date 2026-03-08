@@ -148,6 +148,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
+  eventItemUpcoming: {
+    borderWidth: 2,
+    borderColor: COLORS.error,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.concordiaMaroon,
+  },
   eventSummary: {
     fontSize: 16,
     fontWeight: "bold",
@@ -210,6 +216,31 @@ const styles = StyleSheet.create({
   },
   viewFullButtonTextActive: {
     color: COLORS.white,
+  },
+
+  /* ── Pulsing directions shortcut ── */
+  directionsShortcut: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.concordiaMaroon,
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 8,
+  },
+
+  /* ── Event error state ── */
+  eventErrorBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 4,
+  },
+  eventErrorText: {
+    fontSize: 11,
+    color: "#b45309",
+    fontStyle: "italic",
+    flex: 1,
   },
 
   /* ── Weekly schedule grid ── */

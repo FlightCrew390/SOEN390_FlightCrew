@@ -1,6 +1,7 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { act, render, screen, userEvent } from "@testing-library/react-native";
 
+import { createStackNavigator } from "@react-navigation/stack";
 import { JSX } from "react";
 import { CAMPUSES } from "../src/constants/campuses";
 import LocationScreen from "../src/screens/LocationScreen";
@@ -19,6 +20,17 @@ jest.mock("react-native/Libraries/Utilities/Platform", () => ({
   },
 }));
 
+// Helper: Wrap LocationScreen in a Stack Navigator to provide route context
+const Stack = createStackNavigator();
+function LocationScreenWithNav() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Location" component={LocationScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
 const mockAnimateToRegion = jest.fn();
 const mockSetMapBoundaries = jest.fn();
 
@@ -114,11 +126,7 @@ beforeEach(() => {
 /* ----------------------------- tests ----------------------------- */
 
 test("renders LocationScreen base UI", () => {
-  render(
-    <NavigationContainer>
-      <LocationScreen />
-    </NavigationContainer>,
-  );
+  render(<LocationScreenWithNav />);
 
   expect(screen.getByTestId("location-screen")).toBeTruthy();
   expect(screen.getByText("Select a Campus")).toBeTruthy();
@@ -131,11 +139,7 @@ test("campus navigation updates UI and animates map correctly", async () => {
     advanceTimers: jest.advanceTimersByTime,
   });
 
-  render(
-    <NavigationContainer>
-      <LocationScreen />
-    </NavigationContainer>,
-  );
+  render(<LocationScreenWithNav />);
 
   const left = screen.getByRole("button", { name: "Previous campus" });
   const right = screen.getByRole("button", { name: "Next campus" });
@@ -176,21 +180,13 @@ test("renders buildings when data is loaded", () => {
     refetch: jest.fn(),
   });
 
-  render(
-    <NavigationContainer>
-      <LocationScreen />
-    </NavigationContainer>,
-  );
+  render(<LocationScreenWithNav />);
 
   expect(screen.getByTestId("map-view")).toBeTruthy();
 });
 
 test("renders loading, error, and success states", () => {
-  const { rerender } = render(
-    <NavigationContainer>
-      <LocationScreen />
-    </NavigationContainer>,
-  );
+  const { rerender } = render(<LocationScreenWithNav />);
 
   mockUseBuildingData.mockReturnValueOnce({
     buildings: [],
@@ -199,11 +195,7 @@ test("renders loading, error, and success states", () => {
     refetch: jest.fn(),
   });
 
-  rerender(
-    <NavigationContainer>
-      <LocationScreen />
-    </NavigationContainer>,
-  );
+  rerender(<LocationScreenWithNav />);
 
   expect(screen.getByText(/loading/i)).toBeTruthy();
 
@@ -214,11 +206,7 @@ test("renders loading, error, and success states", () => {
     refetch: jest.fn(),
   });
 
-  rerender(
-    <NavigationContainer>
-      <LocationScreen />
-    </NavigationContainer>,
-  );
+  rerender(<LocationScreenWithNav />);
 
   expect(screen.getByText(/failed/i)).toBeTruthy();
 
@@ -229,11 +217,7 @@ test("renders loading, error, and success states", () => {
     refetch: jest.fn(),
   });
 
-  rerender(
-    <NavigationContainer>
-      <LocationScreen />
-    </NavigationContainer>,
-  );
+  rerender(<LocationScreenWithNav />);
 
   expect(screen.getByTestId("map-view")).toBeTruthy();
 });

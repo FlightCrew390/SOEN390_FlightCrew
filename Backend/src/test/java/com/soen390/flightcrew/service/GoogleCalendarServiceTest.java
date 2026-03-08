@@ -19,7 +19,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class GoogleCalendarServiceTest {
@@ -131,8 +130,8 @@ class GoogleCalendarServiceTest {
                 service.fetchEvents("token", "2026-03-01T00:00:00Z", "2026-03-31T23:59:59Z", "team-calendar");
 
                 verify(eventsApi).list("team-calendar");
-                verify(request).setTimeMin(eq(new DateTime("2026-03-01T00:00:00Z")));
-                verify(request).setTimeMax(eq(new DateTime("2026-03-31T23:59:59Z")));
+                verify(request).setTimeMin(new DateTime("2026-03-01T00:00:00Z"));
+                verify(request).setTimeMax(new DateTime("2026-03-31T23:59:59Z"));
                 verify(request).execute();
         }
 

@@ -22,3 +22,9 @@ export function formatTime(isoString: string): string {
   const displayMinutes = minutes.toString().padStart(2, "0");
   return `${displayHour}:${displayMinutes} ${period}`;
 }
+
+export function formatHourLabel(hour: number): string {
+  const period = hour >= 12 ? "PM" : "AM";
+  const display = hour % 12 || 12;
+  return `${display} ${period}`;
+}

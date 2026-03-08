@@ -4,7 +4,7 @@ import { COLORS } from "../../constants";
 import styles from "../../styles/StepsPanel";
 import { TransitStepDetails } from "../../types/Directions";
 import { getManeuverIcon, parseTime } from "../../utils/directionsUtils";
-import { formatTime } from "../../utils/formatHelper";
+import { formatDateTime } from "../../utils/formatHelper";
 
 interface TransitBadgeProps {
   readonly transit: TransitStepDetails;
@@ -29,13 +29,13 @@ export default function TransitBadge({ transit }: Readonly<TransitBadgeProps>) {
       {transit.departureStopName ? (
         <Text style={styles.transitStop} numberOfLines={1}>
           From {transit.departureStopName}
-          {departureParsed ? ` at ${formatTime(departureParsed)}` : ""}
+          {departureParsed ? ` at ${formatDateTime(departureParsed)}` : ""}
         </Text>
       ) : null}
       {transit.arrivalStopName ? (
         <Text style={styles.transitStop} numberOfLines={1}>
           To {transit.arrivalStopName}
-          {arrivalParsed ? ` at ${formatTime(arrivalParsed)}` : ""}
+          {arrivalParsed ? ` at ${formatDateTime(arrivalParsed)}` : ""}
         </Text>
       ) : null}
       {transit.stopCount > 0 && (

@@ -4,8 +4,9 @@ import {
   RouteInfo,
   TravelMode,
 } from "../types/Directions";
+import { PointOfInterest } from "../types/PointOfInterest";
 
-type Panel = "none" | "search" | "directions" | "steps";
+type Panel = "none" | "search" | "directions" | "steps" | "poi-results";
 export type SearchOrigin = "default" | "directions";
 
 export interface MapUIState {
@@ -22,6 +23,11 @@ export interface MapUIState {
   routeError: string | null;
   // Shuttle eligibility
   shuttleEligible: boolean;
+  // POI search data
+  poiResults: PointOfInterest[];
+  selectedPoi: PointOfInterest | null;
+  poiLoading: boolean;
+  poiError: string | null;
 }
 
 export type MapUIAction =
@@ -44,4 +50,10 @@ export type MapUIAction =
   | { type: "ROUTE_ERROR"; error: string }
   | { type: "OPEN_STEPS" }
   | { type: "CLOSE_STEPS" }
-  | { type: "SET_SHUTTLE_ELIGIBLE"; eligible: boolean };
+  | { type: "SET_SHUTTLE_ELIGIBLE"; eligible: boolean }
+  | { type: "POI_LOADING" }
+  | { type: "POI_LOADED"; results: PointOfInterest[] }
+  | { type: "POI_ERROR"; error: string }
+  | { type: "SELECT_POI"; poi: PointOfInterest }
+  | { type: "CLEAR_POI" }
+  | { type: "BACK_TO_SEARCH" };

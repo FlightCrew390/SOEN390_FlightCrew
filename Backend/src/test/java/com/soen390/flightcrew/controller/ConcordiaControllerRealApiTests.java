@@ -18,7 +18,10 @@ import static org.assertj.core.api.Assertions.assertThat;
         "external.api.key=${EXTERNAL_API_KEY:dummyKey}",
         "external.api.user=${EXTERNAL_API_USER:dummyUser}",
         "external.api.url=${EXTERNAL_API_URL:https://opendata.concordia.ca/API/v1}",
-        "google.api.key=${GOOGLE_API_KEY:dummyGoogleKey}"
+        "google.api.key=${GOOGLE_API_KEY:dummyGoogleKey}",
+        "google.client-id=test-id",
+        "google.client-secret=test-secret",
+
 })
 class ConcordiaControllerRealApiTests {
 

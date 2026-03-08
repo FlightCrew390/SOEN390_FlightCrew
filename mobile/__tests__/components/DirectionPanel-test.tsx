@@ -61,6 +61,7 @@ jest.mock("../../src/constants", () => ({
     white: "#ffffff",
     error: "#cc0000",
   },
+  METRO_ACCESS_BUILDINGS: ["H", "EV", "MB", "LB"],
 }));
 
 jest.mock("../../src/styles/DirectionPanel", () => ({
@@ -119,6 +120,7 @@ jest.mock("../../../assets/walk.png", () => 0, { virtual: true });
 jest.mock("../../../assets/bike.png", () => 0, { virtual: true });
 jest.mock("../../../assets/train.png", () => 0, { virtual: true });
 jest.mock("../../../assets/car.png", () => 0, { virtual: true });
+jest.mock("../../../assets/metro.png", () => 0, { virtual: true });
 
 const building: Building = {
   structureType: StructureType.Building,
@@ -663,5 +665,31 @@ describe("DirectionPanel", () => {
 
     fireEvent.press(screen.getByTestId("mi-not-accessible"));
     expect(screen.getByText("Not Accessible")).toBeTruthy();
+  });
+
+  // ── Metro Access ──
+
+  it("shows metro icon when building has metro access", () => {
+    const buildingWithInfo = { ...building, accessibilityInfo: "Accessible" };
+    renderPanel({ building: buildingWithInfo });
+    expect(screen.getByTestId("btn-metro-access")).toBeTruthy();
+  });
+
+  it("does not show metro icon when building has no metro access", () => {
+    const noMetroBuilding = {
+      ...building,
+      buildingCode: "FG",
+      accessibilityInfo: "Accessible",
+    };
+    renderPanel({ building: noMetroBuilding });
+    expect(screen.queryByTestId("btn-metro-access")).toBeNull();
+  });
+
+  it("shows Metro Access tooltip on press", () => {
+    const buildingWithInfo = { ...building, accessibilityInfo: "Accessible" };
+    renderPanel({ building: buildingWithInfo });
+    const btn = screen.getByTestId("btn-metro-access");
+    fireEvent.press(btn);
+    expect(screen.getByText("Metro Access")).toBeTruthy();
   });
 });

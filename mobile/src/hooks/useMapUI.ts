@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useReducer } from "react";
 import { initialMapUIState, mapUIReducer } from "../reducers/mapUIReducer";
-import { LocationType } from "../state/SearchPanelState";
+import { LocationType, isPoi } from "../state/SearchPanelState";
+import { PoiService } from "../services/PoiService";
+import { PointOfInterest } from "../types/PointOfInterest";
 import { Building } from "../types/Building";
 import { DepartureTimeConfig, TravelMode } from "../types/Directions";
 import { findCurrentBuilding } from "../utils/buildingDetection";
+import { haversineDistance } from "../utils/distanceUtils";
 import { useDirections } from "./useDirections";
 import { useRoutePreviews } from "./useRoutePreviews";
 import {
@@ -126,23 +129,59 @@ export function useMapUI(
   }, []);
 
   const handleSearch = useCallback(
-    (query: string, locationType: LocationType) => {
+    (query: string, locationType: LocationType, radiusKm?: number | null) => {
+      if (isPoi(locationType)) {
+        // POI search — fetch from backend, filter client-side
+        dispatch({ type: "POI_LOADING" });
+        PoiService.fetchPois()
+          .then((pois) => {
+            let filtered = pois.filter((p) => p.category === locationType);
+
+            if (radiusKm != null && userCoords) {
+              filtered = filtered.filter(
+                (p) =>
+                  haversineDistance(
+                    userCoords.latitude,
+                    userCoords.longitude,
+                    p.latitude,
+                    p.longitude,
+                  ) <= radiusKm,
+              );
+            }
+
+            dispatch({ type: "POI_LOADED", results: filtered });
+          })
+          .catch((err) => {
+            dispatch({
+              type: "POI_ERROR",
+              error: err instanceof Error ? err.message : "Failed to load POIs",
+            });
+          });
+        return null;
+      }
+
+      // Building search (existing logic)
       if (!query) return null;
 
-      if (locationType === "building") {
-        const q = query.toLowerCase();
-        const match = buildings.find(
-          (b) =>
-            b.buildingName.toLowerCase().includes(q) ||
-            b.buildingLongName.toLowerCase().includes(q) ||
-            b.buildingCode.toLowerCase() === q,
-        );
-        return match ?? null;
-      }
-      return null;
+      const q = query.toLowerCase();
+      const match = buildings.find(
+        (b) =>
+          b.buildingName.toLowerCase().includes(q) ||
+          b.buildingLongName.toLowerCase().includes(q) ||
+          b.buildingCode.toLowerCase() === q,
+      );
+      return match ?? null;
     },
-    [buildings],
+    [buildings, userCoords],
   );
+
+  const selectPoi = useCallback((poi: PointOfInterest) => {
+    dispatch({ type: "SELECT_POI", poi });
+  }, []);
+
+  const clearPoi = useCallback(() => {
+    dispatch({ type: "CLEAR_POI" });
+  }, []);
 
   const handleTravelModeChange = useCallback((mode: TravelMode | null) => {
     if (mode === null) {
@@ -169,5 +208,7 @@ export function useMapUI(
     handleSearch,
     handleTravelModeChange,
     handleDepartureConfigChange,
+    selectPoi,
+    clearPoi,
   };
 }

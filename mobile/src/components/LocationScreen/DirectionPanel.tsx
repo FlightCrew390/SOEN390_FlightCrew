@@ -2,13 +2,20 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useState } from "react";
-import { Animated, Pressable, ScrollView, Text, View } from "react-native";
+import {
+  Animated,
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 
-import { COLORS } from "../../constants";
+import { COLORS, METRO_ACCESS_BUILDINGS } from "../../constants";
 import { usePanelAnimation } from "../../hooks/usePanelAnimation";
 import type { RoutePreviews } from "../../hooks/useRoutePreviews";
 import styles from "../../styles/DirectionPanel";
-import { Building } from "../../types/Building";
+import { Building, StructureType } from "../../types/Building";
 import {
   DepartureTimeConfig,
   RouteInfo,
@@ -127,9 +134,23 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
       <View style={styles.addressRow}>
         <Text style={styles.buildingAddress}>{building.address}</Text>
       </View>
-      <Text style={styles.buildingDetail}>
-        Building Code: {building.buildingCode}
-      </Text>
+      {/* Extracted nested ternary for maintainability */}
+      {(() => {
+        if (building.structureType === StructureType.Point) {
+          if (building.description) {
+            return (
+              <Text style={styles.buildingDetail}>{building.description}</Text>
+            );
+          }
+          return null;
+        } else {
+          return (
+            <Text style={styles.buildingDetail}>
+              Building Code: {building.buildingCode}
+            </Text>
+          );
+        }
+      })()}
       <Text style={styles.buildingDetail}>
         Campus: {building.campus === "SGW" ? "Sir George Williams" : "Loyola"}
       </Text>
@@ -207,6 +228,26 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
                 >
                   <MaterialIcons name="elevator" size={22} color="#2E7D32" />
                   {activeTooltip === "Elevator" && <Tooltip text="Elevator" />}
+                </Pressable>
+              )}
+              {METRO_ACCESS_BUILDINGS.includes(building.buildingCode) && (
+                <Pressable
+                  testID="btn-metro-access"
+                  onPress={() => handlePress("Metro Access")}
+                  style={{
+                    marginRight: 10,
+                    alignItems: "center",
+                    zIndex: 10,
+                  }}
+                >
+                  <Image
+                    source={require("../../../assets/metro.png")}
+                    style={{ width: 22, height: 22 }}
+                    resizeMode="contain"
+                  />
+                  {activeTooltip === "Metro Access" && (
+                    <Tooltip text="Metro Access" />
+                  )}
                 </Pressable>
               )}
             </>

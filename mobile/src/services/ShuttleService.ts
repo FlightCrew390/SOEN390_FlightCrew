@@ -60,7 +60,7 @@ const data = shuttleData as RawScheduleData;
 const monThuDeps = convertDepartures(data.monday_thursday);
 const fridayDeps = convertDepartures(data.friday);
 
-const NO_SERVICE_DAYS = ["SATURDAY", "SUNDAY"];
+const NO_SERVICE_DAYS = new Set(["SATURDAY", "SUNDAY"]);
 
 export class ShuttleService {
   /**
@@ -70,7 +70,7 @@ export class ShuttleService {
   static async fetchSchedule(day?: string): Promise<ShuttleSchedule> {
     const dayUpper = (day ?? "").toUpperCase();
 
-    if (NO_SERVICE_DAYS.includes(dayUpper)) {
+    if (NO_SERVICE_DAYS.has(dayUpper)) {
       return {
         day: dayUpper,
         no_service: true,
@@ -86,7 +86,7 @@ export class ShuttleService {
     // Derive service start/end from first & last departure
     const firstLoy =
       departures.find((d) => d.loyola_departure)?.loyola_departure ?? null;
-    const lastEntry = departures[departures.length - 1];
+    const lastEntry = departures.at(-1);
     const serviceEnd =
       lastEntry?.loyola_departure ?? lastEntry?.sgw_departure ?? null;
 

@@ -217,6 +217,56 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
   );
 }
 
+/* ── Shuttle transport card (extracted to reduce cognitive complexity) ── */
+
+function getShuttleIconColor(eligible: boolean, isActive: boolean): string {
+  if (eligible && isActive) return "#9C2D2D";
+  if (eligible) return "#6B6B6B";
+  return "#B0B0B0";
+}
+
+function ShuttleCard({
+  isActive,
+  eligible,
+  duration,
+  onPress,
+}: Readonly<{
+  isActive: boolean;
+  eligible: boolean;
+  duration: string;
+  onPress: () => void;
+}>) {
+  return (
+    <Pressable
+      style={[
+        styles.transportCard,
+        isActive && styles.transportCardActive,
+        !eligible && styles.transportCardDisabled,
+      ]}
+      onPress={eligible ? onPress : undefined}
+      disabled={!eligible}
+      accessibilityLabel="Get directions by Shuttle"
+      accessibilityRole="button"
+      accessibilityState={{ disabled: !eligible }}
+    >
+      <MaterialCommunityIcons
+        name="bus"
+        size={36}
+        color={getShuttleIconColor(eligible, isActive)}
+      />
+      <Text
+        style={[
+          styles.transportTime,
+          isActive && styles.transportTimeActive,
+          !eligible && styles.transportTimeDisabled,
+        ]}
+      >
+        {eligible ? duration : "N/A"}
+      </Text>
+    </Pressable>
+  );
+}
+
 export default function DirectionPanel({
   visible,
   building,
@@ -318,46 +368,16 @@ export default function DirectionPanel({
                   }
                 />
               ))}
-              <Pressable
-                style={[
-                  styles.transportCard,
-                  travelMode === "SHUTTLE" && styles.transportCardActive,
-                  !shuttleEligible && styles.transportCardDisabled,
-                ]}
-                onPress={
-                  !shuttleEligible
-                    ? undefined
-                    : () =>
-                        onTravelModeChange(
-                          travelMode === "SHUTTLE" ? null : "SHUTTLE",
-                        )
+              <ShuttleCard
+                isActive={travelMode === "SHUTTLE"}
+                eligible={shuttleEligible ?? false}
+                duration={getDuration("SHUTTLE")}
+                onPress={() =>
+                  onTravelModeChange(
+                    travelMode === "SHUTTLE" ? null : "SHUTTLE",
+                  )
                 }
-                disabled={!shuttleEligible}
-                accessibilityLabel="Get directions by Shuttle"
-                accessibilityRole="button"
-                accessibilityState={{ disabled: !shuttleEligible }}
-              >
-                <MaterialCommunityIcons
-                  name="bus"
-                  size={36}
-                  color={
-                    !shuttleEligible
-                      ? "#B0B0B0"
-                      : travelMode === "SHUTTLE"
-                        ? "#9C2D2D"
-                        : "#6B6B6B"
-                  }
-                />
-                <Text
-                  style={[
-                    styles.transportTime,
-                    travelMode === "SHUTTLE" && styles.transportTimeActive,
-                    !shuttleEligible && styles.transportTimeDisabled,
-                  ]}
-                >
-                  {!shuttleEligible ? "N/A" : getDuration("SHUTTLE")}
-                </Text>
-              </Pressable>
+              />
             </View>
 
             <RouteStatusDisplay loading={routeLoading} error={routeError} />

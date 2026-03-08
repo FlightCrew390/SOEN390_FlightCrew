@@ -13,9 +13,13 @@ import {
 /** Parse backend duration string (e.g. "21 mins", "1 hr 5 min") into seconds. Uses lookahead+backreference to avoid ReDoS. */
 function parseShuttleDurationToSeconds(durationStr: string): number {
   let seconds = 0;
-  const hrMatch = durationStr.match(/(?=(\d+)\s*(?:hr|hrs?)\b)\1\s*(?:hr|hrs?)\b/i);
+  const hrMatch = durationStr.match(
+    /(?=(\d+)\s*(?:hr|hrs?)\b)\1\s*(?:hr|hrs?)\b/i,
+  );
   if (hrMatch) seconds += Number.parseInt(hrMatch[1], 10) * 3600;
-  const minMatch = durationStr.match(/(?=(\d+)\s*(?:min|mins?)\b)\1\s*(?:min|mins?)\b/i);
+  const minMatch = durationStr.match(
+    /(?=(\d+)\s*(?:min|mins?)\b)\1\s*(?:min|mins?)\b/i,
+  );
   if (minMatch) seconds += Number.parseInt(minMatch[1], 10) * 60;
   return seconds || 60; // fallback 1 min if unparseable
 }

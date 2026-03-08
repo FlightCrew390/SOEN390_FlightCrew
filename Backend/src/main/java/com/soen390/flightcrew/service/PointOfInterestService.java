@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +55,7 @@ public class PointOfInterestService {
         }
         return pois.stream()
                 .filter(poi -> campus.trim().equalsIgnoreCase(poi.getCampus()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Optional<List<PointOfInterest>> loadFromCache() {

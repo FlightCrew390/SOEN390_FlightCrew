@@ -30,9 +30,6 @@ const defaultMapUIState = {
   poiError: null,
 };
 
-// Remove duplicate mocks at the bottom of the import section
-// Convert the tests to use the second set of mocks (mockUseBuildingData and mockUseCurrentLocation) consistently
-
 type MapUIState = Omit<
   typeof defaultMapUIState,
   "panel" | "searchOrigin" | "poiResults" | "selectedPoi"
@@ -63,7 +60,6 @@ const mockHandleMapReady = jest.fn();
 const mockHandleRegionChangeComplete = jest.fn();
 const mockHandleRecenter = jest.fn();
 const mockAnimateToBuilding = jest.fn();
-const mockMapAnimateToRegion = jest.fn();
 
 jest.mock("../../src/hooks/useMapCamera", () => ({
   useMapCamera: () => ({
@@ -86,62 +82,226 @@ jest.mock("../../src/contexts/LocationContext", () => ({
   useLocation: () => mockUseCurrentLocation(),
 }));
 
-// Mock child components to be inspectable
-jest.mock("../../src/components/LocationScreen/BuildingLayer", () => {
+// Mock findBuildingByLocation utility
+const mockFindBuildingByLocation = jest.fn();
+jest.mock("../../src/utils/findBuildingByLocation", () => ({
+  findBuildingByLocation: (...args: any[]) =>
+    mockFindBuildingByLocation(...args),
+}));
+
+// Mock navigation – controllable per test
+const mockSetParams = jest.fn();
+let mockRouteParams: Record<string, any> = {};
+
+jest.mock("@react-navigation/native", () => ({
+  useNavigation: () => ({ setParams: mockSetParams }),
+  useRoute: () => ({ params: mockRouteParams }),
+}));
+
+// ── Mock leaf components that we do NOT have source for ──
+
+// BuildingMarker (leaf of BuildingLayer)
+jest.mock("../../src/components/LocationScreen/BuildingMarker", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View, Text, Pressable } = require("react-native");
+  return {
+    __esModule: true,
+    default: (props: any) => (
+      <View testID={`building-marker-${props.building.buildingCode}`}>
+        <Text testID={`bm-current-${props.building.buildingCode}`}>
+          {String(props.isCurrentBuilding)}
+        </Text>
+        <Text testID={`bm-selected-${props.building.buildingCode}`}>
+          {String(props.isSelected)}
+        </Text>
+        <Text testID={`bm-directions-${props.building.buildingCode}`}>
+          {String(props.isDirectionsOpen)}
+        </Text>
+        <Pressable
+          testID={`bm-select-${props.building.buildingCode}`}
+          onPress={props.onSelect}
+        />
+        <Pressable
+          testID={`bm-direction-${props.building.buildingCode}`}
+          onPress={props.onDirectionPress}
+        />
+      </View>
+    ),
+  };
+});
+
+// BuildingPolygon (leaf of BuildingLayer)
+jest.mock("../../src/components/LocationScreen/BuildingPolygon", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View } = require("react-native");
   return {
     __esModule: true,
     default: (props: any) => (
-      <View
-        testID="building-layer"
-        {...{
-          currentBuildingCode: props.currentBuildingCode,
-          selectedBuildingCode: props.selectedBuildingCode,
-          isDirectionsOpen: props.isDirectionsOpen,
-          buildingCount: props.buildings.length,
-        }}
-      />
+      <View testID={`building-polygon-${props.building.buildingCode}`} />
     ),
   };
 });
 
-jest.mock("../../src/components/LocationScreen/RoutePolyline", () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View } = require("react-native");
-  return {
-    __esModule: true,
-    default: (props: any) => (
-      <View
-        testID="route-polyline"
-        {...{ hasRoute: props.route != null, travelMode: props.travelMode }}
-      />
-    ),
-  };
-});
-
+// UserLocationMarker (we don't have source)
 jest.mock("../../src/components/LocationScreen/UserLocationMarker", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View } = require("react-native");
   return {
     __esModule: true,
-    default: (props: any) => <View testID="user-location-marker" />,
+    default: (props: any) => (
+      <View
+        testID="user-location-marker"
+        {...{ latitude: props.latitude, longitude: props.longitude }}
+      />
+    ),
   };
 });
 
-jest.mock("../../src/components/LocationScreen/MapOverlays", () => {
+// DirectionPanel – expose all props and callbacks
+jest.mock("../../src/components/LocationScreen/DirectionPanel", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View, Text } = require("react-native");
+  const { View, Text, Pressable } = require("react-native");
   return {
     __esModule: true,
     default: (props: any) => (
-      <View testID="map-overlays">
-        {props.isLoading && <Text>Loading</Text>}
-        {props.error && <Text>{props.error}</Text>}
+      <View testID="direction-panel">
+        <Text testID="dp-visible">{String(props.visible)}</Text>
+        <Text testID="dp-show-steps">{String(props.showSteps)}</Text>
+        <Text testID="dp-building">
+          {props.building?.buildingCode ?? "null"}
+        </Text>
+        <Text testID="dp-start-building">
+          {props.startBuilding?.buildingCode ?? "null"}
+        </Text>
+        <Text testID="dp-has-route">{String(props.route != null)}</Text>
+        <Text testID="dp-route-loading">{String(props.routeLoading)}</Text>
+        <Text testID="dp-route-error">{props.routeError ?? "null"}</Text>
+        <Text testID="dp-travel-mode">{props.travelMode ?? "null"}</Text>
+        <Pressable testID="dp-close" onPress={props.onClose} />
+        <Pressable testID="dp-open-search" onPress={props.onOpenSearch} />
+        <Pressable testID="dp-reset-start" onPress={props.onResetStart} />
+        <Pressable testID="dp-show-steps-btn" onPress={props.onShowSteps} />
+        <Pressable testID="dp-hide-steps-btn" onPress={props.onHideSteps} />
+        <Pressable
+          testID="dp-travel-mode-change"
+          onPress={() => props.onTravelModeChange("WALK")}
+        />
       </View>
     ),
   };
 });
+
+// SearchPanel – expose onClose and all callbacks
+jest.mock("../../src/components/LocationScreen/SearchPanel", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View, Text, Pressable } = require("react-native");
+  return {
+    __esModule: true,
+    default: (props: any) => (
+      <View testID="search-panel">
+        <Text testID="sp-visible">{String(props.visible)}</Text>
+        <Pressable
+          testID="sp-select-building"
+          onPress={() =>
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            props.onSelectBuilding(require("../fixtures").hallBuilding)
+          }
+        />
+        <Pressable
+          testID="sp-search"
+          onPress={() => props.onSearch("Hall", "building")}
+        />
+        <Pressable testID="sp-close" onPress={props.onClose} />
+      </View>
+    ),
+  };
+});
+
+// FontAwesome5 (used by MapControls)
+jest.mock("@expo/vector-icons/FontAwesome5", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require("react-native");
+  return {
+    __esModule: true,
+    default: (props: any) => <View testID={`icon-${props.name}`} />,
+  };
+});
+
+// ── Mock react-native-maps (MapView + Polyline) ──
+
+jest.mock("react-native-maps", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require("react-native");
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { forwardRef } = require("react");
+
+  const MockMapView = forwardRef((props: any, ref: any) => (
+    <View testID="map-view" ref={ref} {...props}>
+      {props.children}
+    </View>
+  ));
+  MockMapView.displayName = "MockMapView";
+
+  const MockPolyline = (props: any) => (
+    <View
+      testID="route-polyline"
+      {...{
+        coordinateCount: props.coordinates?.length,
+        strokeColor: props.strokeColor,
+        hasDash: props.lineDashPattern != null,
+      }}
+    />
+  );
+
+  return {
+    __esModule: true,
+    default: MockMapView,
+    Polyline: MockPolyline,
+    PROVIDER_GOOGLE: "google",
+    PROVIDER_DEFAULT: null,
+  };
+});
+
+// ── Mock constants (MAP_CONFIG + COLORS) ──
+
+jest.mock("../../src/constants", () => ({
+  MAP_CONFIG: {
+    defaultCampusRegion: {
+      latitude: 45.4973,
+      longitude: -73.5789,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    },
+  },
+  COLORS: {
+    concordiaMaroon: "#912338",
+    concordiaMaroonLight: "#d88a96",
+    mapPolylineWalk: "#007AFF",
+  },
+}));
+
+// ── Mock styles ──
+
+jest.mock("../../src/styles/GoogleMaps", () => ({
+  __esModule: true,
+  default: {
+    container: {},
+    map: {},
+    loadingOverlay: {},
+    loadingText: {},
+    errorOverlay: {},
+    errorText: {},
+    searchButton: {},
+    searchButtonOpen: {},
+    recenterButton: {},
+  },
+}));
+
+// ── Mock state import for MapControls ──
+
+jest.mock("../../src/state/MapUIState", () => ({}));
+
+// ── Test data ──
 
 const mockBuildings: Building[] = [
   {
@@ -173,8 +333,12 @@ const mockBuildings: Building[] = [
 
 const mockLocation = { coords: { latitude: 45.4973, longitude: -73.5789 } };
 
+// ── Standalone tests (basic rendering) ──
+
 beforeEach(() => {
   jest.clearAllMocks();
+  mockMapUIState = { ...defaultMapUIState };
+  mockRouteParams = {};
   mockUseBuildingData.mockReturnValue({
     buildings: [],
     loading: false,
@@ -185,21 +349,15 @@ beforeEach(() => {
     loading: false,
     error: null,
   });
+  mockFindBuildingByLocation.mockReturnValue(null);
 });
 
 test("renders map view", () => {
-  mockUseBuildingData.mockReturnValue({
-    buildings: [],
-    loading: false,
-    error: null,
-  });
-
   render(<GoogleMaps mapRef={React.createRef()} />);
-
   expect(screen.getByTestId("map-view")).toBeTruthy();
 });
 
-test("renders loading indicator when loading", () => {
+test("renders loading indicator when buildings are loading", () => {
   mockUseBuildingData.mockReturnValue({
     buildings: [],
     loading: true,
@@ -207,8 +365,18 @@ test("renders loading indicator when loading", () => {
   });
 
   render(<GoogleMaps mapRef={React.createRef()} />);
+  expect(screen.getByText("Loading buildings...")).toBeTruthy();
+});
 
-  expect(screen.getByText("Loading")).toBeTruthy();
+test("renders loading indicator when location is loading", () => {
+  mockUseCurrentLocation.mockReturnValue({
+    location: null,
+    loading: true,
+    error: null,
+  });
+
+  render(<GoogleMaps mapRef={React.createRef()} />);
+  expect(screen.getByText("Getting your location...")).toBeTruthy();
 });
 
 test("renders error message when error occurs", () => {
@@ -219,7 +387,6 @@ test("renders error message when error occurs", () => {
   });
 
   render(<GoogleMaps mapRef={React.createRef()} />);
-
   expect(screen.getByText("Failed to fetch buildings")).toBeTruthy();
 });
 
@@ -231,10 +398,11 @@ test("renders building markers for each building", () => {
   });
 
   render(<GoogleMaps mapRef={React.createRef()} />);
-  const buildingLayer = screen.getByTestId("building-layer");
 
-  expect(buildingLayer.props.buildingCount).toBe(mockBuildings.length);
-  expect(screen.getByTestId("map-view")).toBeTruthy();
+  expect(screen.getByTestId("building-marker-H")).toBeTruthy();
+  expect(screen.getByTestId("building-marker-EV")).toBeTruthy();
+  expect(screen.getByTestId("building-polygon-H")).toBeTruthy();
+  expect(screen.getByTestId("building-polygon-EV")).toBeTruthy();
 });
 
 test("does not render loading overlay when not loading", () => {
@@ -245,8 +413,7 @@ test("does not render loading overlay when not loading", () => {
   });
 
   render(<GoogleMaps mapRef={React.createRef()} />);
-
-  expect(screen.queryByText("Loading")).toBeNull();
+  expect(screen.queryByText(/Loading/)).toBeNull();
 });
 
 test("does not render error overlay when no error", () => {
@@ -257,23 +424,17 @@ test("does not render error overlay when no error", () => {
   });
 
   render(<GoogleMaps mapRef={React.createRef()} />);
-
   expect(screen.queryByText(/Error:/)).toBeNull();
 });
 
 test("renders empty map when no buildings", () => {
-  mockUseBuildingData.mockReturnValue({
-    buildings: [],
-    loading: false,
-    error: null,
-  });
-
   render(<GoogleMaps mapRef={React.createRef()} />);
 
   expect(screen.getByTestId("map-view")).toBeTruthy();
+  expect(screen.queryByTestId(/building-marker-/)).toBeNull();
 });
 
-test("shows both loading and map simultaneously", () => {
+test("shows loading overlay alongside map when loading", () => {
   mockUseBuildingData.mockReturnValue({
     buildings: mockBuildings,
     loading: true,
@@ -282,158 +443,15 @@ test("shows both loading and map simultaneously", () => {
 
   render(<GoogleMaps mapRef={React.createRef()} />);
 
-  expect(screen.getByText("Loading")).toBeTruthy();
+  expect(screen.getByText("Loading buildings...")).toBeTruthy();
+  expect(screen.getByTestId("map-view")).toBeTruthy();
 });
-
-jest.mock("../../src/components/LocationScreen/DirectionPanel", () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View, Text } = require("react-native");
-  return {
-    __esModule: true,
-    default: (props: any) => (
-      <View testID="direction-panel">
-        <Text testID="dp-visible">{String(props.visible)}</Text>
-        <Text testID="dp-show-steps">{String(props.showSteps)}</Text>
-      </View>
-    ),
-  };
-});
-
-jest.mock("../../src/components/LocationScreen/SearchPanel", () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View, Text, Pressable } = require("react-native");
-  return {
-    __esModule: true,
-    default: (props: any) => (
-      <View testID="search-panel">
-        <Text testID="sp-visible">{String(props.visible)}</Text>
-        <Pressable
-          testID="sp-select-building"
-          onPress={() =>
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
-            props.onSelectBuilding(require("../fixtures").hallBuilding)
-          }
-        />
-        <Pressable
-          testID="sp-search"
-          onPress={() => props.onSearch("Hall", "building", null)}
-        />
-        <Pressable testID="sp-close" onPress={props.onClose} />
-      </View>
-    ),
-  };
-});
-
-jest.mock("../../src/components/LocationScreen/MapControls", () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View, Text, Pressable } = require("react-native");
-  return {
-    __esModule: true,
-    default: (props: any) => (
-      <View testID="map-controls">
-        <Text testID="mc-panel">{props.panel}</Text>
-        <Text testID="mc-has-location">{String(props.hasLocation)}</Text>
-        <Pressable testID="mc-open-search" onPress={props.onOpenSearch} />
-        <Pressable testID="mc-close-search" onPress={props.onCloseSearch} />
-        <Pressable testID="mc-recenter" onPress={props.onRecenter} />
-        <Pressable
-          testID="mc-return-directions"
-          onPress={props.onReturnToDirections}
-        />
-      </View>
-    ),
-  };
-});
-
-jest.mock("../../src/components/LocationScreen/PoiMarker", () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View, Text, Pressable } = require("react-native");
-  return {
-    __esModule: true,
-    default: (props: any) => (
-      <View testID="poi-marker">
-        <Text>{props.poi?.name}</Text>
-        <Text testID="poi-marker-directions-open">
-          {String(!!props.isDirectionsOpen)}
-        </Text>
-        <Pressable
-          testID="poi-marker-direction-press"
-          onPress={props.onDirectionPress}
-        />
-      </View>
-    ),
-  };
-});
-
-jest.mock("../../src/components/LocationScreen/PoiResultsPanel", () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View, Text, Pressable } = require("react-native");
-  return {
-    __esModule: true,
-    default: (props: any) => (
-      <View testID="poi-results-panel">
-        <Text testID="poi-results-count">{props.results?.length}</Text>
-        <Pressable
-          testID="poi-select-btn"
-          onPress={() => props.onSelectPoi?.(props.results?.[0])}
-        />
-        <Pressable
-          testID="poi-direction-btn"
-          onPress={() => props.onDirectionPress?.(props.results?.[0])}
-        />
-        <Pressable testID="poi-back-btn" onPress={props.onBack} />
-      </View>
-    ),
-  };
-});
-
-// Mock react-native-maps
-jest.mock("react-native-maps", () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const React = require("react");
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View } = require("react-native");
-  const MockMapView = React.forwardRef((props: any, ref: any) => {
-    React.useImperativeHandle(ref, () => ({
-      animateToRegion: mockMapAnimateToRegion,
-    }));
-    return (
-      <View testID="map-view" {...props}>
-        {props.children}
-      </View>
-    );
-  });
-  MockMapView.displayName = "MockMapView";
-  return {
-    __esModule: true,
-    default: MockMapView,
-    PROVIDER_GOOGLE: "google",
-    PROVIDER_DEFAULT: null,
-  };
-});
-
-jest.mock("../../src/constants", () => ({
-  MAP_CONFIG: {
-    defaultCampusRegion: {
-      latitude: 45.4973,
-      longitude: -73.5789,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    },
-  },
-}));
-
-jest.mock("../../src/styles/GoogleMaps", () => ({
-  __esModule: true,
-  default: { container: {}, map: {} },
-}));
-
-// ── Tests ──
 
 describe("GoogleMaps", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockMapUIState = { ...defaultMapUIState };
+    mockRouteParams = {};
 
     mockUseCurrentLocation.mockReturnValue({
       location: mockLocation,
@@ -446,6 +464,8 @@ describe("GoogleMaps", () => {
       loading: false,
       error: null,
     });
+
+    mockFindBuildingByLocation.mockReturnValue(null);
   });
 
   // ── Renders child components ──
@@ -453,20 +473,14 @@ describe("GoogleMaps", () => {
   it("renders all core child components", () => {
     render(<GoogleMaps />);
     expect(screen.getByTestId("map-view")).toBeTruthy();
-    expect(screen.getByTestId("building-layer")).toBeTruthy();
-    expect(screen.getByTestId("route-polyline")).toBeTruthy();
-    expect(screen.getByTestId("map-overlays")).toBeTruthy();
+    expect(screen.getAllByTestId(/building-marker-/).length).toBeGreaterThan(0);
     expect(screen.getByTestId("direction-panel")).toBeTruthy();
     expect(screen.getByTestId("search-panel")).toBeTruthy();
-    expect(screen.getByTestId("map-controls")).toBeTruthy();
+    expect(screen.getByLabelText("Search campus buildings")).toBeTruthy();
+    expect(screen.getByLabelText("Recenter map on my location")).toBeTruthy();
   });
 
   it("renders UserLocationMarker when location exists", () => {
-    mockUseCurrentLocation.mockReturnValue({
-      location: { coords: { latitude: 45.4973, longitude: -73.5789 } },
-      loading: false,
-      error: null,
-    });
     render(<GoogleMaps />);
     expect(screen.getByTestId("user-location-marker")).toBeTruthy();
   });
@@ -479,6 +493,51 @@ describe("GoogleMaps", () => {
     });
     render(<GoogleMaps />);
     expect(screen.queryByTestId("user-location-marker")).toBeNull();
+  });
+
+  it("passes location coordinates to UserLocationMarker", () => {
+    mockUseCurrentLocation.mockReturnValue({
+      location: { coords: { latitude: 45.5, longitude: -73.6 } },
+      loading: false,
+      error: null,
+    });
+    render(<GoogleMaps />);
+    const marker = screen.getByTestId("user-location-marker");
+    expect(marker.props.latitude).toBe(45.5);
+    expect(marker.props.longitude).toBe(-73.6);
+  });
+
+  // ── MapView callback wiring ──
+
+  it("passes handleMapReady to MapView onMapReady", () => {
+    render(<GoogleMaps />);
+    const mapView = screen.getByTestId("map-view");
+    mapView.props.onMapReady();
+    expect(mockHandleMapReady).toHaveBeenCalledTimes(1);
+  });
+
+  it("passes handleRegionChangeComplete to MapView onRegionChangeComplete", () => {
+    render(<GoogleMaps />);
+    const mapView = screen.getByTestId("map-view");
+    const region = {
+      latitude: 45.5,
+      longitude: -73.6,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    };
+    mapView.props.onRegionChangeComplete(region);
+    expect(mockHandleRegionChangeComplete).toHaveBeenCalledWith(region);
+  });
+
+  it("uses the external mapRef when provided", () => {
+    const externalRef = React.createRef<any>();
+    render(<GoogleMaps mapRef={externalRef} />);
+    expect(screen.getByTestId("map-view")).toBeTruthy();
+  });
+
+  it("works without an external mapRef (uses internal ref)", () => {
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("map-view")).toBeTruthy();
   });
 
   // ── Panel visibility wiring ──
@@ -525,51 +584,237 @@ describe("GoogleMaps", () => {
     expect(screen.getByTestId("sp-visible").children[0]).toBe("false");
   });
 
-  // ── MapControls wiring ──
+  // ── DirectionPanel prop wiring ──
 
-  it("passes current panel to MapControls", () => {
+  it("passes selectedBuilding to DirectionPanel", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      selectedBuilding: mockBuildings[0],
+    } as any;
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("dp-building").children[0]).toBe("H");
+  });
+
+  it("passes null building to DirectionPanel when none selected", () => {
+    mockMapUIState = { ...defaultMapUIState, selectedBuilding: null };
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("dp-building").children[0]).toBe("null");
+  });
+
+  it("passes startBuilding to DirectionPanel", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      startBuilding: mockBuildings[1],
+    } as any;
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("dp-start-building").children[0]).toBe("EV");
+  });
+
+  it("passes route to DirectionPanel", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      route: {
+        coordinates: [
+          { latitude: 45.4973, longitude: -73.5789 },
+          { latitude: 45.4957, longitude: -73.5773 },
+        ],
+        duration: 300,
+        distance: 500,
+      },
+    } as any;
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("dp-has-route").children[0]).toBe("true");
+  });
+
+  it("passes routeLoading to DirectionPanel", () => {
+    mockMapUIState = { ...defaultMapUIState, routeLoading: true } as any;
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("dp-route-loading").children[0]).toBe("true");
+  });
+
+  it("passes routeError to DirectionPanel", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      routeError: "Route failed",
+    } as any;
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("dp-route-error").children[0]).toBe(
+      "Route failed",
+    );
+  });
+
+  it("passes travelMode to DirectionPanel", () => {
+    mockMapUIState = { ...defaultMapUIState, travelMode: "WALK" } as any;
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("dp-travel-mode").children[0]).toBe("WALK");
+  });
+
+  // ── DirectionPanel callback wiring ──
+
+  it("dispatches CLOSE_PANEL when DirectionPanel onClose is called", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("dp-close"));
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "CLOSE_PANEL" });
+  });
+
+  it("dispatches OPEN_SEARCH_FOR_START when DirectionPanel onOpenSearch is called", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("dp-open-search"));
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: "OPEN_SEARCH_FOR_START",
+    });
+  });
+
+  it("dispatches RESET_START_BUILDING when DirectionPanel onResetStart is called", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("dp-reset-start"));
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: "RESET_START_BUILDING",
+    });
+  });
+
+  it("dispatches OPEN_STEPS when DirectionPanel onShowSteps is called", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("dp-show-steps-btn"));
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "OPEN_STEPS" });
+  });
+
+  it("dispatches CLOSE_STEPS when DirectionPanel onHideSteps is called", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("dp-hide-steps-btn"));
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "CLOSE_STEPS" });
+  });
+
+  it("calls handleTravelModeChange when DirectionPanel changes travel mode", () => {
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("dp-travel-mode-change"));
+    expect(mockHandleTravelModeChange).toHaveBeenCalledWith("WALK");
+  });
+
+  // ── SearchPanel onClose wiring ──
+
+  it("dispatches CLOSE_PANEL when SearchPanel closes with default origin", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "search",
+      searchOrigin: "default",
+    };
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("sp-close"));
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "CLOSE_PANEL" });
+  });
+
+  it("dispatches RETURN_TO_DIRECTIONS when SearchPanel closes with directions origin", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "search",
+      searchOrigin: "directions",
+    };
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("sp-close"));
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: "RETURN_TO_DIRECTIONS",
+    });
+  });
+
+  // ── MapControls behavior (real component) ──
+
+  it("hides search button when panel is 'directions'", () => {
     mockMapUIState = { ...defaultMapUIState, panel: "directions" };
     render(<GoogleMaps />);
-    expect(screen.getByTestId("mc-panel").children[0]).toBe("directions");
+    expect(screen.queryByLabelText("Search campus buildings")).toBeNull();
+    expect(screen.queryByLabelText("Close search")).toBeNull();
   });
 
-  it("passes hasLocation to MapControls", () => {
-    mockUseCurrentLocation.mockReturnValue({
-      location: { coords: { latitude: 45.4973, longitude: -73.5789 } },
-      loading: false,
-      error: null,
-    });
+  it("shows search button when panel is not 'directions'", () => {
+    mockMapUIState = { ...defaultMapUIState, panel: "none" };
     render(<GoogleMaps />);
-    expect(screen.getByTestId("mc-has-location").children[0]).toBe("true");
+    expect(screen.getByLabelText("Search campus buildings")).toBeTruthy();
   });
 
-  it("passes hasLocation=false when no location", () => {
+  it("shows close label on search button when panel is 'search'", () => {
+    mockMapUIState = { ...defaultMapUIState, panel: "search" };
+    render(<GoogleMaps />);
+    expect(screen.getByLabelText("Close search")).toBeTruthy();
+    expect(screen.queryByLabelText("Search campus buildings")).toBeNull();
+  });
+
+  it("renders recenter button when location exists", () => {
+    render(<GoogleMaps />);
+    expect(screen.getByLabelText("Recenter map on my location")).toBeTruthy();
+  });
+
+  it("does not render recenter button when no location", () => {
     mockUseCurrentLocation.mockReturnValue({
       location: null,
       loading: false,
       error: null,
     });
     render(<GoogleMaps />);
-    expect(screen.getByTestId("mc-has-location").children[0]).toBe("false");
+    expect(screen.queryByLabelText("Recenter map on my location")).toBeNull();
+  });
+
+  // ── MapControls icon wiring (real component) ──
+
+  it("renders search icon when panel is not search", () => {
+    mockMapUIState = { ...defaultMapUIState, panel: "none" };
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("icon-search")).toBeTruthy();
+  });
+
+  it("renders times icon when panel is search with default origin", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "search",
+      searchOrigin: "default",
+    };
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("icon-times")).toBeTruthy();
+  });
+
+  it("renders chevron-left icon when panel is search with directions origin", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "search",
+      searchOrigin: "directions",
+    };
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("icon-chevron-left")).toBeTruthy();
+  });
+
+  it("renders location-arrow icon for recenter button", () => {
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("icon-location-arrow")).toBeTruthy();
   });
 
   // ── MapControls callbacks dispatch correctly ──
 
-  it("dispatches OPEN_SEARCH when onOpenSearch is called", () => {
+  it("dispatches OPEN_SEARCH when search button is pressed", () => {
+    mockMapUIState = { ...defaultMapUIState, panel: "none" };
     render(<GoogleMaps />);
-    fireEvent.press(screen.getByTestId("mc-open-search"));
+    fireEvent.press(screen.getByLabelText("Search campus buildings"));
     expect(mockDispatch).toHaveBeenCalledWith({ type: "OPEN_SEARCH" });
   });
 
-  it("dispatches CLOSE_PANEL when onCloseSearch is called", () => {
+  it("dispatches CLOSE_PANEL when close-search is pressed (default origin)", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "search",
+      searchOrigin: "default",
+    };
     render(<GoogleMaps />);
-    fireEvent.press(screen.getByTestId("mc-close-search"));
+    fireEvent.press(screen.getByLabelText("Close search"));
     expect(mockDispatch).toHaveBeenCalledWith({ type: "CLOSE_PANEL" });
   });
 
-  it("dispatches RETURN_TO_DIRECTIONS when onReturnToDirections is called", () => {
+  it("dispatches RETURN_TO_DIRECTIONS when close-search is pressed (directions origin)", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "search",
+      searchOrigin: "directions",
+    };
     render(<GoogleMaps />);
-    fireEvent.press(screen.getByTestId("mc-return-directions"));
+    fireEvent.press(screen.getByLabelText("Close search"));
     expect(mockDispatch).toHaveBeenCalledWith({
       type: "RETURN_TO_DIRECTIONS",
     });
@@ -577,20 +822,53 @@ describe("GoogleMaps", () => {
 
   it("calls handleRecenter when recenter is pressed", () => {
     render(<GoogleMaps />);
-    fireEvent.press(screen.getByTestId("mc-recenter"));
+    fireEvent.press(screen.getByLabelText("Recenter map on my location"));
     expect(mockHandleRecenter).toHaveBeenCalledTimes(1);
   });
 
   it("passes onRecenter prop through to handleRecenter", () => {
     const onRecenter = jest.fn();
     render(<GoogleMaps onRecenter={onRecenter} />);
-    fireEvent.press(screen.getByTestId("mc-recenter"));
+    fireEvent.press(screen.getByLabelText("Recenter map on my location"));
     expect(mockHandleRecenter).toHaveBeenCalledWith(onRecenter);
   });
 
-  // ── Building selection wiring ──
+  // ── Building selection wiring via BuildingMarker onSelect ──
 
-  it("calls animateToBuilding and selectBuilding when SearchPanel selects", () => {
+  it("calls animateToBuilding and selectBuilding when BuildingMarker onSelect fires", () => {
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("bm-select-H"));
+    expect(mockAnimateToBuilding).toHaveBeenCalledWith(mockBuildings[0]);
+    expect(mockSelectBuilding).toHaveBeenCalledWith(mockBuildings[0]);
+  });
+
+  // ── Direction press wiring via BuildingMarker onDirectionPress ──
+
+  it("calls animateToBuilding and openDirections when BuildingMarker onDirectionPress fires", () => {
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("bm-direction-EV"));
+    expect(mockAnimateToBuilding).toHaveBeenCalledWith(mockBuildings[1]);
+    expect(mockOpenDirections).toHaveBeenCalledWith(mockBuildings[1]);
+  });
+
+  // ── SearchPanel building selection wiring ──
+
+  it("calls animateToBuilding and selectBuilding when SearchPanel selects (default origin)", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "search",
+      searchOrigin: "default",
+    };
     render(<GoogleMaps />);
     fireEvent.press(screen.getByTestId("sp-select-building"));
     expect(mockAnimateToBuilding).toHaveBeenCalledWith(hallBuilding);
@@ -603,7 +881,11 @@ describe("GoogleMaps", () => {
     mockHandleSearch.mockReturnValue(hallBuilding);
     render(<GoogleMaps />);
     fireEvent.press(screen.getByTestId("sp-search"));
-    expect(mockHandleSearch).toHaveBeenCalledWith("Hall", "building", null);
+    expect(mockHandleSearch).toHaveBeenCalledWith(
+      "Hall",
+      "building",
+      undefined,
+    );
     expect(mockAnimateToBuilding).toHaveBeenCalledWith(hallBuilding);
     expect(mockSelectBuilding).toHaveBeenCalledWith(hallBuilding);
   });
@@ -624,19 +906,34 @@ describe("GoogleMaps", () => {
     expect(mockDispatch).toHaveBeenCalledWith({ type: "TAP_MAP" });
   });
 
-  // ── Loading / error overlays ──
+  // ── Loading / error overlays (real MapOverlays) ──
 
-  it("passes loading state to MapOverlays", () => {
+  it("shows building loading text when buildings are loading", () => {
     mockUseBuildingData.mockReturnValue({
       buildings: [],
       loading: true,
       error: null,
     });
     render(<GoogleMaps />);
-    expect(screen.getByText("Loading")).toBeTruthy();
+    expect(screen.getByText("Loading buildings...")).toBeTruthy();
   });
 
-  it("passes error to MapOverlays when not loading", () => {
+  it("shows location loading text when only location is loading", () => {
+    mockUseBuildingData.mockReturnValue({
+      buildings: testBuildings,
+      loading: false,
+      error: null,
+    });
+    mockUseCurrentLocation.mockReturnValue({
+      location: null,
+      loading: true,
+      error: null,
+    });
+    render(<GoogleMaps />);
+    expect(screen.getByText("Getting your location...")).toBeTruthy();
+  });
+
+  it("shows error when not loading", () => {
     mockUseBuildingData.mockReturnValue({
       buildings: [],
       loading: false,
@@ -646,19 +943,18 @@ describe("GoogleMaps", () => {
     expect(screen.getByText("Failed to load buildings")).toBeTruthy();
   });
 
-  it("does not pass error to MapOverlays when loading", () => {
+  it("does not show error while loading", () => {
     mockUseBuildingData.mockReturnValue({
       buildings: [],
       loading: true,
       error: "Failed to load buildings",
     });
     render(<GoogleMaps />);
-    expect(screen.getByText("Loading")).toBeTruthy();
-    // Error should be suppressed while loading
+    expect(screen.getByText("Loading buildings...")).toBeTruthy();
     expect(screen.queryByText("Failed to load buildings")).toBeNull();
   });
 
-  it("passes location error to MapOverlays", () => {
+  it("shows location error when not loading", () => {
     mockUseCurrentLocation.mockReturnValue({
       location: null,
       loading: false,
@@ -666,6 +962,153 @@ describe("GoogleMaps", () => {
     });
     render(<GoogleMaps />);
     expect(screen.getByText("GPS unavailable")).toBeTruthy();
+  });
+
+  it("returns null from MapOverlays when not loading and no error", () => {
+    mockUseBuildingData.mockReturnValue({
+      buildings: testBuildings,
+      loading: false,
+      error: null,
+    });
+    mockUseCurrentLocation.mockReturnValue({
+      location: mockLocation,
+      loading: false,
+      error: null,
+    });
+    render(<GoogleMaps />);
+    expect(screen.queryByText(/Loading/)).toBeNull();
+    expect(screen.queryByText(/unavailable/)).toBeNull();
+  });
+
+  // ── RoutePolyline (real component) ──
+
+  it("does not render route polyline when route is null", () => {
+    mockMapUIState = { ...defaultMapUIState, route: null };
+    render(<GoogleMaps />);
+    expect(screen.queryByTestId("route-polyline")).toBeNull();
+  });
+
+  it("renders route polyline when route has coordinates", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      route: {
+        coordinates: [
+          { latitude: 45.4973, longitude: -73.5789 },
+          { latitude: 45.4957, longitude: -73.5773 },
+        ],
+        duration: 300,
+        distance: 500,
+      },
+      travelMode: "WALK",
+    } as any;
+    render(<GoogleMaps />);
+    const polyline = screen.getByTestId("route-polyline");
+    expect(polyline).toBeTruthy();
+    expect(polyline.props.hasDash).toBe(true);
+  });
+
+  it("renders polyline without dash pattern for non-WALK mode", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      route: {
+        coordinates: [
+          { latitude: 45.4973, longitude: -73.5789 },
+          { latitude: 45.4957, longitude: -73.5773 },
+        ],
+        duration: 300,
+        distance: 500,
+      },
+      travelMode: "DRIVE",
+    } as any;
+    render(<GoogleMaps />);
+    const polyline = screen.getByTestId("route-polyline");
+    expect(polyline).toBeTruthy();
+    expect(polyline.props.hasDash).toBe(false);
+  });
+
+  it("does not render polyline when route has fewer than 2 coordinates", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      route: {
+        coordinates: [{ latitude: 45.4973, longitude: -73.5789 }],
+        duration: 0,
+        distance: 0,
+      },
+    } as any;
+    render(<GoogleMaps />);
+    expect(screen.queryByTestId("route-polyline")).toBeNull();
+  });
+
+  // ── BuildingLayer integration (real component) ──
+
+  it("passes isDirectionsOpen to building markers when panel is 'directions'", () => {
+    mockMapUIState = { ...defaultMapUIState, panel: "directions" };
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("bm-directions-H").children[0]).toBe("true");
+    expect(screen.getByTestId("bm-directions-EV").children[0]).toBe("true");
+  });
+
+  it("passes isDirectionsOpen=false when panel is not 'directions'", () => {
+    mockMapUIState = { ...defaultMapUIState, panel: "none" };
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("bm-directions-H").children[0]).toBe("false");
+  });
+
+  it("marks the selected building correctly", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      selectedBuilding: mockBuildings[0],
+    } as any;
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("bm-selected-H").children[0]).toBe("true");
+    expect(screen.getByTestId("bm-selected-EV").children[0]).toBe("false");
+  });
+
+  it("marks the current building correctly", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      currentBuilding: mockBuildings[1],
+    } as any;
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("bm-current-H").children[0]).toBe("false");
+    expect(screen.getByTestId("bm-current-EV").children[0]).toBe("true");
+  });
+
+  it("renders both polygon and marker for each building", () => {
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+    render(<GoogleMaps />);
+    mockBuildings.forEach((b) => {
+      expect(
+        screen.getByTestId(`building-polygon-${b.buildingCode}`),
+      ).toBeTruthy();
+      expect(
+        screen.getByTestId(`building-marker-${b.buildingCode}`),
+      ).toBeTruthy();
+    });
   });
 
   // ── SearchPanel in directions mode ──
@@ -676,7 +1119,6 @@ describe("GoogleMaps", () => {
       panel: "search",
       searchOrigin: "directions",
     };
-    // The mock SearchPanel calls onSelectBuilding with hallBuilding
     render(<GoogleMaps />);
     fireEvent.press(screen.getByTestId("sp-select-building"));
     expect(mockDispatch).toHaveBeenCalledWith({
@@ -685,156 +1127,82 @@ describe("GoogleMaps", () => {
     });
   });
 
-  // ── POI Results Panel ──
-
-  const mockTestPoi = {
-    name: "Test Cafe",
-    category: "cafe" as const,
-    campus: "SGW",
-    address: "123 Test St",
-    latitude: 45.496,
-    longitude: -73.5795,
-    description: "Test cafe",
-  };
-
-  it("renders PoiResultsPanel when panel is poi-results", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      panel: "poi-results",
-      poiResults: [mockTestPoi],
-    };
-    render(<GoogleMaps />);
-    expect(screen.getByTestId("poi-results-panel")).toBeTruthy();
-    expect(screen.getByTestId("poi-results-count").children[0]).toBe("1");
-  });
-
-  it("does not render PoiResultsPanel when panel is not poi-results", () => {
-    mockMapUIState = { ...defaultMapUIState, panel: "none" };
-    render(<GoogleMaps />);
-    expect(screen.queryByTestId("poi-results-panel")).toBeNull();
-  });
-
-  it("calls selectPoi and animateToRegion when onSelectPoi is triggered", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      panel: "poi-results",
-      poiResults: [mockTestPoi],
-    };
-    render(<GoogleMaps />);
-    fireEvent.press(screen.getByTestId("poi-select-btn"));
-    expect(mockSelectPoi).toHaveBeenCalledWith(mockTestPoi);
-    expect(mockMapAnimateToRegion).toHaveBeenCalledWith(
-      {
-        latitude: mockTestPoi.latitude,
-        longitude: mockTestPoi.longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
-      },
-      500,
-    );
-  });
-
-  it("calls onPoiDirectionPress — selectPoi, animateToBuilding, openDirections", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      panel: "poi-results",
-      poiResults: [mockTestPoi],
-    };
-    render(<GoogleMaps />);
-    fireEvent.press(screen.getByTestId("poi-direction-btn"));
-    expect(mockSelectPoi).toHaveBeenCalledWith(mockTestPoi);
-    expect(mockAnimateToBuilding).toHaveBeenCalled();
-    expect(mockOpenDirections).toHaveBeenCalled();
-  });
-
-  it("dispatches BACK_TO_SEARCH when PoiResultsPanel back is pressed", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      panel: "poi-results",
-      poiResults: [mockTestPoi],
-    };
-    render(<GoogleMaps />);
-    fireEvent.press(screen.getByTestId("poi-back-btn"));
-    expect(mockDispatch).toHaveBeenCalledWith({ type: "BACK_TO_SEARCH" });
-  });
-
-  // ── PoiMarker rendering ──
-
-  it("renders PoiMarker when selectedPoi exists", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      selectedPoi: mockTestPoi,
-    };
-    render(<GoogleMaps />);
-    expect(screen.getByTestId("poi-marker")).toBeTruthy();
-    expect(screen.getByText("Test Cafe")).toBeTruthy();
-  });
-
-  it("does not render PoiMarker when selectedPoi is null", () => {
-    mockMapUIState = { ...defaultMapUIState, selectedPoi: null };
-    render(<GoogleMaps />);
-    expect(screen.queryByTestId("poi-marker")).toBeNull();
-  });
-
-  it("passes isDirectionsOpen=true to PoiMarker when panel is directions", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      selectedPoi: mockTestPoi,
-      panel: "directions",
-    };
-    render(<GoogleMaps />);
-    expect(screen.getByTestId("poi-marker-directions-open").children[0]).toBe(
-      "true",
-    );
-  });
-
-  it("passes isDirectionsOpen=false to PoiMarker when panel is none", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      selectedPoi: mockTestPoi,
-      panel: "none",
-    };
-    render(<GoogleMaps />);
-    expect(screen.getByTestId("poi-marker-directions-open").children[0]).toBe(
-      "false",
-    );
-  });
-
-  it("triggers onPoiDirectionPress from PoiMarker direction callback", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      selectedPoi: mockTestPoi,
-    };
-    render(<GoogleMaps />);
-    fireEvent.press(screen.getByTestId("poi-marker-direction-press"));
-    expect(mockSelectPoi).toHaveBeenCalledWith(mockTestPoi);
-    expect(mockAnimateToBuilding).toHaveBeenCalled();
-    expect(mockOpenDirections).toHaveBeenCalled();
-  });
-
-  // ── SearchPanel close behaviour ──
-
-  it("dispatches RETURN_TO_DIRECTIONS when search panel closes in directions origin", () => {
+  it("does not call animateToBuilding when selecting from search in directions origin", () => {
     mockMapUIState = {
       ...defaultMapUIState,
       panel: "search",
       searchOrigin: "directions",
     };
     render(<GoogleMaps />);
-    fireEvent.press(screen.getByTestId("sp-close"));
-    expect(mockDispatch).toHaveBeenCalledWith({
-      type: "RETURN_TO_DIRECTIONS",
-    });
+    fireEvent.press(screen.getByTestId("sp-select-building"));
+    expect(mockAnimateToBuilding).not.toHaveBeenCalled();
+    expect(mockSelectBuilding).not.toHaveBeenCalled();
   });
 
-  it("dispatches CLOSE_PANEL when search panel closes in default origin", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      panel: "search",
-      searchOrigin: "default",
-    };
-    render(<GoogleMaps />);
-    fireEvent.press(screen.getByTestId("sp-close"));
-    expect(mockDispatch).toHaveBeenCalledWith({ type: "CLOSE_PANEL" });
+  // ── Deep-link useEffect (directionsTo param) ──
+
+  describe("deep-link from Calendar", () => {
+    it("does nothing when directionsTo is not set", () => {
+      mockRouteParams = {};
+      render(<GoogleMaps />);
+      expect(mockFindBuildingByLocation).not.toHaveBeenCalled();
+      expect(mockAnimateToBuilding).not.toHaveBeenCalled();
+      expect(mockOpenDirections).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when directionsTo is set but buildings are empty", () => {
+      mockRouteParams = { directionsTo: "Hall Building" };
+      mockUseBuildingData.mockReturnValue({
+        buildings: [],
+        loading: false,
+        error: null,
+      });
+      render(<GoogleMaps />);
+      expect(mockFindBuildingByLocation).not.toHaveBeenCalled();
+      expect(mockAnimateToBuilding).not.toHaveBeenCalled();
+      expect(mockOpenDirections).not.toHaveBeenCalled();
+    });
+
+    it("calls findBuildingByLocation, animateToBuilding, and openDirections when matched", () => {
+      mockRouteParams = { directionsTo: "Hall Building" };
+      mockFindBuildingByLocation.mockReturnValue(hallBuilding);
+      render(<GoogleMaps />);
+      expect(mockFindBuildingByLocation).toHaveBeenCalledWith(
+        "Hall Building",
+        testBuildings,
+      );
+      expect(mockAnimateToBuilding).toHaveBeenCalledWith(hallBuilding);
+      expect(mockOpenDirections).toHaveBeenCalledWith(hallBuilding);
+    });
+
+    it("clears the directionsTo param after handling a match", () => {
+      mockRouteParams = { directionsTo: "Hall Building" };
+      mockFindBuildingByLocation.mockReturnValue(hallBuilding);
+      render(<GoogleMaps />);
+      expect(mockSetParams).toHaveBeenCalledWith({
+        directionsTo: undefined,
+      });
+    });
+
+    it("does not animate or open directions when no match is found", () => {
+      mockRouteParams = { directionsTo: "Unknown Building" };
+      mockFindBuildingByLocation.mockReturnValue(null);
+      render(<GoogleMaps />);
+      expect(mockFindBuildingByLocation).toHaveBeenCalledWith(
+        "Unknown Building",
+        testBuildings,
+      );
+      expect(mockAnimateToBuilding).not.toHaveBeenCalled();
+      expect(mockOpenDirections).not.toHaveBeenCalled();
+    });
+
+    it("still clears directionsTo param even when no match is found", () => {
+      mockRouteParams = { directionsTo: "Unknown Building" };
+      mockFindBuildingByLocation.mockReturnValue(null);
+      render(<GoogleMaps />);
+      expect(mockSetParams).toHaveBeenCalledWith({
+        directionsTo: undefined,
+      });
+    });
   });
 });

@@ -95,8 +95,8 @@ public class ConcordiaController {
                         updated = true;
                     }
                 } catch (Exception e) {
-                    logger.warn("Failed to enrich building " + building.getBuildingCode()
-                            + " with accessibility info: " + e.getMessage());
+                    logger.warn("Failed to enrich building {} with accessibility info: {}", building.getBuildingCode(),
+                            e.getMessage());
                 }
             }
         }

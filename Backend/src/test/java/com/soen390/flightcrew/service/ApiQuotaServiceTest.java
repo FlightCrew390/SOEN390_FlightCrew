@@ -1,7 +1,6 @@
 package com.soen390.flightcrew.service;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,7 +17,6 @@ class ApiQuotaServiceTest {
     // ── Basic operation ──────────────────────────────────────────────
 
     @Test
-    @DisplayName("First request should be allowed")
     void tryConsume_firstRequest_returnsTrue() {
         assertTrue(quotaService.tryConsume());
     }
@@ -26,7 +24,6 @@ class ApiQuotaServiceTest {
     // ── Per-minute rate limiting ─────────────────────────────────────
 
     @Test
-    @DisplayName("Requests are rejected once per-minute limit is hit")
     void tryConsume_rejectsWhenPerMinuteLimitHit() {
         // Per-minute limit is 60
         for (int i = 0; i < 60; i++) {
@@ -40,7 +37,6 @@ class ApiQuotaServiceTest {
     // ── Multiple sequential requests ─────────────────────────────────
 
     @Test
-    @DisplayName("Multiple sequential requests within limits all succeed")
     void tryConsume_multipleSequentialRequests_allSucceed() {
         for (int i = 0; i < 50; i++) {
             assertTrue(quotaService.tryConsume());
@@ -51,7 +47,6 @@ class ApiQuotaServiceTest {
     // ── Initial state ────────────────────────────────────────────────
 
     @Test
-    @DisplayName("Fresh service starts with zero usage")
     void initialState_zeroUsage() {
         assertEquals(0, quotaService.getMinuteCount());
     }

@@ -12,6 +12,7 @@ export function poiToBuilding(poi: PointOfInterest): Building {
     latitude: poi.latitude,
     longitude: poi.longitude,
     structureType: StructureType.Point,
+    accessibilityInfo: "",
     description: poi.description,
   };
 }

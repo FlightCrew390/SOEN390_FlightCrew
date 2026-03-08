@@ -70,14 +70,20 @@ export function useRoutePreviews({
                             destination,
                         );
                     } else {
+                        // DRIVE mode does not support future departure/arrival
+                        // times in the Google Routes API, so omit them.
+                        const modeDepartureTime =
+                            mode === "DRIVE" ? undefined : departureTime;
+                        const modeArrivalTime =
+                            mode === "DRIVE" ? undefined : arrivalTime;
                         route = await DirectionsService.fetchDirections(
                             originLat,
                             originLng,
                             destination.latitude,
                             destination.longitude,
                             mode,
-                            departureTime,
-                            arrivalTime,
+                            modeDepartureTime,
+                            modeArrivalTime,
                         );
                     }
                     return { mode, duration: route?.durationSeconds ?? null };

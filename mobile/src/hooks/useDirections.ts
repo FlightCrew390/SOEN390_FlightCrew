@@ -61,13 +61,15 @@ export function useDirections({
 
     let cancelled = false;
 
-    // Derive departure/arrival time strings from config
+    // Derive departure/arrival time strings from config.
+    // DRIVE mode does not support future departure/arrival times in the
+    // Google Routes API, so we omit them to avoid errors.
     const departureTime =
-      departureConfig.option === "depart_at"
+      departureConfig.option === "depart_at" && travelMode !== "DRIVE"
         ? departureConfig.date.toISOString()
         : undefined;
     const arrivalTime =
-      departureConfig.option === "arrive_by"
+      departureConfig.option === "arrive_by" && travelMode !== "DRIVE"
         ? departureConfig.date.toISOString()
         : undefined;
 

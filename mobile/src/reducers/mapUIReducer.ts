@@ -10,6 +10,10 @@ export const initialMapUIState: MapUIState = {
   route: null,
   routeLoading: false,
   routeError: null,
+  poiResults: [],
+  selectedPoi: null,
+  poiLoading: false,
+  poiError: null,
 };
 
 export function mapUIReducer(
@@ -29,6 +33,10 @@ export function mapUIReducer(
         route: null,
         routeLoading: false,
         routeError: null,
+        poiResults: [],
+        selectedPoi: null,
+        poiLoading: false,
+        poiError: null,
       };
 
     case "SELECT_BUILDING":
@@ -62,7 +70,7 @@ export function mapUIReducer(
 
     case "TAP_MAP":
       if (state.panel === "directions" || state.panel === "steps") return state;
-      return { ...state, selectedBuilding: null };
+      return { ...state, selectedBuilding: null, selectedPoi: null };
 
     case "OPEN_SEARCH_FOR_START":
       return { ...state, panel: "search", searchOrigin: "directions" };
@@ -129,6 +137,48 @@ export function mapUIReducer(
 
     case "CLOSE_STEPS":
       return { ...state, panel: "directions" };
+
+    // ── POI actions ──
+    case "POI_LOADING":
+      return { ...state, poiLoading: true, poiError: null };
+
+    case "POI_LOADED":
+      return {
+        ...state,
+        poiResults: action.results,
+        poiLoading: false,
+        panel: "poi-results",
+      };
+
+    case "POI_ERROR":
+      return {
+        ...state,
+        poiLoading: false,
+        poiError: action.error,
+        poiResults: [],
+      };
+
+    case "SELECT_POI":
+      return {
+        ...state,
+        selectedPoi: action.poi,
+        panel: "none",
+      };
+
+    case "CLEAR_POI":
+      return {
+        ...state,
+        selectedPoi: null,
+        poiResults: [],
+      };
+
+    case "BACK_TO_SEARCH":
+      return {
+        ...state,
+        panel: "search",
+        poiResults: [],
+        poiError: null,
+      };
 
     default:
       return state;

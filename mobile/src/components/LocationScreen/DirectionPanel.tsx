@@ -14,7 +14,7 @@ import {
 import { COLORS, METRO_ACCESS_BUILDINGS } from "../../constants";
 import { usePanelAnimation } from "../../hooks/usePanelAnimation";
 import styles from "../../styles/DirectionPanel";
-import { Building } from "../../types/Building";
+import { Building, StructureType } from "../../types/Building";
 import { RouteInfo, TravelMode } from "../../types/Directions";
 import { formatDistance, formatDuration } from "../../utils/formatHelper";
 import Tooltip from "../common/Tooltip";
@@ -124,9 +124,23 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
       <View style={styles.addressRow}>
         <Text style={styles.buildingAddress}>{building.address}</Text>
       </View>
-      <Text style={styles.buildingDetail}>
-        Building Code: {building.buildingCode}
-      </Text>
+      {/* Extracted nested ternary for maintainability */}
+      {(() => {
+        if (building.structureType === StructureType.Point) {
+          if (building.description) {
+            return (
+              <Text style={styles.buildingDetail}>{building.description}</Text>
+            );
+          }
+          return null;
+        } else {
+          return (
+            <Text style={styles.buildingDetail}>
+              Building Code: {building.buildingCode}
+            </Text>
+          );
+        }
+      })()}
       <Text style={styles.buildingDetail}>
         Campus: {building.campus === "SGW" ? "Sir George Williams" : "Loyola"}
       </Text>

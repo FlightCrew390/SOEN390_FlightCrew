@@ -6,7 +6,19 @@ export interface Building {
   address: string;
   latitude: number;
   longitude: number;
+  structureType: StructureType;
+  accessibilityInfo: string;
+  description?: string;
   polygons?: { latitude: number; longitude: number }[][];
+  Google_Place_Info?: {
+    displayName: { text: string };
+  };
+}
+
+export enum StructureType {
+  Building = "BUILDING",
+  Grounds = "GROUNDS",
+  Point = "POINT",
 }
 
 export type Campus = "SGW" | "LOY";

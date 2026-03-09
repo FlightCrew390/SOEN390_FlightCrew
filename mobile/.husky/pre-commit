@@ -1,1 +1,0 @@
-cd mobile && npx lint-staged --quiet

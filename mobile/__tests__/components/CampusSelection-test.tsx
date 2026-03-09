@@ -1,20 +1,33 @@
-import { act, render, screen, userEvent } from "@testing-library/react-native";
+import { render, screen } from "@testing-library/react-native";
 
 import CampusSelection from "../../src/components/LocationScreen/CampusSelection";
 
 jest.mock("@expo/vector-icons/Entypo", () => "");
 
-jest.useFakeTimers();
-
-test("renders correctly with initial state", () => {
-  render(<CampusSelection />);
+test("renders correctly showing Loyola campus", () => {
+  const onCampusChange = jest.fn();
+  render(
+    <CampusSelection activeCampusId="LOYOLA" onCampusChange={onCampusChange} />,
+  );
 
   expect(screen.getByText("Select a Campus")).toBeTruthy();
   expect(screen.getByText("Loyola Campus")).toBeTruthy();
 });
 
-test("chevron states are correct on first campus", () => {
-  render(<CampusSelection />);
+test("renders correctly showing SGW campus", () => {
+  const onCampusChange = jest.fn();
+  render(
+    <CampusSelection activeCampusId="SGW" onCampusChange={onCampusChange} />,
+  );
+
+  expect(screen.getByText("SGW Campus")).toBeTruthy();
+});
+
+test("chevron states are correct on first campus (LOYOLA)", () => {
+  const onCampusChange = jest.fn();
+  render(
+    <CampusSelection activeCampusId="LOYOLA" onCampusChange={onCampusChange} />,
+  );
 
   const leftChevron = screen.getByRole("button", { name: "Previous campus" });
   const rightChevron = screen.getByRole("button", { name: "Next campus" });
@@ -23,69 +36,60 @@ test("chevron states are correct on first campus", () => {
   expect(rightChevron.props.accessibilityState?.disabled).toBe(false);
 });
 
-test("navigates between campuses and updates button states", async () => {
-  const user = userEvent.setup({
-    advanceTimers: jest.advanceTimersByTime,
-  });
-  render(<CampusSelection />);
+test("chevron states are correct on last campus (SGW)", () => {
+  const onCampusChange = jest.fn();
+  render(
+    <CampusSelection activeCampusId="SGW" onCampusChange={onCampusChange} />,
+  );
 
-  const rightChevron = screen.getByRole("button", { name: "Next campus" });
   const leftChevron = screen.getByRole("button", { name: "Previous campus" });
+  const rightChevron = screen.getByRole("button", { name: "Next campus" });
 
-  // Navigate forward to SGW Campus
-  await user.press(rightChevron);
-  act(() => jest.runAllTimers());
-
-  expect(screen.getByText("SGW Campus")).toBeTruthy();
-  expect(screen.queryByText("Loyola Campus")).toBeNull();
+  expect(leftChevron.props.accessibilityState?.disabled).toBe(false);
   expect(rightChevron.props.accessibilityState?.disabled).toBe(true);
-
-  // Navigate back to Loyola Campus
-  await user.press(leftChevron);
-  act(() => jest.runAllTimers());
-
-  expect(screen.getByText("Loyola Campus")).toBeTruthy();
-  expect(screen.queryByText("SGW Campus")).toBeNull();
 });
 
-test("calls onCampusChange callback with correct campus name", async () => {
-  const user = userEvent.setup({
-    advanceTimers: jest.advanceTimersByTime,
-  });
-  const mockOnCampusChange = jest.fn();
-  render(<CampusSelection onCampusChange={mockOnCampusChange} />);
+test("pressing next chevron calls onCampusChange with next campus", () => {
+  const onCampusChange = jest.fn();
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { fireEvent } = require("@testing-library/react-native");
+
+  render(
+    <CampusSelection activeCampusId="LOYOLA" onCampusChange={onCampusChange} />,
+  );
 
   const rightChevron = screen.getByRole("button", { name: "Next campus" });
+  fireEvent.press(rightChevron);
+
+  expect(onCampusChange).toHaveBeenCalledWith("SGW");
+});
+
+test("pressing previous chevron calls onCampusChange with previous campus", () => {
+  const onCampusChange = jest.fn();
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { fireEvent } = require("@testing-library/react-native");
+
+  render(
+    <CampusSelection activeCampusId="SGW" onCampusChange={onCampusChange} />,
+  );
+
   const leftChevron = screen.getByRole("button", { name: "Previous campus" });
+  fireEvent.press(leftChevron);
 
-  // Navigate forward
-  await user.press(rightChevron);
-  act(() => jest.runAllTimers());
-
-  expect(mockOnCampusChange).toHaveBeenCalledWith("SGW");
-
-  // Navigate back
-  await user.press(leftChevron);
-  act(() => jest.runAllTimers());
-
-  expect(mockOnCampusChange).toHaveBeenCalledTimes(2);
-  expect(mockOnCampusChange).toHaveBeenLastCalledWith("LOYOLA");
+  expect(onCampusChange).toHaveBeenCalledWith("LOYOLA");
 });
 
-test("does not update index when currentCampusId is null", () => {
-  render(<CampusSelection currentCampusId={null} />);
-
-  expect(screen.getByText("Loyola Campus")).toBeTruthy();
-});
-
-test("syncs to currentCampusId when recenterTrigger changes", () => {
+test("rerender with different activeCampusId updates displayed campus", () => {
+  const onCampusChange = jest.fn();
   const { rerender } = render(
-    <CampusSelection currentCampusId="SGW" recenterTrigger={0} />,
+    <CampusSelection activeCampusId="SGW" onCampusChange={onCampusChange} />,
   );
 
   expect(screen.getByText("SGW Campus")).toBeTruthy();
 
-  rerender(<CampusSelection currentCampusId="LOYOLA" recenterTrigger={1} />);
+  rerender(
+    <CampusSelection activeCampusId="LOYOLA" onCampusChange={onCampusChange} />,
+  );
 
   expect(screen.getByText("Loyola Campus")).toBeTruthy();
 });

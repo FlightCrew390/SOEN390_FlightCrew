@@ -1,0 +1,359 @@
+import { StyleSheet } from "react-native";
+import { COLORS } from "../constants";
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  panel: {
+    flex: 1,
+    width: "100%",
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: COLORS.white,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    marginTop: 60,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: COLORS.concordiaMaroon,
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 8,
+  },
+  todayButton: {
+    padding: 8,
+    backgroundColor: "#F5F5F5",
+    borderRadius: 16,
+  },
+  monthText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: COLORS.textPrimary,
+  },
+  viewFullButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 3,
+    paddingLeft: 12,
+    paddingRight: 4,
+    backgroundColor: "#F5F5F5",
+    borderRadius: 16,
+  },
+  viewFullButtonText: {
+    color: COLORS.textTertiary,
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  weekContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+    position: "relative",
+  },
+  weekContainerCompact: {
+    marginBottom: 8,
+    minHeight: 28,
+  },
+  chevronButton: {
+    position: "absolute",
+    padding: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1,
+  },
+  chevronLeft: {
+    left: -24,
+  },
+  chevronRight: {
+    right: -24,
+  },
+  week: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 8,
+    paddingHorizontal: 8,
+  },
+  dayCard: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    borderRadius: 12,
+    backgroundColor: COLORS.white,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "#e0e0e0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    elevation: 1,
+  },
+  dayCardSelected: {
+    backgroundColor: COLORS.concordiaMaroon,
+    borderColor: COLORS.concordiaMaroon,
+  },
+  dayCardCurrent: {
+    backgroundColor: COLORS.white,
+    borderColor: COLORS.concordiaMaroon,
+  },
+  dayDate: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  dayDateSelected: {
+    color: COLORS.white,
+  },
+  dayDateCurrent: {
+    color: COLORS.concordiaMaroon,
+  },
+  dayLetter: {
+    fontSize: 10,
+    fontWeight: "600",
+  },
+  dayLetterSelected: {
+    color: COLORS.white,
+  },
+  dayLetterCurrent: {
+    color: COLORS.concordiaMaroon,
+  },
+  events: {
+    flex: 1,
+  },
+  eventItem: {
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.concordiaMaroon,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  eventItemUpcoming: {
+    borderWidth: 2,
+    borderColor: COLORS.error,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.concordiaMaroon,
+  },
+  eventSummary: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: COLORS.textPrimary,
+    marginBottom: 8,
+  },
+  eventDetails: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginBottom: 4,
+    lineHeight: 18,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: COLORS.textTertiary,
+    textAlign: "center",
+    marginTop: 20,
+  },
+  notAuthenticated: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    borderColor: COLORS.concordiaMaroon,
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 20,
+    marginTop: 20,
+  },
+  navToMenuButton: {
+    marginTop: 12,
+    paddingVertical: 8,
+    backgroundColor: COLORS.concordiaMaroon,
+    borderRadius: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 10,
+  },
+  navToMenuButtonText: {
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: "600",
+    fontStyle: "italic",
+    textDecorationLine: "underline",
+  },
+  errorText: {
+    fontSize: 14,
+    color: COLORS.error,
+    textAlign: "center",
+    marginTop: 20,
+  },
+  eventContent: {
+    flex: 1,
+  },
+  viewFullIcon: {
+    marginLeft: 4,
+  },
+  viewFullButtonActive: {
+    backgroundColor: COLORS.concordiaMaroon,
+  },
+  viewFullButtonTextActive: {
+    color: COLORS.white,
+  },
+
+  /* ── Pulsing directions shortcut ── */
+  directionsShortcut: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.concordiaMaroon,
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 8,
+  },
+
+  /* ── Event error state ── */
+  eventErrorBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 4,
+  },
+  eventErrorText: {
+    fontSize: 11,
+    color: "#b45309",
+    fontStyle: "italic",
+    flex: 1,
+  },
+
+  /* ── Weekly schedule grid ── */
+  weeklyContainer: {
+    flex: 1,
+  },
+  weeklyHeaderRow: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+    paddingBottom: 8,
+    marginBottom: 0,
+  },
+  weeklyTimeGutter: {
+    width: 44,
+  },
+  weeklyDayHeaderCell: {
+    flex: 1,
+    alignItems: "center",
+  },
+  weeklyDayHeaderLetter: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: COLORS.textSecondary,
+  },
+  weeklyDayHeaderDate: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: COLORS.textPrimary,
+    marginTop: 2,
+  },
+  weeklyDayHeaderToday: {
+    color: COLORS.white,
+  },
+  weeklyTodayBadge: {
+    backgroundColor: COLORS.concordiaMaroon,
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 2,
+  },
+  weeklyGridScroll: {
+    flex: 1,
+  },
+  weeklyGrid: {
+    position: "relative",
+  },
+  weeklyHourRow: {
+    flexDirection: "row",
+    height: 60,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#ECECEC",
+  },
+  weeklyHourLabel: {
+    width: 44,
+    fontSize: 10,
+    fontWeight: "500",
+    color: COLORS.textTertiary,
+    textAlign: "right",
+    paddingRight: 8,
+    marginTop: -6,
+  },
+  weeklyHourCells: {
+    flex: 1,
+    flexDirection: "row",
+  },
+  weeklyDayColumn: {
+    flex: 1,
+    borderLeftWidth: StyleSheet.hairlineWidth,
+    borderLeftColor: "#ECECEC",
+  },
+  weeklyEventBlock: {
+    position: "absolute",
+    left: 1,
+    right: 1,
+    backgroundColor: "rgba(156, 45, 45, 0.15)",
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.concordiaMaroon,
+    borderRadius: 4,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    overflow: "hidden",
+  },
+  weeklyEventSummary: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: COLORS.concordiaMaroon,
+  },
+  weeklyEventTime: {
+    fontSize: 9,
+    color: COLORS.textSecondary,
+    marginTop: 1,
+  },
+  weeklyNowLine: {
+    position: "absolute",
+    left: 44,
+    right: 0,
+    height: 2,
+    backgroundColor: COLORS.concordiaMaroon,
+    zIndex: 10,
+  },
+  weeklyNowDot: {
+    position: "absolute",
+    left: 38,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: COLORS.concordiaMaroon,
+    marginTop: -3,
+    zIndex: 10,
+  },
+});
+
+export default styles;

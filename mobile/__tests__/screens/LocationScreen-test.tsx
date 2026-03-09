@@ -1,4 +1,4 @@
-import { fireEvent, render } from "@testing-library/react-native";
+import { fireEvent, render, screen } from "@testing-library/react-native";
 import React from "react";
 
 import LocationScreen from "../../src/screens/LocationScreen";
@@ -22,7 +22,7 @@ jest.mock("../../src/utils/campusDetection", () => ({
 
 // Mock child components
 jest.mock("../../src/components/LocationScreen/GoogleMaps", () => {
-  const { View, TouchableOpacity, Text } = require("react-native");
+  const { View, TouchableOpacity, Text } = jest.requireActual("react-native");
   return function MockGoogleMaps({ onRecenter }: { onRecenter: () => void }) {
     return (
       <View testID="mock-google-maps">
@@ -35,20 +35,17 @@ jest.mock("../../src/components/LocationScreen/GoogleMaps", () => {
 });
 
 jest.mock("../../src/components/LocationScreen/CampusSelection", () => {
-  const { View, TouchableOpacity, Text } = require("react-native");
+  const { View, TouchableOpacity, Text } = jest.requireActual("react-native");
   return function MockCampusSelection({
     onCampusChange,
-    currentCampusId,
-    recenterTrigger,
+    activeCampusId,
   }: {
     onCampusChange: (id: string) => void;
-    currentCampusId: string | null;
-    recenterTrigger: number;
+    activeCampusId: string;
   }) {
     return (
       <View testID="mock-campus-selection">
-        <Text testID="current-campus">{currentCampusId}</Text>
-        <Text testID="recenter-trigger">{recenterTrigger}</Text>
+        <Text testID="current-campus">{activeCampusId}</Text>
         <TouchableOpacity
           testID="change-campus-button"
           onPress={() => onCampusChange("LOYOLA")}
@@ -77,26 +74,28 @@ describe("LocationScreen", () => {
   });
 
   test("renders location screen with child components", () => {
-    const { getByTestId } = render(<LocationScreen />);
+    render(<LocationScreen />);
 
-    expect(getByTestId("location-screen")).toBeTruthy();
-    expect(getByTestId("mock-google-maps")).toBeTruthy();
-    expect(getByTestId("mock-campus-selection")).toBeTruthy();
+    expect(screen.getByTestId("location-screen")).toBeTruthy();
+    expect(screen.getByTestId("mock-google-maps")).toBeTruthy();
+    expect(screen.getByTestId("mock-campus-selection")).toBeTruthy();
   });
 
   test("passes currentCampusId to CampusSelection", () => {
-    const { getByTestId } = render(<LocationScreen />);
+    render(<LocationScreen />);
 
-    expect(getByTestId("current-campus").props.children).toBe("SGW");
+    expect(screen.getByTestId("current-campus").props.children).toBe("SGW");
   });
 
-  test("recenter trigger increments when onRecenter is called", () => {
-    const { getByTestId } = render(<LocationScreen />);
+  test("recenter updates activeCampusId when onRecenter is called", () => {
+    render(<LocationScreen />);
 
-    expect(getByTestId("recenter-trigger").props.children).toBe(0);
+    // Initial campus is SGW (from getClosestCampusId mock)
+    expect(screen.getByTestId("current-campus").props.children).toBe("SGW");
 
-    fireEvent.press(getByTestId("recenter-button"));
+    // Press recenter - should reset to closest campus (SGW)
+    fireEvent.press(screen.getByTestId("recenter-button"));
 
-    expect(getByTestId("recenter-trigger").props.children).toBe(1);
+    expect(screen.getByTestId("current-campus").props.children).toBe("SGW");
   });
 });

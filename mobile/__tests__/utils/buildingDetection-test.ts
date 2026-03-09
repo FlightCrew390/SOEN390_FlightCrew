@@ -1,4 +1,4 @@
-import { Building } from "../../src/types/Building";
+import { Building, StructureType } from "../../src/types/Building";
 import {
   calculateDistance,
   findCurrentBuilding,
@@ -6,6 +6,7 @@ import {
 
 const mockBuildings: Building[] = [
   {
+    structureType: StructureType.Building,
     campus: "SGW",
     buildingCode: "H",
     buildingName: "Hall Building",
@@ -13,8 +14,11 @@ const mockBuildings: Building[] = [
     address: "1455 De Maisonneuve Blvd. W.",
     latitude: 45.4973,
     longitude: -73.5789,
+    accessibilityInfo:
+      "Wheelchair accessible entrance at 1455 De Maisonneuve Blvd. W.",
   },
   {
+    structureType: StructureType.Building,
     campus: "LOY",
     buildingCode: "CC",
     buildingName: "Central Building",
@@ -22,6 +26,8 @@ const mockBuildings: Building[] = [
     address: "7141 Sherbrooke St. W.",
     latitude: 45.4582,
     longitude: -73.6405,
+    accessibilityInfo:
+      "Wheelchair accessible entrance at 7141 Sherbrooke St. W.",
   },
 ];
 
@@ -112,6 +118,7 @@ describe("findCurrentBuilding", () => {
   test("skips buildings without coordinates", () => {
     const buildingsWithMissing: Building[] = [
       {
+        structureType: StructureType.Building,
         campus: "SGW",
         buildingCode: "X",
         buildingName: "No Coords",
@@ -119,6 +126,7 @@ describe("findCurrentBuilding", () => {
         address: "Unknown",
         latitude: undefined as unknown as number,
         longitude: undefined as unknown as number,
+        accessibilityInfo: "N/A",
       },
       mockBuildings[0],
     ];

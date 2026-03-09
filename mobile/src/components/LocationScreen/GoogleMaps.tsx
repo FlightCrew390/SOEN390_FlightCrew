@@ -1,31 +1,35 @@
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import React, { useEffect, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Platform,
-  Pressable,
-  Text,
-  View,
-} from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Platform, View } from "react-native";
 import MapView, {
+  Polyline,
   PROVIDER_DEFAULT,
   PROVIDER_GOOGLE,
-  Region,
 } from "react-native-maps";
 import { COLORS, MAP_CONFIG } from "../../constants";
-import { campusBoundary } from "../../constants/campusBoundaries";
-import { useBuildingData } from "../../hooks/useBuildingData";
-import { useCurrentLocation } from "../../hooks/useCurrentLocation";
+import { useBuildings } from "../../contexts/BuildingContext";
+import { useLocation } from "../../contexts/LocationContext";
+import { useMapCamera } from "../../hooks/useMapCamera";
+import { useMapUI } from "../../hooks/useMapUI";
+import { LocationType } from "../../state/SearchPanelState";
 import styles from "../../styles/GoogleMaps";
 import { Building } from "../../types/Building";
-import { findCurrentBuilding } from "../../utils/buildingDetection";
-import BuildingMarker from "./BuildingMarker";
-import BuildingPolygon from "./BuildingPolygon";
+import { LocationScreenParams } from "../../types/LocationScreenParams";
+import { PointOfInterest } from "../../types/PointOfInterest";
+import { findBuildingByLocation } from "../../utils/findBuildingByLocation";
+import { poiToBuilding } from "../../utils/poiUtils";
+import BuildingLayer from "./BuildingLayer";
+import DirectionPanel, { type RouteSegment } from "./DirectionPanel";
+import MapControls from "./MapControls";
+import MapOverlays from "./MapOverlays";
+import PoiMarker from "./PoiMarker";
+import PoiResultsPanel from "./PoiResultsPanel";
+import RoutePolyline from "./RoutePolyline";
+import SearchPanel from "./SearchPanel";
 import UserLocationMarker from "./UserLocationMarker";
 
 interface GoogleMapsProps {
   readonly mapRef?: React.RefObject<MapView | null>;
-  /** Called when user taps recenter so parent can sync campus selector to actual location. */
   readonly onRecenter?: () => void;
 }
 
@@ -33,104 +37,131 @@ export default function GoogleMaps({
   mapRef: mapRefProp,
   onRecenter,
 }: Readonly<GoogleMapsProps> = {}) {
-  const { buildings, loading, error } = useBuildingData();
+  const { buildings, loading, error } = useBuildings();
   const {
     location,
     loading: locationLoading,
     error: locationError,
-  } = useCurrentLocation();
+  } = useLocation();
+
   const internalMapRef = useRef<MapView>(null);
   const mapRef = mapRefProp ?? internalMapRef;
-  const isCorrectingRef = useRef(false);
-  const hasCenteredOnUserOnceRef = useRef(false);
-  const [currentBuilding, setCurrentBuilding] = useState<Building | null>(null);
+  const [routeSegments, setRouteSegments] = useState<RouteSegment[]>([]);
 
-  // Find current building when location or buildings change
+  const navigation = useNavigation();
+  const route = useRoute();
+  const params = (route.params ?? {}) as LocationScreenParams;
+
+  const {
+    state,
+    dispatch,
+    userCoords,
+    userCampus,
+    selectBuilding,
+    openDirections,
+    handleSearch,
+    handleTravelModeChange,
+    selectPoi,
+    handleDepartureConfigChange,
+  } = useMapUI(buildings, location);
+
+  const onCloseDirectionPanel = useCallback(() => {
+    dispatch({ type: "CLOSE_PANEL" });
+    setRouteSegments([]);
+  }, [dispatch]);
+
+  const onTravelModeChange = useCallback(
+    (mode: Parameters<typeof handleTravelModeChange>[0]) => {
+      setRouteSegments([]);
+      handleTravelModeChange(mode);
+    },
+    [handleTravelModeChange],
+  );
+
+  const onOpenSearchForStart = useCallback(
+    () => dispatch({ type: "OPEN_SEARCH_FOR_START" }),
+    [dispatch],
+  );
+
+  const onResetStartBuilding = useCallback(
+    () => dispatch({ type: "RESET_START_BUILDING" }),
+    [dispatch],
+  );
+
+  const onShowSteps = useCallback(
+    () => dispatch({ type: "OPEN_STEPS" }),
+    [dispatch],
+  );
+
+  const onHideSteps = useCallback(
+    () => dispatch({ type: "CLOSE_STEPS" }),
+    [dispatch],
+  );
+
+  const {
+    handleMapReady,
+    handleRegionChangeComplete,
+    handleRecenter,
+    animateToBuilding,
+  } = useMapCamera(mapRef, location, state.route, state.panel);
+
+  // ── Handle deep-link from Calendar (or other screens) ──
   useEffect(() => {
-    if (location && buildings.length > 0) {
-      const building = findCurrentBuilding(
-        {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        },
-        buildings,
-      );
-      setCurrentBuilding(building);
-    } else {
-      setCurrentBuilding(null);
-    }
-  }, [location, buildings]);
+    if (!params.directionsTo || buildings.length === 0) return;
 
-  // When location first loads, center map on user once so they see their position
-  useEffect(() => {
-    if (!location || !mapRef.current || hasCenteredOnUserOnceRef.current)
-      return;
-    hasCenteredOnUserOnceRef.current = true;
-    const region = {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: 0.005,
-      longitudeDelta: 0.005,
-    };
-    requestIdleCallback(() => {
-      if (mapRef.current) mapRef.current.animateToRegion(region, 1000);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mapRef stable; run only when location appears
-  }, [location]);
-
-  const handleMapReady = () => {
-    if (mapRef.current && Platform.OS === "android") {
-      mapRef.current.setMapBoundaries(
-        campusBoundary.northEast,
-        campusBoundary.southWest,
-      );
+    const matched = findBuildingByLocation(params.directionsTo, buildings);
+    if (matched) {
+      animateToBuilding(matched);
+      openDirections(matched);
     }
+
+    // Clear the param so re-focusing the tab doesn't re-trigger
+    navigation.setParams({ directionsTo: undefined } as never);
+  }, [
+    params.directionsTo,
+    buildings,
+    animateToBuilding,
+    openDirections,
+    navigation,
+  ]);
+
+  const onSelectBuilding = (building: Building) => {
+    animateToBuilding(building);
+    selectBuilding(building);
   };
 
-  const handleRegionChangeComplete = (region: Region) => {
-    if (!mapRef.current || isCorrectingRef.current) return;
-
-    let needsCorrection = false;
-    const correctedRegion = { ...region };
-
-    if (region.latitude > campusBoundary.northEast.latitude) {
-      correctedRegion.latitude = campusBoundary.northEast.latitude;
-      needsCorrection = true;
-    }
-    if (region.latitude < campusBoundary.southWest.latitude) {
-      correctedRegion.latitude = campusBoundary.southWest.latitude;
-      needsCorrection = true;
-    }
-    if (region.longitude > campusBoundary.northEast.longitude) {
-      correctedRegion.longitude = campusBoundary.northEast.longitude;
-      needsCorrection = true;
-    }
-    if (region.longitude < campusBoundary.southWest.longitude) {
-      correctedRegion.longitude = campusBoundary.southWest.longitude;
-      needsCorrection = true;
-    }
-
-    if (needsCorrection) {
-      isCorrectingRef.current = true;
-      mapRef.current.animateToRegion(correctedRegion, 300);
-      setTimeout(() => {
-        isCorrectingRef.current = false;
-      }, 400);
-    }
+  const onDirectionPress = (building: Building) => {
+    animateToBuilding(building);
+    openDirections(building);
   };
 
-  const handleRecenter = () => {
-    if (location == null || mapRef.current == null) return;
-    onRecenter?.();
-    const region = {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: 0.005,
-      longitudeDelta: 0.005,
-    };
-    requestIdleCallback(() => {
-      if (mapRef.current) mapRef.current.animateToRegion(region, 1000);
-    });
+  const onSearchSubmit = (
+    query: string,
+    locationType: LocationType,
+    radiusKm: number | null,
+  ) => {
+    const match = handleSearch(query, locationType, radiusKm);
+    if (match) onSelectBuilding(match);
+  };
+
+  const onSelectPoi = (poi: PointOfInterest) => {
+    selectPoi(poi);
+    mapRef.current?.animateToRegion(
+      {
+        latitude: poi.latitude,
+        longitude: poi.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      },
+      500,
+    );
+  };
+
+  const onPoiDirectionPress = (poi: PointOfInterest) => {
+    const building = poiToBuilding(poi);
+    selectPoi(poi);
+    animateToBuilding(building);
+    openDirections(building);
   };
 
   const displayError = error || locationError;
@@ -144,7 +175,7 @@ export default function GoogleMaps({
         maxZoomLevel={20}
         cameraZoomRange={{
           minCenterCoordinateDistance: 200,
-          maxCenterCoordinateDistance: 20000,
+          maxCenterCoordinateDistance: 200000,
         }}
         onMapReady={handleMapReady}
         onRegionChangeComplete={handleRegionChangeComplete}
@@ -155,58 +186,114 @@ export default function GoogleMaps({
         initialRegion={MAP_CONFIG.defaultCampusRegion}
         showsUserLocation={false}
         showsMyLocationButton={false}
+        onPress={() => dispatch({ type: "TAP_MAP" })}
       >
-        {buildings.flatMap((building) => [
-          <BuildingPolygon
-            key={`${building.buildingCode}-poly`}
-            building={building}
-          />,
-          <BuildingMarker
-            key={`${building.buildingCode}-marker`}
-            building={building}
-            isCurrentBuilding={
-              currentBuilding?.buildingCode === building.buildingCode
-            }
-          />,
-        ])}
+        <BuildingLayer
+          buildings={buildings}
+          currentBuildingCode={state.currentBuilding?.buildingCode ?? null}
+          selectedBuildingCode={state.selectedBuilding?.buildingCode ?? null}
+          isDirectionsOpen={state.panel === "directions"}
+          onSelect={onSelectBuilding}
+          onDirectionPress={onDirectionPress}
+        />
+
+        {state.route && (
+          <RoutePolyline route={state.route} travelMode={state.travelMode} />
+        )}
+
+        {routeSegments.map((segment) => (
+          <Polyline
+            key={`${segment.coordinates[0]?.latitude}-${segment.coordinates[0]?.longitude}-${segment.mode}`}
+            coordinates={segment.coordinates}
+            strokeColor={COLORS.mapPolylineWalk}
+            strokeWidth={4}
+            lineDashPattern={segment.mode === "walk" ? [8, 6] : undefined}
+          />
+        ))}
+
         {location && (
           <UserLocationMarker
             latitude={location.coords.latitude}
             longitude={location.coords.longitude}
           />
         )}
+
+        {state.selectedPoi && (
+          <PoiMarker
+            poi={state.selectedPoi}
+            isDirectionsOpen={
+              state.panel === "directions" || state.panel === "steps"
+            }
+            onDirectionPress={() => onPoiDirectionPress(state.selectedPoi!)}
+          />
+        )}
       </MapView>
 
-      {isLoading && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#8b2020" />
-          <Text style={styles.loadingText}>
-            {loading ? "Loading buildings..." : "Getting your location..."}
-          </Text>
-        </View>
+      <MapOverlays
+        isLoading={isLoading}
+        isBuildingsLoading={loading}
+        error={displayError && !isLoading ? displayError : null}
+      />
+
+      <DirectionPanel
+        visible={state.panel === "directions" || state.panel === "steps"}
+        building={state.selectedBuilding}
+        startBuilding={state.startBuilding}
+        route={state.route}
+        routeLoading={state.routeLoading}
+        routeError={state.routeError}
+        travelMode={state.travelMode}
+        onTravelModeChange={onTravelModeChange}
+        departureConfig={state.departureConfig}
+        onDepartureConfigChange={handleDepartureConfigChange}
+        onClose={onCloseDirectionPanel}
+        onOpenSearch={onOpenSearchForStart}
+        onResetStart={onResetStartBuilding}
+        showSteps={state.panel === "steps"}
+        onShowSteps={onShowSteps}
+        onHideSteps={onHideSteps}
+        userLocation={userCoords}
+        userCampus={userCampus}
+        onRouteReady={setRouteSegments}
+      />
+
+      {state.panel === "poi-results" && (
+        <PoiResultsPanel
+          results={state.poiResults}
+          loading={state.poiLoading}
+          error={state.poiError}
+          onBack={() => dispatch({ type: "BACK_TO_SEARCH" })}
+          onSelectPoi={onSelectPoi}
+          onDirectionPress={onPoiDirectionPress}
+        />
       )}
 
-      {displayError && !isLoading && (
-        <View style={styles.errorOverlay}>
-          <Text style={styles.errorText}>{displayError}</Text>
-        </View>
-      )}
+      <SearchPanel
+        visible={state.panel === "search"}
+        onClose={() =>
+          state.searchOrigin === "directions"
+            ? dispatch({ type: "RETURN_TO_DIRECTIONS" })
+            : dispatch({ type: "CLOSE_PANEL" })
+        }
+        onSearch={onSearchSubmit}
+        onSelectBuilding={
+          state.searchOrigin === "directions"
+            ? (building: Building) => {
+                dispatch({ type: "SET_START_BUILDING", building });
+              }
+            : onSelectBuilding
+        }
+      />
 
-      {location != null && (
-        <Pressable
-          style={styles.recenterButton}
-          onPress={handleRecenter}
-          accessibilityLabel="Recenter map on my location"
-          accessibilityRole="button"
-        >
-          <FontAwesome5
-            name="location-arrow"
-            size={22}
-            color={COLORS.concordiaMaroon}
-            style={{ transform: [{ rotate: "-45deg" }] }}
-          />
-        </Pressable>
-      )}
+      <MapControls
+        panel={state.panel}
+        searchOrigin={state.searchOrigin}
+        hasLocation={location != null}
+        onOpenSearch={() => dispatch({ type: "OPEN_SEARCH" })}
+        onCloseSearch={() => dispatch({ type: "CLOSE_PANEL" })}
+        onReturnToDirections={() => dispatch({ type: "RETURN_TO_DIRECTIONS" })}
+        onRecenter={() => handleRecenter(onRecenter)}
+      />
     </View>
   );
 }

@@ -1,5 +1,5 @@
 import { API_CONFIG } from "../constants";
-import { Building } from "../types/Building";
+import { Building, StructureType } from "../types/Building";
 
 type Coordinate = number[];
 
@@ -68,7 +68,12 @@ export class BuildingDataService {
           address: building.Address,
           latitude: building.Latitude,
           longitude: building.Longitude,
+          accessibilityInfo: building.Accessibility_Info,
+          structureType:
+            (building.Google_Place_Info?.structureType as StructureType) ||
+            StructureType.Point,
           polygons: polygons,
+          Google_Place_Info: building.Google_Place_Info,
         };
       });
     } catch (error) {

@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react-native";
 
 import { useBuildingData } from "../../src/hooks/useBuildingData";
-import { Building } from "../../src/types/Building";
+import { Building, StructureType } from "../../src/types/Building";
 
 // Mock BuildingDataService
 const mockFetchBuildings = jest.fn();
@@ -13,6 +13,7 @@ jest.mock("../../src/services/BuildingDataService", () => ({
 
 const mockBuildings: Building[] = [
   {
+    structureType: StructureType.Building,
     campus: "SGW",
     buildingCode: "H",
     buildingName: "Hall Building",
@@ -20,8 +21,11 @@ const mockBuildings: Building[] = [
     address: "1455 De Maisonneuve Blvd. W.",
     latitude: 45.4973,
     longitude: -73.5789,
+    accessibilityInfo:
+      "Wheelchair accessible entrance at 1455 De Maisonneuve Blvd. W.",
   },
   {
+    structureType: StructureType.Building,
     campus: "SGW",
     buildingCode: "EV",
     buildingName: "Engineering Building",
@@ -30,6 +34,8 @@ const mockBuildings: Building[] = [
     address: "1515 St. Catherine W.",
     latitude: 45.4957,
     longitude: -73.5773,
+    accessibilityInfo:
+      "Wheelchair accessible entrance at 1515 St. Catherine W.",
   },
 ];
 

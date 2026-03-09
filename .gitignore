@@ -8,8 +8,10 @@
 .env
 .env*.local
 
+
 # IDE / Editor
 .vscode/
+.expo/
 .idea/
 *.swp
 *.swo
@@ -32,8 +34,13 @@ Thumbs.db
 # Mobile (Expo/React Native)
 # ===========================
 
+mobile/.tool-versions
+
 # dependencies
 mobile/node_modules/
+
+# Builds
+mobile/mobile.app
 
 # Expo
 mobile/.expo/

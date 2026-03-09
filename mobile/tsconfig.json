@@ -2,9 +2,10 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-    "types": [
-      "jest"
-    ],
-    "skipLibCheck": true
+    "module": "ESNext",
+    "forceConsistentCasingInFileNames": true,
+    "types": ["jest"],
+    "skipLibCheck": true,
+    "jsx": "react-jsx"
   }
 }

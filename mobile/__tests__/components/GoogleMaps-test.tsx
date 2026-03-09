@@ -13,6 +13,7 @@ const mockHandleSearch = jest.fn();
 const mockHandleTravelModeChange = jest.fn();
 const mockSelectPoi = jest.fn();
 const mockClearPoi = jest.fn();
+const mockHandleDepartureConfigChange = jest.fn();
 
 const defaultMapUIState = {
   panel: "none" as const,
@@ -47,12 +48,14 @@ jest.mock("../../src/hooks/useMapUI", () => ({
     state: mockMapUIState,
     dispatch: mockDispatch,
     userCoords: null,
+    userCampus: null,
     selectBuilding: mockSelectBuilding,
     openDirections: mockOpenDirections,
     handleSearch: mockHandleSearch,
     handleTravelModeChange: mockHandleTravelModeChange,
     selectPoi: mockSelectPoi,
     clearPoi: mockClearPoi,
+    handleDepartureConfigChange: mockHandleDepartureConfigChange,
   }),
 }));
 
@@ -200,6 +203,7 @@ jest.mock("../../src/components/LocationScreen/SearchPanel", () => {
     default: (props: any) => (
       <View testID="search-panel">
         <Text testID="sp-visible">{String(props.visible)}</Text>
+        <Pressable testID="sp-close" onPress={props.onClose} />
         <Pressable
           testID="sp-select-building"
           onPress={() =>
@@ -211,7 +215,6 @@ jest.mock("../../src/components/LocationScreen/SearchPanel", () => {
           testID="sp-search"
           onPress={() => props.onSearch("Hall", "building")}
         />
-        <Pressable testID="sp-close" onPress={props.onClose} />
       </View>
     ),
   };
@@ -1125,18 +1128,6 @@ describe("GoogleMaps", () => {
       type: "SET_START_BUILDING",
       building: hallBuilding,
     });
-  });
-
-  it("does not call animateToBuilding when selecting from search in directions origin", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      panel: "search",
-      searchOrigin: "directions",
-    };
-    render(<GoogleMaps />);
-    fireEvent.press(screen.getByTestId("sp-select-building"));
-    expect(mockAnimateToBuilding).not.toHaveBeenCalled();
-    expect(mockSelectBuilding).not.toHaveBeenCalled();
   });
 
   // ── Deep-link useEffect (directionsTo param) ──

@@ -96,10 +96,10 @@ public class GoogleMapsService {
         }
     }
 
-    @Cacheable(value = "directions", key = "#originLat + ',' + #originLng + ',' + #destLat + ',' + #destLng + ',' + #travelMode")
+    @Cacheable(value = "directions", key = "#originLat + ',' + #originLng + ',' + #destLat + ',' + #destLng + ',' + #travelMode + ',' + #departureTime + ',' + #arrivalTime")
     public DirectionsResponse getDirections(Double originLat, Double originLng,
             Double destLat, Double destLng,
-            String travelMode) {
+            String travelMode, String departureTime, String arrivalTime) {
         if (originLat == null || originLng == null || destLat == null || destLng == null) {
             return null;
         }
@@ -118,6 +118,8 @@ public class GoogleMapsService {
                         + "routes.legs.steps.polyline.encodedPolyline,"
                         + "routes.legs.steps.distanceMeters,"
                         + "routes.legs.steps.staticDuration,"
+                        + "routes.legs.steps.travelMode,"
+                        + "routes.legs.steps.transitDetails,"
                         + "routes.legs.distanceMeters,routes.legs.duration");
 
         // Build the request body per Google Routes API spec
@@ -128,11 +130,14 @@ public class GoogleMapsService {
 
         String mode = (travelMode != null) ? travelMode.toUpperCase() : "WALK";
 
-        Map<String, Object> requestBody = Map.of(
-                "origin", origin,
-                "destination", destination,
-                "travelMode", mode,
-                "computeAlternativeRoutes", false);
+        // Use mutable map so we can conditionally add time fields
+        Map<String, Object> requestBody = new java.util.HashMap<>();
+        requestBody.put("origin", origin);
+        requestBody.put("destination", destination);
+        requestBody.put("travelMode", mode);
+        requestBody.put("computeAlternativeRoutes", false);
+
+        applyTimeFields(requestBody, mode, departureTime, arrivalTime);
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
@@ -143,6 +148,32 @@ public class GoogleMapsService {
         } catch (Exception e) {
             logger.warn("Error fetching directions from Google Routes API: {}", e.getMessage());
             return null;
+        }
+    }
+
+    /**
+     * Adds departure/arrival time fields and routingPreference to the request
+     * body when the travel mode supports them.
+     * TRANSIT and DRIVE support timestamps; WALK and BICYCLE do not.
+     * DRIVE additionally requires TRAFFIC_AWARE routing when a timestamp is set.
+     */
+    private void applyTimeFields(Map<String, Object> requestBody, String mode,
+            String departureTime, String arrivalTime) {
+        boolean supportsTime = "TRANSIT".equals(mode) || "DRIVE".equals(mode);
+        if (!supportsTime) {
+            return;
+        }
+        boolean hasTimestamp = false;
+        if (departureTime != null && !departureTime.isEmpty()) {
+            requestBody.put("departureTime", departureTime);
+            hasTimestamp = true;
+        }
+        if (arrivalTime != null && !arrivalTime.isEmpty()) {
+            requestBody.put("arrivalTime", arrivalTime);
+            hasTimestamp = true;
+        }
+        if (hasTimestamp && "DRIVE".equals(mode)) {
+            requestBody.put("routingPreference", "TRAFFIC_AWARE");
         }
     }
 }

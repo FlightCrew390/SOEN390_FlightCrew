@@ -52,7 +52,8 @@ class DirectionsControllerTest {
         @DisplayName("GET /api/directions — 200 with valid route")
         void getDirections_validRequest_returns200() throws Exception {
                 DirectionsResponse mockResponse = buildMockResponse(5200, "3900s");
-                when(googleMapsService.getDirections(anyDouble(), anyDouble(), anyDouble(), anyDouble(), anyString()))
+                when(googleMapsService.getDirections(anyDouble(), anyDouble(), anyDouble(), anyDouble(), anyString(),
+                                any(), any()))
                                 .thenReturn(mockResponse);
 
                 mockMvc.perform(get(DIRECTIONS_URL)
@@ -71,7 +72,8 @@ class DirectionsControllerTest {
         @DisplayName("GET /api/directions — defaults travelMode to WALK when omitted")
         void getDirections_noTravelMode_defaultsToWalk() throws Exception {
                 DirectionsResponse mockResponse = buildMockResponse(1000, "600s");
-                when(googleMapsService.getDirections(anyDouble(), anyDouble(), anyDouble(), anyDouble(), eq("WALK")))
+                when(googleMapsService.getDirections(anyDouble(), anyDouble(), anyDouble(), anyDouble(), eq("WALK"),
+                                any(), any()))
                                 .thenReturn(mockResponse);
 
                 mockMvc.perform(get(DIRECTIONS_URL)
@@ -87,7 +89,8 @@ class DirectionsControllerTest {
         @DisplayName("GET /api/directions — response includes turn-by-turn steps")
         void getDirections_responseIncludesSteps() throws Exception {
                 DirectionsResponse mockResponse = buildMockResponseWithSteps();
-                when(googleMapsService.getDirections(anyDouble(), anyDouble(), anyDouble(), anyDouble(), anyString()))
+                when(googleMapsService.getDirections(anyDouble(), anyDouble(), anyDouble(), anyDouble(), anyString(),
+                                any(), any()))
                                 .thenReturn(mockResponse);
 
                 mockMvc.perform(get(DIRECTIONS_URL)
@@ -108,7 +111,8 @@ class DirectionsControllerTest {
         @DisplayName("GET /api/directions — response includes encoded polyline")
         void getDirections_responseIncludesPolyline() throws Exception {
                 DirectionsResponse mockResponse = buildMockResponse(3000, "2400s");
-                when(googleMapsService.getDirections(anyDouble(), anyDouble(), anyDouble(), anyDouble(), anyString()))
+                when(googleMapsService.getDirections(anyDouble(), anyDouble(), anyDouble(), anyDouble(), anyString(),
+                                any(), any()))
                                 .thenReturn(mockResponse);
 
                 mockMvc.perform(get(DIRECTIONS_URL)
@@ -127,7 +131,8 @@ class DirectionsControllerTest {
         @Test
         @DisplayName("GET /api/directions — 204 when service returns null")
         void getDirections_serviceReturnsNull_returns204() throws Exception {
-                when(googleMapsService.getDirections(anyDouble(), anyDouble(), anyDouble(), anyDouble(), anyString()))
+                when(googleMapsService.getDirections(anyDouble(), anyDouble(), anyDouble(), anyDouble(), anyString(),
+                                any(), any()))
                                 .thenReturn(null);
 
                 mockMvc.perform(get(DIRECTIONS_URL)
@@ -144,7 +149,8 @@ class DirectionsControllerTest {
         void getDirections_emptyRoutes_returns204() throws Exception {
                 DirectionsResponse emptyResponse = new DirectionsResponse();
                 emptyResponse.setRoutes(Collections.emptyList());
-                when(googleMapsService.getDirections(anyDouble(), anyDouble(), anyDouble(), anyDouble(), anyString()))
+                when(googleMapsService.getDirections(anyDouble(), anyDouble(), anyDouble(), anyDouble(), anyString(),
+                                any(), any()))
                                 .thenReturn(emptyResponse);
 
                 mockMvc.perform(get(DIRECTIONS_URL)
@@ -161,7 +167,8 @@ class DirectionsControllerTest {
         void getDirections_nullRoutes_returns204() throws Exception {
                 DirectionsResponse noRoutes = new DirectionsResponse();
                 noRoutes.setRoutes(null);
-                when(googleMapsService.getDirections(anyDouble(), anyDouble(), anyDouble(), anyDouble(), anyString()))
+                when(googleMapsService.getDirections(anyDouble(), anyDouble(), anyDouble(), anyDouble(), anyString(),
+                                any(), any()))
                                 .thenReturn(noRoutes);
 
                 mockMvc.perform(get(DIRECTIONS_URL)
@@ -178,7 +185,8 @@ class DirectionsControllerTest {
         @Test
         @DisplayName("GET /api/directions — 429 when API quota is exceeded")
         void getDirections_quotaExceeded_returns429() throws Exception {
-                when(googleMapsService.getDirections(anyDouble(), anyDouble(), anyDouble(), anyDouble(), anyString()))
+                when(googleMapsService.getDirections(anyDouble(), anyDouble(), anyDouble(), anyDouble(), anyString(),
+                                any(), any()))
                                 .thenThrow(new ApiQuotaExceededException(
                                                 "Google API quota exceeded. Try again later."));
 

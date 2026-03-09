@@ -1,4 +1,9 @@
-import { formatDistance, formatDuration } from "../../src/utils/formatHelper";
+import {
+  formatDate,
+  formatDateTime,
+  formatDistance,
+  formatDuration,
+} from "../../src/utils/formatHelper";
 
 describe("formatDuration", () => {
   it("returns '-- min' for zero or negative", () => {
@@ -33,5 +38,40 @@ describe("formatDistance", () => {
   it("returns km when >= 1000", () => {
     expect(formatDistance(1500)).toBe("1.5 km");
     expect(formatDistance(10000)).toBe("10.0 km");
+  });
+});
+
+describe("formatDate", () => {
+  it("delegates to toLocaleDateString with the correct options", () => {
+    const d = new Date("2026-03-03T10:00:00");
+    const spy = jest
+      .spyOn(d, "toLocaleDateString")
+      .mockReturnValue("Tue, Mar 3");
+
+    const result = formatDate(d);
+
+    expect(spy).toHaveBeenCalledWith(undefined, {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
+    expect(result).toBe("Tue, Mar 3");
+    spy.mockRestore();
+  });
+});
+
+describe("formatTime", () => {
+  it("delegates to toLocaleTimeString with the correct options", () => {
+    const d = new Date("2026-03-03T10:05:00");
+    const spy = jest.spyOn(d, "toLocaleTimeString").mockReturnValue("10:05 AM");
+
+    const result = formatDateTime(d);
+
+    expect(spy).toHaveBeenCalledWith(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+    expect(result).toBe("10:05 AM");
+    spy.mockRestore();
   });
 });

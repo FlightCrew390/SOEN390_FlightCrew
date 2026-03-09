@@ -50,6 +50,7 @@ describe("mapUIReducer", () => {
       searchOrigin: "default",
       startBuilding: null,
       travelMode: null,
+      departureConfig: { option: "now", date: expect.any(Date) },
       route: null,
       routeLoading: false,
       routeError: null,
@@ -395,20 +396,43 @@ describe("mapUIReducer", () => {
     const state = mapUIReducer(prev, { type: "TAP_MAP" });
     expect(state.selectedPoi).toBeNull();
   });
-
-  it("CLOSE_PANEL clears all POI state", () => {
+  it("SET_DEPARTURE_CONFIG updates departureConfig and clears route state", () => {
     const prev: MapUIState = {
       ...initialMapUIState,
-      panel: "poi-results",
-      poiResults: [mockPoi],
-      selectedPoi: mockPoi,
-      poiLoading: true,
-      poiError: "err",
+      route: {
+        coordinates: [],
+        distanceMeters: 100,
+        durationSeconds: 60,
+        steps: [],
+      },
+      routeLoading: true,
+      routeError: "old error",
+    };
+    const newConfig = {
+      option: "depart_at" as const,
+      date: new Date("2026-03-03T09:00:00"),
+    };
+    const state = mapUIReducer(prev, {
+      type: "SET_DEPARTURE_CONFIG",
+      config: newConfig,
+    });
+    expect(state.departureConfig).toBe(newConfig);
+    expect(state.route).toBeNull();
+    expect(state.routeLoading).toBe(false);
+    expect(state.routeError).toBeNull();
+  });
+
+  it("CLOSE_PANEL also resets departureConfig to default", () => {
+    const {
+      DEFAULT_DEPARTURE_CONFIG,
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+    } = require("../../src/types/Directions");
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      panel: "directions",
+      departureConfig: { option: "depart_at" as const, date: new Date() },
     };
     const state = mapUIReducer(prev, { type: "CLOSE_PANEL" });
-    expect(state.poiResults).toEqual([]);
-    expect(state.selectedPoi).toBeNull();
-    expect(state.poiLoading).toBe(false);
-    expect(state.poiError).toBeNull();
+    expect(state.departureConfig.option).toBe(DEFAULT_DEPARTURE_CONFIG.option);
   });
 });

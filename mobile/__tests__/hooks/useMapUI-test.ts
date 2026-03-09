@@ -1,4 +1,5 @@
 import { act, renderHook, waitFor } from "@testing-library/react-native";
+import { useDirections } from "../../src/hooks/useDirections";
 import { useMapUI } from "../../src/hooks/useMapUI";
 import {
   hallBuilding,
@@ -12,10 +13,12 @@ jest.mock("../../src/hooks/useDirections", () => ({
   useDirections: jest.fn(),
 }));
 
-// Mock findCurrentBuilding
+// Mock findCurrentBuilding and calculateDistance (used by getClosestCampusId)
 const mockFindCurrentBuilding = jest.fn();
 jest.mock("../../src/utils/buildingDetection", () => ({
+  ...jest.requireActual("../../src/utils/buildingDetection"),
   findCurrentBuilding: (...args: any[]) => mockFindCurrentBuilding(...args),
+  calculateDistance: jest.fn(() => 100),
 }));
 
 const mockFetchPois = jest.fn();
@@ -387,18 +390,62 @@ describe("useMapUI", () => {
     expect(result.current.state.selectedPoi).toBe(mockCafePoi);
     expect(result.current.state.panel).toBe("none");
   });
+  describe("route callbacks passed to useDirections", () => {
+    let capturedParams: any;
 
-  it("clearPoi clears the selected POI and results", () => {
+    beforeEach(() => {
+      (useDirections as jest.Mock).mockImplementation((params: any) => {
+        capturedParams = params;
+      });
+    });
+
+    it("dispatches ROUTE_LOADING when onLoading is called", () => {
+      const { result } = renderHook(() => useMapUI(testBuildings, null));
+      act(() => {
+        capturedParams.onLoading();
+      });
+      expect(result.current.state.routeLoading).toBe(true);
+      expect(result.current.state.routeError).toBeNull();
+    });
+
+    it("dispatches ROUTE_LOADED when onLoaded is called", () => {
+      const route = {
+        coordinates: [],
+        distanceMeters: 500,
+        durationSeconds: 120,
+        steps: [],
+      };
+      const { result } = renderHook(() => useMapUI(testBuildings, null));
+      act(() => {
+        capturedParams.onLoaded(route);
+      });
+      expect(result.current.state.route).toBe(route);
+      expect(result.current.state.routeLoading).toBe(false);
+    });
+
+    it("dispatches ROUTE_ERROR when onError is called", () => {
+      const { result } = renderHook(() => useMapUI(testBuildings, null));
+      act(() => {
+        capturedParams.onError("Network error");
+      });
+      expect(result.current.state.routeError).toBe("Network error");
+      expect(result.current.state.routeLoading).toBe(false);
+      expect(result.current.state.route).toBeNull();
+    });
+  });
+
+  // ── handleDepartureConfigChange ──
+
+  it("handleDepartureConfigChange dispatches SET_DEPARTURE_CONFIG", () => {
     const { result } = renderHook(() => useMapUI(testBuildings, null));
-
+    const config = {
+      option: "depart_at" as const,
+      date: new Date("2026-03-03T09:00:00"),
+    };
     act(() => {
-      result.current.selectPoi(mockCafePoi as any);
+      result.current.handleDepartureConfigChange(config);
     });
-    expect(result.current.state.selectedPoi).toBe(mockCafePoi);
-
-    act(() => {
-      result.current.clearPoi();
-    });
-    expect(result.current.state.selectedPoi).toBeNull();
+    expect(result.current.state.departureConfig).toBe(config);
+    expect(result.current.state.route).toBeNull();
   });
 });

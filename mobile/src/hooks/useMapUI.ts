@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useReducer } from "react";
 import { initialMapUIState, mapUIReducer } from "../reducers/mapUIReducer";
-import { LocationType, isPoi } from "../state/SearchPanelState";
 import { PoiService } from "../services/PoiService";
-import { PointOfInterest } from "../types/PointOfInterest";
+import { LocationType, isPoi } from "../state/SearchPanelState";
 import { Building } from "../types/Building";
-import { TravelMode } from "../types/Directions";
+import { DepartureTimeConfig, TravelMode } from "../types/Directions";
+import { PointOfInterest } from "../types/PointOfInterest";
 import { findCurrentBuilding } from "../utils/buildingDetection";
+import { getClosestCampusId } from "../utils/campusDetection";
 import { haversineDistance } from "../utils/distanceUtils";
 import { useDirections } from "./useDirections";
 
@@ -38,24 +39,37 @@ export function useMapUI(
     [],
   );
 
-  // ── Derived user coordinates ──
-  const userCoords: UserCoords | null = useMemo(
-    () =>
+  const userCoords = useMemo(
+    (): UserCoords | null =>
       location
         ? {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
           }
         : null,
+    // Stable by coords to avoid DirectionPanel effect loop when location object reference changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [location?.coords.latitude, location?.coords.longitude],
+  );
+
+  const userCampus = useMemo(
+    () =>
+      location
+        ? getClosestCampusId(
+            location.coords.latitude,
+            location.coords.longitude,
+          )
+        : null,
     [location],
   );
 
-  // ── Wire direction fetching ──
   useDirections({
     destination: state.selectedBuilding,
     startBuilding: state.startBuilding,
     userLocation: userCoords,
+    userCampus,
     travelMode: state.travelMode,
+    departureConfig: state.departureConfig,
     active: state.panel === "directions",
     onLoading: onRouteLoading,
     onLoaded: onRouteLoaded,
@@ -150,15 +164,24 @@ export function useMapUI(
     }
   }, []);
 
+  const handleDepartureConfigChange = useCallback(
+    (config: DepartureTimeConfig) => {
+      dispatch({ type: "SET_DEPARTURE_CONFIG", config });
+    },
+    [],
+  );
+
   return {
     state,
     dispatch,
     userCoords,
+    userCampus,
     selectBuilding,
     openDirections,
     handleSearch,
     handleTravelModeChange,
     selectPoi,
     clearPoi,
+    handleDepartureConfigChange,
   };
 }

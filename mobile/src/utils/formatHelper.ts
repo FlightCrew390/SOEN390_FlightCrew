@@ -28,3 +28,17 @@ export function formatHourLabel(hour: number): string {
   const display = hour % 12 || 12;
   return `${display} ${period}`;
 }
+export function formatDate(d: Date): string {
+  return d.toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+export function formatDateTime(d: Date): string {
+  return d.toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}

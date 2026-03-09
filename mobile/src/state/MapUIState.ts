@@ -1,5 +1,9 @@
 import { Building } from "../types/Building";
-import { RouteInfo, TravelMode } from "../types/Directions";
+import {
+  DepartureTimeConfig,
+  RouteInfo,
+  TravelMode,
+} from "../types/Directions";
 import { PointOfInterest } from "../types/PointOfInterest";
 
 type Panel = "none" | "search" | "directions" | "steps" | "poi-results";
@@ -13,6 +17,7 @@ export interface MapUIState {
   startBuilding: Building | null;
   // Directions route data
   travelMode: TravelMode | null;
+  departureConfig: DepartureTimeConfig;
   route: RouteInfo | null;
   routeLoading: boolean;
   routeError: string | null;
@@ -37,6 +42,7 @@ export type MapUIAction =
   | { type: "RETURN_TO_DIRECTIONS" }
   | { type: "SET_TRAVEL_MODE"; mode: TravelMode }
   | { type: "RESET_TRAVEL_MODE"; mode: null }
+  | { type: "SET_DEPARTURE_CONFIG"; config: DepartureTimeConfig }
   | { type: "ROUTE_LOADING" }
   | { type: "ROUTE_LOADED"; route: RouteInfo | null }
   | { type: "ROUTE_ERROR"; error: string }

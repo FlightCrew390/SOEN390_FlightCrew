@@ -221,7 +221,7 @@ export function useDirections({
                 maneuver: "arrive",
                 distanceMeters: 0,
                 durationSeconds: 0,
-                coordinates: [coordinates[coordinates.length - 1]],
+                coordinates: [coordinates.at(-1)!],
               },
               {
                 instruction: departureInfo,

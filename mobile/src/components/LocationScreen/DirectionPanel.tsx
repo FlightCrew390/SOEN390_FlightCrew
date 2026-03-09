@@ -317,10 +317,17 @@ export default function DirectionPanel({
   const [loadingTravelTimes, setLoadingTravelTimes] = useState(false);
   const [error, setError] = useState(false);
 
-  const showShuttle =
-    userCampus && building
-      ? isCrossCampusRoute(userCampus, building.campus)
+  const originCampus = startBuilding?.campus ?? userCampus;
+  const isConcordiaCampus =
+    building?.campus === "SGW" || building?.campus === "LOY";
+  const isCrossCampus =
+    originCampus && building
+      ? isCrossCampusRoute(originCampus, building.campus)
       : false;
+  // Show shuttle when route crosses campuses, or when destination is a
+  // Concordia campus building but the origin campus is unknown (no GPS / no
+  // start building) so the user can still choose shuttle.
+  const showShuttle = isCrossCampus || (!originCampus && isConcordiaCampus);
 
   const transportOptions = React.useMemo(
     () =>

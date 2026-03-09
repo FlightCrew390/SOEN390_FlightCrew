@@ -1,6 +1,6 @@
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import React, { useCallback } from "react";
 import { Image, Pressable, Text, View } from "react-native";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { COLORS } from "../../constants";
 import styles from "../../styles/DirectionPanel";
 import { TravelMode } from "../../types/Directions";
@@ -47,16 +47,7 @@ export default function TransportCard({
       accessibilityLabel={`Get directions by ${label}`}
       accessibilityRole="button"
     >
-      {iconName != null ? (
-        <View style={styles.transportIconWrap}>
-          <FontAwesome5
-            name={iconName as "bus"}
-            size={24}
-            color={iconColor}
-            solid
-          />
-        </View>
-      ) : (
+      {iconName == null ? (
         icon != null && (
           <Image
             source={icon}
@@ -67,6 +58,15 @@ export default function TransportCard({
             resizeMode="contain"
           />
         )
+      ) : (
+        <View style={styles.transportIconWrap}>
+          <FontAwesome5
+            name={iconName as "bus"}
+            size={24}
+            color={iconColor}
+            solid
+          />
+        </View>
       )}
       <Text
         style={[styles.transportTime, isActive && styles.transportTimeActive]}

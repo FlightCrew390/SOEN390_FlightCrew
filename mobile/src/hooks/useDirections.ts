@@ -141,8 +141,9 @@ export function useDirections({
     if (!active || travelMode == null) return;
 
     if (travelMode === "SHUTTLE") {
-      if (!userCampus) return;
-      const normalized = normalizeCampus(userCampus) as "SGW" | "LOY";
+      const campusRaw = startBuilding?.campus ?? userCampus;
+      if (!campusRaw) return;
+      const normalized = normalizeCampus(campusRaw);
       const other = normalized === "SGW" ? "LOY" : "SGW";
       const originStop = SHUTTLE_STOPS[normalized];
       const destStop = SHUTTLE_STOPS[other];
@@ -260,9 +261,10 @@ export function useDirections({
     let cancelled = false;
 
     // Derive departure/arrival time strings from config.
-    // Drive ignores time: backend returns route as "leaving now" so we get steps + polyline and "View route".
+    // Only TRANSIT supports departure/arrival timestamps in Google Routes API.
+    // WALK and BICYCLE don't support timestamps; DRIVE needs special handling on the backend.
     const useTime =
-      travelMode !== "DRIVE" &&
+      (travelMode === "TRANSIT" || travelMode === "DRIVE") &&
       (departureConfig.option === "depart_at" ||
         departureConfig.option === "arrive_by");
     const departureTime =

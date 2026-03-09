@@ -45,8 +45,8 @@ function parseShuttleDurationToSeconds(durationStr: string): number {
 function toHHMM(timeStr: string | null | undefined): string {
   if (timeStr == null || timeStr === "") return "";
   const parts = timeStr.trim().split(":");
-  const h = parts[0]?.replace(/\D/g, "") ?? "0";
-  const m = parts[1]?.replace(/\D/g, "") ?? "0";
+  const h = parts[0]?.replaceAll(/\D/g, "") ?? "0";
+  const m = parts[1]?.replaceAll(/\D/g, "") ?? "0";
   return `${h.padStart(2, "0")}:${m.padStart(2, "0")}`;
 }
 

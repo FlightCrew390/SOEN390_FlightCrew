@@ -1,8 +1,12 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Platform, View } from "react-native";
-import MapView, { PROVIDER_DEFAULT, PROVIDER_GOOGLE } from "react-native-maps";
-import { MAP_CONFIG } from "../../constants";
+import MapView, {
+  Polyline,
+  PROVIDER_DEFAULT,
+  PROVIDER_GOOGLE,
+} from "react-native-maps";
+import { COLORS, MAP_CONFIG } from "../../constants";
 import { useBuildings } from "../../contexts/BuildingContext";
 import { useLocation } from "../../contexts/LocationContext";
 import { useMapCamera } from "../../hooks/useMapCamera";
@@ -15,7 +19,7 @@ import { PointOfInterest } from "../../types/PointOfInterest";
 import { findBuildingByLocation } from "../../utils/findBuildingByLocation";
 import { poiToBuilding } from "../../utils/poiUtils";
 import BuildingLayer from "./BuildingLayer";
-import DirectionPanel from "./DirectionPanel";
+import DirectionPanel, { type RouteSegment } from "./DirectionPanel";
 import MapControls from "./MapControls";
 import MapOverlays from "./MapOverlays";
 import PoiMarker from "./PoiMarker";
@@ -42,6 +46,7 @@ export default function GoogleMaps({
 
   const internalMapRef = useRef<MapView>(null);
   const mapRef = mapRefProp ?? internalMapRef;
+  const [routeSegments, setRouteSegments] = useState<RouteSegment[]>([]);
 
   const navigation = useNavigation();
   const route = useRoute();
@@ -50,6 +55,8 @@ export default function GoogleMaps({
   const {
     state,
     dispatch,
+    userCoords,
+    userCampus,
     selectBuilding,
     openDirections,
     handleSearch,
@@ -57,6 +64,39 @@ export default function GoogleMaps({
     selectPoi,
     handleDepartureConfigChange,
   } = useMapUI(buildings, location);
+
+  const onCloseDirectionPanel = useCallback(() => {
+    dispatch({ type: "CLOSE_PANEL" });
+    setRouteSegments([]);
+  }, [dispatch]);
+
+  const onTravelModeChange = useCallback(
+    (mode: Parameters<typeof handleTravelModeChange>[0]) => {
+      setRouteSegments([]);
+      handleTravelModeChange(mode);
+    },
+    [handleTravelModeChange],
+  );
+
+  const onOpenSearchForStart = useCallback(
+    () => dispatch({ type: "OPEN_SEARCH_FOR_START" }),
+    [dispatch],
+  );
+
+  const onResetStartBuilding = useCallback(
+    () => dispatch({ type: "RESET_START_BUILDING" }),
+    [dispatch],
+  );
+
+  const onShowSteps = useCallback(
+    () => dispatch({ type: "OPEN_STEPS" }),
+    [dispatch],
+  );
+
+  const onHideSteps = useCallback(
+    () => dispatch({ type: "CLOSE_STEPS" }),
+    [dispatch],
+  );
 
   const {
     handleMapReady,
@@ -157,7 +197,19 @@ export default function GoogleMaps({
           onDirectionPress={onDirectionPress}
         />
 
-        <RoutePolyline route={state.route} travelMode={state.travelMode} />
+        {state.route && (
+          <RoutePolyline route={state.route} travelMode={state.travelMode} />
+        )}
+
+        {routeSegments.map((segment) => (
+          <Polyline
+            key={`${segment.coordinates[0]?.latitude}-${segment.coordinates[0]?.longitude}-${segment.mode}`}
+            coordinates={segment.coordinates}
+            strokeColor={COLORS.mapPolylineWalk}
+            strokeWidth={4}
+            lineDashPattern={segment.mode === "walk" ? [8, 6] : undefined}
+          />
+        ))}
 
         {location && (
           <UserLocationMarker
@@ -191,15 +243,18 @@ export default function GoogleMaps({
         routeLoading={state.routeLoading}
         routeError={state.routeError}
         travelMode={state.travelMode}
-        onTravelModeChange={handleTravelModeChange}
+        onTravelModeChange={onTravelModeChange}
         departureConfig={state.departureConfig}
         onDepartureConfigChange={handleDepartureConfigChange}
-        onClose={() => dispatch({ type: "CLOSE_PANEL" })}
-        onOpenSearch={() => dispatch({ type: "OPEN_SEARCH_FOR_START" })}
-        onResetStart={() => dispatch({ type: "RESET_START_BUILDING" })}
+        onClose={onCloseDirectionPanel}
+        onOpenSearch={onOpenSearchForStart}
+        onResetStart={onResetStartBuilding}
         showSteps={state.panel === "steps"}
-        onShowSteps={() => dispatch({ type: "OPEN_STEPS" })}
-        onHideSteps={() => dispatch({ type: "CLOSE_STEPS" })}
+        onShowSteps={onShowSteps}
+        onHideSteps={onHideSteps}
+        userLocation={userCoords}
+        userCampus={userCampus}
+        onRouteReady={setRouteSegments}
       />
 
       {state.panel === "poi-results" && (

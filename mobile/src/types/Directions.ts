@@ -1,4 +1,4 @@
-export type TravelMode = "WALK" | "DRIVE" | "BICYCLE" | "TRANSIT";
+export type TravelMode = "WALK" | "DRIVE" | "BICYCLE" | "TRANSIT" | "SHUTTLE";
 
 export interface DirectionsResponse {
   routes: Route[];
@@ -56,6 +56,10 @@ export interface RouteInfo {
   coordinates: { latitude: number; longitude: number }[];
   distanceMeters: number;
   durationSeconds: number;
+  /** Optional human-readable duration (e.g. shuttle "21 mins") */
+  durationText?: string;
+  /** Optional human-readable distance (e.g. shuttle "8.3 km") */
+  distanceText?: string;
   steps: StepInfo[];
 }
 

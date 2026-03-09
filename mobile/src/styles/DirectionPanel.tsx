@@ -100,6 +100,15 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     flexDirection: "column",
   },
+  startRowWithShuttle: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingRight: 16,
+  },
+  startRowLeft: {
+    flex: 1,
+    minWidth: 0,
+  },
   changeStartRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -156,6 +165,12 @@ const styles = StyleSheet.create({
   },
   transportCardActive: {
     backgroundColor: "rgba(156, 45, 45, 0.10)",
+  },
+  transportIconWrap: {
+    width: 44,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
   },
   transportIcon: {
     width: 44,

@@ -6,6 +6,7 @@ import { Building } from "../types/Building";
 import { DepartureTimeConfig, TravelMode } from "../types/Directions";
 import { PointOfInterest } from "../types/PointOfInterest";
 import { findCurrentBuilding } from "../utils/buildingDetection";
+import { getClosestCampusId } from "../utils/campusDetection";
 import { haversineDistance } from "../utils/distanceUtils";
 import { useDirections } from "./useDirections";
 
@@ -38,23 +39,35 @@ export function useMapUI(
     [],
   );
 
-  // ── Derived user coordinates ──
-  const userCoords: UserCoords | null = useMemo(
-    () =>
+  const userCoords = useMemo(
+    (): UserCoords | null =>
       location
         ? {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
           }
         : null,
+    // Stable by coords to avoid DirectionPanel effect loop when location object reference changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [location?.coords.latitude, location?.coords.longitude],
+  );
+
+  const userCampus = useMemo(
+    () =>
+      location
+        ? getClosestCampusId(
+            location.coords.latitude,
+            location.coords.longitude,
+          )
+        : null,
     [location],
   );
 
-  // ── Wire direction fetching ──
   useDirections({
     destination: state.selectedBuilding,
     startBuilding: state.startBuilding,
     userLocation: userCoords,
+    userCampus,
     travelMode: state.travelMode,
     departureConfig: state.departureConfig,
     active: state.panel === "directions",
@@ -162,6 +175,7 @@ export function useMapUI(
     state,
     dispatch,
     userCoords,
+    userCampus,
     selectBuilding,
     openDirections,
     handleSearch,

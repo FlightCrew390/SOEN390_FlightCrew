@@ -201,9 +201,9 @@ export default function GoogleMaps({
           <RoutePolyline route={state.route} travelMode={state.travelMode} />
         )}
 
-        {routeSegments.map((segment, index) => (
+        {routeSegments.map((segment) => (
           <Polyline
-            key={`route-segment-${index}`}
+            key={`${segment.coordinates[0]?.latitude}-${segment.coordinates[0]?.longitude}-${segment.mode}`}
             coordinates={segment.coordinates}
             strokeColor={COLORS.mapPolylineWalk}
             strokeWidth={4}

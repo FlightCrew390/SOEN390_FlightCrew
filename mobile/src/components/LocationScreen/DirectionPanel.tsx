@@ -387,11 +387,17 @@ export default function DirectionPanel({
     [travelMode, onTravelModeChange],
   );
 
-  const distanceText = travelTimes
-    ? `${travelTimes.walk} min walk`
-    : route
-      ? (route.distanceText ?? formatDistance(route.distanceMeters))
-      : "-- m";
+  const getDistanceText = (): string => {
+    if (travelTimes) {
+      return `${travelTimes.walk} min walk`;
+    }
+    if (route) {
+      return route.distanceText ?? formatDistance(route.distanceMeters);
+    }
+    return "-- m";
+  };
+
+  const distanceText = getDistanceText();
 
   const getDurationForMode = (mode: TravelMode): string => {
     if (mode === "SHUTTLE") {

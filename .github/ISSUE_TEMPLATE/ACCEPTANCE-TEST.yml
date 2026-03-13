@@ -8,7 +8,7 @@ body:
       value: |
         ## Acceptance Test Documentation
         Use this form to verify that the requirements for a specific user story have been met.
-
+  
   - type: input
     id: video-link
     attributes:

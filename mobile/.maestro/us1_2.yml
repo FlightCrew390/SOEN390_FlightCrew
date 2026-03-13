@@ -6,20 +6,20 @@ appId: com.yourteam.mobile
 - waitForAnimationToEnd
 
 - tapOn: "Next campus"
-- doubleTapOn:
+- doubleTapOn: 
     point: 50%, 50%
 - swipe:
-    start: 60%, 50%
-    end: 80%, 60%
+       start: 60%, 50%
+       end: 80%, 60%
 - swipe:
-    start: 80%, 60%
-    end: 40%, 30%
+       start: 80%, 60%
+       end: 40%, 30%
 - tapOn: "Previous campus"
-- doubleTapOn:
+- doubleTapOn: 
     point: 50%, 50%
 - swipe:
-    start: 55%, 55%
-    end: 25%, 70%
+       start: 55%, 55%
+       end: 25%, 70%
 - swipe:
-    start: 25%, 70%
-    end: 50%, 35%
+       start: 25%, 70%
+       end: 50%, 35%

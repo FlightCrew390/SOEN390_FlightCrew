@@ -136,6 +136,7 @@ public class GoogleMapsService {
         requestBody.put("destination", destination);
         requestBody.put("travelMode", mode);
         requestBody.put("computeAlternativeRoutes", false);
+
         applyTimeFields(requestBody, mode, departureTime, arrivalTime);
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);

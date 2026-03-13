@@ -1,8 +1,8 @@
 appId: com.yourteam.mobile
 ---
 - setLocation:
-    latitude: 45.4582
-    longitude: -73.6405
+       latitude: 45.4582
+       longitude: -73.6405
 - launchApp
 - assertVisible: "Home Screen"
 - tapOn: "Location"
@@ -11,6 +11,6 @@ appId: com.yourteam.mobile
 - tapOn: "Next campus"
 - tapOn: "Recenter map on my location"
 - swipe:
-    start: 60%, 50%
-    end: 80%, 60%
+       start: 60%, 50%
+       end: 80%, 60%
 - tapOn: "Recenter map on my location"

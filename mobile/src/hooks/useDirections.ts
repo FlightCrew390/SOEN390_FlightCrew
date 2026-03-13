@@ -5,6 +5,7 @@ import { Building } from "../types/Building";
 import {
   DepartureTimeConfig,
   RouteInfo,
+  TRAVEL_MODE,
   TravelMode,
 } from "../types/Directions";
 
@@ -65,11 +66,11 @@ export function useDirections({
     // DRIVE mode does not support future departure/arrival times in the
     // Google Routes API, so we omit them to avoid errors.
     const departureTime =
-      departureConfig.option === "depart_at" && travelMode !== "DRIVE"
+      departureConfig.option === "depart_at" && travelMode !== TRAVEL_MODE.DRIVE
         ? departureConfig.date.toISOString()
         : undefined;
     const arrivalTime =
-      departureConfig.option === "arrive_by" && travelMode !== "DRIVE"
+      departureConfig.option === "arrive_by" && travelMode !== TRAVEL_MODE.DRIVE
         ? departureConfig.date.toISOString()
         : undefined;
 
@@ -77,7 +78,7 @@ export function useDirections({
       onLoading();
       try {
         let route;
-        if (travelMode === "SHUTTLE") {
+        if (travelMode === TRAVEL_MODE.SHUTTLE) {
           route = await ShuttleDirectionsBuilder.buildShuttleRoute(
             originLat,
             originLng,

@@ -19,11 +19,13 @@ import { Building, StructureType } from "../../types/Building";
 import {
   DepartureTimeConfig,
   RouteInfo,
+  TRAVEL_MODE,
   TravelMode,
 } from "../../types/Directions";
-import { formatDistance, formatDuration } from "../../utils/formatHelper";
-import DepartureTimePicker from "./DepartureTimePicker";
+import { getBirdsEyeDistanceText } from "../../utils/directionsUtils";
+import { formatDuration } from "../../utils/formatHelper";
 import Tooltip from "../common/Tooltip";
+import DepartureTimePicker from "./DepartureTimePicker";
 import RouteStatusDisplay from "./RouteStatusDisplay";
 import StepsPanel from "./StepsPanel";
 import TransportCard from "./TransportCard";
@@ -33,14 +35,26 @@ const TRANSPORT_OPTIONS: {
   icon: ReturnType<typeof require>;
   label: string;
 }[] = [
-  { mode: "WALK", icon: require("../../../assets/walk.png"), label: "Walk" },
-  { mode: "BICYCLE", icon: require("../../../assets/bike.png"), label: "Bike" },
   {
-    mode: "TRANSIT",
+    mode: TRAVEL_MODE.WALK,
+    icon: require("../../../assets/walk.png"),
+    label: "Walk",
+  },
+  {
+    mode: TRAVEL_MODE.BICYCLE,
+    icon: require("../../../assets/bike.png"),
+    label: "Bike",
+  },
+  {
+    mode: TRAVEL_MODE.TRANSIT,
     icon: require("../../../assets/train.png"),
     label: "Transit",
   },
-  { mode: "DRIVE", icon: require("../../../assets/car.png"), label: "Drive" },
+  {
+    mode: TRAVEL_MODE.DRIVE,
+    icon: require("../../../assets/car.png"),
+    label: "Drive",
+  },
 ];
 
 interface DirectionPanelProps {
@@ -52,6 +66,7 @@ interface DirectionPanelProps {
   readonly routeError: string | null;
   readonly travelMode: TravelMode | null;
   readonly onTravelModeChange: (mode: TravelMode | null) => void;
+  readonly userLocation?: { latitude: number; longitude: number } | null;
   readonly departureConfig: DepartureTimeConfig;
   readonly onDepartureConfigChange: (config: DepartureTimeConfig) => void;
   readonly onClose: () => void;
@@ -127,7 +142,7 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
   return (
     <ScrollView
       style={styles.descriptionScroll}
-      contentContainerStyle={{ paddingBottom: 40 }}
+      contentContainerStyle={{ paddingBottom: 16 }}
       showsVerticalScrollIndicator={false}
     >
       <Text style={styles.buildingLongName}>{building.buildingLongName}</Text>
@@ -258,8 +273,6 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
   );
 }
 
-/* ΓöÇΓöÇ Shuttle transport card (extracted to reduce cognitive complexity) ΓöÇΓöÇ */
-
 function getShuttleIconColor(eligible: boolean, isActive: boolean): string {
   if (eligible && isActive) return "#9C2D2D";
   if (eligible) return "#6B6B6B";
@@ -317,6 +330,7 @@ export default function DirectionPanel({
   routeError,
   travelMode,
   onTravelModeChange,
+  userLocation,
   departureConfig,
   onDepartureConfigChange,
   onClose,
@@ -342,7 +356,14 @@ export default function DirectionPanel({
     return "-- min";
   };
 
-  const distanceText = route ? formatDistance(route.distanceMeters) : "-- m";
+  const originCoords = startBuilding
+    ? {
+        latitude: startBuilding.latitude,
+        longitude: startBuilding.longitude,
+      }
+    : userLocation;
+
+  const distanceText = getBirdsEyeDistanceText(originCoords, building);
 
   return (
     <>
@@ -410,12 +431,14 @@ export default function DirectionPanel({
                 />
               ))}
               <ShuttleCard
-                isActive={travelMode === "SHUTTLE"}
+                isActive={travelMode === TRAVEL_MODE.SHUTTLE}
                 eligible={shuttleEligible ?? false}
-                duration={getDuration("SHUTTLE")}
+                duration={getDuration(TRAVEL_MODE.SHUTTLE)}
                 onPress={() =>
                   onTravelModeChange(
-                    travelMode === "SHUTTLE" ? null : "SHUTTLE",
+                    travelMode === TRAVEL_MODE.SHUTTLE
+                      ? null
+                      : TRAVEL_MODE.SHUTTLE,
                   )
                 }
               />
@@ -424,7 +447,7 @@ export default function DirectionPanel({
             <RouteStatusDisplay loading={routeLoading} error={routeError} />
 
             {/* Shuttle unavailable message */}
-            {travelMode === "SHUTTLE" &&
+            {travelMode === TRAVEL_MODE.SHUTTLE &&
               !routeLoading &&
               !routeError &&
               !route && (

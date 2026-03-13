@@ -50,13 +50,14 @@ export default function GoogleMaps({
   const {
     state,
     dispatch,
+    userCoords,
     routePreviews,
     selectBuilding,
     openDirections,
     handleSearch,
     handleTravelModeChange,
-    handleDepartureConfigChange,
     selectPoi,
+    handleDepartureConfigChange,
   } = useMapUI(buildings, location);
 
   const {
@@ -66,7 +67,7 @@ export default function GoogleMaps({
     animateToBuilding,
   } = useMapCamera(mapRef, location, state.route, state.panel);
 
-  // ΓöÇΓöÇ Handle deep-link from Calendar (or other screens) ΓöÇΓöÇ
+  // ── Handle deep-link from Calendar (or other screens) ──
   useEffect(() => {
     if (!params.directionsTo || buildings.length === 0) return;
 
@@ -193,6 +194,7 @@ export default function GoogleMaps({
         routeError={state.routeError}
         travelMode={state.travelMode}
         onTravelModeChange={handleTravelModeChange}
+        userLocation={userCoords}
         departureConfig={state.departureConfig}
         onDepartureConfigChange={handleDepartureConfigChange}
         onClose={() => dispatch({ type: "CLOSE_PANEL" })}

@@ -13,23 +13,6 @@ export function formatDistance(meters: number): string {
   return `${(meters / 1000).toFixed(1)} km`;
 }
 
-export function formatDate(d: Date): string {
-  return d.toLocaleDateString(undefined, {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-/** Format a Date as a locale time string (e.g. "10:05 AM"). Used for direction timestamps. */
-export function formatDateTime(d: Date): string {
-  return d.toLocaleTimeString(undefined, {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-/** Format a Date or ISO string as "h:mm AM/PM". Used for calendar event times. */
 export function formatTime(input: Date | string): string {
   const date = typeof input === "string" ? new Date(input) : input;
   const hours = date.getHours();
@@ -44,4 +27,19 @@ export function formatHourLabel(hour: number): string {
   const period = hour >= 12 ? "PM" : "AM";
   const display = hour % 12 || 12;
   return `${display} ${period}`;
+}
+
+export function formatDate(d: Date): string {
+  return d.toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+export function formatDateTime(d: Date): string {
+  return d.toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }

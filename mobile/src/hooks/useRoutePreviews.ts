@@ -2,15 +2,12 @@ import { useEffect, useState } from "react";
 import { DirectionsService } from "../services/DirectionsService";
 import { ShuttleDirectionsBuilder } from "../services/ShuttleDirectionsBuilder";
 import { Building } from "../types/Building";
-import { DepartureTimeConfig, TravelMode } from "../types/Directions";
-
-const PREVIEW_MODES: TravelMode[] = [
-  "WALK",
-  "BICYCLE",
-  "TRANSIT",
-  "DRIVE",
-  "SHUTTLE",
-];
+import {
+  DepartureTimeConfig,
+  PREVIEW_TRAVEL_MODES,
+  TRAVEL_MODE,
+  TravelMode,
+} from "../types/Directions";
 
 export type RoutePreviews = Partial<Record<TravelMode, number | null>>;
 
@@ -59,10 +56,10 @@ export function useRoutePreviews({
         : undefined;
 
     const fetchAll = async () => {
-      const promises = PREVIEW_MODES.map(async (mode) => {
+      const promises = PREVIEW_TRAVEL_MODES.map(async (mode) => {
         try {
           let route;
-          if (mode === "SHUTTLE") {
+          if (mode === TRAVEL_MODE.SHUTTLE) {
             route = await ShuttleDirectionsBuilder.buildShuttleRoute(
               originLat,
               originLng,
@@ -76,8 +73,9 @@ export function useRoutePreviews({
             // DRIVE mode does not support future departure/arrival
             // times in the Google Routes API, so omit them.
             const modeDepartureTime =
-              mode === "DRIVE" ? undefined : departureTime;
-            const modeArrivalTime = mode === "DRIVE" ? undefined : arrivalTime;
+              mode === TRAVEL_MODE.DRIVE ? undefined : departureTime;
+            const modeArrivalTime =
+              mode === TRAVEL_MODE.DRIVE ? undefined : arrivalTime;
             route = await DirectionsService.fetchDirections(
               originLat,
               originLng,

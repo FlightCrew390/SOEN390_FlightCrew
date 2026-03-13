@@ -132,7 +132,7 @@ export default function StepsPanel({
               <Text style={styles.stepMeta}>
                 {formatDistance(step.distanceMeters)}
                 {step.durationSeconds > 0
-                  ? ` � ${formatDuration(step.durationSeconds)}`
+                  ? ` · ${formatDuration(step.durationSeconds)}`
                   : ""}
               </Text>
               {step.transitDetails && (

@@ -1,6 +1,6 @@
 import { Polyline } from "react-native-maps";
 import { COLORS } from "../../constants";
-import { RouteInfo, TravelMode } from "../../types/Directions";
+import { RouteInfo, TRAVEL_MODE, TravelMode } from "../../types/Directions";
 
 interface RoutePolylineProps {
   readonly route: RouteInfo | null;
@@ -20,12 +20,12 @@ export default function RoutePolyline({
     <Polyline
       coordinates={route.coordinates}
       strokeColor={
-        travelMode === "SHUTTLE"
+        travelMode === TRAVEL_MODE.SHUTTLE
           ? COLORS.concordiaMaroon
           : COLORS.mapPolylineWalk
       }
       strokeWidth={5}
-      lineDashPattern={travelMode === "WALK" ? [8, 6] : undefined}
+      lineDashPattern={travelMode === TRAVEL_MODE.WALK ? [8, 6] : undefined}
     />
   );
 }

@@ -207,8 +207,8 @@ export function useMapUI(
     openDirections,
     handleSearch,
     handleTravelModeChange,
-    handleDepartureConfigChange,
     selectPoi,
     clearPoi,
+    handleDepartureConfigChange,
   };
 }

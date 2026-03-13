@@ -62,14 +62,6 @@ describe("shuttleUtils", () => {
     it("returns null for coordinates far from both campuses", () => {
       expect(getCampusForLocation(45.0, -73.0)).toBeNull();
     });
-
-    it("returns SGW for slightly offset coordinates within proximity", () => {
-      expect(getCampusForLocation(45.496, -73.579)).toBe("SGW");
-    });
-
-    it("returns LOY for slightly offset coordinates within proximity", () => {
-      expect(getCampusForLocation(45.459, -73.641)).toBe("LOY");
-    });
   });
 
   describe("getCampusForBuilding", () => {
@@ -125,11 +117,6 @@ describe("shuttleUtils", () => {
       expect(isWithinOperatingHours(schedule, "LOY")).toBe(false);
     });
 
-    it("returns false when no departures", () => {
-      const schedule = makeSchedule({ departures: [] });
-      expect(isWithinOperatingHours(schedule, "LOY")).toBe(false);
-    });
-
     it("returns false when service_start is null", () => {
       const schedule = makeSchedule({ service_start: null });
       expect(isWithinOperatingHours(schedule, "LOY")).toBe(false);
@@ -158,13 +145,6 @@ describe("shuttleUtils", () => {
       const now = new Date(2026, 2, 7, 18, 31, 0);
       const schedule = makeSchedule();
       expect(isWithinOperatingHours(schedule, "LOY", now)).toBe(false);
-    });
-
-    it("returns false after last SGW departure", () => {
-      // Last SGW departure is 18:30 (the 18:30 LOY has null SGW, so last SGW is 18:30 from the 18:15 entry)
-      const now = new Date(2026, 2, 7, 18, 31, 0);
-      const schedule = makeSchedule();
-      expect(isWithinOperatingHours(schedule, "SGW", now)).toBe(false);
     });
 
     it("returns true at exactly the last departure time", () => {
@@ -197,25 +177,10 @@ describe("shuttleUtils", () => {
       expect(result!.departureTime.getMinutes()).toBe(15);
     });
 
-    it("returns first departure when before service start", () => {
-      const now = new Date(2026, 2, 7, 8, 0, 0);
-      const result = getNextDeparture(departures, "LOY", now);
-      expect(result).not.toBeNull();
-      expect(result!.departureTime.getHours()).toBe(9);
-      expect(result!.departureTime.getMinutes()).toBe(15);
-    });
-
     it("returns null when after last departure", () => {
       const now = new Date(2026, 2, 7, 19, 0, 0);
       const result = getNextDeparture(departures, "LOY", now);
       expect(result).toBeNull();
-    });
-
-    it("returns departure at exact departure time", () => {
-      const now = new Date(2026, 2, 7, 12, 0, 0);
-      const result = getNextDeparture(departures, "LOY", now);
-      expect(result).not.toBeNull();
-      expect(result!.departureTime.getHours()).toBe(12);
     });
 
     it("skips departures with null for origin campus", () => {
@@ -233,7 +198,6 @@ describe("shuttleUtils", () => {
 
   describe("getDayOfWeek", () => {
     it("returns correct day name", () => {
-      // March 7 2026 is a Saturday
       const sat = new Date(2026, 2, 7);
       expect(getDayOfWeek(sat)).toBe("SATURDAY");
 

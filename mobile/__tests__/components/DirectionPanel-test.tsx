@@ -1,4 +1,10 @@
-import { act, fireEvent, render, screen } from "@testing-library/react-native";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react-native";
 import DirectionPanel from "../../src/components/LocationScreen/DirectionPanel";
 import { Building, StructureType } from "../../src/types/Building";
 import {
@@ -7,9 +13,14 @@ import {
   RouteInfo,
   TravelMode,
 } from "../../src/types/Directions";
-import { hallBuilding, libraryBuilding, makeRoute } from "../fixtures";
+import {
+  hallBuilding,
+  libraryBuilding,
+  loyolaBuilding,
+  makeRoute,
+} from "../fixtures";
 
-// ΓöÇΓöÇ Mocks ΓöÇΓöÇ
+// ── Mocks ──
 
 jest.mock("@expo/vector-icons/FontAwesome5", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -53,6 +64,20 @@ jest.mock("../../src/hooks/usePanelAnimation", () => ({
     slideAnim: { current: 0 },
     animatedStyle: { opacity: 1, transform: [{ translateY: 0 }] },
   }),
+}));
+
+const mockGetAllTravelTimes = jest.fn();
+const mockIsCrossCampus = jest.fn().mockReturnValue(false);
+jest.mock("../../src/services/GoogleDirectionsService", () => ({
+  getAllTravelTimes: (...args: unknown[]) => mockGetAllTravelTimes(...args),
+  isCrossCampus: (...args: unknown[]) => mockIsCrossCampus(...args),
+}));
+
+jest.mock("../../src/utils/polylineDecode", () => ({
+  decodePolyline: () => [
+    { latitude: 45.497, longitude: -73.578 },
+    { latitude: 45.498, longitude: -73.579 },
+  ],
 }));
 
 jest.mock("../../src/constants", () => ({
@@ -148,10 +173,23 @@ jest.mock("../../src/components/LocationScreen/TransportCard", () => {
   const { Pressable, Text } = require("react-native");
   return {
     __esModule: true,
-    default: ({ label, duration, isActive, onPress }: any) => (
+    default: ({
+      label,
+      duration,
+      isActive,
+      onPress,
+      onSelectMode,
+      mode,
+    }: any) => (
       <Pressable
         testID={`transport-${label}`}
-        onPress={onPress}
+        onPress={() => {
+          if (mode != null && onSelectMode != null) {
+            onSelectMode(mode);
+          } else {
+            onPress?.();
+          }
+        }}
         accessibilityLabel={`Get directions by ${label}`}
         accessibilityRole="button"
       >
@@ -207,7 +245,7 @@ jest.mock("../../../assets/bike.png", () => 2, { virtual: true });
 jest.mock("../../../assets/train.png", () => 3, { virtual: true });
 jest.mock("../../../assets/car.png", () => 4, { virtual: true });
 
-// ΓöÇΓöÇ Helpers ΓöÇΓöÇ
+// ── Helpers ──
 
 interface Props {
   visible?: boolean;
@@ -226,6 +264,9 @@ interface Props {
   showSteps?: boolean;
   onShowSteps?: () => void;
   onHideSteps?: () => void;
+  userLocation?: { latitude: number; longitude: number } | null;
+  userCampus?: string | null;
+  onRouteReady?: (segments: any[]) => void;
 }
 
 function renderPanel(overrides: Props = {}) {
@@ -246,15 +287,20 @@ function renderPanel(overrides: Props = {}) {
     showSteps: false,
     onShowSteps: jest.fn(),
     onHideSteps: jest.fn(),
+    userLocation: undefined as
+      | { latitude: number; longitude: number }
+      | undefined,
+    userCampus: undefined as string | undefined,
+    onRouteReady: jest.fn(),
     ...overrides,
   };
   return { ...render(<DirectionPanel {...props} />), props };
 }
 
-// ΓöÇΓöÇ Tests ΓöÇΓöÇ
+// ── Tests ──
 
 describe("DirectionPanel", () => {
-  // ΓöÇΓöÇ Visibility ΓöÇΓöÇ
+  // ── Visibility ──
 
   it("renders header when visible with a building", () => {
     renderPanel();
@@ -272,7 +318,7 @@ describe("DirectionPanel", () => {
     expect(screen.queryByText("Directions")).toBeNull();
   });
 
-  // ΓöÇΓöÇ Close button ΓöÇΓöÇ
+  // ── Close button ──
 
   it("shows close button when visible and not showSteps", () => {
     renderPanel();
@@ -296,7 +342,7 @@ describe("DirectionPanel", () => {
     expect(props.onClose).toHaveBeenCalledTimes(1);
   });
 
-  // ΓöÇΓöÇ Building info ΓöÇΓöÇ
+  // ── Building info ──
 
   it("displays building name", () => {
     renderPanel();
@@ -316,20 +362,20 @@ describe("DirectionPanel", () => {
     expect(screen.getByText("H")).toBeTruthy();
   });
 
-  // ΓöÇΓöÇ Distance text ΓöÇΓöÇ
+  // ── Distance text ──
 
   it("shows -- m when no route", () => {
     renderPanel({ route: null });
     expect(screen.getByText("-- m")).toBeTruthy();
   });
 
-  it("shows formatted distance when route exists", () => {
+  it("keeps birds-eye distance text when route exists", () => {
     const route = makeRoute({ distanceMeters: 350 });
     renderPanel({ route });
-    expect(screen.getByText("350 m")).toBeTruthy();
+    expect(screen.getByText("-- m")).toBeTruthy();
   });
 
-  // ΓöÇΓöÇ Start location row ΓöÇΓöÇ
+  // ── Start location row ──
 
   it("shows current location text when no startBuilding", () => {
     renderPanel({ startBuilding: null });
@@ -371,7 +417,7 @@ describe("DirectionPanel", () => {
     expect(props.onResetStart).toHaveBeenCalledTimes(1);
   });
 
-  // ΓöÇΓöÇ Transport cards ΓöÇΓöÇ
+  // ── Transport cards ──
 
   it("renders four transport cards", () => {
     renderPanel();
@@ -414,7 +460,7 @@ describe("DirectionPanel", () => {
     expect(props.onTravelModeChange).toHaveBeenCalledWith(null);
   });
 
-  // ΓöÇΓöÇ Route status display ΓöÇΓöÇ
+  // ── Route status display ──
 
   it("shows route loading status", () => {
     renderPanel({ routeLoading: true });
@@ -426,7 +472,7 @@ describe("DirectionPanel", () => {
     expect(screen.getByTestId("route-status").children[0]).toBe("Route failed");
   });
 
-  // ΓöÇΓöÇ View steps button ΓöÇΓöÇ
+  // ── View steps button ──
 
   it("shows view steps button when route has steps", () => {
     const route = makeRoute();
@@ -441,13 +487,13 @@ describe("DirectionPanel", () => {
     expect(props.onShowSteps).toHaveBeenCalledTimes(1);
   });
 
-  it("does not show view steps when route has no steps", () => {
-    const route = makeRoute({ steps: [] });
+  it("does not show view steps when route has no steps and no path", () => {
+    const route = makeRoute({ steps: [], coordinates: [] });
     renderPanel({ route });
-    expect(screen.queryByLabelText("View step-by-step directions")).toBeNull();
+    expect(screen.queryByLabelText("View route")).toBeNull();
   });
 
-  // ΓöÇΓöÇ Building details (fallback when no route) ΓöÇΓöÇ
+  // ── Building details (fallback when no route) ──
 
   it("shows building details when no route and not loading/error", () => {
     renderPanel({
@@ -488,7 +534,7 @@ describe("DirectionPanel", () => {
     expect(screen.queryByText("Henry F. Hall Building")).toBeNull();
   });
 
-  // ΓöÇΓöÇ Steps panel ΓöÇΓöÇ
+  // ── Steps panel ──
 
   it("renders StepsPanel when showSteps is true with building and route", () => {
     const route = makeRoute();
@@ -520,7 +566,7 @@ describe("DirectionPanel", () => {
     expect(screen.queryByTestId("steps-panel")).toBeNull();
   });
 
-  // ΓöÇΓöÇ pointerEvents ΓöÇΓöÇ
+  // ── pointerEvents ──
 
   it("sets pointerEvents to auto when visible, has building, not steps", () => {
     const { UNSAFE_root } = renderPanel();
@@ -544,7 +590,7 @@ describe("DirectionPanel", () => {
     expect(main).toBeTruthy();
   });
 
-  // ΓöÇΓöÇ Accessibility Info ΓöÇΓöÇ
+  // ── Accessibility Info ──
 
   it("shows accessible icon when building has general accessibility info", () => {
     const accessibleBuilding: Building = {
@@ -598,7 +644,7 @@ describe("DirectionPanel", () => {
     expect(screen.queryByTestId("mi-elevator")).toBeNull();
   });
 
-  // ΓöÇΓöÇ Tooltip Interaction ΓöÇΓöÇ
+  // ── Tooltip Interaction ──
 
   it("toggles tooltip on icon press and auto-hides after 3s", () => {
     jest.useFakeTimers();
@@ -664,7 +710,7 @@ describe("DirectionPanel", () => {
     expect(screen.getByText("Not Accessible")).toBeTruthy();
   });
 
-  // ΓöÇΓöÇ Metro Access ΓöÇΓöÇ
+  // ── Metro Access ──
 
   it("shows metro icon when building has metro access", () => {
     const buildingWithInfo = { ...building, accessibilityInfo: "Accessible" };
@@ -688,5 +734,56 @@ describe("DirectionPanel", () => {
     const btn = screen.getByTestId("btn-metro-access");
     fireEvent.press(btn);
     expect(screen.getByText("Metro Access")).toBeTruthy();
+  });
+
+  // ── StructureType.Point branch ──
+
+  it("shows description for Point structureType with description", () => {
+    const pointBuilding: Building = {
+      ...building,
+      structureType: StructureType.Point,
+      description: "A special point of interest",
+    };
+    renderPanel({ building: pointBuilding, route: null });
+    expect(screen.getByText("A special point of interest")).toBeTruthy();
+    expect(screen.queryByText(/Building Code/)).toBeNull();
+  });
+
+  it("shows nothing for Point structureType without description", () => {
+    const pointBuilding: Building = {
+      ...building,
+      structureType: StructureType.Point,
+      description: undefined,
+    };
+    renderPanel({ building: pointBuilding, route: null });
+    expect(screen.queryByText(/Building Code/)).toBeNull();
+  });
+
+  // ── Shuttle card (current API) ──
+
+  it("renders a disabled shuttle card when shuttle is not eligible", () => {
+    renderPanel({ shuttleEligible: false });
+    expect(screen.getByLabelText("Get directions by Shuttle")).toBeTruthy();
+    expect(screen.getByText("N/A")).toBeTruthy();
+  });
+
+  it("renders shuttle preview duration when eligible", () => {
+    renderPanel({
+      shuttleEligible: true,
+      routePreviews: {
+        WALK: null,
+        BICYCLE: null,
+        TRANSIT: null,
+        DRIVE: null,
+        SHUTTLE: 1260,
+      },
+    });
+    expect(screen.getByText("21 min")).toBeTruthy();
+  });
+
+  it("uses birds-eye distance text even when route has distanceText", () => {
+    const route = makeRoute({ distanceText: "1.2 km" });
+    renderPanel({ route });
+    expect(screen.getByText("-- m")).toBeTruthy();
   });
 });

@@ -6,7 +6,7 @@ import {
   parseTime,
 } from "../../src/utils/directionsUtils";
 
-// -- getManeuverIcon --
+// ── getManeuverIcon ──
 
 describe("getManeuverIcon", () => {
   const cases: [string, string][] = [
@@ -30,7 +30,7 @@ describe("getManeuverIcon", () => {
     ["UTURN_RIGHT", "u-turn-right"],
   ];
 
-  it.each(cases)("maps %s ? %s", (maneuver, expected) => {
+  it.each(cases)("maps %s → %s", (maneuver, expected) => {
     expect(getManeuverIcon(maneuver)).toBe(expected);
   });
 
@@ -40,7 +40,7 @@ describe("getManeuverIcon", () => {
   });
 });
 
-// -- parseTime --
+// ── parseTime ──
 
 describe("parseTime", () => {
   it("returns null for undefined", () => {
@@ -63,7 +63,7 @@ describe("parseTime", () => {
   });
 });
 
-// -- getDepartureDate --
+// ── getDepartureDate ──
 
 describe("getDepartureDate", () => {
   const fixedDate = new Date("2026-03-03T12:00:00");

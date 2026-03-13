@@ -13,6 +13,7 @@ import {
   RouteInfo,
   TravelMode,
 } from "../../src/types/Directions";
+import type { RoutePreviews } from "../../src/hooks/useRoutePreviews";
 import {
   hallBuilding,
   libraryBuilding,
@@ -267,6 +268,8 @@ interface Props {
   userLocation?: { latitude: number; longitude: number } | null;
   userCampus?: string | null;
   onRouteReady?: (segments: any[]) => void;
+  shuttleEligible?: boolean;
+  routePreviews?: RoutePreviews;
 }
 
 function renderPanel(overrides: Props = {}) {
@@ -292,6 +295,8 @@ function renderPanel(overrides: Props = {}) {
       | undefined,
     userCampus: undefined as string | undefined,
     onRouteReady: jest.fn(),
+    shuttleEligible: false,
+    routePreviews: undefined,
     ...overrides,
   };
   return { ...render(<DirectionPanel {...props} />), props };

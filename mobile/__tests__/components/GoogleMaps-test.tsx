@@ -11,9 +11,9 @@ const mockSelectBuilding = jest.fn();
 const mockOpenDirections = jest.fn();
 const mockHandleSearch = jest.fn();
 const mockHandleTravelModeChange = jest.fn();
-const mockHandleDepartureConfigChange = jest.fn();
 const mockSelectPoi = jest.fn();
 const mockClearPoi = jest.fn();
+const mockHandleDepartureConfigChange = jest.fn();
 
 const defaultMapUIState = {
   panel: "none" as const,
@@ -53,9 +53,9 @@ jest.mock("../../src/hooks/useMapUI", () => ({
     openDirections: mockOpenDirections,
     handleSearch: mockHandleSearch,
     handleTravelModeChange: mockHandleTravelModeChange,
-    handleDepartureConfigChange: mockHandleDepartureConfigChange,
     selectPoi: mockSelectPoi,
     clearPoi: mockClearPoi,
+    handleDepartureConfigChange: mockHandleDepartureConfigChange,
   }),
 }));
 

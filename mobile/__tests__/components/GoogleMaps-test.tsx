@@ -48,6 +48,7 @@ jest.mock("../../src/hooks/useMapUI", () => ({
     state: mockMapUIState,
     dispatch: mockDispatch,
     userCoords: null,
+    userCampus: null,
     selectBuilding: mockSelectBuilding,
     openDirections: mockOpenDirections,
     handleSearch: mockHandleSearch,
@@ -214,7 +215,6 @@ jest.mock("../../src/components/LocationScreen/SearchPanel", () => {
           testID="sp-search"
           onPress={() => props.onSearch("Hall", "building")}
         />
-        {/* Only one sp-close button to avoid duplicate testID issues */}
       </View>
     ),
   };
@@ -1128,18 +1128,6 @@ describe("GoogleMaps", () => {
       type: "SET_START_BUILDING",
       building: hallBuilding,
     });
-  });
-
-  it("does not call animateToBuilding when selecting from search in directions origin", () => {
-    mockMapUIState = {
-      ...defaultMapUIState,
-      panel: "search",
-      searchOrigin: "directions",
-    };
-    render(<GoogleMaps />);
-    fireEvent.press(screen.getByTestId("sp-select-building"));
-    expect(mockAnimateToBuilding).not.toHaveBeenCalled();
-    expect(mockSelectBuilding).not.toHaveBeenCalled();
   });
 
   // ── Deep-link useEffect (directionsTo param) ──

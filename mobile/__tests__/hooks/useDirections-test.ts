@@ -268,7 +268,7 @@ describe("useDirections", () => {
     // Unmount to trigger cancellation
     unmount();
 
-    // Resolve after unmount — callbacks should NOT be called
+    // Resolve after unmount ΓÇö callbacks should NOT be called
     resolvePromise!(mockRoute);
 
     // Give the promise callback a tick to settle

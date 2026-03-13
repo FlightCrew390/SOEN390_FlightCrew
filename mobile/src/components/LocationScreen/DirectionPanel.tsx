@@ -258,7 +258,7 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
   );
 }
 
-/* ── Shuttle transport card (extracted to reduce cognitive complexity) ── */
+/* ΓöÇΓöÇ Shuttle transport card (extracted to reduce cognitive complexity) ΓöÇΓöÇ */
 
 function getShuttleIconColor(eligible: boolean, isActive: boolean): string {
   if (eligible && isActive) return "#9C2D2D";

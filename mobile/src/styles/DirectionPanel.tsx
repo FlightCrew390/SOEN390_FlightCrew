@@ -100,6 +100,15 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     flexDirection: "column",
   },
+  startRowWithShuttle: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingRight: 16,
+  },
+  startRowLeft: {
+    flex: 1,
+    minWidth: 0,
+  },
   changeStartRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -157,6 +166,12 @@ const styles = StyleSheet.create({
   transportCardActive: {
     backgroundColor: "rgba(156, 45, 45, 0.10)",
   },
+  transportIconWrap: {
+    width: 44,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   transportIcon: {
     width: 44,
     height: 44,
@@ -202,6 +217,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     gap: 8,
+  },
+  shuttleUnavailableText: {
+    fontSize: 13,
+    color: "#666",
+    flex: 1,
   },
   errorText: {
     fontSize: 13,
@@ -325,12 +345,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.error,
     fontWeight: "500",
-  },
-  shuttleUnavailableText: {
-    fontSize: 13,
-    color: "#888",
-    flex: 1,
-    lineHeight: 18,
   },
 });
 

@@ -21,13 +21,15 @@ export function formatDate(d: Date): string {
   });
 }
 
-export function formatDatetime(d: Date): string {
+/** Format a Date as a locale time string (e.g. "10:05 AM"). Used for direction timestamps. */
+export function formatDateTime(d: Date): string {
   return d.toLocaleTimeString(undefined, {
     hour: "numeric",
     minute: "2-digit",
   });
 }
 
+/** Format a Date or ISO string as "h:mm AM/PM". Used for calendar event times. */
 export function formatTime(input: Date | string): string {
   const date = typeof input === "string" ? new Date(input) : input;
   const hours = date.getHours();

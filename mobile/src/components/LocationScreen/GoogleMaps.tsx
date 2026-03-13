@@ -66,7 +66,7 @@ export default function GoogleMaps({
     animateToBuilding,
   } = useMapCamera(mapRef, location, state.route, state.panel);
 
-  // ── Handle deep-link from Calendar (or other screens) ──
+  // ΓöÇΓöÇ Handle deep-link from Calendar (or other screens) ΓöÇΓöÇ
   useEffect(() => {
     if (!params.directionsTo || buildings.length === 0) return;
 

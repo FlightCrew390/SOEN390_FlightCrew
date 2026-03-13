@@ -14,11 +14,11 @@ const mockFetchDirections =
   DirectionsService.fetchDirections as jest.MockedFunction<
     typeof DirectionsService.fetchDirections
   >;
-const mockFetchSchedule = ShuttleService.fetchSchedule as jest.MockedFunction<
-  typeof ShuttleService.fetchSchedule
+const mockGetSchedule = ShuttleService.getSchedule as jest.MockedFunction<
+  typeof ShuttleService.getSchedule
 >;
-const mockFetchRoute = ShuttleService.fetchRoute as jest.MockedFunction<
-  typeof ShuttleService.fetchRoute
+const mockGetRoute = ShuttleService.getRoute as jest.MockedFunction<
+  typeof ShuttleService.getRoute
 >;
 
 const sgwBuilding: Building = {
@@ -98,8 +98,8 @@ afterEach(() => {
 
 describe("ShuttleDirectionsBuilder", () => {
   it("builds a shuttle route with walk + shuttle + walk steps", async () => {
-    mockFetchSchedule.mockResolvedValue(mockSchedule);
-    mockFetchRoute.mockResolvedValue(mockShuttleRoute);
+    mockGetSchedule.mockResolvedValue(mockSchedule);
+    mockGetRoute.mockResolvedValue(mockShuttleRoute);
     mockFetchDirections.mockResolvedValue(mockWalkRoute);
 
     const result = await ShuttleDirectionsBuilder.buildShuttleRoute(
@@ -145,15 +145,15 @@ describe("ShuttleDirectionsBuilder", () => {
     );
 
     expect(result).toBeNull();
-    expect(mockFetchSchedule).not.toHaveBeenCalled();
+    expect(mockGetSchedule).not.toHaveBeenCalled();
   });
 
   it("returns null when shuttle has no service", async () => {
-    mockFetchSchedule.mockResolvedValue({
+    mockGetSchedule.mockResolvedValue({
       ...mockSchedule,
       no_service: true,
     });
-    mockFetchRoute.mockResolvedValue(mockShuttleRoute);
+    mockGetRoute.mockResolvedValue(mockShuttleRoute);
 
     const result = await ShuttleDirectionsBuilder.buildShuttleRoute(
       loyBuilding.latitude,
@@ -172,8 +172,8 @@ describe("ShuttleDirectionsBuilder", () => {
     // Set time after last departure
     jest.setSystemTime(new Date(2026, 2, 2, 19, 0, 0));
 
-    mockFetchSchedule.mockResolvedValue(mockSchedule);
-    mockFetchRoute.mockResolvedValue(mockShuttleRoute);
+    mockGetSchedule.mockResolvedValue(mockSchedule);
+    mockGetRoute.mockResolvedValue(mockShuttleRoute);
 
     const result = await ShuttleDirectionsBuilder.buildShuttleRoute(
       loyBuilding.latitude,
@@ -189,8 +189,8 @@ describe("ShuttleDirectionsBuilder", () => {
   });
 
   it("uses loyola_to_sgw route when origin is LOY", async () => {
-    mockFetchSchedule.mockResolvedValue(mockSchedule);
-    mockFetchRoute.mockResolvedValue(mockShuttleRoute);
+    mockGetSchedule.mockResolvedValue(mockSchedule);
+    mockGetRoute.mockResolvedValue(mockShuttleRoute);
     mockFetchDirections.mockResolvedValue(mockWalkRoute);
 
     const result = await ShuttleDirectionsBuilder.buildShuttleRoute(
@@ -216,8 +216,8 @@ describe("ShuttleDirectionsBuilder", () => {
   });
 
   it("uses sgw_to_loyola route when origin is SGW", async () => {
-    mockFetchSchedule.mockResolvedValue(mockSchedule);
-    mockFetchRoute.mockResolvedValue(mockShuttleRoute);
+    mockGetSchedule.mockResolvedValue(mockSchedule);
+    mockGetRoute.mockResolvedValue(mockShuttleRoute);
     mockFetchDirections.mockResolvedValue(mockWalkRoute);
 
     const result = await ShuttleDirectionsBuilder.buildShuttleRoute(
@@ -241,8 +241,8 @@ describe("ShuttleDirectionsBuilder", () => {
   });
 
   it("handles null walking directions gracefully", async () => {
-    mockFetchSchedule.mockResolvedValue(mockSchedule);
-    mockFetchRoute.mockResolvedValue(mockShuttleRoute);
+    mockGetSchedule.mockResolvedValue(mockSchedule);
+    mockGetRoute.mockResolvedValue(mockShuttleRoute);
     mockFetchDirections.mockResolvedValue(null);
 
     const result = await ShuttleDirectionsBuilder.buildShuttleRoute(

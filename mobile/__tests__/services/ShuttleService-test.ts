@@ -1,171 +1,167 @@
 import { ShuttleService } from "../../src/services/ShuttleService";
 
-const MON_THU_DEPARTURES = [
-  { loyola_departure: "09:15", sgw_departure: "09:30", last_bus: false },
-  { loyola_departure: "12:00", sgw_departure: "12:15", last_bus: false },
-  { loyola_departure: "18:15", sgw_departure: "18:30", last_bus: true },
-  { loyola_departure: "18:30", sgw_departure: null, last_bus: true },
-];
+const mockFetch = jest.fn();
 
-const FRIDAY_DEPARTURES = [
-  { loyola_departure: "09:15", sgw_departure: "09:45", last_bus: false },
-  { loyola_departure: "17:45", sgw_departure: "18:15", last_bus: true },
-  { loyola_departure: "18:15", sgw_departure: null, last_bus: true },
-];
-
-const ROUTE_COORDS = [
-  { latitude: 45.49697, longitude: -73.57851 },
-  { latitude: 45.49668, longitude: -73.57876 },
-  { latitude: 45.45865, longitude: -73.63896 },
-];
-
-function mockFetchJson(data: unknown) {
-  (globalThis as any).fetch = jest.fn().mockResolvedValue({
-    ok: true,
-    json: () => Promise.resolve(data),
-  } as unknown as Response);
-}
+beforeEach(() => {
+  jest.clearAllMocks();
+  globalThis.fetch = mockFetch;
+});
 
 describe("ShuttleService", () => {
-  afterEach(() => {
-    jest.resetAllMocks();
-  });
-
-  describe("fetchSchedule", () => {
-    it("returns Mon-Thu schedule for MONDAY", async () => {
-      mockFetchJson({
-        day: "MONDAY",
-        no_service: false,
-        service_start: "09:15",
-        service_end: "18:30",
-        departures: MON_THU_DEPARTURES,
+  describe("getRoute", () => {
+    it("returns route data on 200", async () => {
+      const routeData = {
+        duration: "21 mins",
+        distance: "8.3 km",
+        sgw_to_loyola: [
+          { latitude: 45.497, longitude: -73.578 },
+          { latitude: 45.458, longitude: -73.638 },
+        ],
+        loyola_to_sgw: [
+          { latitude: 45.458, longitude: -73.638 },
+          { latitude: 45.497, longitude: -73.578 },
+        ],
+      };
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => routeData,
       });
-      const result = await ShuttleService.fetchSchedule("MONDAY");
-      expect(result.day).toBe("MONDAY");
-      expect(result.no_service).toBe(false);
-      expect(result.service_start).toBeTruthy();
-      expect(result.departures.length).toBeGreaterThan(0);
-    });
 
-    it("returns Friday schedule for FRIDAY", async () => {
-      mockFetchJson({
-        day: "FRIDAY",
-        no_service: false,
-        service_start: "09:15",
-        service_end: "18:15",
-        departures: FRIDAY_DEPARTURES,
-      });
-      const result = await ShuttleService.fetchSchedule("FRIDAY");
-      expect(result.day).toBe("FRIDAY");
-      expect(result.no_service).toBe(false);
-      expect(result.departures.length).toBeGreaterThan(0);
-    });
+      const result = await ShuttleService.getRoute();
 
-    it("returns no service for SATURDAY", async () => {
-      mockFetchJson({
-        day: "SATURDAY",
-        no_service: true,
-        service_start: null,
-        service_end: null,
-        departures: [],
-      });
-      const result = await ShuttleService.fetchSchedule("SATURDAY");
-      expect(result.no_service).toBe(true);
-      expect(result.departures).toEqual([]);
-    });
-
-    it("returns no service for SUNDAY", async () => {
-      mockFetchJson({
-        day: "SUNDAY",
-        no_service: true,
-        service_start: null,
-        service_end: null,
-        departures: [],
-      });
-      const result = await ShuttleService.fetchSchedule("SUNDAY");
-      expect(result.no_service).toBe(true);
-      expect(result.departures).toEqual([]);
-    });
-
-    it("has departures with loyola_departure and sgw_departure fields", async () => {
-      mockFetchJson({
-        day: "TUESDAY",
-        no_service: false,
-        service_start: "09:15",
-        service_end: "18:30",
-        departures: MON_THU_DEPARTURES,
-      });
-      const result = await ShuttleService.fetchSchedule("TUESDAY");
-      const first = result.departures[0];
-      expect(first).toHaveProperty("loyola_departure");
-      expect(first).toHaveProperty("sgw_departure");
-      expect(first).toHaveProperty("last_bus");
-    });
-
-    it("marks last bus entries correctly", async () => {
-      mockFetchJson({
-        day: "WEDNESDAY",
-        no_service: false,
-        service_start: "09:15",
-        service_end: "18:30",
-        departures: MON_THU_DEPARTURES,
-      });
-      const result = await ShuttleService.fetchSchedule("WEDNESDAY");
-      const lastBusEntries = result.departures.filter((d) => d.last_bus);
-      expect(lastBusEntries.length).toBeGreaterThan(0);
+      expect(result).toEqual(routeData);
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringMatching(/\/shuttle\/route$/),
+      );
     });
 
     it("throws on non-ok response", async () => {
-      (globalThis as any).fetch = jest.fn().mockResolvedValue({
-        ok: false,
-        status: 400,
-      } as unknown as Response);
-      await expect(ShuttleService.fetchSchedule("BADDAY")).rejects.toThrow(
-        "Failed to fetch shuttle schedule: 400",
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 500 });
+
+      await expect(ShuttleService.getRoute()).rejects.toThrow(
+        "Shuttle route failed: 500",
       );
     });
-  });
 
-  describe("fetchRoute", () => {
-    const routeResponse = {
-      duration: "21 mins",
-      distance: "8.3 km",
-      sgw_to_loyola: ROUTE_COORDS,
-      loyola_to_sgw: [...ROUTE_COORDS].reverse(),
-    };
+    it("returns valid sgw_to_loyola coordinates", async () => {
+      const routeData = {
+        duration: "21 mins",
+        distance: "8.3 km",
+        sgw_to_loyola: [
+          { latitude: 45.49697, longitude: -73.57851 },
+          { latitude: 45.45865, longitude: -73.63896 },
+        ],
+        loyola_to_sgw: [
+          { latitude: 45.45865, longitude: -73.63896 },
+          { latitude: 45.49697, longitude: -73.57851 },
+        ],
+      };
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => routeData,
+      });
 
-    it("returns route with both direction polylines", async () => {
-      mockFetchJson(routeResponse);
-      const result = await ShuttleService.fetchRoute();
-      expect(result.sgw_to_loyola.length).toBeGreaterThan(0);
-      expect(result.loyola_to_sgw.length).toBeGreaterThan(0);
-      expect(result.duration).toBeTruthy();
-      expect(result.distance).toBeTruthy();
-    });
-
-    it("loyola_to_sgw is reverse of sgw_to_loyola", async () => {
-      mockFetchJson(routeResponse);
-      const result = await ShuttleService.fetchRoute();
-      const reversed = [...result.sgw_to_loyola].reverse();
-      expect(result.loyola_to_sgw).toEqual(reversed);
-    });
-
-    it("has valid coordinates", async () => {
-      mockFetchJson(routeResponse);
-      const result = await ShuttleService.fetchRoute();
+      const result = await ShuttleService.getRoute();
       for (const coord of result.sgw_to_loyola) {
         expect(coord.latitude).toBeGreaterThan(45);
         expect(coord.longitude).toBeLessThan(-73);
       }
     });
+  });
+
+  describe("getSchedule", () => {
+    it("returns schedule when no day param", async () => {
+      const scheduleData = {
+        day: "MONDAY",
+        no_service: false,
+        service_start: "09:15",
+        service_end: "18:30",
+        departures: [
+          {
+            loyola_departure: "09:15",
+            sgw_departure: "09:30",
+            last_bus: false,
+          },
+        ],
+      };
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => scheduleData,
+      });
+
+      const result = await ShuttleService.getSchedule();
+
+      expect(result).toEqual(scheduleData);
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringMatching(/\/shuttle\/schedule$/),
+      );
+    });
+
+    it("calls with day query when day provided", async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          day: "FRIDAY",
+          no_service: false,
+          service_start: null,
+          service_end: null,
+          departures: [],
+        }),
+      });
+
+      await ShuttleService.getSchedule("FRIDAY");
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining("/shuttle/schedule?day=FRIDAY"),
+      );
+    });
+
+    it("returns no_service true for weekend", async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          day: "SATURDAY",
+          no_service: true,
+          service_start: null,
+          service_end: null,
+          departures: [],
+        }),
+      });
+
+      const result = await ShuttleService.getSchedule("SATURDAY");
+      expect(result.no_service).toBe(true);
+      expect(result.departures).toEqual([]);
+    });
+
+    it("departures have loyola_departure, sgw_departure, last_bus fields", async () => {
+      const departures = [
+        { loyola_departure: "09:15", sgw_departure: "09:30", last_bus: false },
+        { loyola_departure: "18:30", sgw_departure: null, last_bus: true },
+      ];
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          day: "TUESDAY",
+          no_service: false,
+          service_start: "09:15",
+          service_end: "18:30",
+          departures,
+        }),
+      });
+
+      const result = await ShuttleService.getSchedule("TUESDAY");
+      expect(result.departures[0]).toHaveProperty("loyola_departure");
+      expect(result.departures[0]).toHaveProperty("sgw_departure");
+      expect(result.departures[0]).toHaveProperty("last_bus");
+      const lastBusEntries = result.departures.filter((d) => d.last_bus);
+      expect(lastBusEntries.length).toBeGreaterThan(0);
+    });
 
     it("throws on non-ok response", async () => {
-      (globalThis as any).fetch = jest.fn().mockResolvedValue({
-        ok: false,
-        status: 500,
-      } as unknown as Response);
-      await expect(ShuttleService.fetchRoute()).rejects.toThrow(
-        "Failed to fetch shuttle route: 500",
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 404 });
+
+      await expect(ShuttleService.getSchedule()).rejects.toThrow(
+        "Shuttle schedule failed: 404",
       );
     });
   });

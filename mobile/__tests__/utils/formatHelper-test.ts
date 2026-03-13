@@ -1,5 +1,6 @@
 import {
   formatDate,
+  formatDateTime,
   formatDistance,
   formatDuration,
   formatTime,
@@ -56,6 +57,22 @@ describe("formatDate", () => {
       day: "numeric",
     });
     expect(result).toBe("Tue, Mar 3");
+    spy.mockRestore();
+  });
+});
+
+describe("formatDateTime", () => {
+  it("delegates to toLocaleTimeString with the correct options", () => {
+    const d = new Date("2026-03-03T10:05:00");
+    const spy = jest.spyOn(d, "toLocaleTimeString").mockReturnValue("10:05 AM");
+
+    const result = formatDateTime(d);
+
+    expect(spy).toHaveBeenCalledWith(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+    expect(result).toBe("10:05 AM");
     spy.mockRestore();
   });
 });

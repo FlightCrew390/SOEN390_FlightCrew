@@ -6,15 +6,15 @@ import styles from "../../styles/StepsPanel";
 import { Building } from "../../types/Building";
 import { DepartureTimeConfig, RouteInfo } from "../../types/Directions";
 import {
-  formatDistance,
-  formatDuration,
-  formatDatetime,
-} from "../../utils/formatHelper";
-import {
   computeStepTimeline,
   getDepartureDate,
   getManeuverIcon,
 } from "../../utils/directionsUtils";
+import {
+  formatDateTime,
+  formatDistance,
+  formatDuration,
+} from "../../utils/formatHelper";
 import TransitBadge from "./TransitBadge";
 
 interface StepsPanelProps {
@@ -32,7 +32,8 @@ export default function StepsPanel({
   departureConfig,
   onBack,
 }: Readonly<StepsPanelProps>) {
-  const distanceText = formatDistance(route.distanceMeters);
+  const distanceText =
+    route.distanceText ?? formatDistance(route.distanceMeters);
   const initialDeparture = getDepartureDate(
     departureConfig,
     route.durationSeconds,
@@ -75,7 +76,7 @@ export default function StepsPanel({
           <FontAwesome5 name="clock" size={13} color={COLORS.concordiaMaroon} />
           <Text style={styles.timeSummaryLabel}>Depart</Text>
           <Text style={styles.timeSummaryValue}>
-            {formatDatetime(departureDate)}
+            {formatDateTime(departureDate)}
           </Text>
         </View>
         <View style={styles.timeSummaryDivider} />
@@ -83,14 +84,14 @@ export default function StepsPanel({
           <FontAwesome5 name="flag-checkered" size={13} color="#555" />
           <Text style={styles.timeSummaryLabel}>Arrive</Text>
           <Text style={styles.timeSummaryValue}>
-            {formatDatetime(arrivalDate)}
+            {formatDateTime(arrivalDate)}
           </Text>
         </View>
         <View style={styles.timeSummaryDivider} />
         <View style={styles.timeSummaryItem}>
           <MaterialIcons name="timer" size={15} color="#555" />
           <Text style={styles.timeSummaryValue}>
-            {formatDuration(route.durationSeconds)}
+            {route.durationText ?? formatDuration(route.durationSeconds)}
           </Text>
         </View>
       </View>
@@ -125,13 +126,13 @@ export default function StepsPanel({
           >
             <View style={styles.stepContent}>
               <Text style={styles.stepTimestamp}>
-                {formatDatetime(stepTimes[idx])}
+                {formatDateTime(stepTimes[idx])}
               </Text>
               <Text style={styles.stepInstruction}>{step.instruction}</Text>
               <Text style={styles.stepMeta}>
                 {formatDistance(step.distanceMeters)}
                 {step.durationSeconds > 0
-                  ? ` · ${formatDuration(step.durationSeconds)}`
+                  ? ` � ${formatDuration(step.durationSeconds)}`
                   : ""}
               </Text>
               {step.transitDetails && (
@@ -139,7 +140,7 @@ export default function StepsPanel({
               )}
             </View>
             <MaterialIcons
-              name={getManeuverIcon(step.maneuver)}
+              name={getManeuverIcon(step.maneuver) as any}
               size={42}
               color={COLORS.textSecondary}
             />
@@ -150,7 +151,7 @@ export default function StepsPanel({
         <View style={styles.stepRow}>
           <View style={styles.stepContent}>
             <Text style={styles.stepTimestamp}>
-              {formatDatetime(arrivalDate)}
+              {formatDateTime(arrivalDate)}
             </Text>
             <Text style={styles.stepInstruction}>
               Arrive at {building.buildingName ?? building.buildingCode}

@@ -198,4 +198,80 @@ describe("ConnectionPanel", () => {
       expect(screen.getByLabelText("Test User's profile picture")).toBeTruthy();
     });
   });
+
+  describe("student ID editing", () => {
+    beforeEach(() => {
+      mockUserContext.user = authenticatedUser;
+      mockUserContext.isAuthenticated = true;
+    });
+
+    it("saves student ID on blur if changed", async () => {
+      render(<ConnectionPanel />);
+
+      const input = screen.getByLabelText("Student ID");
+      fireEvent.changeText(input, "40054321");
+      fireEvent(input, "blur");
+
+      await waitFor(() => {
+        expect(mockSavePreference).toHaveBeenCalledWith({
+          studentId: "40054321",
+        });
+      });
+    });
+
+    it("does not save student ID on blur if unchanged", async () => {
+      render(<ConnectionPanel />);
+
+      const input = screen.getByLabelText("Student ID");
+      fireEvent.changeText(input, "40012345");
+      fireEvent(input, "blur");
+
+      await waitFor(() => {
+        expect(mockSavePreference).not.toHaveBeenCalled();
+      });
+    });
+
+    it("saves student ID on submit if changed", async () => {
+      render(<ConnectionPanel />);
+
+      const input = screen.getByLabelText("Student ID");
+      fireEvent.changeText(input, "40054321");
+      fireEvent(input, "submitEditing");
+
+      await waitFor(() => {
+        expect(mockSavePreference).toHaveBeenCalledWith({
+          studentId: "40054321",
+        });
+      });
+    });
+  });
+
+  describe("Google Calendar connection", () => {
+    beforeEach(() => {
+      mockUserContext.user = authenticatedUser;
+      mockUserContext.isAuthenticated = true;
+    });
+
+    it("calls connectCalendar when connect button is pressed", async () => {
+      render(<ConnectionPanel />);
+
+      fireEvent.press(screen.getByLabelText("Connect to Google Calendar"));
+
+      await waitFor(() => {
+        expect(mockPromptAsync).toHaveBeenCalled();
+      });
+    });
+
+    it("calls disconnectCalendar when disconnect button is pressed", async () => {
+      mockCalendarContext.isConnected = true;
+
+      render(<ConnectionPanel />);
+
+      fireEvent.press(screen.getByLabelText("Disconnect Google Calendar"));
+
+      await waitFor(() => {
+        expect(mockDisconnectCalendar).toHaveBeenCalled();
+      });
+    });
+  });
 });

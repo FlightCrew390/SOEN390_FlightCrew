@@ -136,13 +136,7 @@ public class GoogleMapsService {
         requestBody.put("destination", destination);
         requestBody.put("travelMode", mode);
         requestBody.put("computeAlternativeRoutes", false);
-
-        if (departureTime != null && !departureTime.isEmpty()) {
-            requestBody.put("departureTime", departureTime);
-        }
-        if (arrivalTime != null && !arrivalTime.isEmpty()) {
-            requestBody.put("arrivalTime", arrivalTime);
-        }
+        applyTimeFields(requestBody, mode, departureTime, arrivalTime);
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
@@ -153,6 +147,32 @@ public class GoogleMapsService {
         } catch (Exception e) {
             logger.warn("Error fetching directions from Google Routes API: {}", e.getMessage());
             return null;
+        }
+    }
+
+    /**
+     * Adds departure/arrival time fields and routingPreference to the request
+     * body when the travel mode supports them.
+     * TRANSIT and DRIVE support timestamps; WALK and BICYCLE do not.
+     * DRIVE additionally requires TRAFFIC_AWARE routing when a timestamp is set.
+     */
+    private void applyTimeFields(Map<String, Object> requestBody, String mode,
+            String departureTime, String arrivalTime) {
+        boolean supportsTime = "TRANSIT".equals(mode) || "DRIVE".equals(mode);
+        if (!supportsTime) {
+            return;
+        }
+        boolean hasTimestamp = false;
+        if (departureTime != null && !departureTime.isEmpty()) {
+            requestBody.put("departureTime", departureTime);
+            hasTimestamp = true;
+        }
+        if (arrivalTime != null && !arrivalTime.isEmpty()) {
+            requestBody.put("arrivalTime", arrivalTime);
+            hasTimestamp = true;
+        }
+        if (hasTimestamp && "DRIVE".equals(mode)) {
+            requestBody.put("routingPreference", "TRAFFIC_AWARE");
         }
     }
 }

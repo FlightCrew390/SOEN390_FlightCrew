@@ -1,5 +1,5 @@
 import { API_CONFIG } from "../constants";
-import { CalendarEvent } from "../types/CalendarEvent";
+import { CalendarEvent, CalendarInfo } from "../types/CalendarEvent";
 import { AuthTokens } from "../types/User";
 import { ensureValidTokens } from "./EnsureValidTokens";
 import { calendarTokenStore } from "./TokenStore";
@@ -38,6 +38,38 @@ export class CalendarService {
   }
 
   /**
+   * Fetch the list of calendars the user has access to.
+   */
+  static async fetchCalendarList(
+    calendarTokens: AuthTokens,
+  ): Promise<CalendarInfo[]> {
+    const validTokens = await ensureValidTokens(
+      calendarTokens,
+      calendarTokenStore,
+    );
+
+    const url = `${API_BASE_URL}/v1/calendar/list`;
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${validTokens.accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        await calendarTokenStore.clearTokens();
+        throw new Error(
+          "Calendar access expired. Please reconnect Google Calendar.",
+        );
+      }
+      throw new Error(`Failed to fetch calendar list: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  /**
    * Fetch calendar events from the backend.
    * Accepts an optional AbortSignal so callers can cancel in-flight requests.
    */
@@ -46,6 +78,7 @@ export class CalendarService {
     timeMin?: string,
     timeMax?: string,
     signal?: AbortSignal,
+    calendarId?: string,
   ): Promise<CalendarEvent[]> {
     const validTokens = await ensureValidTokens(
       calendarTokens,
@@ -55,6 +88,7 @@ export class CalendarService {
     const params = new URLSearchParams();
     if (timeMin) params.set("timeMin", timeMin);
     if (timeMax) params.set("timeMax", timeMax);
+    if (calendarId) params.set("calendarId", calendarId);
 
     const url = `${API_BASE_URL}/v1/calendar/events?${params}`;
 

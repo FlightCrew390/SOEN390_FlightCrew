@@ -25,7 +25,7 @@ export default function TransitBadge({ transit }: Readonly<TransitBadgeProps>) {
     >
       <View style={styles.transitLineRow}>
         <MaterialIcons
-          name={getManeuverIcon(transit.vehicleType)}
+          name={getManeuverIcon(transit.vehicleType) as any}
           size={18}
           color={COLORS.white}
         />

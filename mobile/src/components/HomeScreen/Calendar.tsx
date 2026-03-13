@@ -15,8 +15,16 @@ import WeekDayCard from "./WeekDayCard";
 import WeeklyGrid from "./WeeklyGrid";
 
 export default function Calendar() {
-  const { events, loading, error, isConnected, fetchEvents } = useCalendar();
   const {
+    events,
+    loading,
+    error,
+    isConnected,
+    fetchEvents,
+    selectedCalendarId,
+  } = useCalendar();
+  const {
+    selectedDate,
     weekDates,
     currentMonth,
     eventsForSelectedDate,
@@ -32,14 +40,21 @@ export default function Calendar() {
     setSelectedDate,
     navigateWeekBack,
     navigateWeekForward,
+    navigateToToday,
   } = useCalendarUI(events);
 
   const { isAuthenticated } = useUser();
 
   const navigation = useNavigation();
 
-  // Auto-fetch events when week, auth, or connection state changes
-  useCalendarFetch({ isConnected, weekDates, fetchEvents, isAuthenticated });
+  // Auto-fetch events when week, auth, connection, or calendar selection changes
+  useCalendarFetch({
+    isConnected,
+    weekDates,
+    fetchEvents,
+    isAuthenticated,
+    selectedCalendarId,
+  });
 
   /**
    * Navigate to the location/map tab and request directions to the
@@ -93,6 +108,18 @@ export default function Calendar() {
 
         {/* ── Header ── */}
         <View style={styles.headerRow}>
+          <Pressable
+            style={styles.todayButton}
+            onPress={() => navigateToToday()}
+            accessibilityLabel="Go to today's date"
+            accessibilityRole="button"
+          >
+            <MaterialIcons
+              name="today"
+              size={16}
+              color={COLORS.concordiaMaroon}
+            />
+          </Pressable>
           <Text style={styles.monthText}>{currentMonth}</Text>
           <Pressable
             style={[
@@ -184,7 +211,9 @@ export default function Calendar() {
             loading={loading}
             error={error}
             events={eventsForSelectedDate}
+            isToday={isDateToday(selectedDate)}
             onEventPress={selectEvent}
+            onDirections={handleDirections}
           />
         )}
       </View>

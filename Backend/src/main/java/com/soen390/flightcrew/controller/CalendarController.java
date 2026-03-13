@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.soen390.flightcrew.model.CalendarEventDTO;
+import com.soen390.flightcrew.model.CalendarInfoDTO;
 import com.soen390.flightcrew.service.GoogleCalendarService;
 import java.util.List;
 
@@ -20,16 +21,28 @@ public class CalendarController {
         this.calendarService = calendarService;
     }
 
+    @GetMapping("/list")
+    public ResponseEntity<List<CalendarInfoDTO>> getCalendarList(
+            @RequestHeader("Authorization") String authHeader) {
+
+        String accessToken = authHeader.replace("Bearer ", "");
+
+        List<CalendarInfoDTO> calendars = calendarService.fetchCalendarList(accessToken);
+
+        return ResponseEntity.ok(calendars);
+    }
+
     @GetMapping("/events")
     public ResponseEntity<List<CalendarEventDTO>> getEvents(
             @RequestHeader("Authorization") String authHeader,
             @RequestParam(required = false) String timeMin,
-            @RequestParam(required = false) String timeMax) {
+            @RequestParam(required = false) String timeMax,
+            @RequestParam(required = false) String calendarId) {
 
         String accessToken = authHeader.replace("Bearer ", "");
 
         List<CalendarEventDTO> events = calendarService.fetchEvents(
-                accessToken, timeMin, timeMax);
+                accessToken, timeMin, timeMax, calendarId);
 
         return ResponseEntity.ok(events);
     }

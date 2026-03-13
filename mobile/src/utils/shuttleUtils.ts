@@ -2,7 +2,7 @@ import { CAMPUSES } from "../constants/campuses";
 import { Building } from "../types/Building";
 import type {
   ShuttleDeparture,
-  ShuttleSchedule,
+  ShuttleScheduleResponse,
 } from "../services/ShuttleService";
 
 /** Approximate radius (in degrees ≈ 1 km) to consider "near" a campus */
@@ -85,7 +85,7 @@ export function parseScheduleTime(
  * Returns false on weekends / no-service days.
  */
 export function isWithinOperatingHours(
-  schedule: ShuttleSchedule,
+  schedule: ShuttleScheduleResponse,
   originCampus: ShuttleCampus,
   now: Date = new Date(),
 ): boolean {

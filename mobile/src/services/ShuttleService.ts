@@ -1,5 +1,18 @@
 import { API_CONFIG } from "../constants";
+
 const API_BASE_URL = API_CONFIG.getBaseUrl();
+
+export interface ShuttleCoordinate {
+  latitude: number;
+  longitude: number;
+}
+
+export interface ShuttleRouteResponse {
+  duration: string;
+  distance: string;
+  sgw_to_loyola: ShuttleCoordinate[];
+  loyola_to_sgw: ShuttleCoordinate[];
+}
 
 export interface ShuttleDeparture {
   loyola_departure: string | null;
@@ -7,7 +20,7 @@ export interface ShuttleDeparture {
   last_bus: boolean;
 }
 
-export interface ShuttleSchedule {
+export interface ShuttleScheduleResponse {
   day: string;
   no_service: boolean;
   service_start: string | null;
@@ -15,40 +28,17 @@ export interface ShuttleSchedule {
   departures: ShuttleDeparture[];
 }
 
-export interface ShuttleRouteCoord {
-  latitude: number;
-  longitude: number;
-}
+export const ShuttleService = {
+  async getRoute(): Promise<ShuttleRouteResponse> {
+    const res = await fetch(`${API_BASE_URL}/shuttle/route`);
+    if (!res.ok) throw new Error(`Shuttle route failed: ${res.status}`);
+    return res.json();
+  },
 
-export interface ShuttleRoute {
-  duration: string;
-  distance: string;
-  sgw_to_loyola: ShuttleRouteCoord[];
-  loyola_to_sgw: ShuttleRouteCoord[];
-}
-
-export class ShuttleService {
-  /**
-   * Get the shuttle schedule for a given day from the backend.
-   * Omit day to let the backend default to today.
-   */
-  static async fetchSchedule(day?: string): Promise<ShuttleSchedule> {
-    const params = day ? `?day=${encodeURIComponent(day.toUpperCase())}` : "";
-    const response = await fetch(`${API_BASE_URL}/shuttle/schedule${params}`);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch shuttle schedule: ${response.status}`);
-    }
-    return response.json() as Promise<ShuttleSchedule>;
-  }
-
-  /**
-   * Get the shuttle route polyline from the backend.
-   */
-  static async fetchRoute(): Promise<ShuttleRoute> {
-    const response = await fetch(`${API_BASE_URL}/shuttle/route`);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch shuttle route: ${response.status}`);
-    }
-    return response.json() as Promise<ShuttleRoute>;
-  }
-}
+  async getSchedule(day?: string): Promise<ShuttleScheduleResponse> {
+    const query = day ? `?day=${day}` : "";
+    const res = await fetch(`${API_BASE_URL}/shuttle/schedule${query}`);
+    if (!res.ok) throw new Error(`Shuttle schedule failed: ${res.status}`);
+    return res.json();
+  },
+};

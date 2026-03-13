@@ -9,7 +9,7 @@ import {
 } from "../../src/types/Directions";
 import { hallBuilding, libraryBuilding, makeRoute } from "../fixtures";
 
-// ── Mocks ──
+// ΓöÇΓöÇ Mocks ΓöÇΓöÇ
 
 jest.mock("@expo/vector-icons/FontAwesome5", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -207,7 +207,7 @@ jest.mock("../../../assets/bike.png", () => 2, { virtual: true });
 jest.mock("../../../assets/train.png", () => 3, { virtual: true });
 jest.mock("../../../assets/car.png", () => 4, { virtual: true });
 
-// ── Helpers ──
+// ΓöÇΓöÇ Helpers ΓöÇΓöÇ
 
 interface Props {
   visible?: boolean;
@@ -251,10 +251,10 @@ function renderPanel(overrides: Props = {}) {
   return { ...render(<DirectionPanel {...props} />), props };
 }
 
-// ── Tests ──
+// ΓöÇΓöÇ Tests ΓöÇΓöÇ
 
 describe("DirectionPanel", () => {
-  // ── Visibility ──
+  // ΓöÇΓöÇ Visibility ΓöÇΓöÇ
 
   it("renders header when visible with a building", () => {
     renderPanel();
@@ -272,7 +272,7 @@ describe("DirectionPanel", () => {
     expect(screen.queryByText("Directions")).toBeNull();
   });
 
-  // ── Close button ──
+  // ΓöÇΓöÇ Close button ΓöÇΓöÇ
 
   it("shows close button when visible and not showSteps", () => {
     renderPanel();
@@ -296,7 +296,7 @@ describe("DirectionPanel", () => {
     expect(props.onClose).toHaveBeenCalledTimes(1);
   });
 
-  // ── Building info ──
+  // ΓöÇΓöÇ Building info ΓöÇΓöÇ
 
   it("displays building name", () => {
     renderPanel();
@@ -316,7 +316,7 @@ describe("DirectionPanel", () => {
     expect(screen.getByText("H")).toBeTruthy();
   });
 
-  // ── Distance text ──
+  // ΓöÇΓöÇ Distance text ΓöÇΓöÇ
 
   it("shows -- m when no route", () => {
     renderPanel({ route: null });
@@ -329,7 +329,7 @@ describe("DirectionPanel", () => {
     expect(screen.getByText("350 m")).toBeTruthy();
   });
 
-  // ── Start location row ──
+  // ΓöÇΓöÇ Start location row ΓöÇΓöÇ
 
   it("shows current location text when no startBuilding", () => {
     renderPanel({ startBuilding: null });
@@ -371,7 +371,7 @@ describe("DirectionPanel", () => {
     expect(props.onResetStart).toHaveBeenCalledTimes(1);
   });
 
-  // ── Transport cards ──
+  // ΓöÇΓöÇ Transport cards ΓöÇΓöÇ
 
   it("renders four transport cards", () => {
     renderPanel();
@@ -414,7 +414,7 @@ describe("DirectionPanel", () => {
     expect(props.onTravelModeChange).toHaveBeenCalledWith(null);
   });
 
-  // ── Route status display ──
+  // ΓöÇΓöÇ Route status display ΓöÇΓöÇ
 
   it("shows route loading status", () => {
     renderPanel({ routeLoading: true });
@@ -426,7 +426,7 @@ describe("DirectionPanel", () => {
     expect(screen.getByTestId("route-status").children[0]).toBe("Route failed");
   });
 
-  // ── View steps button ──
+  // ΓöÇΓöÇ View steps button ΓöÇΓöÇ
 
   it("shows view steps button when route has steps", () => {
     const route = makeRoute();
@@ -447,7 +447,7 @@ describe("DirectionPanel", () => {
     expect(screen.queryByLabelText("View step-by-step directions")).toBeNull();
   });
 
-  // ── Building details (fallback when no route) ──
+  // ΓöÇΓöÇ Building details (fallback when no route) ΓöÇΓöÇ
 
   it("shows building details when no route and not loading/error", () => {
     renderPanel({
@@ -488,7 +488,7 @@ describe("DirectionPanel", () => {
     expect(screen.queryByText("Henry F. Hall Building")).toBeNull();
   });
 
-  // ── Steps panel ──
+  // ΓöÇΓöÇ Steps panel ΓöÇΓöÇ
 
   it("renders StepsPanel when showSteps is true with building and route", () => {
     const route = makeRoute();
@@ -520,7 +520,7 @@ describe("DirectionPanel", () => {
     expect(screen.queryByTestId("steps-panel")).toBeNull();
   });
 
-  // ── pointerEvents ──
+  // ΓöÇΓöÇ pointerEvents ΓöÇΓöÇ
 
   it("sets pointerEvents to auto when visible, has building, not steps", () => {
     const { UNSAFE_root } = renderPanel();
@@ -544,7 +544,7 @@ describe("DirectionPanel", () => {
     expect(main).toBeTruthy();
   });
 
-  // ── Accessibility Info ──
+  // ΓöÇΓöÇ Accessibility Info ΓöÇΓöÇ
 
   it("shows accessible icon when building has general accessibility info", () => {
     const accessibleBuilding: Building = {
@@ -598,7 +598,7 @@ describe("DirectionPanel", () => {
     expect(screen.queryByTestId("mi-elevator")).toBeNull();
   });
 
-  // ── Tooltip Interaction ──
+  // ΓöÇΓöÇ Tooltip Interaction ΓöÇΓöÇ
 
   it("toggles tooltip on icon press and auto-hides after 3s", () => {
     jest.useFakeTimers();
@@ -664,7 +664,7 @@ describe("DirectionPanel", () => {
     expect(screen.getByText("Not Accessible")).toBeTruthy();
   });
 
-  // ── Metro Access ──
+  // ΓöÇΓöÇ Metro Access ΓöÇΓöÇ
 
   it("shows metro icon when building has metro access", () => {
     const buildingWithInfo = { ...building, accessibilityInfo: "Accessible" };

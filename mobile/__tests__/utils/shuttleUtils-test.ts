@@ -9,7 +9,7 @@ import {
   SHUTTLE_STOPS,
 } from "../../src/utils/shuttleUtils";
 import { Building, StructureType } from "../../src/types/Building";
-import type { ShuttleSchedule } from "../../src/services/ShuttleService";
+import type { ShuttleScheduleResponse } from "../../src/services/ShuttleService";
 
 const makeBuilding = (campus: string): Building => ({
   campus,
@@ -34,8 +34,8 @@ const makeDeparture = (
 });
 
 const makeSchedule = (
-  overrides: Partial<ShuttleSchedule> = {},
-): ShuttleSchedule => ({
+  overrides: Partial<ShuttleScheduleResponse> = {},
+): ShuttleScheduleResponse => ({
   day: "MONDAY",
   no_service: false,
   service_start: "09:15",

@@ -1,5 +1,5 @@
 import { DirectionsService } from "./DirectionsService";
-import { ShuttleService, ShuttleRoute } from "./ShuttleService";
+import { ShuttleRouteResponse, ShuttleService } from "./ShuttleService";
 import { RouteInfo, StepInfo, DepartureTimeConfig } from "../types/Directions";
 import {
   ShuttleCampus,
@@ -54,8 +54,8 @@ export class ShuttleDirectionsBuilder {
       departureConfig.option === "now" ? new Date() : departureConfig.date;
 
     const [schedule, shuttleRoute] = await Promise.all([
-      ShuttleService.fetchSchedule(getDayOfWeek(now)),
-      ShuttleService.fetchRoute(),
+      ShuttleService.getSchedule(getDayOfWeek(now)),
+      ShuttleService.getRoute(),
     ]);
 
     if (schedule.no_service) return null;
@@ -102,7 +102,7 @@ export class ShuttleDirectionsBuilder {
  * Creates the shuttle ride step/leg from backend route data.
  */
 function buildShuttleLeg(
-  route: ShuttleRoute,
+  route: ShuttleRouteResponse,
   originCampus: ShuttleCampus,
   departureTime: Date,
 ): RouteInfo {

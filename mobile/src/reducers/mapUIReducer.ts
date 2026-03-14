@@ -12,6 +12,7 @@ export const initialMapUIState: MapUIState = {
   route: null,
   routeLoading: false,
   routeError: null,
+  shuttleEligible: false,
   poiResults: [],
   selectedPoi: null,
   poiLoading: false,
@@ -36,6 +37,7 @@ export function mapUIReducer(
         route: null,
         routeLoading: false,
         routeError: null,
+        shuttleEligible: false,
         poiResults: [],
         selectedPoi: null,
         poiLoading: false,
@@ -67,6 +69,7 @@ export function mapUIReducer(
         route: null,
         routeLoading: false,
         routeError: null,
+        shuttleEligible: false,
       };
 
     case "SET_CURRENT_BUILDING":
@@ -142,6 +145,18 @@ export function mapUIReducer(
     case "CLOSE_STEPS":
       return { ...state, panel: "directions" };
 
+    case "SET_SHUTTLE_ELIGIBLE":
+      return { ...state, shuttleEligible: action.eligible };
+
+    case "SET_DEPARTURE_CONFIG":
+      return {
+        ...state,
+        departureConfig: action.config,
+        route: null,
+        routeLoading: false,
+        routeError: null,
+      };
+
     // ── POI actions ──
     case "POI_LOADING":
       return { ...state, poiLoading: true, poiError: null };
@@ -182,14 +197,6 @@ export function mapUIReducer(
         panel: "search",
         poiResults: [],
         poiError: null,
-      };
-    case "SET_DEPARTURE_CONFIG":
-      return {
-        ...state,
-        departureConfig: action.config,
-        route: null,
-        routeLoading: false,
-        routeError: null,
       };
 
     default:

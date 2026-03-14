@@ -144,7 +144,9 @@ describe("searchPanelReducer", () => {
     expect(state.radiusDropdownOpen).toBe(true);
     expect(state.dropdownOpen).toBe(false);
 
-    const state2 = searchPanelReducer(state, { type: "TOGGLE_RADIUS_DROPDOWN" });
+    const state2 = searchPanelReducer(state, {
+      type: "TOGGLE_RADIUS_DROPDOWN",
+    });
     expect(state2.radiusDropdownOpen).toBe(false);
   });
 

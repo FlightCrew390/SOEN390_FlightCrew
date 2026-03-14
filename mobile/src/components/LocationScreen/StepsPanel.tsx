@@ -4,59 +4,18 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import { COLORS } from "../../constants";
 import styles from "../../styles/StepsPanel";
 import { Building } from "../../types/Building";
-import {
-  DepartureTimeConfig,
-  RouteInfo,
-  TransitStepDetails,
-} from "../../types/Directions";
+import { DepartureTimeConfig, RouteInfo } from "../../types/Directions";
 import {
   computeStepTimeline,
   getDepartureDate,
   getManeuverIcon,
-  parseTime,
 } from "../../utils/directionsUtils";
 import {
   formatDateTime,
   formatDistance,
   formatDuration,
 } from "../../utils/formatHelper";
-
-function TransitBadge({ transit }: Readonly<{ transit: TransitStepDetails }>) {
-  const departureParsed = parseTime(transit.departureTime);
-  const arrivalParsed = parseTime(transit.arrivalTime);
-
-  return (
-    <View style={styles.transitBadge}>
-      <View style={styles.transitLineRow}>
-        <MaterialIcons
-          name={getManeuverIcon(transit.vehicleType) as any}
-          size={18}
-          color={COLORS.white}
-        />
-        <Text style={styles.transitLineName}>
-          {transit.lineShortName || transit.lineName || transit.vehicleName}
-        </Text>
-      </View>
-      {transit.departureStopName ? (
-        <Text style={styles.transitStop} numberOfLines={1}>
-          From {transit.departureStopName}
-          {departureParsed ? ` at ${formatDateTime(departureParsed)}` : ""}
-        </Text>
-      ) : null}
-      {transit.arrivalStopName ? (
-        <Text style={styles.transitStop} numberOfLines={1}>
-          To {transit.arrivalStopName}
-          {arrivalParsed ? ` at ${formatDateTime(arrivalParsed)}` : ""}
-        </Text>
-      ) : null}
-      {transit.stopCount > 0 && (
-        <Text style={styles.transitStopCount}>
-          {transit.stopCount} stop{transit.stopCount === 1 ? "" : "s"}
-        </Text>
-      )}
-    </View>
-  );
-}
+import TransitBadge from "./TransitBadge";
 
 interface StepsPanelProps {
   readonly building: Building;

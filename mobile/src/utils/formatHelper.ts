@@ -13,8 +13,8 @@ export function formatDistance(meters: number): string {
   return `${(meters / 1000).toFixed(1)} km`;
 }
 
-export function formatTime(isoString: string): string {
-  const date = new Date(isoString);
+export function formatTime(input: Date | string): string {
+  const date = typeof input === "string" ? new Date(input) : input;
   const hours = date.getHours();
   const minutes = date.getMinutes();
   const period = hours >= 12 ? "PM" : "AM";
@@ -28,6 +28,7 @@ export function formatHourLabel(hour: number): string {
   const display = hour % 12 || 12;
   return `${display} ${period}`;
 }
+
 export function formatDate(d: Date): string {
   return d.toLocaleDateString(undefined, {
     weekday: "short",

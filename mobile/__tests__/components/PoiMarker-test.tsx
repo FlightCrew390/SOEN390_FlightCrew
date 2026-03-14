@@ -8,8 +8,18 @@ jest.mock("react-native-svg", () => {
   return {
     __esModule: true,
     default: (props: any) => <View testID="svg-marker" {...props} />,
-    Circle: (props: any) => <View testID={`circle-${props.fill ?? props.stroke ?? "default"}`} {...props} />,
-    Path: (props: any) => <View testID={`path-${props.d?.substring(0, 6) ?? "unknown"}`} {...props} />,
+    Circle: (props: any) => (
+      <View
+        testID={`circle-${props.fill ?? props.stroke ?? "default"}`}
+        {...props}
+      />
+    ),
+    Path: (props: any) => (
+      <View
+        testID={`path-${props.d?.substring(0, 6) ?? "unknown"}`}
+        {...props}
+      />
+    ),
   };
 });
 
@@ -24,7 +34,18 @@ jest.mock("react-native-maps", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View, Text } = require("react-native");
   const MarkerComponent = React.forwardRef(
-    ({ children, testID, coordinate, title, description, onPress, onCalloutPress }: any, ref: any) => {
+    (
+      {
+        children,
+        testID,
+        coordinate,
+        title,
+        description,
+        onPress,
+        onCalloutPress,
+      }: any,
+      ref: any,
+    ) => {
       React.useImperativeHandle(ref, () => ({
         showCallout: mockShowCallout,
         hideCallout: mockHideCallout,
@@ -36,7 +57,9 @@ jest.mock("react-native-maps", () => {
           onTouchEnd={onPress}
         >
           {title && <Text testID="marker-title">{title}</Text>}
-          {description && <Text testID="marker-description">{description}</Text>}
+          {description && (
+            <Text testID="marker-description">{description}</Text>
+          )}
           {children}
         </View>
       );
@@ -81,7 +104,9 @@ describe("PoiMarker", () => {
 
   it("shows the POI name as native callout title", () => {
     render(<PoiMarker poi={mockPoi} />);
-    expect(screen.getByTestId("marker-title")).toHaveTextContent("Café Gentile");
+    expect(screen.getByTestId("marker-title")).toHaveTextContent(
+      "Café Gentile",
+    );
   });
 
   it("shows the POI address as native callout description", () => {
@@ -106,7 +131,9 @@ describe("PoiMarker", () => {
     const poi = { ...mockPoi, category: "restaurant" as const };
     render(<PoiMarker poi={poi} />);
     // Restaurant has knife/fork Paths starting with "M16 10"
-    expect(screen.getAllByTestId("path-M16 10").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByTestId("path-M16 10").length).toBeGreaterThanOrEqual(
+      1,
+    );
   });
 
   it("renders SVG category paths for pharmacy", () => {
@@ -144,7 +171,9 @@ describe("PoiMarker", () => {
   });
 
   it("hides callout when directions open", () => {
-    const { rerender } = render(<PoiMarker poi={mockPoi} isDirectionsOpen={false} />);
+    const { rerender } = render(
+      <PoiMarker poi={mockPoi} isDirectionsOpen={false} />,
+    );
     expect(mockHideCallout).not.toHaveBeenCalled();
     rerender(<PoiMarker poi={mockPoi} isDirectionsOpen={true} />);
     expect(mockHideCallout).toHaveBeenCalledTimes(1);

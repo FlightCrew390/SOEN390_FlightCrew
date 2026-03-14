@@ -21,6 +21,8 @@ export interface MapUIState {
   route: RouteInfo | null;
   routeLoading: boolean;
   routeError: string | null;
+  // Shuttle eligibility
+  shuttleEligible: boolean;
   // POI search data
   poiResults: PointOfInterest[];
   selectedPoi: PointOfInterest | null;
@@ -48,6 +50,7 @@ export type MapUIAction =
   | { type: "ROUTE_ERROR"; error: string }
   | { type: "OPEN_STEPS" }
   | { type: "CLOSE_STEPS" }
+  | { type: "SET_SHUTTLE_ELIGIBLE"; eligible: boolean }
   | { type: "POI_LOADING" }
   | { type: "POI_LOADED"; results: PointOfInterest[] }
   | { type: "POI_ERROR"; error: string }

@@ -4,7 +4,7 @@ import { COLORS } from "../../constants";
 import styles from "../../styles/StepsPanel";
 import { TransitStepDetails } from "../../types/Directions";
 import { getManeuverIcon, parseTime } from "../../utils/directionsUtils";
-import { formatDateTime } from "../../utils/formatHelper";
+import { formatTime } from "../../utils/formatHelper";
 
 interface TransitBadgeProps {
   readonly transit: TransitStepDetails;
@@ -14,8 +14,15 @@ export default function TransitBadge({ transit }: Readonly<TransitBadgeProps>) {
   const departureParsed = parseTime(transit.departureTime);
   const arrivalParsed = parseTime(transit.arrivalTime);
 
+  const isShuttle = transit.lineName === "Concordia Shuttle";
+
   return (
-    <View style={styles.transitBadge}>
+    <View
+      style={[
+        styles.transitBadge,
+        isShuttle && { backgroundColor: COLORS.concordiaMaroon },
+      ]}
+    >
       <View style={styles.transitLineRow}>
         <MaterialIcons
           name={getManeuverIcon(transit.vehicleType)}
@@ -29,13 +36,13 @@ export default function TransitBadge({ transit }: Readonly<TransitBadgeProps>) {
       {transit.departureStopName ? (
         <Text style={styles.transitStop} numberOfLines={1}>
           From {transit.departureStopName}
-          {departureParsed ? ` at ${formatDateTime(departureParsed)}` : ""}
+          {departureParsed ? ` at ${formatTime(departureParsed)}` : ""}
         </Text>
       ) : null}
       {transit.arrivalStopName ? (
         <Text style={styles.transitStop} numberOfLines={1}>
           To {transit.arrivalStopName}
-          {arrivalParsed ? ` at ${formatDateTime(arrivalParsed)}` : ""}
+          {arrivalParsed ? ` at ${formatTime(arrivalParsed)}` : ""}
         </Text>
       ) : null}
       {transit.stopCount > 0 && (

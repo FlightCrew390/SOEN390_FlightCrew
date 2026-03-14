@@ -1,4 +1,20 @@
-export type TravelMode = "WALK" | "DRIVE" | "BICYCLE" | "TRANSIT" | "SHUTTLE";
+export const TRAVEL_MODE = {
+  WALK: "WALK",
+  DRIVE: "DRIVE",
+  BICYCLE: "BICYCLE",
+  TRANSIT: "TRANSIT",
+  SHUTTLE: "SHUTTLE",
+} as const;
+
+export type TravelMode = (typeof TRAVEL_MODE)[keyof typeof TRAVEL_MODE];
+
+export const PREVIEW_TRAVEL_MODES: readonly TravelMode[] = [
+  TRAVEL_MODE.WALK,
+  TRAVEL_MODE.BICYCLE,
+  TRAVEL_MODE.TRANSIT,
+  TRAVEL_MODE.DRIVE,
+  TRAVEL_MODE.SHUTTLE,
+];
 
 export interface DirectionsResponse {
   routes: Route[];

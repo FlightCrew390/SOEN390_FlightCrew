@@ -189,6 +189,15 @@ const styles = StyleSheet.create({
     color: COLORS.concordiaMaroon,
     fontWeight: "700",
   },
+  transportCardDisabled: {
+    opacity: 0.45,
+  },
+  transportIconDisabled: {
+    tintColor: "#B0B0B0",
+  },
+  transportTimeDisabled: {
+    color: "#B0B0B0",
+  },
 
   /* ── Loading & error ── */
   loadingRow: {
@@ -208,6 +217,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     gap: 8,
+  },
+  shuttleUnavailableText: {
+    fontSize: 13,
+    color: "#666",
+    flex: 1,
   },
   errorText: {
     fontSize: 13,

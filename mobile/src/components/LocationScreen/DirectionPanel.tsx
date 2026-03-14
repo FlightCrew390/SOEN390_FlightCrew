@@ -1,7 +1,7 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import React, { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Animated,
   Image,
@@ -12,58 +12,50 @@ import {
 } from "react-native";
 
 import { COLORS, METRO_ACCESS_BUILDINGS } from "../../constants";
-import { SHUTTLE_RIDE_MINUTES } from "../../constants/shuttle";
 import { usePanelAnimation } from "../../hooks/usePanelAnimation";
-import {
-  getAllTravelTimes,
-  isCrossCampus as isCrossCampusRoute,
-} from "../../services/GoogleDirectionsService";
+import type { RoutePreviews } from "../../hooks/useRoutePreviews";
 import styles from "../../styles/DirectionPanel";
 import { Building, StructureType } from "../../types/Building";
 import {
   DepartureTimeConfig,
   RouteInfo,
+  TRAVEL_MODE,
   TravelMode,
 } from "../../types/Directions";
-import { formatDistance, formatDuration } from "../../utils/formatHelper";
-import { decodePolyline } from "../../utils/polylineDecode";
+import { getBirdsEyeDistanceText } from "../../utils/directionsUtils";
+import { formatDuration } from "../../utils/formatHelper";
 import Tooltip from "../common/Tooltip";
 import DepartureTimePicker from "./DepartureTimePicker";
 import RouteStatusDisplay from "./RouteStatusDisplay";
 import StepsPanel from "./StepsPanel";
 import TransportCard from "./TransportCard";
 
-const BASE_TRANSPORT_OPTIONS: {
+const TRANSPORT_OPTIONS: {
   mode: TravelMode;
   icon: ReturnType<typeof require>;
   label: string;
 }[] = [
-  { mode: "WALK", icon: require("../../../assets/walk.png"), label: "Walk" },
-  { mode: "BICYCLE", icon: require("../../../assets/bike.png"), label: "Bike" },
   {
-    mode: "TRANSIT",
+    mode: TRAVEL_MODE.WALK,
+    icon: require("../../../assets/walk.png"),
+    label: "Walk",
+  },
+  {
+    mode: TRAVEL_MODE.BICYCLE,
+    icon: require("../../../assets/bike.png"),
+    label: "Bike",
+  },
+  {
+    mode: TRAVEL_MODE.TRANSIT,
     icon: require("../../../assets/train.png"),
     label: "Transit",
   },
-  { mode: "DRIVE", icon: require("../../../assets/car.png"), label: "Drive" },
+  {
+    mode: TRAVEL_MODE.DRIVE,
+    icon: require("../../../assets/car.png"),
+    label: "Drive",
+  },
 ];
-const SHUTTLE_OPTION: {
-  mode: TravelMode;
-  iconName: string;
-  label: string;
-} = { mode: "SHUTTLE", iconName: "bus", label: "Shuttle" };
-
-export interface RouteSegment {
-  coordinates: { latitude: number; longitude: number }[];
-  mode: "walk" | "shuttle";
-}
-
-interface TravelTimesState {
-  walk: number;
-  bike: number;
-  transit: number;
-  drive: number;
-}
 
 interface DirectionPanelProps {
   readonly visible: boolean;
@@ -74,6 +66,7 @@ interface DirectionPanelProps {
   readonly routeError: string | null;
   readonly travelMode: TravelMode | null;
   readonly onTravelModeChange: (mode: TravelMode | null) => void;
+  readonly userLocation?: { latitude: number; longitude: number } | null;
   readonly departureConfig: DepartureTimeConfig;
   readonly onDepartureConfigChange: (config: DepartureTimeConfig) => void;
   readonly onClose: () => void;
@@ -82,9 +75,8 @@ interface DirectionPanelProps {
   readonly showSteps: boolean;
   readonly onShowSteps: () => void;
   readonly onHideSteps: () => void;
-  readonly userLocation?: { latitude: number; longitude: number } | null;
-  readonly userCampus?: string | null;
-  readonly onRouteReady?: (segments: RouteSegment[]) => void;
+  readonly shuttleEligible?: boolean;
+  readonly routePreviews?: RoutePreviews;
 }
 
 function StartLocationRow({
@@ -281,15 +273,53 @@ function BuildingDetails({ building }: Readonly<{ building: Building }>) {
   );
 }
 
-const MODE_TO_KEY: Record<
-  Exclude<TravelMode, "SHUTTLE">,
-  keyof TravelTimesState
-> = {
-  WALK: "walk",
-  BICYCLE: "bike",
-  TRANSIT: "transit",
-  DRIVE: "drive",
-};
+function getShuttleIconColor(eligible: boolean, isActive: boolean): string {
+  if (eligible && isActive) return "#9C2D2D";
+  if (eligible) return "#6B6B6B";
+  return "#B0B0B0";
+}
+
+function ShuttleCard({
+  isActive,
+  eligible,
+  duration,
+  onPress,
+}: Readonly<{
+  isActive: boolean;
+  eligible: boolean;
+  duration: string;
+  onPress: () => void;
+}>) {
+  return (
+    <Pressable
+      style={[
+        styles.transportCard,
+        isActive && styles.transportCardActive,
+        !eligible && styles.transportCardDisabled,
+      ]}
+      onPress={eligible ? onPress : undefined}
+      disabled={!eligible}
+      accessibilityLabel="Get directions by Shuttle"
+      accessibilityRole="button"
+      accessibilityState={{ disabled: !eligible }}
+    >
+      <MaterialCommunityIcons
+        name="bus"
+        size={36}
+        color={getShuttleIconColor(eligible, isActive)}
+      />
+      <Text
+        style={[
+          styles.transportTime,
+          isActive && styles.transportTimeActive,
+          !eligible && styles.transportTimeDisabled,
+        ]}
+      >
+        {eligible ? duration : "N/A"}
+      </Text>
+    </Pressable>
+  );
+}
 
 export default function DirectionPanel({
   visible,
@@ -300,6 +330,7 @@ export default function DirectionPanel({
   routeError,
   travelMode,
   onTravelModeChange,
+  userLocation,
   departureConfig,
   onDepartureConfigChange,
   onClose,
@@ -308,121 +339,31 @@ export default function DirectionPanel({
   showSteps,
   onShowSteps,
   onHideSteps,
-  userLocation,
-  userCampus,
-  onRouteReady,
+  shuttleEligible,
+  routePreviews,
 }: Readonly<DirectionPanelProps>) {
   const { animatedStyle } = usePanelAnimation(visible);
-  const [travelTimes, setTravelTimes] = useState<TravelTimesState | null>(null);
-  const [loadingTravelTimes, setLoadingTravelTimes] = useState(false);
-  const [error, setError] = useState(false);
 
-  const originCampus = startBuilding?.campus ?? userCampus;
-  const isConcordiaCampus =
-    building?.campus === "SGW" || building?.campus === "LOY";
-  const isCrossCampus =
-    originCampus && building
-      ? isCrossCampusRoute(originCampus, building.campus)
-      : false;
-  // Show shuttle when route crosses campuses, or when destination is a
-  // Concordia campus building but the origin campus is unknown (no GPS / no
-  // start building) so the user can still choose shuttle.
-  const showShuttle = isCrossCampus || (!originCampus && isConcordiaCampus);
-
-  const transportOptions = React.useMemo(
-    () =>
-      showShuttle
-        ? [...BASE_TRANSPORT_OPTIONS, SHUTTLE_OPTION]
-        : BASE_TRANSPORT_OPTIONS,
-    [showShuttle],
-  );
-
-  useEffect(() => {
-    if (!visible || !building || !userLocation || !userCampus) {
-      setTravelTimes(null);
-      setError(false);
-      onRouteReady?.([]);
-      return;
-    }
-    const origin = userLocation;
-    const dest = {
-      latitude: building.latitude,
-      longitude: building.longitude,
-    };
-    let cancelled = false;
-    setLoadingTravelTimes(true);
-    setError(false);
-    getAllTravelTimes(origin, dest)
-      .then((result) => {
-        if (!cancelled) {
-          setError(false);
-          setTravelTimes({
-            walk: result.walk.durationMinutes,
-            bike: result.bike.durationMinutes,
-            transit: result.transit.durationMinutes,
-            drive: result.drive.durationMinutes,
-          });
-          if (onRouteReady) {
-            onRouteReady([
-              {
-                coordinates: decodePolyline(result.walk.polyline),
-                mode: "walk",
-              },
-            ]);
-          }
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setTravelTimes(null);
-          setError(false);
-          onRouteReady?.([]);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingTravelTimes(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [visible, building, userLocation, userCampus, onRouteReady]);
-
-  const handleTransportPress = useCallback(
-    (mode: TravelMode) => {
-      onTravelModeChange(travelMode === mode ? null : mode);
-    },
-    [travelMode, onTravelModeChange],
-  );
-
-  const getDistanceText = (): string => {
-    if (travelTimes) {
-      return `${travelTimes.walk} min walk`;
-    }
-    if (route) {
-      return route.distanceText ?? formatDistance(route.distanceMeters);
-    }
-    return "-- m";
-  };
-
-  const distanceText = getDistanceText();
-
-  const getDurationForMode = (mode: TravelMode): string => {
-    if (mode === "SHUTTLE") {
-      if (travelTimes) return `~${SHUTTLE_RIDE_MINUTES} min`;
-      if (travelMode === "SHUTTLE" && route) {
-        return route.durationText ?? formatDuration(route.durationSeconds);
-      }
-      return "-- min";
-    }
-    if (travelTimes) {
-      const key = MODE_TO_KEY[mode];
-      return `${travelTimes[key]} min`;
-    }
+  // helper: get duration label for a mode
+  const getDuration = (mode: TravelMode): string => {
+    // If this mode is the active one and we have a full route, prefer that
     if (travelMode === mode && route) {
       return formatDuration(route.durationSeconds);
     }
+    // Otherwise use the preview
+    const preview = routePreviews?.[mode];
+    if (preview != null) return formatDuration(preview);
     return "-- min";
   };
+
+  const originCoords = startBuilding
+    ? {
+        latitude: startBuilding.latitude,
+        longitude: startBuilding.longitude,
+      }
+    : userLocation;
+
+  const distanceText = getBirdsEyeDistanceText(originCoords, building);
 
   return (
     <>
@@ -463,15 +404,11 @@ export default function DirectionPanel({
               <Text style={styles.distanceText}>{distanceText}</Text>
             </View>
 
-            <View style={styles.startRowWithShuttle}>
-              <View style={styles.startRowLeft}>
-                <StartLocationRow
-                  startBuilding={startBuilding}
-                  onOpenSearch={onOpenSearch}
-                  onResetStart={onResetStart}
-                />
-              </View>
-            </View>
+            <StartLocationRow
+              startBuilding={startBuilding}
+              onOpenSearch={onOpenSearch}
+              onResetStart={onResetStart}
+            />
 
             {/* Departure time picker */}
             <DepartureTimePicker
@@ -481,40 +418,55 @@ export default function DirectionPanel({
 
             {/* Transport options */}
             <View style={styles.transportRow}>
-              {transportOptions.map((option) => (
+              {TRANSPORT_OPTIONS.map(({ mode, icon, label }) => (
                 <TransportCard
-                  key={option.mode}
-                  icon={"icon" in option ? option.icon : undefined}
-                  iconName={"iconName" in option ? option.iconName : undefined}
-                  label={option.label}
-                  isActive={travelMode === option.mode}
-                  duration={
-                    loadingTravelTimes
-                      ? "-- min"
-                      : getDurationForMode(option.mode)
+                  key={mode}
+                  icon={icon}
+                  label={label}
+                  isActive={travelMode === mode}
+                  duration={getDuration(mode)}
+                  onPress={() =>
+                    onTravelModeChange(travelMode === mode ? null : mode)
                   }
-                  mode={option.mode}
-                  onSelectMode={handleTransportPress}
                 />
               ))}
+              <ShuttleCard
+                isActive={travelMode === TRAVEL_MODE.SHUTTLE}
+                eligible={shuttleEligible ?? false}
+                duration={getDuration(TRAVEL_MODE.SHUTTLE)}
+                onPress={() =>
+                  onTravelModeChange(
+                    travelMode === TRAVEL_MODE.SHUTTLE
+                      ? null
+                      : TRAVEL_MODE.SHUTTLE,
+                  )
+                }
+              />
             </View>
-
-            {error && !loadingTravelTimes && (
-              <Text style={styles.buildingDetail}>
-                Could not load directions. Please try again.
-              </Text>
-            )}
 
             <RouteStatusDisplay loading={routeLoading} error={routeError} />
 
+            {/* Shuttle unavailable message */}
+            {travelMode === TRAVEL_MODE.SHUTTLE &&
+              !routeLoading &&
+              !routeError &&
+              !route && (
+                <View style={styles.errorRow}>
+                  <MaterialIcons name="info-outline" size={18} color="#888" />
+                  <Text style={styles.shuttleUnavailableText}>
+                    Shuttle is not available at the selected time. Please try
+                    another transport method.
+                  </Text>
+                </View>
+              )}
+
             <View style={styles.divider} />
 
-            {route &&
-            (route.steps.length > 0 || route.coordinates.length >= 2) ? (
+            {route && route.steps.length > 0 ? (
               <Pressable
                 style={styles.viewStepsButton}
                 onPress={onShowSteps}
-                accessibilityLabel="View route"
+                accessibilityLabel="View step-by-step directions"
                 accessibilityRole="button"
               >
                 <MaterialIcons
@@ -522,7 +474,7 @@ export default function DirectionPanel({
                   size={20}
                   color={COLORS.white}
                 />
-                <Text style={styles.viewStepsText}>View route</Text>
+                <Text style={styles.viewStepsText}>View steps</Text>
                 <FontAwesome5
                   name="chevron-right"
                   size={14}
@@ -537,7 +489,7 @@ export default function DirectionPanel({
         )}
       </Animated.View>
 
-      {/* Steps panel */}
+      {/* Steps panel (slides over the direction panel) */}
       {showSteps && building != null && route && (
         <StepsPanel
           building={building}

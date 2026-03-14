@@ -3,6 +3,7 @@ import {
   formatDateTime,
   formatDistance,
   formatDuration,
+  formatTime,
 } from "../../src/utils/formatHelper";
 
 describe("formatDuration", () => {
@@ -60,7 +61,7 @@ describe("formatDate", () => {
   });
 });
 
-describe("formatTime", () => {
+describe("formatDateTime", () => {
   it("delegates to toLocaleTimeString with the correct options", () => {
     const d = new Date("2026-03-03T10:05:00");
     const spy = jest.spyOn(d, "toLocaleTimeString").mockReturnValue("10:05 AM");
@@ -73,5 +74,21 @@ describe("formatTime", () => {
     });
     expect(result).toBe("10:05 AM");
     spy.mockRestore();
+  });
+});
+
+describe("formatTime", () => {
+  it("formats a morning Date as h:mm AM", () => {
+    const d = new Date("2026-03-03T10:05:00");
+    expect(formatTime(d)).toBe("10:05 AM");
+  });
+
+  it("formats an afternoon Date as h:mm PM", () => {
+    const d = new Date("2026-03-03T14:30:00");
+    expect(formatTime(d)).toBe("2:30 PM");
+  });
+
+  it("formats an ISO string", () => {
+    expect(formatTime("2026-03-03T10:05:00")).toBe("10:05 AM");
   });
 });

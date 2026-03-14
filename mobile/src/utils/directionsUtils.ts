@@ -1,8 +1,31 @@
 import type MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ComponentProps } from "react";
 import { DepartureTimeConfig, StepInfo } from "../types/Directions";
+import { calculateDistance } from "./buildingDetection";
+import { formatDistance } from "./formatHelper";
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>["name"];
+
+interface LatLng {
+  latitude: number;
+  longitude: number;
+}
+
+export function getBirdsEyeDistanceText(
+  origin: LatLng | null | undefined,
+  destination: LatLng | null | undefined,
+): string {
+  if (!origin || !destination) return "-- m";
+
+  const distanceMeters = calculateDistance(
+    origin.latitude,
+    origin.longitude,
+    destination.latitude,
+    destination.longitude,
+  );
+
+  return formatDistance(distanceMeters);
+}
 
 /**
  * Maps a Google Directions maneuver string to a MaterialIcons icon name.

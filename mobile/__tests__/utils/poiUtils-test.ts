@@ -2,7 +2,9 @@ import { StructureType } from "../../src/types/Building";
 import { PointOfInterest } from "../../src/types/PointOfInterest";
 import { poiToBuilding } from "../../src/utils/poiUtils";
 
-const makePoi = (overrides: Partial<PointOfInterest> = {}): PointOfInterest => ({
+const makePoi = (
+  overrides: Partial<PointOfInterest> = {},
+): PointOfInterest => ({
   name: "Tim Hortons (Guy St)",
   category: "cafe",
   campus: "SGW",
@@ -27,12 +29,16 @@ describe("poiToBuilding", () => {
   });
 
   it("maps address correctly", () => {
-    const result = poiToBuilding(makePoi({ address: "1432 Guy St, Montreal, QC" }));
+    const result = poiToBuilding(
+      makePoi({ address: "1432 Guy St, Montreal, QC" }),
+    );
     expect(result.address).toBe("1432 Guy St, Montreal, QC");
   });
 
   it("maps latitude and longitude correctly", () => {
-    const result = poiToBuilding(makePoi({ latitude: 45.4968, longitude: -73.5787 }));
+    const result = poiToBuilding(
+      makePoi({ latitude: 45.4968, longitude: -73.5787 }),
+    );
     expect(result.latitude).toBe(45.4968);
     expect(result.longitude).toBe(-73.5787);
   });

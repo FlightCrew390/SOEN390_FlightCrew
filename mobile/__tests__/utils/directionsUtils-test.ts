@@ -95,7 +95,7 @@ describe("getDepartureDate", () => {
   });
 });
 
-// ── computeStepTimeline ──
+// -- computeStepTimeline --
 
 function makeStep(overrides: Partial<StepInfo> = {}): StepInfo {
   return {

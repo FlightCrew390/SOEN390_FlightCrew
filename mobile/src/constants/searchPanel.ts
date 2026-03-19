@@ -2,6 +2,7 @@ import { LocationType } from "../state/SearchPanelState";
 
 export const LOCATION_OPTIONS: { key: LocationType; label: string }[] = [
   { key: "building", label: "Campus Building" },
+  { key: "classroom", label: "Classroom" },
   { key: "cafe", label: "Cafe" },
   { key: "restaurant", label: "Restaurant" },
   { key: "pharmacy", label: "Pharmacy" },

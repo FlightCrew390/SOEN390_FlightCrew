@@ -15,10 +15,24 @@ import {
   initialSearchPanelState,
   searchPanelReducer,
 } from "../../reducers/searchPanelReducer";
+import { IndoorDataService } from "../../services/IndoorDataService";
 import { LOCATION_OPTIONS, RADIUS_OPTIONS } from "../../constants/searchPanel";
-import { LocationType, isPoi } from "../../state/SearchPanelState";
+import { LocationType, isClassroom, isPoi } from "../../state/SearchPanelState";
 import styles from "../../styles/SearchPanel";
 import { Building } from "../../types/Building";
+
+const CLASSROOM_BUILDINGS = [
+  { id: null, label: "All Buildings" },
+  ...IndoorDataService.getAvailableBuildings().map((id) => ({ id, label: id })),
+];
+
+const BUILDING_NAMES: Record<string, string> = {
+  Hall: "Henry F. Hall (H) Building",
+  CC: "CC Building",
+  MB: "John Molson School of Business",
+  VE: "Vanier Extension (VE)",
+  VL: "Vanier Library (VL)",
+};
 
 interface SearchPanelProps {
   readonly visible: boolean;
@@ -27,6 +41,7 @@ interface SearchPanelProps {
     query: string,
     locationType: LocationType,
     radiusKm: number | null,
+    classroomBuildingId?: string | null,
   ) => void;
   readonly onSelectBuilding: (building: Building) => void;
 }
@@ -204,16 +219,32 @@ export default function SearchPanel({
     LOCATION_OPTIONS.find((o) => o.key === state.locationType)?.label ?? "";
 
   const isPoiType = isPoi(state.locationType);
+  const isClassroomType = isClassroom(state.locationType);
 
   const radiusLabel =
     RADIUS_OPTIONS.find((o) => o.value === state.radiusKm)?.label ?? "No limit";
 
   const placeholderText =
-    state.locationType === "building" ? "Building name" : "Location name";
+    state.locationType === "building"
+      ? "Building name"
+      : isClassroomType
+        ? "Classroom name..."
+        : "Location name";
+
+  const classroomBuildingLabel = state.classroomBuildingId
+    ? (BUILDING_NAMES[state.classroomBuildingId] ?? state.classroomBuildingId)
+    : "All Buildings";
 
   const handleSearch = () => {
     dispatch({ type: "BLUR_INPUT" });
-    if (isPoiType) {
+    if (isClassroomType) {
+      onSearch(
+        state.query.trim(),
+        state.locationType,
+        null,
+        state.classroomBuildingId,
+      );
+    } else if (isPoiType) {
       onSearch("", state.locationType, state.radiusKm);
     } else if (state.selectedResult) {
       onSelectBuilding(state.selectedResult);
@@ -227,12 +258,13 @@ export default function SearchPanel({
     state.locationType === "building" &&
     state.query.trim().length > 0;
 
-  const isSearchDisabled = isPoiType
-    ? false // POI search is always enabled (category is already selected)
-    : state.query.trim().length === 0 ||
-      (state.locationType === "building" &&
-        autocompleteResults.length === 0 &&
-        !state.selectedResult);
+  const isSearchDisabled =
+    isPoiType || isClassroomType
+      ? false
+      : state.query.trim().length === 0 ||
+        (state.locationType === "building" &&
+          autocompleteResults.length === 0 &&
+          !state.selectedResult);
 
   return (
     <Animated.View
@@ -253,8 +285,94 @@ export default function SearchPanel({
         }
       />
 
-      {/* POI: show radius dropdown instead of text input */}
-      {isPoiType ? (
+      {/* Classroom: building filter + room name input */}
+      {isClassroomType ? (
+        <>
+          <Text style={styles.label}>Building</Text>
+          <View style={styles.dropdownMenuWrapper}>
+            <Pressable
+              style={[
+                styles.dropdownTrigger,
+                state.classroomBuildingDropdownOpen &&
+                  styles.dropdownTriggerOpen,
+              ]}
+              onPress={() =>
+                dispatch({ type: "TOGGLE_CLASSROOM_BUILDING_DROPDOWN" })
+              }
+              accessibilityLabel="Select building"
+              accessibilityRole="button"
+            >
+              <Text style={styles.dropdownTriggerText}>
+                {classroomBuildingLabel}
+              </Text>
+              <FontAwesome5
+                name={
+                  state.classroomBuildingDropdownOpen
+                    ? "chevron-up"
+                    : "chevron-down"
+                }
+                size={12}
+                color="#666"
+              />
+            </Pressable>
+            {state.classroomBuildingDropdownOpen && (
+              <View style={styles.dropdownMenu}>
+                {CLASSROOM_BUILDINGS.map((b, idx) => (
+                  <React.Fragment key={b.label}>
+                    {idx > 0 && <View style={styles.dropdownDivider} />}
+                    <Pressable
+                      style={[
+                        styles.dropdownOption,
+                        b.id === state.classroomBuildingId &&
+                          styles.dropdownOptionSelected,
+                      ]}
+                      onPress={() =>
+                        dispatch({
+                          type: "SELECT_CLASSROOM_BUILDING",
+                          buildingId: b.id,
+                        })
+                      }
+                      accessibilityLabel={b.label}
+                      accessibilityRole="menuitem"
+                    >
+                      <Text style={styles.dropdownOptionText}>
+                        {b.id
+                          ? (BUILDING_NAMES[b.id] ?? b.id)
+                          : "All Buildings"}
+                      </Text>
+                    </Pressable>
+                  </React.Fragment>
+                ))}
+              </View>
+            )}
+          </View>
+
+          <View style={styles.textInputWrapper}>
+            <TextInput
+              style={styles.textInputInner}
+              placeholder={placeholderText}
+              placeholderTextColor="#999"
+              value={state.query}
+              onChangeText={(text) => dispatch({ type: "UPDATE_QUERY", text })}
+              autoCapitalize="none"
+              autoCorrect={false}
+              returnKeyType="search"
+              onSubmitEditing={handleSearch}
+              accessibilityLabel="Search classroom name"
+            />
+            {state.query.length > 0 && (
+              <Pressable
+                onPress={() => dispatch({ type: "CLEAR_QUERY" })}
+                accessibilityLabel="Clear search"
+                accessibilityRole="button"
+                style={styles.clearButton}
+              >
+                <Text style={styles.clearButtonText}>×</Text>
+              </Pressable>
+            )}
+          </View>
+        </>
+      ) : isPoiType ? (
         <>
           <Text style={styles.label}>Distance from location</Text>
           <RadiusDropdown

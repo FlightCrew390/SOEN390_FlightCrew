@@ -4,9 +4,16 @@ import {
   RouteInfo,
   TravelMode,
 } from "../types/Directions";
+import { IndoorRoom } from "../types/IndoorRoom";
 import { PointOfInterest } from "../types/PointOfInterest";
 
-type Panel = "none" | "search" | "directions" | "steps" | "poi-results";
+type Panel =
+  | "none"
+  | "search"
+  | "directions"
+  | "steps"
+  | "poi-results"
+  | "room-results";
 export type SearchOrigin = "default" | "directions";
 
 export interface MapUIState {
@@ -28,6 +35,8 @@ export interface MapUIState {
   selectedPoi: PointOfInterest | null;
   poiLoading: boolean;
   poiError: string | null;
+  // Room search data
+  roomResults: IndoorRoom[];
 }
 
 export type MapUIAction =
@@ -56,4 +65,6 @@ export type MapUIAction =
   | { type: "POI_ERROR"; error: string }
   | { type: "SELECT_POI"; poi: PointOfInterest }
   | { type: "CLEAR_POI" }
-  | { type: "BACK_TO_SEARCH" };
+  | { type: "BACK_TO_SEARCH" }
+  | { type: "ROOM_LOADED"; results: IndoorRoom[] }
+  | { type: "ROOM_BACK" };

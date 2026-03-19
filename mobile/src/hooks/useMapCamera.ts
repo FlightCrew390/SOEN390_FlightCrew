@@ -9,7 +9,13 @@ interface LocationObject {
   coords: { latitude: number; longitude: number };
 }
 
-type Panel = "none" | "search" | "directions" | "steps" | "poi-results";
+type Panel =
+  | "none"
+  | "search"
+  | "directions"
+  | "steps"
+  | "poi-results"
+  | "room-results";
 
 export function useMapCamera(
   mapRef: React.RefObject<MapView | null>,

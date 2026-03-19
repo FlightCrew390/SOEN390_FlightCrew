@@ -64,7 +64,7 @@ export function useMapUI(
     userLocation: userCoords,
     travelMode: state.travelMode,
     departureConfig: state.departureConfig,
-    active: state.panel === "directions",
+    active: state.panel === "directions" || state.panel === "room-info",
     onLoading: onRouteLoading,
     onLoaded: onRouteLoaded,
     onError: onRouteError,
@@ -76,7 +76,7 @@ export function useMapUI(
     startBuilding: state.startBuilding,
     userLocation: userCoords,
     departureConfig: state.departureConfig,
-    active: state.panel === "directions",
+    active: state.panel === "directions" || state.panel === "room-info",
   });
 
   // ── Detect current building ──
@@ -196,6 +196,10 @@ export function useMapUI(
     [buildings, userCoords],
   );
 
+  const openIndoorView = useCallback((buildingId: string, floor: number) => {
+    dispatch({ type: "OPEN_INDOOR", buildingId, floor });
+  }, []);
+
   const selectPoi = useCallback((poi: PointOfInterest) => {
     dispatch({ type: "SELECT_POI", poi });
   }, []);
@@ -226,6 +230,7 @@ export function useMapUI(
     routePreviews,
     selectBuilding,
     openDirections,
+    openIndoorView,
     handleSearch,
     handleTravelModeChange,
     selectPoi,

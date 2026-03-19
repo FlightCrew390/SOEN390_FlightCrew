@@ -1,4 +1,5 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Pressable } from "react-native";
 import { COLORS } from "../../constants";
 import { SearchOrigin } from "../../state/MapUIState";
@@ -10,16 +11,20 @@ type Panel =
   | "directions"
   | "steps"
   | "poi-results"
-  | "room-results";
+  | "room-results"
+  | "indoor"
+  | "room-info";
 
 interface MapControlsProps {
   readonly panel: Panel;
   readonly searchOrigin: SearchOrigin;
   readonly hasLocation: boolean;
+  readonly hasIndoorData: boolean;
   readonly onOpenSearch: () => void;
   readonly onCloseSearch: () => void;
   readonly onReturnToDirections: () => void;
   readonly onRecenter: () => void;
+  readonly onOpenIndoor: () => void;
 }
 
 function getSearchIcon(panel: Panel, searchOrigin: SearchOrigin): string {
@@ -35,10 +40,12 @@ export default function MapControls({
   panel,
   searchOrigin,
   hasLocation,
+  hasIndoorData,
   onOpenSearch,
   onCloseSearch,
   onReturnToDirections,
   onRecenter,
+  onOpenIndoor,
 }: Readonly<MapControlsProps>) {
   const handleSearchPress = () => {
     if (panel === "search") {
@@ -57,7 +64,9 @@ export default function MapControls({
       {/* Search button */}
       {panel !== "directions" &&
         panel !== "poi-results" &&
-        panel !== "room-results" && (
+        panel !== "room-results" &&
+        panel !== "indoor" &&
+        panel !== "room-info" && (
           <Pressable
             style={[
               styles.searchButton,
@@ -72,6 +81,40 @@ export default function MapControls({
             <FontAwesome5
               name={getSearchIcon(panel, searchOrigin)}
               size={panel === "search" ? 30 : 28}
+              color={COLORS.concordiaMaroon}
+            />
+          </Pressable>
+        )}
+
+      {/* Indoor view toggle button */}
+      {hasIndoorData &&
+        (panel === "directions" ||
+          panel === "steps" ||
+          panel === "room-info") && (
+          <Pressable
+            style={{
+              position: "absolute",
+              bottom: 100,
+              left: 16,
+              width: 60,
+              height: 60,
+              borderRadius: 30,
+              backgroundColor: COLORS.white,
+              alignItems: "center",
+              justifyContent: "center",
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.2,
+              shadowRadius: 2,
+              elevation: 3,
+            }}
+            onPress={onOpenIndoor}
+            accessibilityLabel="View indoor floor plan"
+            accessibilityRole="button"
+          >
+            <MaterialCommunityIcons
+              name="floor-plan"
+              size={30}
               color={COLORS.concordiaMaroon}
             />
           </Pressable>

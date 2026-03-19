@@ -15,7 +15,9 @@ type Panel =
   | "directions"
   | "steps"
   | "poi-results"
-  | "room-results";
+  | "room-results"
+  | "indoor"
+  | "room-info";
 
 export function useMapCamera(
   mapRef: React.RefObject<MapView | null>,

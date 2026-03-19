@@ -4,6 +4,7 @@ import { Platform, View } from "react-native";
 import MapView, { PROVIDER_DEFAULT, PROVIDER_GOOGLE } from "react-native-maps";
 import { MAP_CONFIG } from "../../constants";
 import { useBuildings } from "../../contexts/BuildingContext";
+import { IndoorDataService } from "../../services/IndoorDataService";
 import { useLocation } from "../../contexts/LocationContext";
 import { useMapCamera } from "../../hooks/useMapCamera";
 import { useMapUI } from "../../hooks/useMapUI";
@@ -16,6 +17,7 @@ import { findBuildingByLocation } from "../../utils/findBuildingByLocation";
 import { poiToBuilding } from "../../utils/poiUtils";
 import BuildingLayer from "./BuildingLayer";
 import DirectionPanel from "./DirectionPanel";
+import IndoorFloorView from "./IndoorFloorView";
 import MapControls from "./MapControls";
 import MapOverlays from "./MapOverlays";
 import PoiMarker from "./PoiMarker";
@@ -55,11 +57,29 @@ export default function GoogleMaps({
     routePreviews,
     selectBuilding,
     openDirections,
+    openIndoorView,
     handleSearch,
     handleTravelModeChange,
     selectPoi,
     handleDepartureConfigChange,
   } = useMapUI(buildings, location);
+
+  // Map building codes to indoor JSON buildingIds
+  const BUILDING_CODE_TO_INDOOR_ID: Record<string, string> = {
+    H: "Hall",
+    CC: "CC",
+    MB: "MB",
+    VE: "VE",
+    VL: "VL",
+  };
+
+  const selectedBuildingIndoorId = state.selectedBuilding
+    ? (BUILDING_CODE_TO_INDOOR_ID[state.selectedBuilding.buildingCode] ?? null)
+    : null;
+
+  const indoorFloors = state.indoorBuildingId
+    ? IndoorDataService.getFloorsByBuilding(state.indoorBuildingId)
+    : [];
 
   const {
     handleMapReady,
@@ -194,8 +214,17 @@ export default function GoogleMaps({
       />
 
       <DirectionPanel
-        visible={state.panel === "directions" || state.panel === "steps"}
+        visible={
+          state.panel === "directions" ||
+          state.panel === "steps" ||
+          state.panel === "room-info"
+        }
         building={state.selectedBuilding}
+        roomLabel={
+          state.panel === "room-info"
+            ? (state.indoorSelectedRoom?.label ?? null)
+            : null
+        }
         startBuilding={state.startBuilding}
         route={state.route}
         routeLoading={state.routeLoading}
@@ -205,7 +234,11 @@ export default function GoogleMaps({
         userLocation={userCoords}
         departureConfig={state.departureConfig}
         onDepartureConfigChange={handleDepartureConfigChange}
-        onClose={() => dispatch({ type: "CLOSE_PANEL" })}
+        onClose={() =>
+          state.panel === "room-info"
+            ? dispatch({ type: "BACK_TO_INDOOR" })
+            : dispatch({ type: "CLOSE_PANEL" })
+        }
         onOpenSearch={() => dispatch({ type: "OPEN_SEARCH_FOR_START" })}
         onResetStart={() => dispatch({ type: "RESET_START_BUILDING" })}
         showSteps={state.panel === "steps"}
@@ -250,6 +283,24 @@ export default function GoogleMaps({
         />
       )}
 
+      {state.panel === "indoor" &&
+        state.selectedBuilding &&
+        state.indoorBuildingId && (
+          <IndoorFloorView
+            building={state.selectedBuilding}
+            buildingId={state.indoorBuildingId}
+            floors={indoorFloors}
+            currentFloor={state.indoorFloor ?? indoorFloors[0] ?? 1}
+            onFloorChange={(floor) =>
+              dispatch({ type: "SET_INDOOR_FLOOR", floor })
+            }
+            onBack={() => dispatch({ type: "CLOSE_INDOOR" })}
+            onRoomPress={(room) => {
+              dispatch({ type: "OPEN_ROOM_INFO", room });
+            }}
+          />
+        )}
+
       <SearchPanel
         visible={state.panel === "search"}
         onClose={() =>
@@ -271,10 +322,19 @@ export default function GoogleMaps({
         panel={state.panel}
         searchOrigin={state.searchOrigin}
         hasLocation={location != null}
+        hasIndoorData={selectedBuildingIndoorId != null}
         onOpenSearch={() => dispatch({ type: "OPEN_SEARCH" })}
         onCloseSearch={() => dispatch({ type: "CLOSE_PANEL" })}
         onReturnToDirections={() => dispatch({ type: "RETURN_TO_DIRECTIONS" })}
         onRecenter={() => handleRecenter(onRecenter)}
+        onOpenIndoor={() => {
+          if (selectedBuildingIndoorId) {
+            const floors = IndoorDataService.getFloorsByBuilding(
+              selectedBuildingIndoorId,
+            );
+            openIndoorView(selectedBuildingIndoorId, floors[0] ?? 1);
+          }
+        }}
       />
     </View>
   );

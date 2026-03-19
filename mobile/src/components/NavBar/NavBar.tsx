@@ -43,10 +43,26 @@ export default function HomeScreenNavBar() {
     <UserProvider>
       <CalendarProvider>
         <Tab.Navigator screenOptions={screenOptions}>
-          <Tab.Screen name="home" component={HomeScreen} />
-          <Tab.Screen name="location" component={LocationScreen} />
-          <Tab.Screen name="search" component={SearchScreen} />
-          <Tab.Screen name="menu" component={MenuScreen} />
+          <Tab.Screen
+            name="home"
+            component={HomeScreen}
+            options={{ tabBarButtonTestID: "home-tab" }}
+          />
+          <Tab.Screen
+            name="location"
+            component={LocationScreen}
+            options={{ tabBarButtonTestID: "location-tab" }}
+          />
+          <Tab.Screen
+            name="search"
+            component={SearchScreen}
+            options={{ tabBarButtonTestID: "search-tab" }}
+          />
+          <Tab.Screen
+            name="menu"
+            component={MenuScreen}
+            options={{ tabBarButtonTestID: "menu-tab" }}
+          />
         </Tab.Navigator>
       </CalendarProvider>
     </UserProvider>

@@ -11,7 +11,8 @@
     "test": "jest --coverage",
     "lint": "expo lint src App.tsx index.ts app.config.ts --fix && npx tsc --noEmit",
     "lint:ci": "expo lint src App.tsx index.ts app.config.ts && npx tsc --noEmit",
-    "prepare": "cd .. && husky mobile/.husky"
+    "prepare": "cd .. && husky mobile/.husky",
+    "e2e:us1": "maestro test --include-tags us1 .maestro/"
   },
   "lint-staged": {
     "*.{ts,tsx}": "eslint --fix"

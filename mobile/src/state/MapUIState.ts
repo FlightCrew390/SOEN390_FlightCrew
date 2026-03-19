@@ -13,7 +13,9 @@ type Panel =
   | "directions"
   | "steps"
   | "poi-results"
-  | "room-results";
+  | "room-results"
+  | "indoor"
+  | "room-info";
 export type SearchOrigin = "default" | "directions";
 
 export interface MapUIState {
@@ -37,6 +39,10 @@ export interface MapUIState {
   poiError: string | null;
   // Room search data
   roomResults: IndoorRoom[];
+  // Indoor floor view
+  indoorBuildingId: string | null;
+  indoorFloor: number | null;
+  indoorSelectedRoom: IndoorRoom | null;
 }
 
 export type MapUIAction =
@@ -67,4 +73,9 @@ export type MapUIAction =
   | { type: "CLEAR_POI" }
   | { type: "BACK_TO_SEARCH" }
   | { type: "ROOM_LOADED"; results: IndoorRoom[] }
-  | { type: "ROOM_BACK" };
+  | { type: "ROOM_BACK" }
+  | { type: "OPEN_INDOOR"; buildingId: string; floor: number }
+  | { type: "CLOSE_INDOOR" }
+  | { type: "SET_INDOOR_FLOOR"; floor: number }
+  | { type: "OPEN_ROOM_INFO"; room: IndoorRoom }
+  | { type: "BACK_TO_INDOOR" };

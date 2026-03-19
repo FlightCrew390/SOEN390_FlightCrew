@@ -60,6 +60,7 @@ const TRANSPORT_OPTIONS: {
 interface DirectionPanelProps {
   readonly visible: boolean;
   readonly building: Building | null;
+  readonly roomLabel?: string | null;
   readonly startBuilding?: Building | null;
   readonly route: RouteInfo | null;
   readonly routeLoading: boolean;
@@ -328,6 +329,7 @@ function ShuttleCard({
 export default function DirectionPanel({
   visible,
   building,
+  roomLabel,
   startBuilding,
   route,
   routeLoading,
@@ -399,10 +401,12 @@ export default function DirectionPanel({
             <View style={styles.buildingInfoRow}>
               <View style={styles.headerLeft}>
                 <Text style={styles.buildingName} numberOfLines={1}>
-                  {building.buildingName ?? building.buildingCode}
+                  {roomLabel ?? building.buildingName ?? building.buildingCode}
                 </Text>
                 <Text style={styles.buildingAddress} numberOfLines={2}>
-                  {building.address ?? ""}
+                  {roomLabel
+                    ? (building.buildingName ?? building.buildingCode)
+                    : (building.address ?? "")}
                 </Text>
               </View>
               <Text style={styles.distanceText}>{distanceText}</Text>

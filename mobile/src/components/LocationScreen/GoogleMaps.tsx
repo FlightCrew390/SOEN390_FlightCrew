@@ -220,7 +220,22 @@ export default function GoogleMaps({
           results={state.roomResults}
           onBack={() => dispatch({ type: "ROOM_BACK" })}
           onSelectRoom={() => {}}
-          onDirectionPress={() => {}}
+          onDirectionPress={(room) => {
+            const BUILDING_ID_TO_CODE: Record<string, string> = {
+              Hall: "H",
+              CC: "CC",
+              MB: "MB",
+              VE: "VE",
+              VL: "VL",
+            };
+            const code =
+              BUILDING_ID_TO_CODE[room.buildingId] ?? room.buildingId;
+            const building = buildings.find((b) => b.buildingCode === code);
+            if (building) {
+              animateToBuilding(building);
+              openDirections(building);
+            }
+          }}
         />
       )}
 

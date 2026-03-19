@@ -18,6 +18,9 @@ export const initialMapUIState: MapUIState = {
   poiLoading: false,
   poiError: null,
   roomResults: [],
+  indoorBuildingId: null,
+  indoorFloor: null,
+  indoorSelectedRoom: null,
 };
 
 export function mapUIReducer(
@@ -205,6 +208,27 @@ export function mapUIReducer(
 
     case "ROOM_BACK":
       return { ...state, panel: "search", roomResults: [] };
+
+    case "OPEN_INDOOR":
+      return {
+        ...state,
+        panel: "indoor",
+        indoorBuildingId: action.buildingId,
+        indoorFloor: action.floor,
+        indoorSelectedRoom: null,
+      };
+
+    case "CLOSE_INDOOR":
+      return { ...state, panel: "directions" };
+
+    case "SET_INDOOR_FLOOR":
+      return { ...state, indoorFloor: action.floor, indoorSelectedRoom: null };
+
+    case "OPEN_ROOM_INFO":
+      return { ...state, panel: "room-info", indoorSelectedRoom: action.room };
+
+    case "BACK_TO_INDOOR":
+      return { ...state, panel: "indoor", indoorSelectedRoom: null };
 
     default:
       return state;

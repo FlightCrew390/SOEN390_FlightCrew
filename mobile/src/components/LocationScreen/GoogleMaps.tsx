@@ -20,6 +20,7 @@ import MapControls from "./MapControls";
 import MapOverlays from "./MapOverlays";
 import PoiMarker from "./PoiMarker";
 import PoiResultsPanel from "./PoiResultsPanel";
+import RoomResultsPanel from "./RoomResultsPanel";
 import RoutePolyline from "./RoutePolyline";
 import SearchPanel from "./SearchPanel";
 import UserLocationMarker from "./UserLocationMarker";
@@ -101,8 +102,14 @@ export default function GoogleMaps({
     query: string,
     locationType: LocationType,
     radiusKm: number | null,
+    classroomBuildingId?: string | null,
   ) => {
-    const match = handleSearch(query, locationType, radiusKm);
+    const match = handleSearch(
+      query,
+      locationType,
+      radiusKm,
+      classroomBuildingId,
+    );
     if (match) onSelectBuilding(match);
   };
 
@@ -207,6 +214,15 @@ export default function GoogleMaps({
         shuttleEligible={state.shuttleEligible}
         routePreviews={routePreviews}
       />
+
+      {state.panel === "room-results" && (
+        <RoomResultsPanel
+          results={state.roomResults}
+          onBack={() => dispatch({ type: "ROOM_BACK" })}
+          onSelectRoom={() => {}}
+          onDirectionPress={() => {}}
+        />
+      )}
 
       {state.panel === "poi-results" && (
         <PoiResultsPanel

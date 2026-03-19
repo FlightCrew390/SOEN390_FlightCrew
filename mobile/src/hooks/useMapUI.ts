@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useReducer } from "react";
 import { initialMapUIState, mapUIReducer } from "../reducers/mapUIReducer";
 import { PoiService } from "../services/PoiService";
-import { LocationType, isPoi } from "../state/SearchPanelState";
+import { IndoorDataService } from "../services/IndoorDataService";
+import { LocationType, isClassroom, isPoi } from "../state/SearchPanelState";
 import { Building } from "../types/Building";
 import { DepartureTimeConfig, TravelMode } from "../types/Directions";
 import { PointOfInterest } from "../types/PointOfInterest";
@@ -129,7 +130,27 @@ export function useMapUI(
   }, []);
 
   const handleSearch = useCallback(
-    (query: string, locationType: LocationType, radiusKm?: number | null) => {
+    (
+      query: string,
+      locationType: LocationType,
+      radiusKm?: number | null,
+      classroomBuildingId?: string | null,
+    ) => {
+      if (isClassroom(locationType)) {
+        const rooms = classroomBuildingId
+          ? query.trim()
+            ? IndoorDataService.searchRoomsByBuilding(
+                query,
+                classroomBuildingId,
+              )
+            : IndoorDataService.getRoomsByBuilding(classroomBuildingId)
+          : query.trim()
+            ? IndoorDataService.searchRooms(query)
+            : IndoorDataService.getRooms();
+        dispatch({ type: "ROOM_LOADED", results: rooms });
+        return null;
+      }
+
       if (isPoi(locationType)) {
         // POI search — fetch from backend, filter client-side
         dispatch({ type: "POI_LOADING" });

@@ -17,6 +17,7 @@ export const initialMapUIState: MapUIState = {
   selectedPoi: null,
   poiLoading: false,
   poiError: null,
+  roomResults: [],
 };
 
 export function mapUIReducer(
@@ -198,6 +199,12 @@ export function mapUIReducer(
         poiResults: [],
         poiError: null,
       };
+
+    case "ROOM_LOADED":
+      return { ...state, roomResults: action.results, panel: "room-results" };
+
+    case "ROOM_BACK":
+      return { ...state, panel: "search", roomResults: [] };
 
     default:
       return state;

@@ -4,7 +4,13 @@ import { COLORS } from "../../constants";
 import { SearchOrigin } from "../../state/MapUIState";
 import styles from "../../styles/GoogleMaps";
 
-type Panel = "none" | "search" | "directions" | "steps" | "poi-results";
+type Panel =
+  | "none"
+  | "search"
+  | "directions"
+  | "steps"
+  | "poi-results"
+  | "room-results";
 
 interface MapControlsProps {
   readonly panel: Panel;
@@ -49,25 +55,27 @@ export default function MapControls({
   return (
     <>
       {/* Search button */}
-      {panel !== "directions" && panel !== "poi-results" && (
-        <Pressable
-          style={[
-            styles.searchButton,
-            panel === "search" && styles.searchButtonOpen,
-          ]}
-          onPress={handleSearchPress}
-          accessibilityLabel={
-            panel === "search" ? "Close search" : "Search campus buildings"
-          }
-          accessibilityRole="button"
-        >
-          <FontAwesome5
-            name={getSearchIcon(panel, searchOrigin)}
-            size={panel === "search" ? 30 : 28}
-            color={COLORS.concordiaMaroon}
-          />
-        </Pressable>
-      )}
+      {panel !== "directions" &&
+        panel !== "poi-results" &&
+        panel !== "room-results" && (
+          <Pressable
+            style={[
+              styles.searchButton,
+              panel === "search" && styles.searchButtonOpen,
+            ]}
+            onPress={handleSearchPress}
+            accessibilityLabel={
+              panel === "search" ? "Close search" : "Search campus buildings"
+            }
+            accessibilityRole="button"
+          >
+            <FontAwesome5
+              name={getSearchIcon(panel, searchOrigin)}
+              size={panel === "search" ? 30 : 28}
+              color={COLORS.concordiaMaroon}
+            />
+          </Pressable>
+        )}
 
       {/* Recenter button */}
       {hasLocation && (

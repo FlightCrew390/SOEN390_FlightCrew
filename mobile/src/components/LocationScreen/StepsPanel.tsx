@@ -4,6 +4,7 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import { COLORS } from "../../constants";
 import styles from "../../styles/StepsPanel";
 import { Building } from "../../types/Building";
+import { IndoorRoom } from "../../types/IndoorRoom";
 import { DepartureTimeConfig, RouteInfo } from "../../types/Directions";
 import {
   computeStepTimeline,
@@ -23,6 +24,8 @@ interface StepsPanelProps {
   readonly route: RouteInfo;
   readonly departureConfig: DepartureTimeConfig;
   readonly onBack: () => void;
+  readonly destinationRoom?: IndoorRoom | null;
+  readonly onOpenIndoor?: () => void;
 }
 
 export default function StepsPanel({
@@ -31,6 +34,8 @@ export default function StepsPanel({
   route,
   departureConfig,
   onBack,
+  destinationRoom,
+  onOpenIndoor,
 }: Readonly<StepsPanelProps>) {
   const distanceText =
     route.distanceText ?? formatDistance(route.distanceMeters);
@@ -156,6 +161,39 @@ export default function StepsPanel({
             <Text style={styles.stepInstruction}>
               Arrive at {building.buildingName ?? building.buildingCode}
             </Text>
+            {destinationRoom && onOpenIndoor && (
+              <Pressable
+                style={{
+                  marginTop: 12,
+                  backgroundColor: COLORS.concordiaMaroon,
+                  paddingVertical: 10,
+                  paddingHorizontal: 16,
+                  borderRadius: 8,
+                  alignSelf: "flex-start",
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+                onPress={onOpenIndoor}
+                accessibilityLabel="Show Indoor Map"
+                accessibilityRole="button"
+              >
+                <MaterialIcons
+                  name="map"
+                  size={18}
+                  color={COLORS.white}
+                  style={{ marginRight: 6 }}
+                />
+                <Text
+                  style={{
+                    color: COLORS.white,
+                    fontWeight: "600",
+                    fontSize: 14,
+                  }}
+                >
+                  Show Indoor Map
+                </Text>
+              </Pressable>
+            )}
           </View>
           <MaterialIcons
             name="place"

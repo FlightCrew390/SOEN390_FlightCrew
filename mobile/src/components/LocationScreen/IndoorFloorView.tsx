@@ -64,9 +64,11 @@ const INITIAL_SCALE = 0.82;
 function ZoomableFloorPlan({
   buildingId,
   floor,
+  selectedRoom,
 }: {
   buildingId: string;
   floor: number;
+  selectedRoom?: IndoorRoom | null;
 }) {
   const baseScale = useRef(new Animated.Value(INITIAL_SCALE)).current;
   const pinchScale = useRef(new Animated.Value(1)).current;
@@ -134,6 +136,35 @@ function ZoomableFloorPlan({
     dispatchFloorPlanAsset({ type: "RESET" });
   }, [assetUri]);
 
+  const getCoordSpace = (bId: string) => {
+    if (bId === "CC") return { width: 8192, height: 2048 };
+    if (bId === "Hall" || bId === "VE") return { width: 2048, height: 2048 };
+    return { width: 1024, height: 1024 };
+  };
+
+  const coordSpace = getCoordSpace(buildingId);
+  const mapAspectRatio = coordSpace.width / coordSpace.height;
+
+  const renderPin = () => {
+    if (!selectedRoom || selectedRoom.floor !== floor) return null;
+    return (
+      <View
+        style={{
+          position: "absolute",
+          left: `${(selectedRoom.x / coordSpace.width) * 100}%`,
+          top: `${(selectedRoom.y / coordSpace.height) * 100}%`,
+          transform: [{ translateX: -16 }, { translateY: -32 }],
+        }}
+      >
+        <MaterialCommunityIcons
+          name="map-marker"
+          size={32}
+          color={COLORS.concordiaYellow}
+        />
+      </View>
+    );
+  };
+
   const content = assetLoadFailed ? (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       <Text style={{ color: "#888", fontSize: 15, textAlign: "center" }}>
@@ -151,13 +182,16 @@ function ZoomableFloorPlan({
         overflow: "hidden",
       }}
     >
-      <SvgUri
-        uri={assetUri}
-        width="100%"
-        height="100%"
-        preserveAspectRatio="xMidYMid meet"
-        onError={() => dispatchFloorPlanAsset({ type: "LOAD_FAILED" })}
-      />
+      <View style={{ width: "100%", aspectRatio: mapAspectRatio }}>
+        <SvgUri
+          uri={assetUri}
+          width="100%"
+          height="100%"
+          preserveAspectRatio="xMidYMid meet"
+          onError={() => dispatchFloorPlanAsset({ type: "LOAD_FAILED" })}
+        />
+        {renderPin()}
+      </View>
     </View>
   ) : rasterFileName && assetUri ? (
     <View
@@ -170,12 +204,15 @@ function ZoomableFloorPlan({
         overflow: "hidden",
       }}
     >
-      <Image
-        source={{ uri: assetUri }}
-        style={{ width: "100%", height: "100%" }}
-        resizeMode="contain"
-        onError={() => dispatchFloorPlanAsset({ type: "LOAD_FAILED" })}
-      />
+      <View style={{ width: "100%", aspectRatio: mapAspectRatio }}>
+        <Image
+          source={{ uri: assetUri }}
+          style={{ width: "100%", height: "100%" }}
+          resizeMode="contain"
+          onError={() => dispatchFloorPlanAsset({ type: "LOAD_FAILED" })}
+        />
+        {renderPin()}
+      </View>
     </View>
   ) : (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
@@ -225,6 +262,7 @@ interface IndoorFloorViewProps {
   readonly onFloorChange: (floor: number) => void;
   readonly onBack: () => void;
   readonly onRoomPress: (room: IndoorRoom) => void;
+  readonly selectedRoom?: IndoorRoom | null;
 }
 
 export default function IndoorFloorView({
@@ -234,6 +272,7 @@ export default function IndoorFloorView({
   currentFloor,
   onFloorChange,
   onBack,
+  selectedRoom,
 }: Readonly<IndoorFloorViewProps>) {
   const [{ floorOpen }, dispatchFloorSelector] = useReducer(
     floorSelectorReducer,
@@ -297,6 +336,9 @@ export default function IndoorFloorView({
               }}
             >
               Indoor view · Floor {getFloorLabel(buildingId, currentFloor)}
+              {selectedRoom && selectedRoom.floor === currentFloor
+                ? ` · ${selectedRoom.label}`
+                : ""}
             </Text>
           </View>
           <View style={{ width: 36 }} />
@@ -304,7 +346,11 @@ export default function IndoorFloorView({
       </SafeAreaView>
 
       <View style={{ flex: 1 }}>
-        <ZoomableFloorPlan buildingId={buildingId} floor={currentFloor} />
+        <ZoomableFloorPlan
+          buildingId={buildingId}
+          floor={currentFloor}
+          selectedRoom={selectedRoom}
+        />
 
         {/* Floor selector */}
         <View

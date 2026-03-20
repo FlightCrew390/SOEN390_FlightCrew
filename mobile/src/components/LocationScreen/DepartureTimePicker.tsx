@@ -14,6 +14,7 @@ import {
 import styles from "../../styles/DirectionPanel";
 import { DepartureOption, DepartureTimeConfig } from "../../types/Directions";
 import { formatDate, formatDateTime } from "../../utils/formatHelper";
+import { getNextShuttleDefault } from "../../utils/shuttleUtils";
 
 interface DepartureTimePickerProps {
   readonly config: DepartureTimeConfig;
@@ -28,34 +29,24 @@ export default function DepartureTimePicker({
     departureTimePickerReducer,
     initialDepartureTimePickerState,
   );
-  const { showDatePicker, showTimePicker, expanded } = state;
+  const { showPicker, expanded } = state;
 
   const handleOptionSelect = (option: DepartureOption) => {
     if (option === "now") {
       onConfigChange({ option: "now", date: new Date() });
+      dispatch({ type: "COLLAPSE" });
+      dispatch({ type: "HIDE_PICKER" });
     } else {
       onConfigChange({ option, date: config.date });
-    }
-    dispatch({ type: "COLLAPSE" });
-  };
-
-  const handleDateChange = (_event: DateTimePickerEvent, date?: Date) => {
-    if (Platform.OS !== "ios") dispatch({ type: "HIDE_DATE_PICKER" });
-    if (date) {
-      const merged = new Date(config.date);
-      merged.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-      onConfigChange({ ...config, date: merged });
-      // Chain: after picking date, show time picker
-      dispatch({ type: "SHOW_TIME_PICKER" });
+      dispatch({ type: "COLLAPSE" });
+      dispatch({ type: "SHOW_PICKER" });
     }
   };
 
-  const handleTimeChange = (_event: DateTimePickerEvent, date?: Date) => {
-    if (Platform.OS !== "ios") dispatch({ type: "HIDE_TIME_PICKER" });
+  const handleDateTimeChange = (_event: DateTimePickerEvent, date?: Date) => {
+    if (Platform.OS !== "ios") dispatch({ type: "HIDE_PICKER" });
     if (date) {
-      const merged = new Date(config.date);
-      merged.setHours(date.getHours(), date.getMinutes(), 0, 0);
-      onConfigChange({ ...config, date: merged });
+      onConfigChange({ ...config, date });
     }
   };
 
@@ -83,15 +74,9 @@ export default function DepartureTimePicker({
         <FontAwesome5 name="clock" size={13} color={COLORS.concordiaMaroon} />
         <Text style={styles.departureToggleText}>{activeLabel}</Text>
         {config.option !== "now" && (
-          <Pressable
-            onPress={() => dispatch({ type: "SHOW_DATE_PICKER" })}
-            accessibilityLabel="Select date and time"
-            accessibilityRole="button"
-          >
-            <Text style={styles.departureToggleTime}>
-              {formatDate(config.date)}, {formatDateTime(config.date)}
-            </Text>
-          </Pressable>
+          <Text style={styles.departureToggleTime}>
+            {formatDate(config.date)}, {formatDateTime(config.date)}
+          </Text>
         )}
         <FontAwesome5
           name={expanded ? "chevron-up" : "chevron-down"}
@@ -130,6 +115,21 @@ export default function DepartureTimePicker({
         </View>
       )}
 
+      {/* Next weekday shortcut */}
+      {config.option !== "now" && (
+        <Pressable
+          onPress={() =>
+            onConfigChange({ ...config, date: getNextShuttleDefault() })
+          }
+          accessibilityLabel="Select next weekday"
+          accessibilityRole="button"
+        >
+          <Text style={styles.departurePillTextShortcut}>
+            Select next weekday
+          </Text>
+        </Pressable>
+      )}
+
       {/* Past-time warning */}
       {isPastTime && (
         <Text style={styles.departurePastTimeWarning} accessibilityRole="alert">
@@ -137,24 +137,14 @@ export default function DepartureTimePicker({
         </Text>
       )}
 
-      {/* Native date picker */}
-      {showDatePicker && (
+      {/* Native date & time picker */}
+      {showPicker && (
         <DateTimePicker
-          testID="date-picker"
+          testID="datetime-picker"
           value={config.date}
-          mode="date"
+          mode="datetime"
           minimumDate={new Date()}
-          onChange={handleDateChange}
-        />
-      )}
-
-      {/* Native time picker */}
-      {showTimePicker && (
-        <DateTimePicker
-          testID="time-picker"
-          value={config.date}
-          mode="time"
-          onChange={handleTimeChange}
+          onChange={handleDateTimeChange}
         />
       )}
     </View>

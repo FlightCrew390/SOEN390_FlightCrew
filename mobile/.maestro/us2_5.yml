@@ -1,0 +1,46 @@
+appId: com.flightcrew.mobile
+tags:
+  - us2
+---
+- runFlow: flows/open_map.yml
+- runFlow: flows/open_directions_hall.yml
+
+# ═══════════════════════════════════════════════════════════════════
+# US2.5 – Transportation Modes (Walk, Bike, Transit, Drive)
+# ═══════════════════════════════════════════════════════════════════
+
+# Test 5a: All transportation modes are available
+- assertVisible: "Get directions by Walk"
+- assertVisible: "Get directions by Bike"
+- assertVisible: "Get directions by Transit"
+- assertVisible: "Get directions by Drive"
+- assertVisible: "Get directions by Shuttle"
+
+# Test 5b: Select Walking mode – route updates
+- tapOn: "Get directions by Walk"
+- extendedWaitUntil:
+    visible: "View step-by-step directions"
+    timeout: 15000
+
+# Test 5c: Switch to Bike mode – route updates with new info
+- tapOn: "Get directions by Bike"
+- extendedWaitUntil:
+    visible: "View step-by-step directions"
+    timeout: 15000
+
+# Test 5d: Switch to Transit mode
+- tapOn: "Get directions by Transit"
+- extendedWaitUntil:
+    visible: "View step-by-step directions"
+    timeout: 15000
+
+# Test 5e: Switch to Drive mode
+- tapOn: "Get directions by Drive"
+- extendedWaitUntil:
+    visible: "View step-by-step directions"
+    timeout: 15000
+
+# Test 5f: Deselect current mode by tapping it again (toggle off)
+- tapOn: "Get directions by Drive"
+- waitForAnimationToEnd
+- assertNotVisible: "View step-by-step directions"

@@ -318,6 +318,14 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontWeight: "500",
   },
+  departurePillTextShortcut: {
+    fontSize: 13,
+    color: COLORS.concordiaMaroon,
+    fontWeight: "500",
+    fontStyle: "italic",
+    opacity: 0.8,
+    textDecorationLine: "underline",
+  },
   departurePillTextActive: {
     color: COLORS.white,
   },

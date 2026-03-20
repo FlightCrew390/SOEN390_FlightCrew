@@ -144,6 +144,28 @@ export function getNextDeparture(
 }
 
 /**
+ * Returns the next weekday (Mon–Fri) at 9:15 AM.
+ * If today is a weekday and 9:15 AM is still in the future, returns today at 9:15.
+ */
+export function getNextShuttleDefault(now: Date = new Date()): Date {
+  const result = new Date(now);
+  result.setHours(9, 15, 0, 0);
+
+  // If today is a weekday and 9:15 AM hasn't passed, use today
+  const day = now.getDay();
+  if (day >= 1 && day <= 5 && result > now) {
+    return result;
+  }
+
+  // Otherwise, advance to next weekday
+  result.setDate(result.getDate() + 1);
+  while (result.getDay() === 0 || result.getDay() === 6) {
+    result.setDate(result.getDate() + 1);
+  }
+  return result;
+}
+
+/**
  * Get the current day-of-week string (e.g. "MONDAY") for the shuttle API.
  */
 export function getDayOfWeek(date: Date = new Date()): string {

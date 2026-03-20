@@ -174,6 +174,7 @@ export default function GoogleMaps({
             isDirectionsOpen={
               state.panel === "directions" || state.panel === "steps"
             }
+            onPress={() => onPoiDirectionPress(state.selectedPoi!)}
             onDirectionPress={() => onPoiDirectionPress(state.selectedPoi!)}
           />
         )}

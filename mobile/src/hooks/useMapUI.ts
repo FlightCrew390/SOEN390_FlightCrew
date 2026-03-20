@@ -125,9 +125,12 @@ export function useMapUI(
     dispatch({ type: "SELECT_BUILDING", building });
   }, []);
 
-  const openDirections = useCallback((building: Building) => {
-    dispatch({ type: "OPEN_DIRECTIONS", building });
-  }, []);
+  const openDirections = useCallback(
+    (building: Building, room?: IndoorRoom) => {
+      dispatch({ type: "OPEN_DIRECTIONS", building, room });
+    },
+    [],
+  );
 
   const handleSearch = useCallback(
     (

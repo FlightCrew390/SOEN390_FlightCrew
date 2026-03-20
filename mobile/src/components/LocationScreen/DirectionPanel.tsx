@@ -16,6 +16,7 @@ import { usePanelAnimation } from "../../hooks/usePanelAnimation";
 import type { RoutePreviews } from "../../hooks/useRoutePreviews";
 import styles from "../../styles/DirectionPanel";
 import { Building, StructureType } from "../../types/Building";
+import { IndoorRoom } from "../../types/IndoorRoom";
 import {
   DepartureTimeConfig,
   RouteInfo,
@@ -76,6 +77,8 @@ interface DirectionPanelProps {
   readonly showSteps: boolean;
   readonly onShowSteps: () => void;
   readonly onHideSteps: () => void;
+  readonly destinationRoom?: IndoorRoom | null;
+  readonly onOpenIndoor?: () => void;
   readonly shuttleEligible?: boolean;
   readonly routePreviews?: RoutePreviews;
 }
@@ -345,6 +348,8 @@ export default function DirectionPanel({
   showSteps,
   onShowSteps,
   onHideSteps,
+  destinationRoom,
+  onOpenIndoor,
   shuttleEligible,
   routePreviews,
 }: Readonly<DirectionPanelProps>) {
@@ -505,6 +510,8 @@ export default function DirectionPanel({
           route={route}
           departureConfig={departureConfig}
           onBack={onHideSteps}
+          destinationRoom={destinationRoom}
+          onOpenIndoor={onOpenIndoor}
         />
       )}
     </>

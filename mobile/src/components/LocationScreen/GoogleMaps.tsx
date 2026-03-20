@@ -214,11 +214,7 @@ export default function GoogleMaps({
       />
 
       <DirectionPanel
-        visible={
-          state.panel === "directions" ||
-          state.panel === "steps" ||
-          state.panel === "room-info"
-        }
+        visible={state.panel === "directions" || state.panel === "steps"}
         building={state.selectedBuilding}
         roomLabel={
           state.panel === "room-info"
@@ -234,6 +230,16 @@ export default function GoogleMaps({
         userLocation={userCoords}
         departureConfig={state.departureConfig}
         onDepartureConfigChange={handleDepartureConfigChange}
+        destinationRoom={state.destinationRoom}
+        onOpenIndoor={() => {
+          if (state.destinationRoom) {
+            openIndoorView(
+              state.destinationRoom.buildingId,
+              state.destinationRoom.floor,
+            );
+            dispatch({ type: "OPEN_ROOM_INFO", room: state.destinationRoom });
+          }
+        }}
         onClose={() =>
           state.panel === "room-info"
             ? dispatch({ type: "BACK_TO_INDOOR" })
@@ -252,7 +258,24 @@ export default function GoogleMaps({
         <RoomResultsPanel
           results={state.roomResults}
           onBack={() => dispatch({ type: "ROOM_BACK" })}
-          onSelectRoom={() => {}}
+          onSelectRoom={(room) => {
+            const BUILDING_ID_TO_CODE: Record<string, string> = {
+              Hall: "H",
+              CC: "CC",
+              MB: "MB",
+              VE: "VE",
+              VL: "VL",
+            };
+            const code =
+              BUILDING_ID_TO_CODE[room.buildingId] ?? room.buildingId;
+            const building = buildings.find((b) => b.buildingCode === code);
+            if (building) {
+              animateToBuilding(building);
+              selectBuilding(building);
+              openIndoorView(room.buildingId, room.floor);
+              dispatch({ type: "OPEN_ROOM_INFO", room });
+            }
+          }}
           onDirectionPress={(room) => {
             const BUILDING_ID_TO_CODE: Record<string, string> = {
               Hall: "H",
@@ -266,7 +289,7 @@ export default function GoogleMaps({
             const building = buildings.find((b) => b.buildingCode === code);
             if (building) {
               animateToBuilding(building);
-              openDirections(building);
+              openDirections(building, room);
             }
           }}
         />
@@ -283,7 +306,7 @@ export default function GoogleMaps({
         />
       )}
 
-      {state.panel === "indoor" &&
+      {(state.panel === "indoor" || state.panel === "room-info") &&
         state.selectedBuilding &&
         state.indoorBuildingId && (
           <IndoorFloorView
@@ -298,6 +321,7 @@ export default function GoogleMaps({
             onRoomPress={(room) => {
               dispatch({ type: "OPEN_ROOM_INFO", room });
             }}
+            selectedRoom={state.indoorSelectedRoom}
           />
         )}
 

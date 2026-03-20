@@ -9,7 +9,6 @@ import { UserProvider } from "../../contexts/UserContext";
 import HomeScreen from "../../screens/HomeScreen";
 import LocationScreen from "../../screens/LocationScreen";
 import MenuScreen from "../../screens/MenuScreen";
-import SearchScreen from "../../screens/SearchScreen";
 import { RootTabParamList } from "../../types/NavBar";
 
 const Tab: ReturnType<typeof createBottomTabNavigator<RootTabParamList>> =
@@ -52,11 +51,6 @@ export default function HomeScreenNavBar() {
             name="location"
             component={LocationScreen}
             options={{ tabBarButtonTestID: "location-tab" }}
-          />
-          <Tab.Screen
-            name="search"
-            component={SearchScreen}
-            options={{ tabBarButtonTestID: "search-tab" }}
           />
           <Tab.Screen
             name="menu"

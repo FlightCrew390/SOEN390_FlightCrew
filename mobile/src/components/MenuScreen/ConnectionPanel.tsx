@@ -208,6 +208,24 @@ export default function ConnectionPanel() {
               </View>
             )}
 
+            <View style={styles.calendarGuide}>
+              <Feather name="info" size={16} color="grey" />
+              <Text style={styles.calendarGuideText}>
+                Need help importing your schedule to Google Calendar?{" "}
+                <Pressable
+                  onPress={() => {
+                    // Open the guide in the user's browser
+                    const guideUrl =
+                      "https://github.com/Tsounguinzo/visual-schedule-builder-export";
+                    WebBrowser.openBrowserAsync(guideUrl);
+                  }}
+                >
+                  <Text style={styles.calendarGuideLink}>Tap here</Text>
+                </Pressable>{" "}
+                for a guide.
+              </Text>
+            </View>
+
             {isCalendarConnected ? (
               <View style={styles.calendarConnected}>
                 <FontAwesome6 name="google" size={24} color="green" />

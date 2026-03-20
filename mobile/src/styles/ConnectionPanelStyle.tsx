@@ -123,6 +123,24 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 12,
   },
+  calendarGuide: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 16,
+  },
+  calendarGuideText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    flex: 1,
+    fontStyle: "italic",
+  },
+  calendarGuideLink: {
+    fontSize: 13,
+    color: COLORS.concordiaMaroon,
+    textDecorationLine: "underline",
+    fontStyle: "italic",
+  },
 
   /* Sign in */
   signInButton: {

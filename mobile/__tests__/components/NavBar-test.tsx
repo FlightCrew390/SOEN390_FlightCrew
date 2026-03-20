@@ -23,7 +23,6 @@ test("Initial screen is Home", () => {
   );
 
   expect(screen.getByTestId("home-screen")).toBeTruthy();
-  expect(screen.queryByTestId("search-screen")).toBeNull();
   expect(screen.queryByTestId("location-screen")).toBeNull();
   expect(screen.queryByTestId("menu-screen")).toBeNull();
 });
@@ -45,18 +44,7 @@ test("Screen change on tab press", async () => {
 
   expect(screen.getByTestId("menu-screen")).toBeTruthy();
   expect(screen.queryByTestId("home-screen")).toBeNull();
-  expect(screen.queryByTestId("search-screen")).toBeNull();
   expect(screen.queryByTestId("location-screen")).toBeNull();
-
-  await user.press(screen.getByRole("button", { name: "search" }));
-  act(() => {
-    jest.runAllTimers();
-  });
-
-  expect(screen.getByTestId("search-screen")).toBeTruthy();
-  expect(screen.queryByTestId("home-screen")).toBeNull();
-  expect(screen.queryByTestId("location-screen")).toBeNull();
-  expect(screen.queryByTestId("menu-screen")).toBeNull();
 
   await user.press(screen.getByRole("button", { name: "location" }));
   act(() => {
@@ -65,7 +53,6 @@ test("Screen change on tab press", async () => {
 
   expect(screen.getByTestId("location-screen")).toBeTruthy();
   expect(screen.queryByTestId("home-screen")).toBeNull();
-  expect(screen.queryByTestId("search-screen")).toBeNull();
   expect(screen.queryByTestId("menu-screen")).toBeNull();
 
   await user.press(screen.getByRole("button", { name: "home" }));
@@ -74,7 +61,6 @@ test("Screen change on tab press", async () => {
   });
 
   expect(screen.getByTestId("home-screen")).toBeTruthy();
-  expect(screen.queryByTestId("search-screen")).toBeNull();
   expect(screen.queryByTestId("location-screen")).toBeNull();
   expect(screen.queryByTestId("menu-screen")).toBeNull();
 });

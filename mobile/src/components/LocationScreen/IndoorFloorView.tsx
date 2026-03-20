@@ -1,5 +1,5 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef } from "react";
 import {
   Animated,
   Image,
@@ -16,6 +16,12 @@ import {
 } from "react-native-gesture-handler";
 import { SvgUri } from "react-native-svg";
 import { API_CONFIG, COLORS } from "../../constants";
+import {
+  floorPlanAssetReducer,
+  floorSelectorReducer,
+  initialFloorPlanAssetState,
+  initialFloorSelectorState,
+} from "../../reducers/indoorFloorViewReducer";
 import { Building } from "../../types/Building";
 import { IndoorRoom } from "../../types/IndoorRoom";
 
@@ -119,10 +125,13 @@ function ZoomableFloorPlan({
     [assetFileName],
   );
 
-  const [assetLoadFailed, setAssetLoadFailed] = useState(false);
+  const [{ assetLoadFailed }, dispatchFloorPlanAsset] = useReducer(
+    floorPlanAssetReducer,
+    initialFloorPlanAssetState,
+  );
 
   useEffect(() => {
-    setAssetLoadFailed(false);
+    dispatchFloorPlanAsset({ type: "RESET" });
   }, [assetUri]);
 
   const content = assetLoadFailed ? (
@@ -147,7 +156,7 @@ function ZoomableFloorPlan({
         width="100%"
         height="100%"
         preserveAspectRatio="xMidYMid meet"
-        onError={() => setAssetLoadFailed(true)}
+        onError={() => dispatchFloorPlanAsset({ type: "LOAD_FAILED" })}
       />
     </View>
   ) : rasterFileName && assetUri ? (
@@ -165,7 +174,7 @@ function ZoomableFloorPlan({
         source={{ uri: assetUri }}
         style={{ width: "100%", height: "100%" }}
         resizeMode="contain"
-        onError={() => setAssetLoadFailed(true)}
+        onError={() => dispatchFloorPlanAsset({ type: "LOAD_FAILED" })}
       />
     </View>
   ) : (
@@ -226,7 +235,10 @@ export default function IndoorFloorView({
   onFloorChange,
   onBack,
 }: Readonly<IndoorFloorViewProps>) {
-  const [floorOpen, setFloorOpen] = React.useState(false);
+  const [{ floorOpen }, dispatchFloorSelector] = useReducer(
+    floorSelectorReducer,
+    initialFloorSelectorState,
+  );
 
   const buildingLabel =
     building.buildingName ?? BUILDING_NAMES[buildingId] ?? buildingId;
@@ -305,7 +317,7 @@ export default function IndoorFloorView({
           }}
         >
           <Pressable
-            onPress={() => setFloorOpen((v) => !v)}
+            onPress={() => dispatchFloorSelector({ type: "TOGGLE" })}
             style={{
               width: 60,
               height: 60,
@@ -350,7 +362,7 @@ export default function IndoorFloorView({
                     key={floor}
                     onPress={() => {
                       onFloorChange(floor);
-                      setFloorOpen(false);
+                      dispatchFloorSelector({ type: "CLOSE" });
                     }}
                     style={{
                       width: 60,

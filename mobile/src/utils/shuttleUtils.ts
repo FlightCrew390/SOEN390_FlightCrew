@@ -1,9 +1,9 @@
 import { CAMPUSES } from "../constants/campuses";
-import { Building } from "../types/Building";
 import type {
   ShuttleDeparture,
   ShuttleScheduleResponse,
 } from "../services/ShuttleService";
+import { Building } from "../types/Building";
 
 /** Approximate radius (in degrees ≈ 1 km) to consider "near" a campus */
 const CAMPUS_PROXIMITY_DEG = 0.01;
@@ -158,7 +158,7 @@ export function getNextShuttleDefault(now: Date = new Date()): Date {
   }
 
   // Otherwise, advance to next weekday
-  result.setDate(result.getDate() + 1);
+  result.setDate(result.getDate() + 1); // Start with tomorrow
   while (result.getDay() === 0 || result.getDay() === 6) {
     result.setDate(result.getDate() + 1);
   }

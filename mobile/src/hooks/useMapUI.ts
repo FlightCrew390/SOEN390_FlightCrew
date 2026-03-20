@@ -137,17 +137,24 @@ export function useMapUI(
       classroomBuildingId?: string | null,
     ) => {
       if (isClassroom(locationType)) {
-        const rooms = classroomBuildingId
-          ? query.trim()
-            ? IndoorDataService.searchRoomsByBuilding(
-                query,
-                classroomBuildingId,
-              )
-            : IndoorDataService.getRoomsByBuilding(classroomBuildingId)
-          : query.trim()
-            ? IndoorDataService.searchRooms(query)
-            : IndoorDataService.getRooms();
-        dispatch({ type: "ROOM_LOADED", results: rooms });
+        IndoorDataService.ensureLoaded()
+          .then(() => {
+            const rooms = classroomBuildingId
+              ? query.trim()
+                ? IndoorDataService.searchRoomsByBuilding(
+                    query,
+                    classroomBuildingId,
+                  )
+                : IndoorDataService.getRoomsByBuilding(classroomBuildingId)
+              : query.trim()
+                ? IndoorDataService.searchRooms(query)
+                : IndoorDataService.getRooms();
+
+            dispatch({ type: "ROOM_LOADED", results: rooms });
+          })
+          .catch(() => {
+            dispatch({ type: "ROOM_LOADED", results: [] });
+          });
         return null;
       }
 

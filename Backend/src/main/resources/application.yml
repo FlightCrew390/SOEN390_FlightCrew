@@ -17,3 +17,6 @@ app:
   poi:
     cache:
       file: poi_cache.json
+  indoor:
+    json-dir: src/main/resources/indoor/json
+    svg-dir: src/main/resources/indoor/svg

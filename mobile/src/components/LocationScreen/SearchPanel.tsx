@@ -15,7 +15,6 @@ import {
   initialSearchPanelState,
   searchPanelReducer,
 } from "../../reducers/searchPanelReducer";
-import { IndoorDataService } from "../../services/IndoorDataService";
 import { LOCATION_OPTIONS, RADIUS_OPTIONS } from "../../constants/searchPanel";
 import { LocationType, isClassroom, isPoi } from "../../state/SearchPanelState";
 import styles from "../../styles/SearchPanel";
@@ -23,7 +22,11 @@ import { Building } from "../../types/Building";
 
 const CLASSROOM_BUILDINGS = [
   { id: null, label: "All Buildings" },
-  ...IndoorDataService.getAvailableBuildings().map((id) => ({ id, label: id })),
+  { id: "Hall", label: "Hall" },
+  { id: "CC", label: "CC" },
+  { id: "MB", label: "MB" },
+  { id: "VE", label: "VE" },
+  { id: "VL", label: "VL" },
 ];
 
 const BUILDING_NAMES: Record<string, string> = {

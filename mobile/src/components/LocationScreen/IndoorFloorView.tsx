@@ -1,5 +1,5 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import React, { useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Image,
@@ -14,17 +14,10 @@ import {
   PinchGestureHandler,
   State,
 } from "react-native-gesture-handler";
-import { COLORS } from "../../constants";
+import { SvgUri } from "react-native-svg";
+import { API_CONFIG, COLORS } from "../../constants";
 import { Building } from "../../types/Building";
 import { IndoorRoom } from "../../types/IndoorRoom";
-
-import CC1 from "../../../floor_plans_2/CC1.svg";
-import H1 from "../../../floor_plans_2/H1.svg";
-import H2 from "../../../floor_plans_2/H2.svg";
-import Hall8 from "../../../floor_plans_2/hall8.svg";
-import Hall9 from "../../../floor_plans_2/hall9.svg";
-import VE1 from "../../../floor_plans_2/ve1.svg";
-import VE2 from "../../../floor_plans_2/ve2.svg";
 
 const BUILDING_NAMES: Record<string, string> = {
   Hall: "Henry F. Hall (H) Building",
@@ -34,27 +27,31 @@ const BUILDING_NAMES: Record<string, string> = {
   VL: "Vanier Library (VL)",
 };
 
-type SvgComponent = React.FC<{
-  width: string | number;
-  height: string | number;
-}>;
+const API_BASE_URL = API_CONFIG.getBaseUrl();
 
-const SVG_PLANS: Record<string, Record<number, SvgComponent>> = {
-  Hall: { 1: H1, 2: H2, 8: Hall8, 9: Hall9 },
-  CC: { 1: CC1 },
-  VE: { 1: VE1, 2: VE2 },
+const SVG_PLAN_FILES: Record<string, Record<number, string>> = {
+  Hall: { 1: "H1.svg", 2: "H2.svg", 8: "hall8.svg", 9: "hall9.svg" },
+  CC: { 1: "CC1.svg" },
+  VE: { 1: "ve1.svg", 2: "ve2.svg" },
 };
 
-const PNG_PLANS: Record<string, Record<number, number>> = {
-  MB: {
-    1: require("../../../floor_plans_2/mb_1.png"),
-    2: require("../../../floor_plans_2/mb_s2.png"),
-  },
-  VL: {
-    1: require("../../../floor_plans_2/vl_1.png"),
-    2: require("../../../floor_plans_2/vl_2.png"),
-  },
+const RASTER_PLAN_FILES: Record<string, Record<number, string>> = {
+  MB: { 1: "mb_1.png", 2: "mb_s2.png" },
+  VL: { 1: "vl_1.png", 2: "vl_2.png" },
 };
+
+function getFloorLabel(buildingId: string, floor: number): string {
+  if (buildingId === "MB" && floor === 2) return "S2";
+  if (buildingId === "MB" && floor === 1) return "1";
+  return `${floor}F`;
+}
+
+function sortFloorsForDisplay(buildingId: string, floors: number[]): number[] {
+  if (buildingId === "MB") {
+    return [...floors].sort((a, b) => a - b);
+  }
+  return [...floors].sort((a, b) => b - a);
+}
 
 const INITIAL_SCALE = 0.82;
 
@@ -111,17 +108,66 @@ function ZoomableFloorPlan({
 
   const combinedScale = Animated.multiply(baseScale, pinchScale);
 
-  const SvgPlan = SVG_PLANS[buildingId]?.[floor];
-  const pngSource = PNG_PLANS[buildingId]?.[floor];
+  const svgFileName = SVG_PLAN_FILES[buildingId]?.[floor];
+  const rasterFileName = RASTER_PLAN_FILES[buildingId]?.[floor];
+  const assetFileName = svgFileName ?? rasterFileName;
+  const assetUri = useMemo(
+    () =>
+      assetFileName
+        ? `${API_BASE_URL}/indoor/assets/${encodeURIComponent(assetFileName)}`
+        : null,
+    [assetFileName],
+  );
 
-  const content = SvgPlan ? (
-    <SvgPlan width="100%" height="100%" />
-  ) : pngSource ? (
-    <Image
-      source={pngSource}
-      style={{ flex: 1, width: "100%" }}
-      resizeMode="contain"
-    />
+  const [assetLoadFailed, setAssetLoadFailed] = useState(false);
+
+  useEffect(() => {
+    setAssetLoadFailed(false);
+  }, [assetUri]);
+
+  const content = assetLoadFailed ? (
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+      <Text style={{ color: "#888", fontSize: 15, textAlign: "center" }}>
+        Floor plan failed to load.
+      </Text>
+    </View>
+  ) : svgFileName && assetUri ? (
+    <View
+      style={{
+        flex: 1,
+        width: "100%",
+        height: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+      }}
+    >
+      <SvgUri
+        uri={assetUri}
+        width="100%"
+        height="100%"
+        preserveAspectRatio="xMidYMid meet"
+        onError={() => setAssetLoadFailed(true)}
+      />
+    </View>
+  ) : rasterFileName && assetUri ? (
+    <View
+      style={{
+        flex: 1,
+        width: "100%",
+        height: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+      }}
+    >
+      <Image
+        source={{ uri: assetUri }}
+        style={{ width: "100%", height: "100%" }}
+        resizeMode="contain"
+        onError={() => setAssetLoadFailed(true)}
+      />
+    </View>
   ) : (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       <Text style={{ color: "#888", fontSize: 15 }}>
@@ -137,7 +183,7 @@ function ZoomableFloorPlan({
       onGestureEvent={onPanEvent}
       onHandlerStateChange={onPanStateChange}
     >
-      <Animated.View style={{ flex: 1 }}>
+      <Animated.View style={{ flex: 1, overflow: "hidden" }}>
         <PinchGestureHandler
           ref={pinchRef}
           simultaneousHandlers={panRef}
@@ -238,7 +284,7 @@ export default function IndoorFloorView({
                 textAlign: "center",
               }}
             >
-              Indoor view · Floor {currentFloor}
+              Indoor view · Floor {getFloorLabel(buildingId, currentFloor)}
             </Text>
           </View>
           <View style={{ width: 36 }} />
@@ -299,39 +345,37 @@ export default function IndoorFloorView({
               }}
             >
               <ScrollView showsVerticalScrollIndicator={false}>
-                {[...floors]
-                  .sort((a, b) => b - a)
-                  .map((floor) => (
-                    <Pressable
-                      key={floor}
-                      onPress={() => {
-                        onFloorChange(floor);
-                        setFloorOpen(false);
-                      }}
+                {sortFloorsForDisplay(buildingId, floors).map((floor) => (
+                  <Pressable
+                    key={floor}
+                    onPress={() => {
+                      onFloorChange(floor);
+                      setFloorOpen(false);
+                    }}
+                    style={{
+                      width: 60,
+                      height: 60,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor:
+                        floor === currentFloor
+                          ? COLORS.concordiaMaroon
+                          : "transparent",
+                    }}
+                    accessibilityLabel={`Floor ${floor}`}
+                    accessibilityRole="button"
+                  >
+                    <Text
                       style={{
-                        width: 60,
-                        height: 60,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backgroundColor:
-                          floor === currentFloor
-                            ? COLORS.concordiaMaroon
-                            : "transparent",
+                        fontSize: 14,
+                        fontWeight: "700",
+                        color: floor === currentFloor ? "#fff" : "#333",
                       }}
-                      accessibilityLabel={`Floor ${floor}`}
-                      accessibilityRole="button"
                     >
-                      <Text
-                        style={{
-                          fontSize: 14,
-                          fontWeight: "700",
-                          color: floor === currentFloor ? "#fff" : "#333",
-                        }}
-                      >
-                        {floor}F
-                      </Text>
-                    </Pressable>
-                  ))}
+                      {getFloorLabel(buildingId, floor)}
+                    </Text>
+                  </Pressable>
+                ))}
               </ScrollView>
             </View>
           )}

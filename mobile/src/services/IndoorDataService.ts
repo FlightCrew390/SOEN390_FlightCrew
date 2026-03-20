@@ -1,20 +1,55 @@
-import {
-  IndoorBuildingData,
-  IndoorNode,
-  IndoorRoom,
-} from "../types/IndoorRoom";
+import { IndoorNode, IndoorRoom } from "../types/IndoorRoom";
+import { API_CONFIG } from "../constants";
 
-const buildingFiles: IndoorBuildingData[] = [
-  require("../../buildings_plan_json/hall.json"),
-  require("../../buildings_plan_json/cc1.json"),
-  require("../../buildings_plan_json/mb_floors_combined.json"),
-  require("../../buildings_plan_json/ve.json"),
-  require("../../buildings_plan_json/vl_floors_combined.json"),
-];
+const API_BASE_URL = API_CONFIG.getBaseUrl();
 
-const allNodes: IndoorNode[] = buildingFiles.flatMap((f) => f.nodes);
+const DEFAULT_BUILDINGS = ["Hall", "CC", "MB", "VE", "VL"] as const;
+
+const DEFAULT_FLOORS: Record<string, number[]> = {
+  Hall: [1, 2, 8, 9],
+  CC: [1],
+  MB: [1, 2],
+  VE: [1, 2],
+  VL: [1, 2],
+};
+
+let allNodes: IndoorNode[] = [];
+let availableBuildings: string[] = [...DEFAULT_BUILDINGS];
+let isLoaded = false;
+let loadingPromise: Promise<void> | null = null;
 
 export class IndoorDataService {
+  static async ensureLoaded(): Promise<void> {
+    if (isLoaded) return;
+    if (loadingPromise) return loadingPromise;
+
+    loadingPromise = (async () => {
+      try {
+        const [buildingsRes, roomsRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/indoor/buildings`),
+          fetch(`${API_BASE_URL}/indoor/rooms`),
+        ]);
+
+        if (buildingsRes.ok) {
+          const buildings = (await buildingsRes.json()) as string[];
+          if (Array.isArray(buildings) && buildings.length > 0) {
+            availableBuildings = buildings;
+          }
+        }
+
+        if (roomsRes.ok) {
+          const nodes = (await roomsRes.json()) as IndoorNode[];
+          allNodes = Array.isArray(nodes) ? nodes : [];
+          isLoaded = true;
+        }
+      } catch {
+        // Keep defaults and allow UI to continue without crashing.
+      }
+    })();
+
+    return loadingPromise;
+  }
+
   static getAllNodes(): IndoorNode[] {
     return allNodes;
   }
@@ -24,16 +59,22 @@ export class IndoorDataService {
   }
 
   static getAvailableBuildings(): string[] {
-    return buildingFiles.map((f) => f.meta.buildingId);
+    return availableBuildings;
   }
 
   static getFloorsByBuilding(buildingId: string): number[] {
+    if (!buildingId) return [];
+
     const floors = new Set(
-      allNodes
-        .filter((n) => n.buildingId === buildingId && n.type === "room")
-        .map((n) => n.floor),
+      allNodes.filter((n) => n.buildingId === buildingId).map((n) => n.floor),
     );
-    return [...floors].sort((a, b) => a - b);
+
+    const dynamicFloors = [...floors].sort((a, b) => a - b);
+    if (dynamicFloors.length > 0) {
+      return dynamicFloors;
+    }
+
+    return DEFAULT_FLOORS[buildingId] ?? [1];
   }
 
   static getRoomsByBuilding(buildingId: string): IndoorRoom[] {

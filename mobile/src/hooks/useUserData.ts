@@ -5,6 +5,7 @@ import {
   UserPreferencesService,
 } from "../services/UserPreferencesService";
 import { UserService } from "../services/UserService";
+import { E2E_MODE, MOCK_AUTH_TOKENS, MOCK_USER } from "../testing/e2eMockData";
 import { AuthTokens, User } from "../types/User";
 import { toErrorMessage } from "../utils/toErrorMessage";
 
@@ -13,13 +14,16 @@ function mergePreferences(user: User, prefs: UserPreferences): User {
 }
 
 export const useUserData = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [tokens, setTokens] = useState<AuthTokens | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [user, setUser] = useState<User | null>(E2E_MODE ? MOCK_USER : null);
+  const [tokens, setTokens] = useState<AuthTokens | null>(
+    E2E_MODE ? MOCK_AUTH_TOKENS : null,
+  );
+  const [loading, setLoading] = useState<boolean>(!E2E_MODE);
   const [error, setError] = useState<string | null>(null);
 
   // On mount, attempt to restore session from secure storage
   useEffect(() => {
+    if (E2E_MODE) return;
     let isMounted = true;
 
     const restoreSession = async () => {

@@ -31,34 +31,19 @@ describe("departureTimePickerReducer", () => {
     expect(next.expanded).toBe(false);
   });
 
-  it("SHOW_DATE_PICKER: sets showDatePicker to true", () => {
+  it("SHOW_PICKER: sets showDatePicker to true", () => {
     const next = departureTimePickerReducer(base, {
-      type: "SHOW_DATE_PICKER",
+      type: "SHOW_PICKER",
     });
-    expect(next.showDatePicker).toBe(true);
+    expect(next.showPicker).toBe(true);
   });
 
-  it("HIDE_DATE_PICKER: sets showDatePicker to false", () => {
+  it("HIDE_PICKER: sets showDatePicker to false", () => {
     const withPicker = { ...base, showDatePicker: true };
     const next = departureTimePickerReducer(withPicker, {
-      type: "HIDE_DATE_PICKER",
+      type: "HIDE_PICKER",
     });
-    expect(next.showDatePicker).toBe(false);
-  });
-
-  it("SHOW_TIME_PICKER: sets showTimePicker to true", () => {
-    const next = departureTimePickerReducer(base, {
-      type: "SHOW_TIME_PICKER",
-    });
-    expect(next.showTimePicker).toBe(true);
-  });
-
-  it("HIDE_TIME_PICKER: sets showTimePicker to false", () => {
-    const withPicker = { ...base, showTimePicker: true };
-    const next = departureTimePickerReducer(withPicker, {
-      type: "HIDE_TIME_PICKER",
-    });
-    expect(next.showTimePicker).toBe(false);
+    expect(next.showPicker).toBe(false);
   });
 
   it("does not mutate the original state", () => {

@@ -29,6 +29,8 @@ describe("searchPanelReducer", () => {
       selectedResult: null,
       radiusKm: null,
       radiusDropdownOpen: false,
+      classroomBuildingDropdownOpen: false,
+      classroomBuildingId: null,
     });
   });
 

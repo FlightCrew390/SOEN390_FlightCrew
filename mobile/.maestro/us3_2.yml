@@ -1,0 +1,45 @@
+appId: com.flightcrew.mobile
+tags:
+  - us3
+---
+- runFlow: flows/open_menu.yml
+
+# ═══════════════════════════════════════════════════════════════════
+# US3.2 – Calendar Selection & Persistence
+# (Requires EXPO_PUBLIC_E2E_MODE=true – user is pre-authenticated
+#  and calendar is pre-connected with mock data)
+# ═══════════════════════════════════════════════════════════════════
+
+# ── Test 2a: Connection Status – user is signed in, calendar connected ──
+- assertVisible:
+    id: "connection-panel"
+- assertVisible: "E2E Test User"
+- assertVisible: "Disconnect Google Calendar"
+
+# ── Test 2c: Navigate to Home to verify calendar shows events ──
+- tapOn:
+    id: "home-tab"
+- waitForAnimationToEnd
+
+# Calendar component should be visible with events from mock data
+- assertVisible:
+    id: "calendar-component"
+
+# ── Test 2d: Verify events are listed (mock data populates today) ──
+- tapOn: "Go to today's date"
+- waitForAnimationToEnd
+- assertVisible: ".*SOEN 390 Lecture.*"
+- assertVisible: ".*COMP 346 Tutorial.*"
+
+# ── Test 2e: Selection Persistence – close and reopen app ──
+- stopApp
+- launchApp
+- assertVisible: "My Schedule"
+- tapOn:
+    id: "menu-tab"
+- waitForAnimationToEnd
+
+# After relaunching, the user should still be authenticated (E2E mode persists)
+- assertVisible:
+    id: "connection-panel"
+- assertVisible: "E2E Test User"

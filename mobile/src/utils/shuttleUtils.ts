@@ -1,9 +1,9 @@
 import { CAMPUSES } from "../constants/campuses";
-import { Building } from "../types/Building";
 import type {
   ShuttleDeparture,
   ShuttleScheduleResponse,
 } from "../services/ShuttleService";
+import { Building } from "../types/Building";
 
 /** Approximate radius (in degrees ≈ 1 km) to consider "near" a campus */
 const CAMPUS_PROXIMITY_DEG = 0.01;
@@ -141,6 +141,28 @@ export function getNextDeparture(
     }
   }
   return null;
+}
+
+/**
+ * Returns the next weekday (Mon–Fri) at 9:15 AM.
+ * If today is a weekday and 9:15 AM is still in the future, returns today at 9:15.
+ */
+export function getNextShuttleDefault(now: Date = new Date()): Date {
+  const result = new Date(now);
+  result.setHours(9, 15, 0, 0);
+
+  // If today is a weekday and 9:15 AM hasn't passed, use today
+  const day = now.getDay();
+  if (day >= 1 && day <= 5 && result > now) {
+    return result;
+  }
+
+  // Otherwise, advance to next weekday
+  result.setDate(result.getDate() + 1); // Start with tomorrow
+  while (result.getDay() === 0 || result.getDay() === 6) {
+    result.setDate(result.getDate() + 1);
+  }
+  return result;
 }
 
 /**

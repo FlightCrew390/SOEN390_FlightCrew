@@ -9,7 +9,6 @@ import { UserProvider } from "../../contexts/UserContext";
 import HomeScreen from "../../screens/HomeScreen";
 import LocationScreen from "../../screens/LocationScreen";
 import MenuScreen from "../../screens/MenuScreen";
-import SearchScreen from "../../screens/SearchScreen";
 import { RootTabParamList } from "../../types/NavBar";
 
 const Tab: ReturnType<typeof createBottomTabNavigator<RootTabParamList>> =
@@ -43,10 +42,21 @@ export default function HomeScreenNavBar() {
     <UserProvider>
       <CalendarProvider>
         <Tab.Navigator screenOptions={screenOptions}>
-          <Tab.Screen name="home" component={HomeScreen} />
-          <Tab.Screen name="location" component={LocationScreen} />
-          <Tab.Screen name="search" component={SearchScreen} />
-          <Tab.Screen name="menu" component={MenuScreen} />
+          <Tab.Screen
+            name="home"
+            component={HomeScreen}
+            options={{ tabBarButtonTestID: "home-tab" }}
+          />
+          <Tab.Screen
+            name="location"
+            component={LocationScreen}
+            options={{ tabBarButtonTestID: "location-tab" }}
+          />
+          <Tab.Screen
+            name="menu"
+            component={MenuScreen}
+            options={{ tabBarButtonTestID: "menu-tab" }}
+          />
         </Tab.Navigator>
       </CalendarProvider>
     </UserProvider>

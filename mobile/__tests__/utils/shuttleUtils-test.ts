@@ -1,15 +1,16 @@
+import type { ShuttleScheduleResponse } from "../../src/services/ShuttleService";
+import { Building, StructureType } from "../../src/types/Building";
 import {
-  getCampusForLocation,
   getCampusForBuilding,
+  getCampusForLocation,
+  getDayOfWeek,
+  getNextDeparture,
+  getNextShuttleDefault,
   isShuttleEligible,
   isWithinOperatingHours,
-  getNextDeparture,
   parseScheduleTime,
-  getDayOfWeek,
   SHUTTLE_STOPS,
 } from "../../src/utils/shuttleUtils";
-import { Building, StructureType } from "../../src/types/Building";
-import type { ShuttleScheduleResponse } from "../../src/services/ShuttleService";
 
 const makeBuilding = (campus: string): Building => ({
   campus,
@@ -17,8 +18,8 @@ const makeBuilding = (campus: string): Building => ({
   buildingName: "Test Building",
   buildingLongName: "Test Building Long Name",
   address: "123 Test St.",
-  latitude: 45.0,
-  longitude: -73.0,
+  latitude: 45,
+  longitude: -73,
   structureType: StructureType.Building,
   accessibilityInfo: "N/A",
 });
@@ -60,7 +61,7 @@ describe("shuttleUtils", () => {
     });
 
     it("returns null for coordinates far from both campuses", () => {
-      expect(getCampusForLocation(45.0, -73.0)).toBeNull();
+      expect(getCampusForLocation(45, -73)).toBeNull();
     });
   });
 
@@ -215,6 +216,24 @@ describe("shuttleUtils", () => {
       expect(SHUTTLE_STOPS.LOY).toBeDefined();
       expect(SHUTTLE_STOPS.SGW.latitude).toBeCloseTo(45.49697, 4);
       expect(SHUTTLE_STOPS.LOY.latitude).toBeCloseTo(45.45865, 4);
+    });
+  });
+
+  describe("getNextShuttleDefault", () => {
+    it("returns today at 9:15 if it's a weekday and before 9:15", () => {
+      const now = new Date(2026, 2, 6, 8, 0, 0); // Friday 8:00 AM
+      const result = getNextShuttleDefault(now);
+      expect(result.getDate()).toBe(6);
+      expect(result.getHours()).toBe(9);
+      expect(result.getMinutes()).toBe(15);
+    });
+
+    it("returns next weekday at 9:15 if it's after 9:15", () => {
+      const now = new Date(2026, 2, 7, 10, 0, 0); // Saturday 10:00 AM
+      const result = getNextShuttleDefault(now);
+      expect(result.getDate()).toBe(9);
+      expect(result.getHours()).toBe(9);
+      expect(result.getMinutes()).toBe(15);
     });
   });
 });

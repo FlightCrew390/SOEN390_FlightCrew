@@ -1,0 +1,44 @@
+appId: com.flightcrew.mobile
+tags:
+  - us2
+---
+- runFlow: flows/open_map.yml
+- runFlow: flows/open_directions_hall.yml
+
+# ═══════════════════════════════════════════════════════════════════
+# US2.2 – Use Current Location / Override / Reset
+# ═══════════════════════════════════════════════════════════════════
+
+# Test 2a: Default start is current location
+- assertVisible:
+    id: "start-location"
+    text: "Starting from your current location"
+- assertVisible:
+    id: "change-start"
+    text: "change"
+
+# Test 2b: Override start location – tap "change" to open search for start
+- tapOn: "Search buildings to change directions start"
+- waitForAnimationToEnd
+- assertVisible: "Search building name"
+
+# Search for a different starting building (EV Building on SGW)
+- tapOn: "Clear search"
+- tapOn: "Search building name"
+- inputText: "EV"
+- waitForAnimationToEnd
+- tapOn:
+    text: ".*Engineering.*"
+- tapOn: "Search"
+- waitForAnimationToEnd
+
+# Test 2c: Direction panel returns with the new start building shown
+- assertVisible: "Directions"
+- assertVisible:
+    text: "Starting at.*"
+
+# Test 2d: Reset to current location
+- assertVisible: "Use current location"
+- tapOn: "Reset to current location"
+- waitForAnimationToEnd
+- assertVisible: "Starting from your current location"

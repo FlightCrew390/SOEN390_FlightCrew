@@ -1,20 +1,32 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CalendarService } from "../services/CalendarService";
 import { calendarTokenStore } from "../services/TokenStore";
+import {
+  E2E_MODE,
+  MOCK_AUTH_TOKENS,
+  MOCK_CALENDARS,
+  MOCK_EVENTS,
+} from "../testing/e2eMockData";
 import { CalendarEvent, CalendarInfo } from "../types/CalendarEvent";
 import { AuthTokens } from "../types/User";
 import { toErrorMessage } from "../utils/toErrorMessage";
 
 export const useCalendarData = () => {
-  const [calendarTokens, setCalendarTokens] = useState<AuthTokens | null>(null);
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [calendarTokens, setCalendarTokens] = useState<AuthTokens | null>(
+    E2E_MODE ? MOCK_AUTH_TOKENS : null,
+  );
+  const [events, setEvents] = useState<CalendarEvent[]>(
+    E2E_MODE ? MOCK_EVENTS : [],
+  );
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   // Calendar picker state
-  const [calendarList, setCalendarList] = useState<CalendarInfo[]>([]);
+  const [calendarList, setCalendarList] = useState<CalendarInfo[]>(
+    E2E_MODE ? MOCK_CALENDARS : [],
+  );
   const [selectedCalendarId, setSelectedCalendarId] = useState<string | null>(
-    null,
+    E2E_MODE ? MOCK_CALENDARS[0].id : null,
   );
   const [showCalendarPicker, setShowCalendarPicker] = useState<boolean>(false);
   const [calendarListLoading, setCalendarListLoading] =
@@ -32,6 +44,7 @@ export const useCalendarData = () => {
 
   // On mount, check if calendar tokens exist in storage
   useEffect(() => {
+    if (E2E_MODE) return;
     let isMounted = true;
 
     const restoreCalendar = async () => {

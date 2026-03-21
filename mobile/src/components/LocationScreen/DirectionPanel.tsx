@@ -97,12 +97,14 @@ function StartLocationRow({
         accessibilityLabel="Search buildings to change directions start"
         accessibilityRole="button"
       >
-        <Text style={styles.changeStartText}>
+        <Text style={styles.changeStartText} testID="start-location">
           {startBuilding
             ? `Starting at ${startBuilding.buildingName ?? startBuilding.buildingCode}`
             : "Starting from your current location"}
         </Text>
-        <Text style={styles.changeStart}>change</Text>
+        <Text style={styles.changeStart} testID="change-start">
+          change
+        </Text>
       </Pressable>
       {startBuilding != null && (
         <Pressable
@@ -117,7 +119,9 @@ function StartLocationRow({
             size={11}
             color={COLORS.concordiaMaroon}
           />
-          <Text style={styles.resetStartText}>Use current location</Text>
+          <Text style={styles.resetStartText} testID="reset-start">
+            Use current location
+          </Text>
         </Pressable>
       )}
     </View>

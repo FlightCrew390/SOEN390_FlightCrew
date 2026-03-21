@@ -1,0 +1,80 @@
+appId: com.flightcrew.mobile
+tags:
+  - us5
+---
+- runFlow: flows/open_map.yml
+
+# ═══════════════════════════════════════════════════════════════════
+# US5.1 – Outdoor POI Filtering & Location-Based Updates
+# ═══════════════════════════════════════════════════════════════════
+
+# ── Test 1a: POI Filtering – select Restaurant category ──
+- tapOn: "Search campus buildings"
+- waitForAnimationToEnd
+
+# Open location type dropdown and select Restaurant
+- tapOn: "Select location type"
+- waitForAnimationToEnd
+- tapOn: "Restaurant"
+- waitForAnimationToEnd
+
+# Radius dropdown should now be visible for POI searches
+- assertVisible: "Select distance radius"
+
+# ── Test 1b: POI Filtering – apply a 2 km distance radius ──
+- tapOn: "Select distance radius"
+- waitForAnimationToEnd
+- tapOn: "2 km"
+- waitForAnimationToEnd
+
+# Submit the search
+- tapOn: "Search"
+- waitForAnimationToEnd
+
+# ── Test 1c: Essential Service Support – restaurant results appear ──
+- extendedWaitUntil:
+    visible:
+      id: "poi-results-panel"
+    timeout: 15000
+
+# ── Test 1d: Go back and switch to Cafe category ──
+- tapOn: "Back to search"
+- waitForAnimationToEnd
+
+- tapOn: "Select location type"
+- waitForAnimationToEnd
+- tapOn: "Cafe"
+- waitForAnimationToEnd
+
+# ── Test 1e: Apply a 5 km radius and search ──
+- tapOn: "Select distance radius"
+- waitForAnimationToEnd
+- tapOn: "5 km"
+- waitForAnimationToEnd
+
+- tapOn: "Search"
+- waitForAnimationToEnd
+
+# ── Test 1f: Essential Service Support – cafe results appear ──
+- extendedWaitUntil:
+    visible:
+      id: "poi-results-panel"
+    timeout: 15000
+
+# ── Test 1g: Location-Based Updates – change location and verify results refresh ──
+- tapOn: "Back to search"
+- waitForAnimationToEnd
+
+# Simulate moving to Loyola campus
+- setLocation:
+    latitude: 45.4582
+    longitude: -73.6405
+
+# Search again from the new location – results should update based on new coordinates
+- tapOn: "Search"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      id: "poi-results-panel"
+    timeout: 15000

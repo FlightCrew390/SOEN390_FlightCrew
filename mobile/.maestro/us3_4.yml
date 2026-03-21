@@ -1,0 +1,50 @@
+appId: com.flightcrew.mobile
+tags:
+  - us3
+---
+- runFlow: flows/open_map.yml
+
+# ═══════════════════════════════════════════════════════════════════
+# US3.4 – Automatic Directions to Next Class
+# (Requires EXPO_PUBLIC_E2E_MODE=true – upcoming event "SOEN 390
+#  Lecture" at "H 920" triggers directions to Hall Building)
+# ═══════════════════════════════════════════════════════════════════
+
+# Navigate to Home screen to access the calendar
+- tapOn:
+    id: "home-tab"
+- waitForAnimationToEnd
+
+# ── Test 4a: Automatic Direction Generation – upcoming event has directions button ──
+- assertVisible:
+    id: "calendar-component"
+- tapOn: "Go to today's date"
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "event-e2e-evt-1"
+- waitForAnimationToEnd
+
+# The upcoming event should have a pulsing directions button
+- assertVisible: "Get directions to this event"
+
+# ── Test 4b: Automatic Direction Generation – tap to navigate to map ──
+# Tapping the directions button navigates to the location tab
+# and opens directions to Hall Building (matched from "H 920")
+- tapOn: "Get directions to this event"
+- waitForAnimationToEnd
+
+# ── Test 4c: Travel Time Estimation – directions panel opens ──
+- extendedWaitUntil:
+    visible: "Directions"
+    timeout: 15000
+
+# ── Test 4d: Visual Route Highlighting – select Walk mode for route ──
+- tapOn: "Get directions by Walk"
+- extendedWaitUntil:
+    visible: "View step-by-step directions"
+    timeout: 15000
+
+# ── Test 4f: Close direction panel ──
+- tapOn: "Close direction panel"
+- waitForAnimationToEnd

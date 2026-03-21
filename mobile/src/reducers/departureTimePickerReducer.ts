@@ -4,8 +4,7 @@ import {
 } from "../state/DepartureTimePickerState";
 
 export const initialDepartureTimePickerState: DepartureTimePickerState = {
-  showDatePicker: false,
-  showTimePicker: false,
+  showPicker: false,
   expanded: false,
 };
 
@@ -20,17 +19,11 @@ export function departureTimePickerReducer(
     case "COLLAPSE":
       return { ...state, expanded: false };
 
-    case "SHOW_DATE_PICKER":
-      return { ...state, showDatePicker: true };
+    case "SHOW_PICKER":
+      return { ...state, showPicker: true };
 
-    case "HIDE_DATE_PICKER":
-      return { ...state, showDatePicker: false };
-
-    case "SHOW_TIME_PICKER":
-      return { ...state, showTimePicker: true };
-
-    case "HIDE_TIME_PICKER":
-      return { ...state, showTimePicker: false };
+    case "HIDE_PICKER":
+      return { ...state, showPicker: false };
 
     default:
       return state;

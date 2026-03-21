@@ -3,6 +3,12 @@
     "appVersionSource": "local"
   },
   "build": {
+    "e2e-test": {
+      "withoutCredentials": true,
+      "ios": {
+        "simulator": true
+      }
+    },
     "development": {
       "developmentClient": true,
       "distribution": "internal",

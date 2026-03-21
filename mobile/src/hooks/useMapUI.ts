@@ -1,20 +1,21 @@
 import { useCallback, useEffect, useMemo, useReducer } from "react";
 import { initialMapUIState, mapUIReducer } from "../reducers/mapUIReducer";
-import { PoiService } from "../services/PoiService";
 import { IndoorDataService } from "../services/IndoorDataService";
+import { PoiService } from "../services/PoiService";
 import { LocationType, isClassroom, isPoi } from "../state/SearchPanelState";
 import { Building } from "../types/Building";
 import { DepartureTimeConfig, TravelMode } from "../types/Directions";
+import { IndoorRoom } from "../types/IndoorRoom";
 import { PointOfInterest } from "../types/PointOfInterest";
 import { findCurrentBuilding } from "../utils/buildingDetection";
 import { haversineDistance } from "../utils/distanceUtils";
-import { useDirections } from "./useDirections";
-import { useRoutePreviews } from "./useRoutePreviews";
 import {
   getCampusForBuilding,
   getCampusForLocation,
   isShuttleEligible,
 } from "../utils/shuttleUtils";
+import { useDirections } from "./useDirections";
+import { useRoutePreviews } from "./useRoutePreviews";
 
 interface UserCoords {
   latitude: number;
@@ -142,16 +143,21 @@ export function useMapUI(
       if (isClassroom(locationType)) {
         IndoorDataService.ensureLoaded()
           .then(() => {
-            const rooms = classroomBuildingId
-              ? query.trim()
+            let rooms;
+            const trimmedQuery = query.trim();
+
+            if (classroomBuildingId) {
+              rooms = trimmedQuery
                 ? IndoorDataService.searchRoomsByBuilding(
-                    query,
+                    trimmedQuery,
                     classroomBuildingId,
                   )
-                : IndoorDataService.getRoomsByBuilding(classroomBuildingId)
-              : query.trim()
-                ? IndoorDataService.searchRooms(query)
+                : IndoorDataService.getRoomsByBuilding(classroomBuildingId);
+            } else {
+              rooms = trimmedQuery
+                ? IndoorDataService.searchRooms(trimmedQuery)
                 : IndoorDataService.getRooms();
+            }
 
             dispatch({ type: "ROOM_LOADED", results: rooms });
           })

@@ -11,4 +11,5 @@ import java.util.Map;
 public class IndoorBuildingData {
     private Map<String, String> meta;
     private List<IndoorNode> nodes;
+    private List<IndoorEdge> edges;
 }

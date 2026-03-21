@@ -62,6 +62,8 @@ export function useMapUI(
   useDirections({
     destination: state.selectedBuilding,
     startBuilding: state.startBuilding,
+    destinationRoom: state.destinationRoom,
+    startRoom: state.startRoom,
     userLocation: userCoords,
     travelMode: state.travelMode,
     departureConfig: state.departureConfig,
@@ -159,6 +161,7 @@ export function useMapUI(
                 : IndoorDataService.getRooms();
             }
 
+            // If we are searching for a start location, wrap these results
             dispatch({ type: "ROOM_LOADED", results: rooms });
           })
           .catch(() => {

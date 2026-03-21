@@ -3,6 +3,7 @@ package com.soen390.flightcrew.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soen390.flightcrew.model.IndoorAssetFileDTO;
 import com.soen390.flightcrew.model.IndoorBuildingData;
+import com.soen390.flightcrew.model.IndoorEdge;
 import com.soen390.flightcrew.model.IndoorNode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -76,6 +77,16 @@ public class IndoorNavigationDataService {
                         || (node.getLabel() != null
                                 && node.getLabel().toLowerCase(Locale.ROOT).contains(normalizedQuery)))
                 .sorted(Comparator.comparing(node -> node.getLabel() != null ? node.getLabel() : ""))
+                .toList();
+    }
+
+    public List<IndoorEdge> getEdgesByBuilding(String buildingId) {
+        if (buildingId == null || buildingId.isBlank())
+            return List.of();
+
+        return loadBuildingData().stream()
+                .filter(data -> buildingId.equalsIgnoreCase(data.getMeta().get("buildingId")))
+                .flatMap(data -> data.getEdges() != null ? data.getEdges().stream() : Stream.empty())
                 .toList();
     }
 

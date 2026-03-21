@@ -7,7 +7,7 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { SvgUri } from "react-native-svg";
+import Svg, { SvgUri, Polyline } from "react-native-svg";
 import { API_CONFIG, COLORS } from "../../constants";
 import {
   floorPlanAssetReducer,
@@ -17,6 +17,7 @@ import {
 } from "../../reducers/indoorFloorViewReducer";
 import { Building } from "../../types/Building";
 import { IndoorRoom } from "../../types/IndoorRoom";
+import { RouteInfo } from "../../types/Directions";
 
 const BUILDING_NAMES: Record<string, string> = {
   Hall: "Henry F. Hall (H) Building",
@@ -58,10 +59,12 @@ function ZoomableFloorPlan({
   buildingId,
   floor,
   selectedRoom,
+  route,
 }: Readonly<{
   buildingId: string;
   floor: number;
   selectedRoom?: IndoorRoom | null;
+  route?: RouteInfo | null;
 }>) {
   const scale = useSharedValue(INITIAL_SCALE);
   const savedScale = useSharedValue(INITIAL_SCALE);
@@ -152,6 +155,37 @@ function ZoomableFloorPlan({
     );
   };
 
+  const renderPath = () => {
+    if (!route || !route.indoorPath) return null;
+
+    // Filter the nodes that are on the current floor
+    const pointsStr = route.indoorPath
+      .filter((node) => node.floor === floor)
+      .map((node) => `${node.x},${node.y}`)
+      .join(" ");
+
+    if (!pointsStr) return null;
+
+    return (
+      <View style={{ position: "absolute", width: "100%", height: "100%" }}>
+        <Svg
+          width="100%"
+          height="100%"
+          viewBox={`0 0 ${coordSpace.width} ${coordSpace.height}`}
+        >
+          <Polyline
+            points={pointsStr}
+            fill="none"
+            stroke="#1b73e8"
+            strokeWidth="10"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
+      </View>
+    );
+  };
+
   const renderContent = () => {
     if (assetLoadFailed) {
       return (
@@ -185,6 +219,7 @@ function ZoomableFloorPlan({
               preserveAspectRatio="xMidYMid meet"
               onError={() => dispatchFloorPlanAsset({ type: "LOAD_FAILED" })}
             />
+            {renderPath()}
             {renderPin()}
           </View>
         </View>
@@ -201,6 +236,7 @@ function ZoomableFloorPlan({
               resizeMode="contain"
               onError={() => dispatchFloorPlanAsset({ type: "LOAD_FAILED" })}
             />
+            {renderPath()}
             {renderPin()}
           </View>
         </View>
@@ -234,6 +270,7 @@ interface IndoorFloorViewProps {
   readonly onBack: () => void;
   readonly onRoomPress: (room: IndoorRoom) => void;
   readonly selectedRoom?: IndoorRoom | null;
+  readonly route?: RouteInfo | null;
 }
 
 export default function IndoorFloorView({
@@ -244,6 +281,7 @@ export default function IndoorFloorView({
   onFloorChange,
   onBack,
   selectedRoom,
+  route,
 }: Readonly<IndoorFloorViewProps>) {
   const [{ floorOpen }, dispatchFloorSelector] = useReducer(
     floorSelectorReducer,
@@ -321,6 +359,7 @@ export default function IndoorFloorView({
           buildingId={buildingId}
           floor={currentFloor}
           selectedRoom={selectedRoom}
+          route={route}
         />
 
         {/* Floor selector */}

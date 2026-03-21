@@ -24,6 +24,7 @@ export interface MapUIState {
   currentBuilding: Building | null;
   searchOrigin: SearchOrigin;
   startBuilding: Building | null;
+  startRoom: IndoorRoom | null;
   // Directions route data
   destinationRoom: IndoorRoom | null;
   travelMode: TravelMode | null;
@@ -55,7 +56,7 @@ export type MapUIAction =
   | { type: "SET_CURRENT_BUILDING"; building: Building | null }
   | { type: "TAP_MAP" }
   | { type: "OPEN_SEARCH_FOR_START" }
-  | { type: "SET_START_BUILDING"; building: Building }
+  | { type: "SET_START_BUILDING"; building: Building; room?: IndoorRoom }
   | { type: "RESET_START_BUILDING" }
   | { type: "RETURN_TO_DIRECTIONS" }
   | { type: "SET_TRAVEL_MODE"; mode: TravelMode }

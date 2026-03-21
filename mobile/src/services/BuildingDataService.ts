@@ -10,13 +10,13 @@ function deduplicateBuildings(buildings: Building[]): Building[] {
   for (const building of buildings) {
     const key = building.buildingLongName;
     const existing = seen.get(key);
-    if (!existing) {
-      seen.set(key, building);
-    } else {
+    if (existing) {
       seen.set(key, {
         ...existing,
         polygons: [...(existing.polygons ?? []), ...(building.polygons ?? [])],
       });
+    } else {
+      seen.set(key, building);
     }
   }
   return Array.from(seen.values());

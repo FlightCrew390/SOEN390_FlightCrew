@@ -3,8 +3,8 @@ import {
   mapUIReducer,
 } from "../../src/reducers/mapUIReducer";
 import { MapUIState } from "../../src/state/MapUIState";
-import { DEFAULT_DEPARTURE_CONFIG } from "../../src/types/Directions";
 import { Building, StructureType } from "../../src/types/Building";
+import { DEFAULT_DEPARTURE_CONFIG } from "../../src/types/Directions";
 import { PointOfInterest } from "../../src/types/PointOfInterest";
 
 const mockBuilding: Building = {
@@ -45,6 +45,11 @@ const mockPoi: PointOfInterest = {
 describe("mapUIReducer", () => {
   it("has correct initial state", () => {
     expect(initialMapUIState).toEqual({
+      destinationRoom: null,
+      indoorBuildingId: null,
+      indoorFloor: null,
+      indoorSelectedRoom: null,
+      roomResults: [],
       panel: "none",
       selectedBuilding: null,
       currentBuilding: null,

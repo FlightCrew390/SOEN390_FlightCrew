@@ -265,6 +265,15 @@ jest.mock("react-native-maps", () => {
   };
 });
 
+jest.mock("../../src/services/IndoorDataService", () => ({
+  getBuildingPolygons: () => [],
+}));
+
+jest.mock("../../src/components/LocationScreen/IndoorFloorView", () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
 // ── Mock constants (MAP_CONFIG + COLORS) ──
 
 jest.mock("../../src/constants", () => ({
@@ -887,6 +896,7 @@ describe("GoogleMaps", () => {
     expect(mockHandleSearch).toHaveBeenCalledWith(
       "Hall",
       "building",
+      undefined,
       undefined,
     );
     expect(mockAnimateToBuilding).toHaveBeenCalledWith(hallBuilding);

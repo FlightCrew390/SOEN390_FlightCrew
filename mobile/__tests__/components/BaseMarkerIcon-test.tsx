@@ -47,4 +47,23 @@ describe("BaseMarkerIcon", () => {
     );
     expect(screen.getByTestId("child-icon")).toBeTruthy();
   });
+
+  it("marker frame has constant dimensions regardless of scale", () => {
+    const { rerender } = render(<BaseMarkerIcon color="#ff0000" scale={1} />);
+    const frameAtScale1 = screen.getByTestId("marker-frame").props.style;
+
+    rerender(<BaseMarkerIcon color="#ff0000" scale={1.3} />);
+    const frameAtScale13 = screen.getByTestId("marker-frame").props.style;
+
+    expect(frameAtScale1.width).toBe(frameAtScale13.width);
+    expect(frameAtScale1.height).toBe(frameAtScale13.height);
+  });
+
+  it("marker frame is sized at the maximum scale", () => {
+    render(<BaseMarkerIcon color="#ff0000" scale={1} />);
+    const frame = screen.getByTestId("marker-frame").props.style;
+    // Frame is always 52x52 (40 * MAX_SCALE 1.3) so Android never clips on selection
+    expect(frame.width).toBe(52);
+    expect(frame.height).toBe(52);
+  });
 });

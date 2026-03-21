@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.Objects;
 
 @Service
 public class IndoorNavigationDataService {
@@ -57,7 +58,7 @@ public class IndoorNavigationDataService {
         Set<Integer> floors = loadNodes().stream()
                 .filter(node -> buildingId.equalsIgnoreCase(node.getBuildingId()))
                 .map(IndoorNode::getFloor)
-                .filter(floor -> floor != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
         return floors.stream().sorted().toList();
@@ -129,7 +130,7 @@ public class IndoorNavigationDataService {
         }
 
         try {
-            String probedType = Files.probeContentType(normalizedPath);
+            String probedType = probeContentType(normalizedPath);
             if (probedType != null && !probedType.isBlank()) {
                 return probedType;
             }
@@ -152,6 +153,10 @@ public class IndoorNavigationDataService {
         }
 
         return "application/octet-stream";
+    }
+
+    String probeContentType(Path path) throws IOException {
+        return Files.probeContentType(path);
     }
 
     private List<IndoorNode> loadNodes() {

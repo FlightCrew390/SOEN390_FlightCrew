@@ -62,6 +62,8 @@ describe("useDirections", () => {
       useDirections({
         destination,
         startBuilding: null,
+        destinationRoom: null,
+        startRoom: null,
         userLocation,
         travelMode: "WALK",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
@@ -85,6 +87,8 @@ describe("useDirections", () => {
       useDirections({
         destination: null,
         startBuilding: null,
+        destinationRoom: null,
+        startRoom: null,
         userLocation,
         travelMode: "WALK",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
@@ -108,6 +112,8 @@ describe("useDirections", () => {
       useDirections({
         destination,
         startBuilding: null,
+        destinationRoom: null,
+        startRoom: null,
         userLocation: null,
         travelMode: "WALK",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
@@ -132,6 +138,8 @@ describe("useDirections", () => {
       useDirections({
         destination,
         startBuilding: null,
+        destinationRoom: null,
+        startRoom: null,
         userLocation,
         travelMode: "WALK",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
@@ -166,6 +174,8 @@ describe("useDirections", () => {
       useDirections({
         destination,
         startBuilding,
+        destinationRoom: null,
+        startRoom: null,
         userLocation,
         travelMode: "DRIVE",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
@@ -198,6 +208,8 @@ describe("useDirections", () => {
       useDirections({
         destination,
         startBuilding: null,
+        destinationRoom: null,
+        startRoom: null,
         userLocation,
         travelMode: "WALK",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
@@ -222,6 +234,8 @@ describe("useDirections", () => {
       useDirections({
         destination,
         startBuilding: null,
+        destinationRoom: null,
+        startRoom: null,
         userLocation,
         travelMode: "WALK",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
@@ -253,6 +267,8 @@ describe("useDirections", () => {
       useDirections({
         destination,
         startBuilding: null,
+        destinationRoom: null,
+        startRoom: null,
         userLocation,
         travelMode: "WALK",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,

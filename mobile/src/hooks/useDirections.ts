@@ -1,7 +1,9 @@
 import { useEffect, useRef } from "react";
 import { DirectionsService } from "../services/DirectionsService";
 import { ShuttleDirectionsBuilder } from "../services/ShuttleDirectionsBuilder";
+import { IndoorPathfindingService } from "../services/IndoorPathfindingService";
 import { Building } from "../types/Building";
+import { IndoorRoom } from "../types/IndoorRoom";
 import {
   DepartureTimeConfig,
   RouteInfo,
@@ -14,6 +16,10 @@ interface UseDirectionsParams {
   destination: Building | null;
   /** Optional custom start building; when null the user's live location is used. */
   startBuilding: Building | null;
+  /** The destination room. */
+  destinationRoom: IndoorRoom | null;
+  /** The starting room. */
+  startRoom: IndoorRoom | null;
   /** User's current GPS coordinates, used when startBuilding is null. */
   userLocation: { latitude: number; longitude: number } | null;
   /** Selected travel mode. */
@@ -35,6 +41,8 @@ interface UseDirectionsParams {
 export function useDirections({
   destination,
   startBuilding,
+  destinationRoom,
+  startRoom,
   userLocation,
   travelMode,
   departureConfig,
@@ -78,7 +86,34 @@ export function useDirections({
       onLoading();
       try {
         let route;
-        if (travelMode === TRAVEL_MODE.SHUTTLE) {
+
+        // Handle indoor pathfinding if both start and dest are rooms in the same building
+        if (
+          startRoom &&
+          destinationRoom &&
+          startRoom.buildingId === destinationRoom.buildingId
+        ) {
+          try {
+            // Note: IndoorPathfindingService now expects (buildingId, startNodeId, endNodeId)
+            const indoorRes = await IndoorPathfindingService.getDirections(
+              startRoom.buildingId,
+              startRoom.id,
+              destinationRoom.id,
+            );
+
+            route = {
+              distanceMeters: indoorRes.distanceMeters,
+              durationSeconds: indoorRes.distanceMeters * 2, // approximation
+              encodedPolyline: "", // we'll draw our own indoor lines based on nodes
+              mode: travelMode,
+              legs: [],
+              indoorPath: indoorRes.path,
+            } as any;
+          } catch (e) {
+            console.error("Indoor pathfinding failed", e);
+            throw new Error("Could not compute indoor path.");
+          }
+        } else if (travelMode === TRAVEL_MODE.SHUTTLE) {
           route = await ShuttleDirectionsBuilder.buildShuttleRoute(
             originLat,
             originLng,
@@ -120,6 +155,8 @@ export function useDirections({
     active,
     destination?.buildingCode,
     startBuilding?.buildingCode,
+    destinationRoom?.id,
+    startRoom?.id,
     userLocation?.latitude,
     userLocation?.longitude,
     travelMode,

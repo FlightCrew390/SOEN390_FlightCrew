@@ -1,3 +1,5 @@
+import { IndoorRoom } from "./IndoorRoom";
+
 export const TRAVEL_MODE = {
   WALK: "WALK",
   DRIVE: "DRIVE",
@@ -77,6 +79,8 @@ export interface RouteInfo {
   /** Optional human-readable distance (e.g. shuttle "8.3 km") */
   distanceText?: string;
   steps: StepInfo[];
+  /** Optional sequence of nodes representing an indoor path */
+  indoorPath?: IndoorRoom[];
 }
 
 export interface StepInfo {

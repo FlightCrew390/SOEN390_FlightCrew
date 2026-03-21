@@ -7,6 +7,7 @@ export const initialMapUIState: MapUIState = {
   currentBuilding: null,
   searchOrigin: "default",
   startBuilding: null,
+  startRoom: null,
   destinationRoom: null,
   travelMode: null,
   departureConfig: DEFAULT_DEPARTURE_CONFIG,
@@ -72,6 +73,7 @@ export function mapUIReducer(
         selectedBuilding: action.building,
         destinationRoom: action.room ?? null,
         startBuilding: null,
+        startRoom: null,
         travelMode: null,
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
         route: null,
@@ -96,6 +98,7 @@ export function mapUIReducer(
         panel: "directions",
         searchOrigin: "default",
         startBuilding: action.building,
+        startRoom: action.room ?? null,
         // Clear old route — a new fetch will be triggered by the component
         route: null,
         routeLoading: false,
@@ -106,6 +109,7 @@ export function mapUIReducer(
       return {
         ...state,
         startBuilding: null,
+        startRoom: null,
         route: null,
         routeLoading: false,
         routeError: null,

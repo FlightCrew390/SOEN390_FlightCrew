@@ -3,6 +3,8 @@ package com.soen390.flightcrew.controller;
 import com.soen390.flightcrew.model.IndoorAssetFileDTO;
 import com.soen390.flightcrew.model.IndoorNode;
 import com.soen390.flightcrew.service.IndoorNavigationDataService;
+import com.soen390.flightcrew.service.IndoorPathfindingService;
+
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,15 +15,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/indoor")
 public class IndoorController {
 
     private final IndoorNavigationDataService indoorNavigationDataService;
+    private final IndoorPathfindingService pathfindingService;
 
-    public IndoorController(IndoorNavigationDataService indoorNavigationDataService) {
+    public IndoorController(IndoorNavigationDataService indoorNavigationDataService,
+            IndoorPathfindingService pathfindingService) {
         this.indoorNavigationDataService = indoorNavigationDataService;
+        this.pathfindingService = pathfindingService;
     }
 
     @GetMapping("/buildings")
@@ -62,5 +68,46 @@ public class IndoorController {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .body(resource);
+    }
+
+    @GetMapping("/directions")
+    public ResponseEntity<?> getIndoorDirections(
+            @RequestParam String buildingId,
+            @RequestParam String startNodeId,
+            @RequestParam String endNodeId,
+            @RequestParam(defaultValue = "false") boolean requireAccessible) {
+
+        try {
+            List<String> pathIds = pathfindingService.findShortestPath(buildingId, startNodeId, endNodeId,
+                    requireAccessible);
+
+            if (pathIds == null || pathIds.isEmpty()) {
+                return ResponseEntity.status(404)
+                        .body(Map.of("error", "No route found between the specified locations."));
+            }
+
+            // Instead of just strings, let's map them to full nodes to provide coordinates
+            // to frontend
+            List<IndoorNode> fullPathNodes = indoorNavigationDataService.getRooms(null, buildingId, null)
+                    .stream()
+                    .filter(node -> pathIds.contains(node.getId()))
+                    .map(node -> {
+                        // Create a map to preserve correct sort order based on pathIds
+                        return node;
+                    })
+                    // Quick hack to sort it correctly:
+                    .sorted((a, b) -> Integer.compare(pathIds.indexOf(a.getId()), pathIds.indexOf(b.getId())))
+                    .toList();
+
+            return ResponseEntity.ok(Map.of(
+                    "path", fullPathNodes,
+                    "distanceMeters", fullPathNodes.size() * 3, // rough approximation for now
+                    "metadata", Map.of(
+                            "startNodeId", startNodeId,
+                            "endNodeId", endNodeId,
+                            "accessible", requireAccessible)));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Error finding path: " + e.getMessage()));
+        }
     }
 }

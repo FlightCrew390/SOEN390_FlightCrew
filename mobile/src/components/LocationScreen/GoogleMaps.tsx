@@ -288,8 +288,12 @@ export default function GoogleMaps({
               BUILDING_ID_TO_CODE[room.buildingId] ?? room.buildingId;
             const building = buildings.find((b) => b.buildingCode === code);
             if (building) {
-              animateToBuilding(building);
-              openDirections(building, room);
+              if (state.searchOrigin === "directions") {
+                dispatch({ type: "SET_START_BUILDING", building, room });
+              } else {
+                animateToBuilding(building);
+                openDirections(building, room);
+              }
             }
           }}
         />
@@ -322,6 +326,7 @@ export default function GoogleMaps({
               dispatch({ type: "OPEN_ROOM_INFO", room });
             }}
             selectedRoom={state.indoorSelectedRoom}
+            route={state.route}
           />
         )}
 

@@ -1,11 +1,6 @@
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react-native";
+import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import DirectionPanel from "../../src/components/LocationScreen/DirectionPanel";
+import type { RoutePreviews } from "../../src/hooks/useRoutePreviews";
 import { Building, StructureType } from "../../src/types/Building";
 import {
   DEFAULT_DEPARTURE_CONFIG,
@@ -13,13 +8,7 @@ import {
   RouteInfo,
   TravelMode,
 } from "../../src/types/Directions";
-import type { RoutePreviews } from "../../src/hooks/useRoutePreviews";
-import {
-  hallBuilding,
-  libraryBuilding,
-  loyolaBuilding,
-  makeRoute,
-} from "../fixtures";
+import { hallBuilding, libraryBuilding, makeRoute } from "../fixtures";
 
 // ── Mocks ──
 

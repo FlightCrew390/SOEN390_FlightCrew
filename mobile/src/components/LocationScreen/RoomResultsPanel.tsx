@@ -1,5 +1,4 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import React from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { COLORS } from "../../constants";
 import styles from "../../styles/PoiResultsPanel";

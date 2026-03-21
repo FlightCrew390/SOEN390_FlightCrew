@@ -1,19 +1,12 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { useEffect, useMemo, useReducer, useRef } from "react";
-import {
-  Animated,
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import { useEffect, useMemo, useReducer } from "react";
+import { Image, Pressable, ScrollView, Text, View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  PanGestureHandler,
-  PinchGestureHandler,
-  State,
-} from "react-native-gesture-handler";
 import { SvgUri } from "react-native-svg";
 import { API_CONFIG, COLORS } from "../../constants";
 import {
@@ -65,56 +58,50 @@ function ZoomableFloorPlan({
   buildingId,
   floor,
   selectedRoom,
-}: {
+}: Readonly<{
   buildingId: string;
   floor: number;
   selectedRoom?: IndoorRoom | null;
-}) {
-  const baseScale = useRef(new Animated.Value(INITIAL_SCALE)).current;
-  const pinchScale = useRef(new Animated.Value(1)).current;
-  const lastScale = useRef(INITIAL_SCALE);
+}>) {
+  const scale = useSharedValue(INITIAL_SCALE);
+  const savedScale = useSharedValue(INITIAL_SCALE);
 
-  const translateX = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(0)).current;
-  const lastOffset = useRef({ x: 0, y: 0 });
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const savedTranslateX = useSharedValue(0);
+  const savedTranslateY = useSharedValue(0);
 
-  const pinchRef = useRef(null);
-  const panRef = useRef(null);
-
-  const onPinchEvent = Animated.event(
-    [{ nativeEvent: { scale: pinchScale } }],
-    { useNativeDriver: true },
-  );
-
-  const onPinchStateChange = (event: any) => {
-    if (event.nativeEvent.oldState === State.ACTIVE) {
-      const next = Math.max(
+  const pinchGesture = Gesture.Pinch()
+    .onStart(() => {
+      savedScale.value = scale.value;
+    })
+    .onUpdate((e) => {
+      scale.value = Math.max(
         INITIAL_SCALE,
-        Math.min(lastScale.current * event.nativeEvent.scale, 6),
+        Math.min(savedScale.value * e.scale, 6),
       );
-      lastScale.current = next;
-      baseScale.setValue(next);
-      pinchScale.setValue(1);
-    }
-  };
+    });
 
-  const onPanEvent = Animated.event(
-    [{ nativeEvent: { translationX: translateX, translationY: translateY } }],
-    { useNativeDriver: true },
-  );
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+      savedTranslateX.value = translateX.value;
+      savedTranslateY.value = translateY.value;
+    })
+    .onUpdate((e) => {
+      translateX.value = savedTranslateX.value + e.translationX;
+      translateY.value = savedTranslateY.value + e.translationY;
+    });
 
-  const onPanStateChange = (event: any) => {
-    if (event.nativeEvent.oldState === State.ACTIVE) {
-      lastOffset.current.x += event.nativeEvent.translationX;
-      lastOffset.current.y += event.nativeEvent.translationY;
-      translateX.setOffset(lastOffset.current.x);
-      translateX.setValue(0);
-      translateY.setOffset(lastOffset.current.y);
-      translateY.setValue(0);
-    }
-  };
+  const composed = Gesture.Simultaneous(panGesture, pinchGesture);
 
-  const combinedScale = Animated.multiply(baseScale, pinchScale);
+  const animatedStyle = useAnimatedStyle(() => ({
+    flex: 1,
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+      { scale: scale.value },
+    ],
+  }));
 
   const svgFileName = SVG_PLAN_FILES[buildingId]?.[floor];
   const rasterFileName = RASTER_PLAN_FILES[buildingId]?.[floor];
@@ -146,7 +133,7 @@ function ZoomableFloorPlan({
   const mapAspectRatio = coordSpace.width / coordSpace.height;
 
   const renderPin = () => {
-    if (!selectedRoom || selectedRoom.floor !== floor) return null;
+    if (selectedRoom?.floor !== floor) return null;
     return (
       <View
         style={{
@@ -165,92 +152,76 @@ function ZoomableFloorPlan({
     );
   };
 
-  const content = assetLoadFailed ? (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text style={{ color: "#888", fontSize: 15, textAlign: "center" }}>
-        Floor plan failed to load.
-      </Text>
-    </View>
-  ) : svgFileName && assetUri ? (
-    <View
-      style={{
-        flex: 1,
-        width: "100%",
-        height: "100%",
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-      }}
-    >
-      <View style={{ width: "100%", aspectRatio: mapAspectRatio }}>
-        <SvgUri
-          uri={assetUri}
-          width="100%"
-          height="100%"
-          preserveAspectRatio="xMidYMid meet"
-          onError={() => dispatchFloorPlanAsset({ type: "LOAD_FAILED" })}
-        />
-        {renderPin()}
+  const renderContent = () => {
+    if (assetLoadFailed) {
+      return (
+        <View
+          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+        >
+          <Text style={{ color: "#888", fontSize: 15, textAlign: "center" }}>
+            Floor plan failed to load.
+          </Text>
+        </View>
+      );
+    }
+
+    const fullStyle = {
+      flex: 1,
+      width: "100%" as const,
+      height: "100%" as const,
+      alignItems: "center" as const,
+      justifyContent: "center" as const,
+      overflow: "hidden" as const,
+    };
+
+    if (svgFileName && assetUri) {
+      return (
+        <View style={fullStyle}>
+          <View style={{ width: "100%", aspectRatio: mapAspectRatio }}>
+            <SvgUri
+              uri={assetUri}
+              width="100%"
+              height="100%"
+              preserveAspectRatio="xMidYMid meet"
+              onError={() => dispatchFloorPlanAsset({ type: "LOAD_FAILED" })}
+            />
+            {renderPin()}
+          </View>
+        </View>
+      );
+    }
+
+    if (rasterFileName && assetUri) {
+      return (
+        <View style={fullStyle}>
+          <View style={{ width: "100%", aspectRatio: mapAspectRatio }}>
+            <Image
+              source={{ uri: assetUri }}
+              style={{ width: "100%", height: "100%" }}
+              resizeMode="contain"
+              onError={() => dispatchFloorPlanAsset({ type: "LOAD_FAILED" })}
+            />
+            {renderPin()}
+          </View>
+        </View>
+      );
+    }
+
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <Text style={{ color: "#888", fontSize: 15 }}>
+          No floor plan available.
+        </Text>
       </View>
-    </View>
-  ) : rasterFileName && assetUri ? (
-    <View
-      style={{
-        flex: 1,
-        width: "100%",
-        height: "100%",
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-      }}
-    >
-      <View style={{ width: "100%", aspectRatio: mapAspectRatio }}>
-        <Image
-          source={{ uri: assetUri }}
-          style={{ width: "100%", height: "100%" }}
-          resizeMode="contain"
-          onError={() => dispatchFloorPlanAsset({ type: "LOAD_FAILED" })}
-        />
-        {renderPin()}
-      </View>
-    </View>
-  ) : (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text style={{ color: "#888", fontSize: 15 }}>
-        No floor plan available.
-      </Text>
-    </View>
-  );
+    );
+  };
 
   return (
-    <PanGestureHandler
-      ref={panRef}
-      simultaneousHandlers={pinchRef}
-      onGestureEvent={onPanEvent}
-      onHandlerStateChange={onPanStateChange}
-    >
-      <Animated.View style={{ flex: 1, overflow: "hidden" }}>
-        <PinchGestureHandler
-          ref={pinchRef}
-          simultaneousHandlers={panRef}
-          onGestureEvent={onPinchEvent}
-          onHandlerStateChange={onPinchStateChange}
-        >
-          <Animated.View
-            style={{
-              flex: 1,
-              transform: [
-                { translateX },
-                { translateY },
-                { scale: combinedScale },
-              ],
-            }}
-          >
-            {content}
-          </Animated.View>
-        </PinchGestureHandler>
+    <GestureDetector gesture={composed}>
+      <Animated.View style={[{ flex: 1, overflow: "hidden" }]}>
+        <Animated.View style={animatedStyle}>{renderContent()}</Animated.View>
       </Animated.View>
-    </PanGestureHandler>
+    </GestureDetector>
   );
 }
 
@@ -336,7 +307,7 @@ export default function IndoorFloorView({
               }}
             >
               Indoor view · Floor {getFloorLabel(buildingId, currentFloor)}
-              {selectedRoom && selectedRoom.floor === currentFloor
+              {selectedRoom?.floor === currentFloor
                 ? ` · ${selectedRoom.label}`
                 : ""}
             </Text>

@@ -48,6 +48,12 @@ public class IndoorController {
         return ResponseEntity.ok(indoorNavigationDataService.getRooms(query, buildingId, floor));
     }
 
+    @GetMapping("/nodes")
+    public ResponseEntity<List<IndoorNode>> getNodes(
+            @RequestParam(required = false) String buildingId) {
+        return ResponseEntity.ok(indoorNavigationDataService.getAllNodes(buildingId));
+    }
+
     @GetMapping("/assets/svg")
     public ResponseEntity<List<IndoorAssetFileDTO>> listSvgAssets() {
         return ResponseEntity.ok(indoorNavigationDataService.listSvgAssets());

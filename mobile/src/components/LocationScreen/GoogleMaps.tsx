@@ -80,11 +80,13 @@ export default function GoogleMaps({
   const showIndoorRoute =
     state.panel === "directions" &&
     state.route?.indoorPath &&
-    state.route.indoorPath.length > 0;
+    state.route.indoorPath.length > 0 &&
+    (!state.route.coordinates || state.route.coordinates.length === 0);
 
-  const activeIndoorBuildingId =
-    state.indoorBuildingId ??
-    (showIndoorRoute ? state.route!.indoorPath![0].buildingId : null);
+  const activeIndoorBuildingId = showIndoorRoute
+    ? (state.destinationRoom?.buildingId ??
+      state.route!.indoorPath![0].buildingId)
+    : (state.indoorBuildingId ?? null);
 
   const indoorFloors = activeIndoorBuildingId
     ? IndoorDataService.getFloorsByBuilding(activeIndoorBuildingId)
@@ -245,14 +247,37 @@ export default function GoogleMaps({
         userLocation={userCoords}
         departureConfig={state.departureConfig}
         onDepartureConfigChange={handleDepartureConfigChange}
+        startRoom={state.startRoom}
         destinationRoom={state.destinationRoom}
+        onOpenStartIndoor={() => {
+          if (state.startRoom) {
+            if (
+              state.route?.indoorPathOrigin &&
+              state.route.indoorPathOrigin.length > 0
+            ) {
+              openIndoorView(
+                state.startRoom.buildingId,
+                state.route.indoorPathOrigin[0].floor,
+              );
+            } else {
+              openIndoorView(state.startRoom.buildingId, state.startRoom.floor);
+            }
+          }
+        }}
         onOpenIndoor={() => {
           if (state.destinationRoom) {
-            openIndoorView(
-              state.destinationRoom.buildingId,
-              state.destinationRoom.floor,
-            );
-            dispatch({ type: "OPEN_ROOM_INFO", room: state.destinationRoom });
+            if (state.route?.indoorPath && state.route.indoorPath.length > 0) {
+              openIndoorView(
+                state.destinationRoom.buildingId,
+                state.route.indoorPath[0].floor,
+              );
+            } else {
+              openIndoorView(
+                state.destinationRoom.buildingId,
+                state.destinationRoom.floor,
+              );
+              dispatch({ type: "OPEN_ROOM_INFO", room: state.destinationRoom });
+            }
           }
         }}
         onClose={() =>

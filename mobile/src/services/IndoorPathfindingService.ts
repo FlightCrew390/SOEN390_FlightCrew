@@ -38,8 +38,10 @@ export class IndoorPathfindingService {
       }
 
       return await response.json();
-    } catch (e) {
-      console.error("Error in IndoorPathfindingService:", e);
+    } catch (e: any) {
+      if (!e?.message?.includes("status 404")) {
+        console.error("Error in IndoorPathfindingService:", e);
+      }
       throw e;
     }
   }

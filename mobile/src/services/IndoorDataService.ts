@@ -25,9 +25,9 @@ export class IndoorDataService {
 
     loadingPromise = (async () => {
       try {
-        const [buildingsRes, roomsRes] = await Promise.all([
+        const [buildingsRes, nodesRes] = await Promise.all([
           fetch(`${API_BASE_URL}/indoor/buildings`),
-          fetch(`${API_BASE_URL}/indoor/rooms`),
+          fetch(`${API_BASE_URL}/indoor/nodes`),
         ]);
 
         if (buildingsRes.ok) {
@@ -37,8 +37,8 @@ export class IndoorDataService {
           }
         }
 
-        if (roomsRes.ok) {
-          const nodes = (await roomsRes.json()) as IndoorNode[];
+        if (nodesRes.ok) {
+          const nodes = (await nodesRes.json()) as IndoorNode[];
           allNodes = Array.isArray(nodes) ? nodes : [];
           isLoaded = true;
         }

@@ -24,7 +24,9 @@ interface StepsPanelProps {
   readonly route: RouteInfo;
   readonly departureConfig: DepartureTimeConfig;
   readonly onBack: () => void;
+  readonly startRoom?: IndoorRoom | null;
   readonly destinationRoom?: IndoorRoom | null;
+  readonly onOpenStartIndoor?: () => void;
   readonly onOpenIndoor?: () => void;
 }
 
@@ -34,7 +36,9 @@ export default function StepsPanel({
   route,
   departureConfig,
   onBack,
+  startRoom,
   destinationRoom,
+  onOpenStartIndoor,
   onOpenIndoor,
 }: Readonly<StepsPanelProps>) {
   const distanceText =
@@ -115,9 +119,38 @@ export default function StepsPanel({
           >
             <View style={styles.stepContent}>
               <Text style={styles.stepInstruction}>
-                Exit{" "}
-                {startBuilding.buildingLongName ?? startBuilding.buildingCode}
+                {startRoom
+                  ? `Exit ${startBuilding.buildingCode} starting from room ${startRoom.label || startRoom.id}`
+                  : `Exit ${startBuilding.buildingLongName ?? startBuilding.buildingCode}`}
               </Text>
+              {startRoom && onOpenStartIndoor && (
+                <Pressable
+                  style={{
+                    marginTop: 12,
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                  onPress={onOpenStartIndoor}
+                  accessibilityLabel="Show Indoor Departure Map"
+                  accessibilityRole="button"
+                >
+                  <FontAwesome5
+                    name="map"
+                    size={16}
+                    color={COLORS.concordiaMaroon}
+                  />
+                  <Text
+                    style={{
+                      marginLeft: 8,
+                      color: COLORS.concordiaMaroon,
+                      fontWeight: "500",
+                      fontSize: 14,
+                    }}
+                  >
+                    View Indoor Departure Map
+                  </Text>
+                </Pressable>
+              )}
             </View>
             <View style={styles.startBuildingIcon}>
               <FontAwesome5 name="walking" size={36} color="white" />

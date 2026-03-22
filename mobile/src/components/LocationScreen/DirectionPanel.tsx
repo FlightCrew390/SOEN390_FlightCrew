@@ -77,7 +77,9 @@ interface DirectionPanelProps {
   readonly showSteps: boolean;
   readonly onShowSteps: () => void;
   readonly onHideSteps: () => void;
+  readonly startRoom?: IndoorRoom | null;
   readonly destinationRoom?: IndoorRoom | null;
+  readonly onOpenStartIndoor?: () => void;
   readonly onOpenIndoor?: () => void;
   readonly shuttleEligible?: boolean;
   readonly routePreviews?: RoutePreviews;
@@ -348,7 +350,9 @@ export default function DirectionPanel({
   showSteps,
   onShowSteps,
   onHideSteps,
+  startRoom,
   destinationRoom,
+  onOpenStartIndoor,
   onOpenIndoor,
   shuttleEligible,
   routePreviews,
@@ -510,7 +514,9 @@ export default function DirectionPanel({
           route={route}
           departureConfig={departureConfig}
           onBack={onHideSteps}
+          startRoom={startRoom}
           destinationRoom={destinationRoom}
+          onOpenStartIndoor={onOpenStartIndoor}
           onOpenIndoor={onOpenIndoor}
         />
       )}

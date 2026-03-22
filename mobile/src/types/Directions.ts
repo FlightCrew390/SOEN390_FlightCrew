@@ -81,6 +81,8 @@ export interface RouteInfo {
   steps: StepInfo[];
   /** Optional sequence of nodes representing an indoor path */
   indoorPath?: IndoorRoom[];
+  /** Optional sequence of nodes representing the origin indoor path (from start room to exit) */
+  indoorPathOrigin?: IndoorRoom[];
 }
 
 export interface StepInfo {

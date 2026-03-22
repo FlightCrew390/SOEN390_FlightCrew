@@ -135,6 +135,119 @@ export function useDirections({
             arrivalTime,
           );
         }
+
+        // If outdoor route was fetched but we have a start room, fetch the indoor departure path
+        if (route && !route.indoorPathOrigin && startRoom) {
+          try {
+            const { IndoorDataService } = await import("../services/IndoorDataService");
+            await IndoorDataService.ensureLoaded();
+
+            const bId = startRoom.buildingId;
+            const nodes = IndoorDataService.getAllNodes();
+            let exitNodes = nodes.filter(
+              (n) => n.buildingId === bId && n.type?.includes("entry_exit") && n.floor === 1,
+            );
+            if (exitNodes.length === 0) exitNodes = nodes.filter((n) => n.buildingId === bId && n.type?.includes("entry_exit"));
+            if (exitNodes.length === 0) exitNodes = nodes.filter((n) => n.buildingId === bId && n.type === "doorway" && n.floor === 1);
+            if (exitNodes.length === 0) exitNodes = nodes.filter((n) => n.buildingId === bId && n.floor === 1);
+            if (exitNodes.length === 0) exitNodes = nodes.filter((n) => n.buildingId === bId);
+
+            let bestPath = null;
+            let bestExitNode = null;
+            let minDistance = Infinity;
+
+            const promises = exitNodes.map(async (en) => {
+              if (en.id === startRoom.id) return { en, res: { path: [en], distanceMeters: 0 } as any };
+              const res = await IndoorPathfindingService.getDirections(bId, startRoom.id, en.id);
+              return { en, res };
+            });
+
+            const results = await Promise.allSettled(promises);
+            for (const result of results) {
+              if (result.status === "fulfilled") {
+                if (result.value.res.distanceMeters < minDistance) {
+                  minDistance = result.value.res.distanceMeters;
+                  bestPath = result.value.res.path;
+                  bestExitNode = result.value.en;
+                }
+              }
+            }
+
+            if (bestPath && bestExitNode) {
+              route.indoorPathOrigin = bestPath;
+            } else if (exitNodes.length > 0) {
+              const fallbackNode = exitNodes[0];
+              console.warn("Backend graph missing path. Using artificial straight line fallback for departure.");
+              const artificialPath: any[] = [startRoom];
+              if (fallbackNode.floor !== startRoom.floor) {
+                artificialPath.push({ ...fallbackNode, id: "synth_0", floor: startRoom.floor });
+              }
+              artificialPath.push(fallbackNode);
+              route.indoorPathOrigin = artificialPath;
+            } else {
+              route.indoorPathOrigin = [startRoom];
+            }
+          } catch (e) {
+            console.warn("Could not compute indoor->outdoor departure path segment:", e);
+          }
+        }
+
+        // If outdoor route was fetched but we have a destination room, fetch the indoor arrival path
+        if (route && !route.indoorPath && destinationRoom) {
+          try {
+            const { IndoorDataService } = await import("../services/IndoorDataService");
+            await IndoorDataService.ensureLoaded();
+
+            const bId = destinationRoom.buildingId;
+            const nodes = IndoorDataService.getAllNodes();
+            let entryNodes = nodes.filter(
+              (n) => n.buildingId === bId && n.type?.includes("entry_exit") && n.floor === 1,
+            );
+            if (entryNodes.length === 0) entryNodes = nodes.filter((n) => n.buildingId === bId && n.type?.includes("entry_exit"));
+            if (entryNodes.length === 0) entryNodes = nodes.filter((n) => n.buildingId === bId && n.type === "doorway" && n.floor === 1);
+            if (entryNodes.length === 0) entryNodes = nodes.filter((n) => n.buildingId === bId && n.floor === 1);
+            if (entryNodes.length === 0) entryNodes = nodes.filter((n) => n.buildingId === bId);
+
+            let bestPath = null;
+            let bestEntryNode = null;
+            let minDistance = Infinity;
+
+            const promises = entryNodes.map(async (en) => {
+              if (en.id === destinationRoom.id) return { en, res: { path: [en], distanceMeters: 0 } as any };
+              const res = await IndoorPathfindingService.getDirections(bId, en.id, destinationRoom.id);
+              return { en, res };
+            });
+
+            const results = await Promise.allSettled(promises);
+            for (const result of results) {
+              if (result.status === "fulfilled") {
+                if (result.value.res.distanceMeters < minDistance) {
+                  minDistance = result.value.res.distanceMeters;
+                  bestPath = result.value.res.path;
+                  bestEntryNode = result.value.en;
+                }
+              }
+            }
+
+            if (bestPath && bestEntryNode) {
+              route.indoorPath = bestPath;
+            } else if (entryNodes.length > 0) {
+              const fallbackNode = entryNodes[0];
+              console.warn("Backend graph missing path. Using artificial straight line fallback.");
+              const artificialPath: any[] = [fallbackNode];
+              if (fallbackNode.floor !== destinationRoom.floor) {
+                artificialPath.push({ ...fallbackNode, id: "synth_1", floor: destinationRoom.floor });
+              }
+              artificialPath.push(destinationRoom);
+              route.indoorPath = artificialPath;
+            } else {
+              route.indoorPath = [destinationRoom];
+            }
+          } catch (e) {
+            console.warn("Could not compute outdoor->indoor arrival path segment:", e);
+          }
+        }
+
         if (!cancelled) onLoaded(route);
       } catch (err) {
         if (!cancelled) {

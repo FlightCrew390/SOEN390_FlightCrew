@@ -61,12 +61,31 @@ function ZoomableFloorPlan({
   floor,
   selectedRoom,
   route,
+  onFloorChange,
 }: Readonly<{
   buildingId: string;
   floor: number;
   selectedRoom?: IndoorRoom | null;
   route?: RouteInfo | null;
+  onFloorChange: (floor: number) => void;
 }>) {
+  const activeIndoorPath = useMemo(() => {
+    if (!route) return null;
+    if (
+      route.indoorPathOrigin?.length &&
+      route.indoorPathOrigin[0].buildingId === buildingId
+    ) {
+      return route.indoorPathOrigin;
+    }
+    if (
+      route.indoorPath?.length &&
+      route.indoorPath[0].buildingId === buildingId
+    ) {
+      return route.indoorPath;
+    }
+    return null;
+  }, [route, buildingId]);
+
   const scale = useSharedValue(INITIAL_SCALE);
   const savedScale = useSharedValue(INITIAL_SCALE);
 
@@ -196,20 +215,116 @@ function ZoomableFloorPlan({
           transform: [{ translateX: -16 }, { translateY: -32 }],
         }}
       >
-        <MaterialCommunityIcons
-          name="map-marker"
-          size={32}
-          color={COLORS.concordiaYellow}
-        />
+        <MaterialCommunityIcons name="map-marker" size={32} color="#1b73e8" />
       </View>
     );
   };
 
+  const renderEntryExitPins = () => {
+    if (
+      !route ||
+      !activeIndoorPath ||
+      !route.coordinates ||
+      route.coordinates.length === 0
+    )
+      return null;
+    const pins = [];
+    const first = activeIndoorPath[0];
+    const last = activeIndoorPath[activeIndoorPath.length - 1];
+
+    if (first.floor === floor && first.id.includes("entry_exit")) {
+      pins.push(first);
+    }
+    if (
+      last !== first &&
+      last.floor === floor &&
+      last.id.includes("entry_exit")
+    ) {
+      pins.push(last);
+    }
+
+    return pins.map((node, idx) => {
+      const mapped = getMappedPoint(buildingId, floor, node.x, node.y);
+      return (
+        <View
+          key={`entry-exit-pin-${idx}`}
+          style={{
+            position: "absolute",
+            left: `${((mapped.x - viewBoxInfo.minX) / viewBoxInfo.width) * 100}%`,
+            top: `${((mapped.y - viewBoxInfo.minY) / viewBoxInfo.height) * 100}%`,
+            transform: [{ translateX: -12 }, { translateY: -12 }],
+            backgroundColor: "#4caf50",
+            borderRadius: 12,
+            padding: 4,
+            alignItems: "center",
+            justifyContent: "center",
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.3,
+            shadowRadius: 2,
+            elevation: 3,
+            zIndex: 41,
+          }}
+        >
+          <MaterialCommunityIcons name="door-open" size={16} color="white" />
+        </View>
+      );
+    });
+  };
+
+  const renderTransitionPins = () => {
+    if (!route || !activeIndoorPath) return null;
+    const transitionPins = [];
+
+    for (let i = 0; i < activeIndoorPath.length - 1; i++) {
+      const current = activeIndoorPath[i];
+      const next = activeIndoorPath[i + 1];
+
+      if (current.floor === floor && next.floor !== floor) {
+        transitionPins.push({ node: current, type: "next" });
+      } else if (current.floor !== floor && next.floor === floor) {
+        transitionPins.push({ node: next, type: "prev" });
+      }
+    }
+
+    return transitionPins.map((t, idx) => {
+      const mapped = getMappedPoint(buildingId, floor, t.node.x, t.node.y);
+      return (
+        <View
+          key={`transition-pin-${idx}`}
+          style={{
+            position: "absolute",
+            left: `${((mapped.x - viewBoxInfo.minX) / viewBoxInfo.width) * 100}%`,
+            top: `${((mapped.y - viewBoxInfo.minY) / viewBoxInfo.height) * 100}%`,
+            transform: [{ translateX: -12 }, { translateY: -12 }],
+            backgroundColor: COLORS.concordiaMaroon,
+            borderRadius: 12,
+            padding: 4,
+            alignItems: "center",
+            justifyContent: "center",
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.3,
+            shadowRadius: 2,
+            elevation: 3,
+            zIndex: 40,
+          }}
+        >
+          <MaterialCommunityIcons
+            name={t.type === "next" ? "elevator-up" : "elevator-down"}
+            size={16}
+            color="white"
+          />
+        </View>
+      );
+    });
+  };
+
   const renderPath = () => {
-    if (!route || !route.indoorPath) return null;
+    if (!route || !activeIndoorPath) return null;
 
     // Filter the nodes that are on the current floor
-    const pointsStr = route.indoorPath
+    const pointsStr = activeIndoorPath
       .filter((node) => node.floor === floor)
       .map((node) => {
         const mapped = getMappedPoint(buildingId, floor, node.x, node.y);
@@ -272,6 +387,8 @@ function ZoomableFloorPlan({
               onError={() => dispatchFloorPlanAsset({ type: "LOAD_FAILED" })}
             />
             {renderPath()}
+            {renderTransitionPins()}
+            {renderEntryExitPins()}
             {renderPin()}
             {/* {renderAllPins()} */}
           </View>
@@ -290,6 +407,8 @@ function ZoomableFloorPlan({
               onError={() => dispatchFloorPlanAsset({ type: "LOAD_FAILED" })}
             />
             {renderPath()}
+            {renderTransitionPins()}
+            {renderEntryExitPins()}
             {renderPin()}
             {/* {renderAllPins()} */}
           </View>
@@ -337,10 +456,65 @@ export default function IndoorFloorView({
   selectedRoom,
   route,
 }: Readonly<IndoorFloorViewProps>) {
+  const activeIndoorPath = useMemo(() => {
+    if (!route) return null;
+    if (
+      route.indoorPathOrigin?.length &&
+      route.indoorPathOrigin[0].buildingId === buildingId
+    ) {
+      return route.indoorPathOrigin;
+    }
+    if (
+      route.indoorPath?.length &&
+      route.indoorPath[0].buildingId === buildingId
+    ) {
+      return route.indoorPath;
+    }
+    return null;
+  }, [route, buildingId]);
+
   const [{ floorOpen }, dispatchFloorSelector] = useReducer(
     floorSelectorReducer,
     initialFloorSelectorState,
   );
+
+  const { nextFloors, prevFloors, hasOutdoorEntryExit } = useMemo(() => {
+    if (!route || !activeIndoorPath) {
+      return { nextFloors: [], prevFloors: [], hasOutdoorEntryExit: false };
+    }
+
+    let hasOutdoor = false;
+    const first = activeIndoorPath[0];
+    const last = activeIndoorPath[activeIndoorPath.length - 1];
+
+    // If there is an outdoor path component, we check if the entry/exit node is on this floor
+    if (route.coordinates && route.coordinates.length > 0) {
+      if (first.floor === currentFloor && first.id.includes("entry_exit"))
+        hasOutdoor = true;
+      if (last.floor === currentFloor && last.id.includes("entry_exit"))
+        hasOutdoor = true;
+    }
+
+    const nextF: number[] = [];
+    const prevF: number[] = [];
+    for (let i = 0; i < activeIndoorPath.length - 1; i++) {
+      const current = activeIndoorPath[i];
+      const next = activeIndoorPath[i + 1];
+      if (current.floor === currentFloor && next.floor !== currentFloor) {
+        nextF.push(next.floor);
+      } else if (
+        current.floor !== currentFloor &&
+        next.floor === currentFloor
+      ) {
+        prevF.push(current.floor);
+      }
+    }
+    return {
+      nextFloors: Array.from(new Set(nextF)),
+      prevFloors: Array.from(new Set(prevF)),
+      hasOutdoorEntryExit: hasOutdoor,
+    };
+  }, [route, currentFloor]);
 
   const buildingLabel =
     building.buildingName ?? BUILDING_NAMES[buildingId] ?? buildingId;
@@ -414,6 +588,7 @@ export default function IndoorFloorView({
           floor={currentFloor}
           selectedRoom={selectedRoom}
           route={route}
+          onFloorChange={onFloorChange}
         />
 
         {/* Floor selector */}
@@ -503,34 +678,138 @@ export default function IndoorFloorView({
           )}
         </View>
 
+        {/* Floor Transitions */}
+        {(nextFloors.length > 0 ||
+          prevFloors.length > 0 ||
+          hasOutdoorEntryExit) && (
+          <View
+            style={{
+              position: "absolute",
+              bottom: 30,
+              alignSelf: "center",
+              flexDirection: "row",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: 10,
+              zIndex: 40,
+              paddingHorizontal: 20,
+            }}
+          >
+            {hasOutdoorEntryExit && (
+              <Pressable
+                onPress={onBack}
+                style={{
+                  backgroundColor: "#4caf50",
+                  paddingHorizontal: 20,
+                  paddingVertical: 14,
+                  borderRadius: 25,
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4,
+                  elevation: 5,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="door-open"
+                  size={20}
+                  color="white"
+                />
+                <Text
+                  style={{ color: "white", fontWeight: "bold", fontSize: 16 }}
+                >
+                  Go Outside
+                </Text>
+              </Pressable>
+            )}
+            {prevFloors.map((tFloor) => (
+              <Pressable
+                key={`prev-${tFloor}`}
+                onPress={() => onFloorChange(tFloor)}
+                style={{
+                  backgroundColor: "#fff",
+                  paddingHorizontal: 20,
+                  paddingVertical: 14,
+                  borderRadius: 25,
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4,
+                  elevation: 5,
+                  borderWidth: 1,
+                  borderColor: COLORS.concordiaMaroon,
+                }}
+              >
+                <Text
+                  style={{
+                    color: COLORS.concordiaMaroon,
+                    fontWeight: "bold",
+                    fontSize: 16,
+                  }}
+                >
+                  Back to Floor {getFloorLabel(buildingId, tFloor)}
+                </Text>
+              </Pressable>
+            ))}
+            {nextFloors.map((tFloor) => (
+              <Pressable
+                key={`next-${tFloor}`}
+                onPress={() => onFloorChange(tFloor)}
+                style={{
+                  backgroundColor: COLORS.concordiaMaroon,
+                  paddingHorizontal: 20,
+                  paddingVertical: 14,
+                  borderRadius: 25,
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4,
+                  elevation: 5,
+                }}
+              >
+                <Text
+                  style={{ color: "white", fontWeight: "bold", fontSize: 16 }}
+                >
+                  Continue to Floor {getFloorLabel(buildingId, tFloor)}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
+
         {/* Outdoor toggle */}
-        <Pressable
-          onPress={onBack}
-          style={{
-            position: "absolute",
-            bottom: 24,
-            right: 12,
-            width: 52,
-            height: 52,
-            borderRadius: 26,
-            backgroundColor: "#fff",
-            alignItems: "center",
-            justifyContent: "center",
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.2,
-            shadowRadius: 3,
-            elevation: 4,
-          }}
-          accessibilityLabel="Switch to outdoor map"
-          accessibilityRole="button"
-        >
-          <MaterialCommunityIcons
-            name="map"
-            size={24}
-            color={COLORS.concordiaMaroon}
-          />
-        </Pressable>
+        {!route && (
+          <Pressable
+            onPress={onBack}
+            style={{
+              position: "absolute",
+              bottom: 24,
+              right: 12,
+              width: 52,
+              height: 52,
+              borderRadius: 26,
+              backgroundColor: "#fff",
+              alignItems: "center",
+              justifyContent: "center",
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.2,
+              shadowRadius: 3,
+              elevation: 4,
+            }}
+            accessibilityLabel="Switch to outdoor map"
+            accessibilityRole="button"
+          >
+            <MaterialCommunityIcons
+              name="map"
+              size={24}
+              color={COLORS.concordiaMaroon}
+            />
+          </Pressable>
+        )}
       </View>
     </View>
   );

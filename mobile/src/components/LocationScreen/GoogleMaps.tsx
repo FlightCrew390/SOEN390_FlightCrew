@@ -77,9 +77,24 @@ export default function GoogleMaps({
     ? (BUILDING_CODE_TO_INDOOR_ID[state.selectedBuilding.buildingCode] ?? null)
     : null;
 
-  const indoorFloors = state.indoorBuildingId
-    ? IndoorDataService.getFloorsByBuilding(state.indoorBuildingId)
+  const showIndoorRoute =
+    state.panel === "directions" &&
+    state.route?.indoorPath &&
+    state.route.indoorPath.length > 0;
+
+  const activeIndoorBuildingId =
+    state.indoorBuildingId ??
+    (showIndoorRoute ? state.route!.indoorPath![0].buildingId : null);
+
+  const indoorFloors = activeIndoorBuildingId
+    ? IndoorDataService.getFloorsByBuilding(activeIndoorBuildingId)
     : [];
+
+  const activeIndoorFloor =
+    state.indoorFloor ??
+    (showIndoorRoute
+      ? state.route!.indoorPath![0].floor
+      : (indoorFloors[0] ?? 1));
 
   const {
     handleMapReady,
@@ -310,14 +325,15 @@ export default function GoogleMaps({
         />
       )}
 
-      {(state.panel === "indoor" || state.panel === "room-info") &&
-        state.selectedBuilding &&
-        state.indoorBuildingId && (
+      {(state.panel === "indoor" ||
+        state.panel === "room-info" ||
+        showIndoorRoute) &&
+        activeIndoorBuildingId && (
           <IndoorFloorView
-            building={state.selectedBuilding}
-            buildingId={state.indoorBuildingId}
+            building={state.selectedBuilding!} // may be null if deep linked into directions, but usually safe
+            buildingId={activeIndoorBuildingId}
             floors={indoorFloors}
-            currentFloor={state.indoorFloor ?? indoorFloors[0] ?? 1}
+            currentFloor={activeIndoorFloor}
             onFloorChange={(floor) =>
               dispatch({ type: "SET_INDOOR_FLOOR", floor })
             }
@@ -325,7 +341,7 @@ export default function GoogleMaps({
             onRoomPress={(room) => {
               dispatch({ type: "OPEN_ROOM_INFO", room });
             }}
-            selectedRoom={state.indoorSelectedRoom}
+            selectedRoom={state.indoorSelectedRoom ?? state.destinationRoom}
             route={state.route}
           />
         )}

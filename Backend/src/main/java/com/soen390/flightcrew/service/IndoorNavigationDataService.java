@@ -80,6 +80,13 @@ public class IndoorNavigationDataService {
                 .toList();
     }
 
+    public List<IndoorNode> getAllNodes(String buildingId) {
+        return loadNodes().stream()
+                .filter(node -> buildingId == null || buildingId.isBlank()
+                        || buildingId.equalsIgnoreCase(node.getBuildingId()))
+                .toList();
+    }
+
     public List<IndoorEdge> getEdgesByBuilding(String buildingId) {
         if (buildingId == null || buildingId.isBlank())
             return List.of();

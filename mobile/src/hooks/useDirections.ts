@@ -106,7 +106,8 @@ export function useDirections({
               durationSeconds: indoorRes.distanceMeters * 2, // approximation
               encodedPolyline: "", // we'll draw our own indoor lines based on nodes
               mode: travelMode,
-              legs: [],
+              coordinates: [],
+              steps: [],
               indoorPath: indoorRes.path,
             } as any;
           } catch (e) {

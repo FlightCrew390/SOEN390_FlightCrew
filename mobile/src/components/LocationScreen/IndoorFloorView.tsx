@@ -19,7 +19,6 @@ import {
 import { Building } from "../../types/Building";
 import { IndoorRoom } from "../../types/IndoorRoom";
 import { RouteInfo } from "../../types/Directions";
-import { IndoorDataService } from "../../services/IndoorDataService";
 import { getManeuverIcon } from "../../utils/directionsUtils";
 import { formatDistance } from "../../utils/formatHelper";
 
@@ -543,7 +542,7 @@ export default function IndoorFloorView({
       prevFloors: Array.from(new Set(prevF)),
       hasOutdoorEntryExit: hasOutdoor,
     };
-  }, [route, currentFloor]);
+  }, [route, currentFloor, activeIndoorPath]);
 
   const buildingLabel =
     building.buildingName ?? BUILDING_NAMES[buildingId] ?? buildingId;

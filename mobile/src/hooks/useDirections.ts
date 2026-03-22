@@ -7,6 +7,7 @@ import { IndoorRoom } from "../types/IndoorRoom";
 import {
   DepartureTimeConfig,
   RouteInfo,
+  StepInfo,
   TRAVEL_MODE,
   TravelMode,
 } from "../types/Directions";
@@ -114,7 +115,7 @@ export function useDirections({
                 coordinates: [],
               })),
               indoorPath: indoorRes.path,
-            } as any;
+            } as RouteInfo;
           } catch (e) {
             console.error("Indoor pathfinding failed", e);
             throw new Error("Could not compute indoor path.");
@@ -201,28 +202,28 @@ export function useDirections({
             }
 
             if (bestPath && bestExitNode) {
-              route.indoorPathOrigin = bestPath;
+              route.indoorPathOrigin = bestPath as IndoorRoom[];
               route.indoorStepsOrigin = bestSteps.map((s: any) => ({
                 distanceMeters: s.distanceMeters,
                 durationSeconds: s.durationSeconds,
                 instruction: s.instruction,
                 maneuver: s.maneuver,
                 coordinates: [],
-              }));
+              })) as StepInfo[];
             } else if (exitNodes.length > 0) {
               const fallbackNode = exitNodes[0];
               console.warn(
                 "Backend graph missing path. Using artificial straight line fallback for departure.",
               );
-              const artificialPath: any[] = [startRoom];
+              const artificialPath = [startRoom];
               if (fallbackNode.floor !== startRoom.floor) {
                 artificialPath.push({
-                  ...fallbackNode,
+                  ...(fallbackNode as IndoorRoom),
                   id: "synth_0",
                   floor: startRoom.floor,
                 });
               }
-              artificialPath.push(fallbackNode);
+              artificialPath.push(fallbackNode as IndoorRoom);
               route.indoorPathOrigin = artificialPath;
             } else {
               route.indoorPathOrigin = [startRoom];
@@ -295,23 +296,23 @@ export function useDirections({
             }
 
             if (bestPath && bestEntryNode) {
-              route.indoorPath = bestPath;
+              route.indoorPath = bestPath as IndoorRoom[];
               route.indoorSteps = bestSteps.map((s: any) => ({
                 distanceMeters: s.distanceMeters,
                 durationSeconds: s.durationSeconds,
                 instruction: s.instruction,
                 maneuver: s.maneuver,
                 coordinates: [],
-              }));
+              })) as StepInfo[];
             } else if (entryNodes.length > 0) {
               const fallbackNode = entryNodes[0];
               console.warn(
                 "Backend graph missing path. Using artificial straight line fallback.",
               );
-              const artificialPath: any[] = [fallbackNode];
+              const artificialPath = [fallbackNode as IndoorRoom];
               if (fallbackNode.floor !== destinationRoom.floor) {
                 artificialPath.push({
-                  ...fallbackNode,
+                  ...(fallbackNode as IndoorRoom),
                   id: "synth_1",
                   floor: destinationRoom.floor,
                 });

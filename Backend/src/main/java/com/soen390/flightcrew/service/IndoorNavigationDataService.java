@@ -17,12 +17,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.Objects;
 
@@ -44,8 +41,9 @@ public class IndoorNavigationDataService {
     public List<String> getAvailableBuildings() {
         return loadBuildingData().stream()
                 .map(IndoorBuildingData::getMeta)
-                .filter(meta -> meta != null && meta.get("buildingId") != null)
+                .filter(Objects::nonNull)
                 .map(meta -> meta.get("buildingId"))
+                .filter(Objects::nonNull)
                 .distinct()
                 .sorted()
                 .toList();
@@ -56,13 +54,13 @@ public class IndoorNavigationDataService {
             return List.of();
         }
 
-        Set<Integer> floors = loadNodes().stream()
+        return loadNodes().stream()
                 .filter(node -> buildingId.equalsIgnoreCase(node.getBuildingId()))
                 .map(IndoorNode::getFloor)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-
-        return floors.stream().sorted().toList();
+                .distinct()
+                .sorted()
+                .toList();
     }
 
     public List<IndoorNode> getRooms(String query, String buildingId, Integer floor) {
@@ -188,28 +186,25 @@ public class IndoorNavigationDataService {
             return List.of();
         }
 
-        List<IndoorBuildingData> result = new ArrayList<>();
-
         try (Stream<Path> files = Files.list(indoorJsonDir)) {
-            files.filter(Files::isRegularFile)
+            return files.filter(Files::isRegularFile)
                     .filter(path -> path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".json"))
                     .sorted()
-                    .forEach(path -> {
-                        try {
-                            IndoorBuildingData data = objectMapper.readValue(path.toFile(), IndoorBuildingData.class);
-                            if (data != null) {
-                                result.add(data);
-                            }
-                        } catch (IOException ex) {
-                            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                                    "Failed to parse indoor JSON file: " + path.getFileName(), ex);
-                        }
-                    });
+                    .map(this::parseBuildingData)
+                    .filter(Objects::nonNull)
+                    .toList();
         } catch (IOException ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Failed to read indoor JSON directory", ex);
         }
+    }
 
-        return result;
+    private IndoorBuildingData parseBuildingData(Path path) {
+        try {
+            return objectMapper.readValue(path.toFile(), IndoorBuildingData.class);
+        } catch (IOException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to parse indoor JSON file: " + path.getFileName(), ex);
+        }
     }
 }

@@ -354,35 +354,35 @@ export default function GoogleMaps({
         state.panel === "room-info" ||
         showIndoorRoute) &&
         activeIndoorBuildingId &&
-        (state.selectedBuilding ||
-          buildings.find(
-            (b) =>
-              BUILDING_CODE_TO_INDOOR_ID[b.buildingCode] ===
-              activeIndoorBuildingId,
-          )) && (
-          <IndoorFloorView
-            building={
-              (state.selectedBuilding ??
-                buildings.find(
-                  (b) =>
-                    BUILDING_CODE_TO_INDOOR_ID[b.buildingCode] ===
-                    activeIndoorBuildingId,
-                ))!
-            }
-            buildingId={activeIndoorBuildingId}
-            floors={indoorFloors}
-            currentFloor={activeIndoorFloor}
-            onFloorChange={(floor) =>
-              dispatch({ type: "SET_INDOOR_FLOOR", floor })
-            }
-            onBack={() => dispatch({ type: "CLOSE_INDOOR" })}
-            onRoomPress={(room) => {
-              dispatch({ type: "OPEN_ROOM_INFO", room });
-            }}
-            selectedRoom={state.indoorSelectedRoom ?? state.destinationRoom}
-            route={state.route}
-          />
-        )}
+        (() => {
+          const activeBuilding =
+            state.selectedBuilding ??
+            buildings.find(
+              (b) =>
+                BUILDING_CODE_TO_INDOOR_ID[b.buildingCode] ===
+                activeIndoorBuildingId,
+            );
+
+          if (!activeBuilding) return null;
+
+          return (
+            <IndoorFloorView
+              building={activeBuilding}
+              buildingId={activeIndoorBuildingId}
+              floors={indoorFloors}
+              currentFloor={activeIndoorFloor}
+              onFloorChange={(floor) =>
+                dispatch({ type: "SET_INDOOR_FLOOR", floor })
+              }
+              onBack={() => dispatch({ type: "CLOSE_INDOOR" })}
+              onRoomPress={(room) => {
+                dispatch({ type: "OPEN_ROOM_INFO", room });
+              }}
+              selectedRoom={state.indoorSelectedRoom ?? state.destinationRoom}
+              route={state.route}
+            />
+          );
+        })()}
 
       <SearchPanel
         visible={state.panel === "search"}

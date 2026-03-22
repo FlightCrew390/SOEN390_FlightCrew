@@ -713,7 +713,7 @@ export default function IndoorFloorView({
           <View
             style={{
               position: "absolute",
-              bottom: 30,
+              bottom: 60,
               alignSelf: "center",
               flexDirection: "row",
               flexWrap: "wrap",

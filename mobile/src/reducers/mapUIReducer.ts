@@ -80,6 +80,9 @@ export function mapUIReducer(
         routeLoading: false,
         routeError: null,
         shuttleEligible: false,
+        indoorBuildingId: null,
+        indoorFloor: null,
+        indoorSelectedRoom: null,
       };
 
     case "SET_CURRENT_BUILDING":

@@ -18,6 +18,7 @@ import {
 import { Building } from "../../types/Building";
 import { IndoorRoom } from "../../types/IndoorRoom";
 import { RouteInfo } from "../../types/Directions";
+import { IndoorDataService } from "../../services/IndoorDataService";
 
 const BUILDING_NAMES: Record<string, string> = {
   Hall: "Henry F. Hall (H) Building",
@@ -126,23 +127,72 @@ function ZoomableFloorPlan({
     dispatchFloorPlanAsset({ type: "RESET" });
   }, [assetUri]);
 
-  const getCoordSpace = (bId: string) => {
-    if (bId === "CC") return { width: 8192, height: 2048 };
-    if (bId === "Hall" || bId === "VE") return { width: 2048, height: 2048 };
-    return { width: 1024, height: 1024 };
+  const getViewBoxInfo = (bId: string, f: number) => {
+    if (bId === "CC") return { minX: 0, minY: 0, width: 4096, height: 1024 };
+    if (bId === "Hall") {
+      if (f === 8) return { minX: -60, minY: -260, width: 1180, height: 1340 };
+      if (f === 9) return { minX: -40, minY: -40, width: 1120, height: 1120 };
+    }
+    return { minX: 0, minY: 0, width: 1024, height: 1024 };
   };
 
-  const coordSpace = getCoordSpace(buildingId);
-  const mapAspectRatio = coordSpace.width / coordSpace.height;
+  const getMappedPoint = (bId: string, f: number, px: number, py: number) => {
+    if (bId === "Hall") {
+      return { x: px * 0.5, y: py * 0.5 };
+    }
+    if (bId === "CC") {
+      return { x: px * 0.5, y: py * 0.5 };
+    }
+    if (bId === "VE") {
+      return { x: px * 0.5, y: py * 0.5 };
+    }
+    return { x: px, y: py };
+  };
+
+  const viewBoxInfo = getViewBoxInfo(buildingId, floor);
+  const mapAspectRatio = viewBoxInfo.width / viewBoxInfo.height;
+  const viewBoxStr = `${viewBoxInfo.minX} ${viewBoxInfo.minY} ${viewBoxInfo.width} ${viewBoxInfo.height}`;
+
+  // For debugging: render pins for all rooms on the floor
+  /*
+  const renderAllPins = () => {
+    const rooms = IndoorDataService.getRoomsByBuildingAndFloor(
+      buildingId,
+      floor,
+    );
+    return rooms.map((room) => {
+      const mapped = getMappedPoint(buildingId, floor, room.x, room.y);
+      return (
+        <View
+          key={room.id}
+          style={{
+            position: "absolute",
+            left: `${((mapped.x - viewBoxInfo.minX) / viewBoxInfo.width) * 100}%`,
+            top: `${((mapped.y - viewBoxInfo.minY) / viewBoxInfo.height) * 100}%`,
+            transform: [{ translateX: -16 }, { translateY: -32 }],
+          }}
+        >
+          <MaterialCommunityIcons name="map-marker" size={32} color="blue" />
+        </View>
+      );
+    });
+  };
+  */
 
   const renderPin = () => {
     if (selectedRoom?.floor !== floor) return null;
+    const mapped = getMappedPoint(
+      buildingId,
+      floor,
+      selectedRoom.x,
+      selectedRoom.y,
+    );
     return (
       <View
         style={{
           position: "absolute",
-          left: `${(selectedRoom.x / coordSpace.width) * 100}%`,
-          top: `${(selectedRoom.y / coordSpace.height) * 100}%`,
+          left: `${((mapped.x - viewBoxInfo.minX) / viewBoxInfo.width) * 100}%`,
+          top: `${((mapped.y - viewBoxInfo.minY) / viewBoxInfo.height) * 100}%`,
           transform: [{ translateX: -16 }, { translateY: -32 }],
         }}
       >
@@ -161,18 +211,20 @@ function ZoomableFloorPlan({
     // Filter the nodes that are on the current floor
     const pointsStr = route.indoorPath
       .filter((node) => node.floor === floor)
-      .map((node) => `${node.x},${node.y}`)
+      .map((node) => {
+        const mapped = getMappedPoint(buildingId, floor, node.x, node.y);
+        return `${mapped.x},${mapped.y}`;
+      })
       .join(" ");
 
     if (!pointsStr) return null;
 
     return (
-      <View style={{ position: "absolute", width: "100%", height: "100%" }}>
-        <Svg
-          width="100%"
-          height="100%"
-          viewBox={`0 0 ${coordSpace.width} ${coordSpace.height}`}
-        >
+      <View
+        style={{ position: "absolute", width: "100%", height: "100%" }}
+        pointerEvents="none"
+      >
+        <Svg width="100%" height="100%" viewBox={viewBoxStr}>
           <Polyline
             points={pointsStr}
             fill="none"
@@ -221,6 +273,7 @@ function ZoomableFloorPlan({
             />
             {renderPath()}
             {renderPin()}
+            {/* {renderAllPins()} */}
           </View>
         </View>
       );
@@ -238,6 +291,7 @@ function ZoomableFloorPlan({
             />
             {renderPath()}
             {renderPin()}
+            {/* {renderAllPins()} */}
           </View>
         </View>
       );

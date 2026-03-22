@@ -88,7 +88,7 @@ public class IndoorController {
 
             // Instead of just strings, let's map them to full nodes to provide coordinates
             // to frontend
-            List<IndoorNode> fullPathNodes = indoorNavigationDataService.getRooms(null, buildingId, null)
+            List<IndoorNode> fullPathNodes = indoorNavigationDataService.getAllNodes(buildingId)
                     .stream()
                     .filter(node -> pathIds.contains(node.getId()))
                     .map(node -> {

@@ -353,9 +353,22 @@ export default function GoogleMaps({
       {(state.panel === "indoor" ||
         state.panel === "room-info" ||
         showIndoorRoute) &&
-        activeIndoorBuildingId && (
+        activeIndoorBuildingId &&
+        (state.selectedBuilding ||
+          buildings.find(
+            (b) =>
+              BUILDING_CODE_TO_INDOOR_ID[b.buildingCode] ===
+              activeIndoorBuildingId,
+          )) && (
           <IndoorFloorView
-            building={state.selectedBuilding!} // may be null if deep linked into directions, but usually safe
+            building={
+              (state.selectedBuilding ??
+                buildings.find(
+                  (b) =>
+                    BUILDING_CODE_TO_INDOOR_ID[b.buildingCode] ===
+                    activeIndoorBuildingId,
+                ))!
+            }
             buildingId={activeIndoorBuildingId}
             floors={indoorFloors}
             currentFloor={activeIndoorFloor}

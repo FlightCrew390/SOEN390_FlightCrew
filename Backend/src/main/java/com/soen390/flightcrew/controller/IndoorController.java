@@ -98,10 +98,13 @@ public class IndoorController {
                         .body(Map.of("error", "No route found between the specified locations."));
             }
 
-            List<IndoorNode> fullPathNodes = indoorNavigationDataService.getAllNodes(buildingId)
-                    .stream()
-                    .filter(node -> pathIds.contains(node.getId()))
-                    .sorted((a, b) -> Integer.compare(pathIds.indexOf(a.getId()), pathIds.indexOf(b.getId())))
+            java.util.Map<String, IndoorNode> nodeMap = new java.util.HashMap<>();
+            indoorNavigationDataService.getAllNodes(buildingId)
+                    .forEach(node -> nodeMap.putIfAbsent(node.getId(), node));
+
+            List<IndoorNode> fullPathNodes = pathIds.stream()
+                    .map(nodeMap::get)
+                    .filter(node -> node != null)
                     .toList();
 
             List<IndoorEdge> edges = indoorNavigationDataService.getEdgesByBuilding(buildingId);

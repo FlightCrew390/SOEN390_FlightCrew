@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react-native";
-import IndoorPoiMarker from "../../src/components/LocationScreen/IndoorPoiMarker";
+import BuildingAmenityMarker from "../../src/components/LocationScreen/BuildingAmenityMarker";
 import { IndoorPointOfInterest } from "../../src/types/IndoorPointOfInterest";
 
 jest.mock("react-native-svg", () => {
@@ -72,20 +72,20 @@ const makeIndoorPoi = (
   ...overrides,
 });
 
-describe("IndoorPoiMarker", () => {
+describe("BuildingAmenityMarker", () => {
   it("renders a marker with testID", () => {
-    render(<IndoorPoiMarker poi={makeIndoorPoi()} />);
-    expect(screen.getByTestId("indoor-poi-marker")).toBeTruthy();
+    render(<BuildingAmenityMarker poi={makeIndoorPoi()} />);
+    expect(screen.getByTestId("building-amenity-marker")).toBeTruthy();
   });
 
   it("shows the POI name as native callout title", () => {
-    render(<IndoorPoiMarker poi={makeIndoorPoi({ name: "Washroom" })} />);
+    render(<BuildingAmenityMarker poi={makeIndoorPoi({ name: "Washroom" })} />);
     expect(screen.getByTestId("marker-title")).toHaveTextContent("Washroom");
   });
 
   it("shows floor and description as native callout description", () => {
     render(
-      <IndoorPoiMarker
+      <BuildingAmenityMarker
         poi={makeIndoorPoi({ floor: 3, description: "Near elevator bank" })}
       />,
     );
@@ -98,45 +98,55 @@ describe("IndoorPoiMarker", () => {
   });
 
   it("renders SVG marker base", () => {
-    render(<IndoorPoiMarker poi={makeIndoorPoi()} />);
+    render(<BuildingAmenityMarker poi={makeIndoorPoi()} />);
     expect(screen.getByTestId("svg-marker")).toBeTruthy();
   });
 
   it("renders correct coordinate on the marker", () => {
     render(
-      <IndoorPoiMarker
+      <BuildingAmenityMarker
         poi={makeIndoorPoi({ latitude: 45.497, longitude: -73.579 })}
       />,
     );
     expect(
-      screen.getByTestId("indoor-poi-marker").props.accessibilityLabel,
+      screen.getByTestId("building-amenity-marker").props.accessibilityLabel,
     ).toBe("45.497,-73.579");
   });
 
   it("renders washroom SVG path", () => {
-    render(<IndoorPoiMarker poi={makeIndoorPoi({ category: "washroom" })} />);
+    render(
+      <BuildingAmenityMarker poi={makeIndoorPoi({ category: "washroom" })} />,
+    );
     expect(screen.getByTestId("path-M16 18")).toBeTruthy();
   });
 
   it("renders fountain SVG path", () => {
-    render(<IndoorPoiMarker poi={makeIndoorPoi({ category: "fountain" })} />);
+    render(
+      <BuildingAmenityMarker poi={makeIndoorPoi({ category: "fountain" })} />,
+    );
     expect(screen.getByTestId("path-M20 11")).toBeTruthy();
   });
 
   it("renders stairs SVG path", () => {
-    render(<IndoorPoiMarker poi={makeIndoorPoi({ category: "stairs" })} />);
+    render(
+      <BuildingAmenityMarker poi={makeIndoorPoi({ category: "stairs" })} />,
+    );
     expect(screen.getByTestId("path-M14 22")).toBeTruthy();
   });
 
   it("renders elevator SVG path", () => {
-    render(<IndoorPoiMarker poi={makeIndoorPoi({ category: "elevator" })} />);
+    render(
+      <BuildingAmenityMarker poi={makeIndoorPoi({ category: "elevator" })} />,
+    );
     expect(screen.getByTestId("path-M14 12")).toBeTruthy();
   });
 
   it("calls onPress when marker is tapped", () => {
     const mockOnPress = jest.fn();
-    render(<IndoorPoiMarker poi={makeIndoorPoi()} onPress={mockOnPress} />);
-    screen.getByTestId("indoor-poi-marker").props.onTouchEnd();
+    render(
+      <BuildingAmenityMarker poi={makeIndoorPoi()} onPress={mockOnPress} />,
+    );
+    screen.getByTestId("building-amenity-marker").props.onTouchEnd();
     expect(mockOnPress).toHaveBeenCalledTimes(1);
   });
 });

@@ -15,10 +15,10 @@ import { LocationScreenParams } from "../../types/LocationScreenParams";
 import { PointOfInterest } from "../../types/PointOfInterest";
 import { findBuildingByLocation } from "../../utils/findBuildingByLocation";
 import { poiToBuilding } from "../../utils/poiUtils";
+import BuildingAmenityLayer from "./BuildingAmenityLayer";
 import BuildingLayer from "./BuildingLayer";
 import DirectionPanel from "./DirectionPanel";
 import IndoorFloorView from "./IndoorFloorView";
-import IndoorPoiLayer from "./IndoorPoiLayer";
 import MapControls from "./MapControls";
 import MapOverlays from "./MapOverlays";
 import PoiMarker from "./PoiMarker";
@@ -204,7 +204,7 @@ export default function GoogleMaps({
           onDirectionPress={onDirectionPress}
         />
 
-        <IndoorPoiLayer
+        <BuildingAmenityLayer
           buildingCode={state.selectedBuilding?.buildingCode ?? null}
         />
 

@@ -173,14 +173,14 @@ jest.mock("../../src/components/LocationScreen/UserLocationMarker", () => {
   };
 });
 
-jest.mock("../../src/components/LocationScreen/IndoorPoiLayer", () => {
+jest.mock("../../src/components/LocationScreen/BuildingAmenityLayer", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View } = require("react-native");
   return {
     __esModule: true,
     default: (props: any) => (
       <View
-        testID="indoor-poi-layer"
+        testID="building-amenity-layer"
         {...{ buildingCode: props.buildingCode }}
       />
     ),

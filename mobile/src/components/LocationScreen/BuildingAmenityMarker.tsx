@@ -8,15 +8,13 @@ import {
 } from "../../types/IndoorPointOfInterest";
 import BaseMarkerIcon from "./BaseMarkerIcon";
 
-interface IndoorPoiMarkerProps {
+interface BuildingAmenityMarkerProps {
   readonly poi: IndoorPointOfInterest;
   readonly onPress?: () => void;
 }
 
-/** Pure SVG paths for each indoor POI category — rendered inside the marker circle. */
-function IndoorCategoryPaths({
-  category,
-}: Readonly<{ category: IndoorPoiCategory }>) {
+/** Pure SVG paths for each amenity category — rendered inside the marker circle. */
+function AmenityIcon({ category }: Readonly<{ category: IndoorPoiCategory }>) {
   const fill = COLORS.white;
   const stroke = COLORS.white;
 
@@ -74,11 +72,11 @@ function IndoorCategoryPaths({
   }
 }
 
-export default function IndoorPoiMarker({
+export default function BuildingAmenityMarker({
   poi,
   onPress,
-}: Readonly<IndoorPoiMarkerProps>) {
-  // Indoor POI callouts are display-only (no directions action), so we rely on
+}: Readonly<BuildingAmenityMarkerProps>) {
+  // Amenity callouts are display-only (no directions action), so we rely on
   // the native Marker callout shown on tap rather than useMarkerCallout's
   // auto-show/hide behaviour used by PoiMarker.
   return (
@@ -89,10 +87,10 @@ export default function IndoorPoiMarker({
       accessibilityLabel={`${poi.name}, Floor ${poi.floor}, ${poi.description}`}
       anchor={{ x: 0.5, y: 1 }}
       onPress={onPress}
-      testID="indoor-poi-marker"
+      testID="building-amenity-marker"
     >
       <BaseMarkerIcon color={COLORS.concordiaMaroon} scale={1.3}>
-        <IndoorCategoryPaths category={poi.category} />
+        <AmenityIcon category={poi.category} />
       </BaseMarkerIcon>
     </Marker>
   );

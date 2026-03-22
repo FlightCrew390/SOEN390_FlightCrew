@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react-native";
-import IndoorPoiLayer from "../../src/components/LocationScreen/IndoorPoiLayer";
+import BuildingAmenityLayer from "../../src/components/LocationScreen/BuildingAmenityLayer";
 
 jest.mock("../../src/services/IndoorPoiService", () => ({
   getIndoorPoisForBuilding: (code: string) => {
@@ -79,26 +79,26 @@ jest.mock("react-native-maps", () => {
   };
 });
 
-describe("IndoorPoiLayer", () => {
+describe("BuildingAmenityLayer", () => {
   it("renders nothing when buildingCode is null", () => {
-    render(<IndoorPoiLayer buildingCode={null} />);
-    expect(screen.queryAllByTestId("indoor-poi-marker")).toHaveLength(0);
+    render(<BuildingAmenityLayer buildingCode={null} />);
+    expect(screen.queryAllByTestId("building-amenity-marker")).toHaveLength(0);
   });
 
   it("renders a marker for each POI in the building", () => {
-    render(<IndoorPoiLayer buildingCode="H" />);
+    render(<BuildingAmenityLayer buildingCode="H" />);
     // Mock returns 3 fixtures for "H" (intentional — isolates component from data layer)
-    expect(screen.getAllByTestId("indoor-poi-marker")).toHaveLength(3);
+    expect(screen.getAllByTestId("building-amenity-marker")).toHaveLength(3);
   });
 
   it("renders nothing for an unknown building code", () => {
-    render(<IndoorPoiLayer buildingCode="UNKNOWN" />);
-    expect(screen.queryAllByTestId("indoor-poi-marker")).toHaveLength(0);
+    render(<BuildingAmenityLayer buildingCode="UNKNOWN" />);
+    expect(screen.queryAllByTestId("building-amenity-marker")).toHaveLength(0);
   });
 
   it("renders markers with correct coordinates", () => {
-    render(<IndoorPoiLayer buildingCode="H" />);
-    const markers = screen.getAllByTestId("indoor-poi-marker");
+    render(<BuildingAmenityLayer buildingCode="H" />);
+    const markers = screen.getAllByTestId("building-amenity-marker");
     expect(markers[0].props.accessibilityLabel).toBe("45.497,-73.579");
   });
 });

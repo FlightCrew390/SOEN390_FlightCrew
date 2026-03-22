@@ -1,9 +1,11 @@
 import { API_CONFIG } from "../constants";
-import { IndoorRoom } from "../types/IndoorRoom";
+import { IndoorRoom, IndoorStep } from "../types/IndoorRoom";
 
 export interface IndoorPathResponse {
   path: IndoorRoom[];
+  steps: IndoorStep[];
   distanceMeters: number;
+  durationSeconds: number;
   metadata: {
     startNodeId: string;
     endNodeId: string;

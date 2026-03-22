@@ -1,5 +1,6 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { useEffect, useMemo, useReducer } from "react";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useEffect, useMemo, useReducer, useState } from "react";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -19,6 +20,8 @@ import { Building } from "../../types/Building";
 import { IndoorRoom } from "../../types/IndoorRoom";
 import { RouteInfo } from "../../types/Directions";
 import { IndoorDataService } from "../../services/IndoorDataService";
+import { getManeuverIcon } from "../../utils/directionsUtils";
+import { formatDistance } from "../../utils/formatHelper";
 
 const BUILDING_NAMES: Record<string, string> = {
   Hall: "Henry F. Hall (H) Building",
@@ -456,6 +459,8 @@ export default function IndoorFloorView({
   selectedRoom,
   route,
 }: Readonly<IndoorFloorViewProps>) {
+  const [stepsExpanded, setStepsExpanded] = useState(false);
+
   const activeIndoorPath = useMemo(() => {
     if (!route) return null;
     if (
@@ -471,6 +476,30 @@ export default function IndoorFloorView({
       return route.indoorPath;
     }
     return null;
+  }, [route, buildingId]);
+
+  const indoorSteps = useMemo(() => {
+    if (!route) return [];
+    // Pure indoor route (same building, no outdoor component)
+    if (!route.coordinates || route.coordinates.length === 0) {
+      return route.steps;
+    }
+    // Mixed route — find indoor steps for this building
+    if (
+      route.indoorPathOrigin?.length &&
+      route.indoorPathOrigin[0].buildingId === buildingId &&
+      route.indoorStepsOrigin?.length
+    ) {
+      return route.indoorStepsOrigin;
+    }
+    if (
+      route.indoorPath?.length &&
+      route.indoorPath[0].buildingId === buildingId &&
+      route.indoorSteps?.length
+    ) {
+      return route.indoorSteps;
+    }
+    return [];
   }, [route, buildingId]);
 
   const [{ floorOpen }, dispatchFloorSelector] = useReducer(
@@ -809,6 +838,111 @@ export default function IndoorFloorView({
               color={COLORS.concordiaMaroon}
             />
           </Pressable>
+        )}
+
+        {/* Indoor Steps Panel */}
+        {indoorSteps.length > 0 && (
+          <View
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              backgroundColor: "#fff",
+              borderTopLeftRadius: 16,
+              borderTopRightRadius: 16,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: -2 },
+              shadowOpacity: 0.15,
+              shadowRadius: 4,
+              elevation: 10,
+              zIndex: 50,
+            }}
+          >
+            <Pressable
+              onPress={() => setStepsExpanded(!stepsExpanded)}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                paddingVertical: 14,
+                paddingHorizontal: 20,
+                borderBottomWidth: stepsExpanded ? 1 : 0,
+                borderBottomColor: "#e0e0e0",
+              }}
+              accessibilityLabel={
+                stepsExpanded
+                  ? "Collapse indoor directions"
+                  : "Expand indoor directions"
+              }
+              accessibilityRole="button"
+            >
+              <Text style={{ fontSize: 16, fontWeight: "600", color: "#222" }}>
+                Indoor Directions
+              </Text>
+              <MaterialCommunityIcons
+                name={stepsExpanded ? "chevron-down" : "chevron-up"}
+                size={24}
+                color={COLORS.concordiaMaroon}
+              />
+            </Pressable>
+
+            {stepsExpanded && (
+              <ScrollView
+                style={{ maxHeight: 280 }}
+                contentContainerStyle={{
+                  paddingHorizontal: 16,
+                  paddingBottom: 20,
+                }}
+                showsVerticalScrollIndicator
+                onStartShouldSetResponder={() => true}
+              >
+                {indoorSteps.map((step, idx) => (
+                  <View
+                    key={`indoor-step-${idx}`}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      paddingVertical: 10,
+                      paddingHorizontal: 8,
+                      backgroundColor:
+                        idx % 2 === 0 ? "#f8f8f8" : "transparent",
+                      borderRadius: 8,
+                      gap: 12,
+                    }}
+                  >
+                    <MaterialIcons
+                      name={getManeuverIcon(step.maneuver) as any}
+                      size={28}
+                      color={COLORS.concordiaMaroon}
+                    />
+                    <View style={{ flex: 1 }}>
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          fontWeight: "500",
+                          color: "#222",
+                        }}
+                      >
+                        {step.instruction}
+                      </Text>
+                      {step.distanceMeters > 0 && (
+                        <Text
+                          style={{
+                            fontSize: 12,
+                            color: "#888",
+                            marginTop: 2,
+                          }}
+                        >
+                          {formatDistance(step.distanceMeters)}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+          </View>
         )}
       </View>
     </View>

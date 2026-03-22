@@ -21,6 +21,17 @@ export interface IndoorRoom extends IndoorNode {
   type: "room";
 }
 
+export interface IndoorStep {
+  instruction: string;
+  maneuver: string;
+  distanceMeters: number;
+  durationSeconds: number;
+  startFloor: number;
+  endFloor: number;
+  startNodeId: string;
+  endNodeId: string;
+}
+
 export interface IndoorBuildingData {
   meta: { buildingId: string };
   nodes: IndoorNode[];

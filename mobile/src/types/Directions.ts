@@ -83,6 +83,10 @@ export interface RouteInfo {
   indoorPath?: IndoorRoom[];
   /** Optional sequence of nodes representing the origin indoor path (from start room to exit) */
   indoorPathOrigin?: IndoorRoom[];
+  /** Step-by-step indoor instructions for the destination building */
+  indoorSteps?: StepInfo[];
+  /** Step-by-step indoor instructions for the origin building */
+  indoorStepsOrigin?: StepInfo[];
 }
 
 export interface StepInfo {

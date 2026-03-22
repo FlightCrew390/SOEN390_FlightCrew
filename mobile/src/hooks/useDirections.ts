@@ -103,11 +103,16 @@ export function useDirections({
 
             route = {
               distanceMeters: indoorRes.distanceMeters,
-              durationSeconds: indoorRes.distanceMeters * 2, // approximation
-              encodedPolyline: "", // we'll draw our own indoor lines based on nodes
-              mode: travelMode,
+              durationSeconds:
+                indoorRes.durationSeconds ?? indoorRes.distanceMeters * 2,
               coordinates: [],
-              steps: [],
+              steps: (indoorRes.steps ?? []).map((s) => ({
+                distanceMeters: s.distanceMeters,
+                durationSeconds: s.durationSeconds,
+                instruction: s.instruction,
+                maneuver: s.maneuver,
+                coordinates: [],
+              })),
               indoorPath: indoorRes.path,
             } as any;
           } catch (e) {
@@ -169,6 +174,7 @@ export function useDirections({
 
             let bestPath = null;
             let bestExitNode = null;
+            let bestSteps: any[] = [];
             let minDistance = Infinity;
 
             const promises = exitNodes.map(async (en) => {
@@ -188,6 +194,7 @@ export function useDirections({
                 if (result.value.res.distanceMeters < minDistance) {
                   minDistance = result.value.res.distanceMeters;
                   bestPath = result.value.res.path;
+                  bestSteps = result.value.res.steps ?? [];
                   bestExitNode = result.value.en;
                 }
               }
@@ -195,6 +202,13 @@ export function useDirections({
 
             if (bestPath && bestExitNode) {
               route.indoorPathOrigin = bestPath;
+              route.indoorStepsOrigin = bestSteps.map((s: any) => ({
+                distanceMeters: s.distanceMeters,
+                durationSeconds: s.durationSeconds,
+                instruction: s.instruction,
+                maneuver: s.maneuver,
+                coordinates: [],
+              }));
             } else if (exitNodes.length > 0) {
               const fallbackNode = exitNodes[0];
               console.warn(
@@ -254,6 +268,7 @@ export function useDirections({
 
             let bestPath = null;
             let bestEntryNode = null;
+            let bestSteps: any[] = [];
             let minDistance = Infinity;
 
             const promises = entryNodes.map(async (en) => {
@@ -273,6 +288,7 @@ export function useDirections({
                 if (result.value.res.distanceMeters < minDistance) {
                   minDistance = result.value.res.distanceMeters;
                   bestPath = result.value.res.path;
+                  bestSteps = result.value.res.steps ?? [];
                   bestEntryNode = result.value.en;
                 }
               }
@@ -280,6 +296,13 @@ export function useDirections({
 
             if (bestPath && bestEntryNode) {
               route.indoorPath = bestPath;
+              route.indoorSteps = bestSteps.map((s: any) => ({
+                distanceMeters: s.distanceMeters,
+                durationSeconds: s.durationSeconds,
+                instruction: s.instruction,
+                maneuver: s.maneuver,
+                coordinates: [],
+              }));
             } else if (entryNodes.length > 0) {
               const fallbackNode = entryNodes[0];
               console.warn(

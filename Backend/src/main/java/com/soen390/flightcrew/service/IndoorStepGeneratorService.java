@@ -1,0 +1,242 @@
+package com.soen390.flightcrew.service;
+
+import com.soen390.flightcrew.model.IndoorEdge;
+import com.soen390.flightcrew.model.IndoorNode;
+import com.soen390.flightcrew.model.IndoorStep;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+public class IndoorStepGeneratorService {
+
+    private static final double WALKING_SPEED_MPS = 1.2;
+    private static final int ELEVATOR_SECONDS_PER_FLOOR = 15;
+    private static final int STAIRS_SECONDS_PER_FLOOR = 10;
+    private static final double COORDINATE_SCALE = 0.03;
+    private static final double STRAIGHT_THRESHOLD_DEG = 20.0;
+    private static final double SLIGHT_TURN_THRESHOLD_DEG = 60.0;
+    private static final double SHARP_TURN_THRESHOLD_DEG = 150.0;
+
+    public List<IndoorStep> generateSteps(List<IndoorNode> pathNodes, List<IndoorEdge> edges) {
+        if (pathNodes == null || pathNodes.size() < 2) {
+            return List.of();
+        }
+
+        Map<String, IndoorEdge> edgeLookup = buildEdgeLookup(edges);
+        List<IndoorStep> steps = new ArrayList<>();
+
+        // Depart step
+        IndoorNode first = pathNodes.get(0);
+        String departLabel = first.getLabel() != null ? first.getLabel() : first.getId();
+        if ("room".equalsIgnoreCase(first.getType())) {
+            steps.add(new IndoorStep("Start at " + departLabel, "DEPART", 0, 0,
+                    floorOf(first), floorOf(first), first.getId(), first.getId()));
+        } else if ("building_entry_exit".equalsIgnoreCase(first.getType())) {
+            steps.add(new IndoorStep("Enter the building", "DEPART", 0, 0,
+                    floorOf(first), floorOf(first), first.getId(), first.getId()));
+        } else {
+            steps.add(new IndoorStep("Start walking", "DEPART", 0, 0,
+                    floorOf(first), floorOf(first), first.getId(), first.getId()));
+        }
+
+        // Walk through the path and generate intermediate steps
+        int i = 1;
+        while (i < pathNodes.size()) {
+            IndoorNode prev = pathNodes.get(i - 1);
+            IndoorNode curr = pathNodes.get(i);
+            IndoorEdge edge = lookupEdge(edgeLookup, prev.getId(), curr.getId());
+            String edgeType = edge != null ? edge.getType() : "";
+
+            // Floor transition via elevator or stairs
+            if ("elevator".equalsIgnoreCase(edgeType) || isFloorTransition(prev, curr)) {
+                boolean isElevator = "elevator".equalsIgnoreCase(edgeType)
+                        || "elevator_door".equalsIgnoreCase(prev.getType())
+                        || "elevator_door".equalsIgnoreCase(curr.getType());
+
+                int floors = Math.abs(floorOf(curr) - floorOf(prev));
+                if (floors == 0)
+                    floors = 1;
+
+                if (isElevator) {
+                    steps.add(new IndoorStep(
+                            "Take the elevator to floor " + floorOf(curr), "ELEVATOR",
+                            0, ELEVATOR_SECONDS_PER_FLOOR * floors,
+                            floorOf(prev), floorOf(curr), prev.getId(), curr.getId()));
+                } else {
+                    steps.add(new IndoorStep(
+                            "Take the stairs to floor " + floorOf(curr), "STAIRS",
+                            0, STAIRS_SECONDS_PER_FLOOR * floors,
+                            floorOf(prev), floorOf(curr), prev.getId(), curr.getId()));
+                }
+                i++;
+                continue;
+            }
+
+            if ("stair".equalsIgnoreCase(edgeType)) {
+                int floors = Math.abs(floorOf(curr) - floorOf(prev));
+                if (floors == 0)
+                    floors = 1;
+                steps.add(new IndoorStep(
+                        "Take the stairs to floor " + floorOf(curr), "STAIRS",
+                        0, STAIRS_SECONDS_PER_FLOOR * floors,
+                        floorOf(prev), floorOf(curr), prev.getId(), curr.getId()));
+                i++;
+                continue;
+            }
+
+            // Corridor walking — detect turns and merge straight segments
+            String startNodeId = prev.getId();
+            int startFloor = floorOf(prev);
+            double totalDist = 0;
+            String turnManeuver = null;
+
+            // Check for a turn at this node (requires looking at prev, curr, next)
+            if (i + 1 < pathNodes.size() && onSameFloor(prev, curr)
+                    && onSameFloor(curr, pathNodes.get(i + 1))) {
+                turnManeuver = detectTurn(prev, curr, pathNodes.get(i + 1));
+            }
+
+            if (turnManeuver != null && !"STRAIGHT".equals(turnManeuver)) {
+                // Emit the distance walked so far to reach this turn point
+                totalDist = euclideanDistance(prev, curr);
+                int duration = (int) Math.round(totalDist / WALKING_SPEED_MPS);
+                String instruction = turnToInstruction(turnManeuver);
+                steps.add(new IndoorStep(instruction, turnManeuver, totalDist, duration,
+                        startFloor, floorOf(curr), startNodeId, curr.getId()));
+                i++;
+            } else {
+                // Merge consecutive straight corridor segments
+                double segDist = euclideanDistance(prev, curr);
+                totalDist += segDist;
+                int segEnd = i;
+
+                while (segEnd + 1 < pathNodes.size()) {
+                    IndoorNode segCurr = pathNodes.get(segEnd);
+                    IndoorNode segNext = pathNodes.get(segEnd + 1);
+
+                    if (!onSameFloor(segCurr, segNext))
+                        break;
+
+                    IndoorEdge nextEdge = lookupEdge(edgeLookup, segCurr.getId(), segNext.getId());
+                    String nextEdgeType = nextEdge != null ? nextEdge.getType() : "";
+                    if ("elevator".equalsIgnoreCase(nextEdgeType) || "stair".equalsIgnoreCase(nextEdgeType))
+                        break;
+
+                    // Check if there's a turn at segNext
+                    if (segEnd + 2 < pathNodes.size() && onSameFloor(segNext, pathNodes.get(segEnd + 2))) {
+                        String nextTurn = detectTurn(segCurr, segNext, pathNodes.get(segEnd + 2));
+                        if (nextTurn != null && !"STRAIGHT".equals(nextTurn))
+                            break;
+                    }
+
+                    totalDist += euclideanDistance(segCurr, segNext);
+                    segEnd++;
+                }
+
+                if (totalDist > 0) {
+                    int duration = (int) Math.round(totalDist / WALKING_SPEED_MPS);
+                    steps.add(new IndoorStep("Walk down the corridor", "STRAIGHT",
+                            Math.round(totalDist * 100.0) / 100.0, duration,
+                            startFloor, floorOf(pathNodes.get(segEnd)),
+                            startNodeId, pathNodes.get(segEnd).getId()));
+                }
+
+                i = segEnd + 1;
+            }
+        }
+
+        // Arrive step
+        IndoorNode last = pathNodes.get(pathNodes.size() - 1);
+        String arriveLabel = last.getLabel() != null ? last.getLabel() : last.getId();
+        if ("room".equalsIgnoreCase(last.getType())) {
+            steps.add(new IndoorStep("Arrive at " + arriveLabel, "ARRIVE", 0, 0,
+                    floorOf(last), floorOf(last), last.getId(), last.getId()));
+        } else if ("building_entry_exit".equalsIgnoreCase(last.getType())) {
+            steps.add(new IndoorStep("Exit the building", "ARRIVE", 0, 0,
+                    floorOf(last), floorOf(last), last.getId(), last.getId()));
+        } else {
+            steps.add(new IndoorStep("You have arrived", "ARRIVE", 0, 0,
+                    floorOf(last), floorOf(last), last.getId(), last.getId()));
+        }
+
+        return steps;
+    }
+
+    private Map<String, IndoorEdge> buildEdgeLookup(List<IndoorEdge> edges) {
+        Map<String, IndoorEdge> lookup = new HashMap<>();
+        if (edges == null)
+            return lookup;
+        for (IndoorEdge edge : edges) {
+            lookup.put(edge.getSource() + "|" + edge.getTarget(), edge);
+            lookup.put(edge.getTarget() + "|" + edge.getSource(), edge);
+        }
+        return lookup;
+    }
+
+    private IndoorEdge lookupEdge(Map<String, IndoorEdge> lookup, String fromId, String toId) {
+        return lookup.get(fromId + "|" + toId);
+    }
+
+    private boolean isFloorTransition(IndoorNode a, IndoorNode b) {
+        return !floorOf(a).equals(floorOf(b));
+    }
+
+    private boolean onSameFloor(IndoorNode a, IndoorNode b) {
+        return floorOf(a).equals(floorOf(b));
+    }
+
+    private Integer floorOf(IndoorNode node) {
+        return node.getFloor() != null ? node.getFloor() : 1;
+    }
+
+    private double euclideanDistance(IndoorNode a, IndoorNode b) {
+        double dx = (b.getX() != null ? b.getX() : 0) - (a.getX() != null ? a.getX() : 0);
+        double dy = (b.getY() != null ? b.getY() : 0) - (a.getY() != null ? a.getY() : 0);
+        return Math.sqrt(dx * dx + dy * dy) * COORDINATE_SCALE;
+    }
+
+    String detectTurn(IndoorNode a, IndoorNode b, IndoorNode c) {
+        double abx = val(b.getX()) - val(a.getX());
+        double aby = val(b.getY()) - val(a.getY());
+        double bcx = val(c.getX()) - val(b.getX());
+        double bcy = val(c.getY()) - val(b.getY());
+
+        double cross = abx * bcy - aby * bcx;
+        double dot = abx * bcx + aby * bcy;
+        double angle = Math.toDegrees(Math.abs(Math.atan2(cross, dot)));
+
+        if (angle < STRAIGHT_THRESHOLD_DEG) {
+            return "STRAIGHT";
+        }
+
+        boolean isLeft = cross > 0;
+
+        if (angle >= SHARP_TURN_THRESHOLD_DEG) {
+            return isLeft ? "TURN_SHARP_LEFT" : "TURN_SHARP_RIGHT";
+        } else if (angle >= SLIGHT_TURN_THRESHOLD_DEG) {
+            return isLeft ? "TURN_LEFT" : "TURN_RIGHT";
+        } else {
+            return isLeft ? "TURN_SLIGHT_LEFT" : "TURN_SLIGHT_RIGHT";
+        }
+    }
+
+    private String turnToInstruction(String maneuver) {
+        return switch (maneuver) {
+            case "TURN_LEFT" -> "Turn left";
+            case "TURN_RIGHT" -> "Turn right";
+            case "TURN_SLIGHT_LEFT" -> "Turn slightly left";
+            case "TURN_SLIGHT_RIGHT" -> "Turn slightly right";
+            case "TURN_SHARP_LEFT" -> "Turn sharp left";
+            case "TURN_SHARP_RIGHT" -> "Turn sharp right";
+            default -> "Continue walking";
+        };
+    }
+
+    private double val(Double d) {
+        return d != null ? d : 0.0;
+    }
+}

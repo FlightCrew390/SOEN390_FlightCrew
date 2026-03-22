@@ -4,6 +4,8 @@ import com.soen390.flightcrew.exception.GlobalExceptionHandler;
 import com.soen390.flightcrew.model.IndoorAssetFileDTO;
 import com.soen390.flightcrew.model.IndoorNode;
 import com.soen390.flightcrew.service.IndoorNavigationDataService;
+import com.soen390.flightcrew.service.IndoorPathfindingService;
+import com.soen390.flightcrew.service.IndoorStepGeneratorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,12 @@ class IndoorControllerTest {
 
     @Mock
     private IndoorNavigationDataService indoorNavigationDataService;
+
+    @Mock
+    private IndoorPathfindingService pathfindingService;
+
+    @Mock
+    private IndoorStepGeneratorService stepGeneratorService;
 
     @InjectMocks
     private IndoorController indoorController;

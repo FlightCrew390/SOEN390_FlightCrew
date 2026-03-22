@@ -68,6 +68,12 @@ export function getManeuverIcon(maneuver: string): MaterialIconName {
       return "u-turn-left";
     case "UTURN_RIGHT":
       return "u-turn-right";
+    case "ELEVATOR":
+      return "elevator";
+    case "STAIRS":
+      return "stairs";
+    case "ARRIVE":
+      return "place";
     default:
       return "navigation";
   }

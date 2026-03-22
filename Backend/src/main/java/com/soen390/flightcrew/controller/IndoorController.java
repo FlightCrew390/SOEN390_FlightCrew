@@ -1,9 +1,12 @@
 package com.soen390.flightcrew.controller;
 
 import com.soen390.flightcrew.model.IndoorAssetFileDTO;
+import com.soen390.flightcrew.model.IndoorEdge;
 import com.soen390.flightcrew.model.IndoorNode;
+import com.soen390.flightcrew.model.IndoorStep;
 import com.soen390.flightcrew.service.IndoorNavigationDataService;
 import com.soen390.flightcrew.service.IndoorPathfindingService;
+import com.soen390.flightcrew.service.IndoorStepGeneratorService;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -23,11 +26,14 @@ public class IndoorController {
 
     private final IndoorNavigationDataService indoorNavigationDataService;
     private final IndoorPathfindingService pathfindingService;
+    private final IndoorStepGeneratorService stepGeneratorService;
 
     public IndoorController(IndoorNavigationDataService indoorNavigationDataService,
-            IndoorPathfindingService pathfindingService) {
+            IndoorPathfindingService pathfindingService,
+            IndoorStepGeneratorService stepGeneratorService) {
         this.indoorNavigationDataService = indoorNavigationDataService;
         this.pathfindingService = pathfindingService;
+        this.stepGeneratorService = stepGeneratorService;
     }
 
     @GetMapping("/buildings")
@@ -92,22 +98,22 @@ public class IndoorController {
                         .body(Map.of("error", "No route found between the specified locations."));
             }
 
-            // Instead of just strings, let's map them to full nodes to provide coordinates
-            // to frontend
             List<IndoorNode> fullPathNodes = indoorNavigationDataService.getAllNodes(buildingId)
                     .stream()
                     .filter(node -> pathIds.contains(node.getId()))
-                    .map(node -> {
-                        // Create a map to preserve correct sort order based on pathIds
-                        return node;
-                    })
-                    // Quick hack to sort it correctly:
                     .sorted((a, b) -> Integer.compare(pathIds.indexOf(a.getId()), pathIds.indexOf(b.getId())))
                     .toList();
 
+            List<IndoorEdge> edges = indoorNavigationDataService.getEdgesByBuilding(buildingId);
+            List<IndoorStep> steps = stepGeneratorService.generateSteps(fullPathNodes, edges);
+            double totalDistance = steps.stream().mapToDouble(IndoorStep::getDistanceMeters).sum();
+            int totalDuration = steps.stream().mapToInt(IndoorStep::getDurationSeconds).sum();
+
             return ResponseEntity.ok(Map.of(
                     "path", fullPathNodes,
-                    "distanceMeters", fullPathNodes.size() * 3, // rough approximation for now
+                    "steps", steps,
+                    "distanceMeters", Math.round(totalDistance * 100.0) / 100.0,
+                    "durationSeconds", totalDuration,
                     "metadata", Map.of(
                             "startNodeId", startNodeId,
                             "endNodeId", endNodeId,

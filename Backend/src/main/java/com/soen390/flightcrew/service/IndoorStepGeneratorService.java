@@ -30,18 +30,7 @@ public class IndoorStepGeneratorService {
         List<IndoorStep> steps = new ArrayList<>();
 
         // Depart step
-        IndoorNode first = pathNodes.get(0);
-        String departLabel = first.getLabel() != null ? first.getLabel() : first.getId();
-        if ("room".equalsIgnoreCase(first.getType())) {
-            steps.add(new IndoorStep("Start at " + departLabel, "DEPART", 0, 0,
-                    floorOf(first), floorOf(first), first.getId(), first.getId()));
-        } else if ("building_entry_exit".equalsIgnoreCase(first.getType())) {
-            steps.add(new IndoorStep("Enter the building", "DEPART", 0, 0,
-                    floorOf(first), floorOf(first), first.getId(), first.getId()));
-        } else {
-            steps.add(new IndoorStep("Start walking", "DEPART", 0, 0,
-                    floorOf(first), floorOf(first), first.getId(), first.getId()));
-        }
+        steps.add(createDepartStep(pathNodes.get(0)));
 
         // Walk through the path and generate intermediate steps
         int i = 1;
@@ -52,38 +41,23 @@ public class IndoorStepGeneratorService {
             String edgeType = edge != null ? edge.getType() : "";
 
             // Floor transition via elevator or stairs
-            if ("elevator".equalsIgnoreCase(edgeType) || isFloorTransition(prev, curr)) {
-                boolean isElevator = "elevator".equalsIgnoreCase(edgeType)
-                        || "elevator_door".equalsIgnoreCase(prev.getType())
-                        || "elevator_door".equalsIgnoreCase(curr.getType());
+            boolean isElevator = "elevator".equalsIgnoreCase(edgeType)
+                    || "elevator_door".equalsIgnoreCase(prev.getType())
+                    || "elevator_door".equalsIgnoreCase(curr.getType());
+            boolean isStair = "stair".equalsIgnoreCase(edgeType);
 
-                int floors = Math.abs(floorOf(curr) - floorOf(prev));
-                if (floors == 0)
-                    floors = 1;
+            if (isElevator || isStair || isFloorTransition(prev, curr)) {
+                int floors = Math.max(1, Math.abs(floorOf(curr) - floorOf(prev)));
 
                 if (isElevator) {
-                    steps.add(new IndoorStep(
-                            "Take the elevator to floor " + floorOf(curr), "ELEVATOR",
-                            0, ELEVATOR_SECONDS_PER_FLOOR * floors,
-                            floorOf(prev), floorOf(curr), prev.getId(), curr.getId()));
+                    steps.add(new IndoorStep("Take the elevator to floor " + floorOf(curr), "ELEVATOR",
+                            0, ELEVATOR_SECONDS_PER_FLOOR * floors, floorOf(prev), floorOf(curr), prev.getId(),
+                            curr.getId()));
                 } else {
-                    steps.add(new IndoorStep(
-                            "Take the stairs to floor " + floorOf(curr), "STAIRS",
-                            0, STAIRS_SECONDS_PER_FLOOR * floors,
-                            floorOf(prev), floorOf(curr), prev.getId(), curr.getId()));
+                    steps.add(new IndoorStep("Take the stairs to floor " + floorOf(curr), "STAIRS",
+                            0, STAIRS_SECONDS_PER_FLOOR * floors, floorOf(prev), floorOf(curr), prev.getId(),
+                            curr.getId()));
                 }
-                i++;
-                continue;
-            }
-
-            if ("stair".equalsIgnoreCase(edgeType)) {
-                int floors = Math.abs(floorOf(curr) - floorOf(prev));
-                if (floors == 0)
-                    floors = 1;
-                steps.add(new IndoorStep(
-                        "Take the stairs to floor " + floorOf(curr), "STAIRS",
-                        0, STAIRS_SECONDS_PER_FLOOR * floors,
-                        floorOf(prev), floorOf(curr), prev.getId(), curr.getId()));
                 i++;
                 continue;
             }
@@ -150,20 +124,37 @@ public class IndoorStepGeneratorService {
         }
 
         // Arrive step
-        IndoorNode last = pathNodes.get(pathNodes.size() - 1);
-        String arriveLabel = last.getLabel() != null ? last.getLabel() : last.getId();
-        if ("room".equalsIgnoreCase(last.getType())) {
-            steps.add(new IndoorStep("Arrive at " + arriveLabel, "ARRIVE", 0, 0,
-                    floorOf(last), floorOf(last), last.getId(), last.getId()));
-        } else if ("building_entry_exit".equalsIgnoreCase(last.getType())) {
-            steps.add(new IndoorStep("Exit the building", "ARRIVE", 0, 0,
-                    floorOf(last), floorOf(last), last.getId(), last.getId()));
-        } else {
-            steps.add(new IndoorStep("You have arrived", "ARRIVE", 0, 0,
-                    floorOf(last), floorOf(last), last.getId(), last.getId()));
-        }
+        steps.add(createArriveStep(pathNodes.get(pathNodes.size() - 1)));
 
         return steps;
+    }
+
+    private IndoorStep createDepartStep(IndoorNode first) {
+        String label = first.getLabel() != null ? first.getLabel() : first.getId();
+        String instruction = "Start walking";
+
+        if ("room".equalsIgnoreCase(first.getType())) {
+            instruction = "Start at " + label;
+        } else if ("building_entry_exit".equalsIgnoreCase(first.getType())) {
+            instruction = "Enter the building";
+        }
+
+        return new IndoorStep(instruction, "DEPART", 0, 0,
+                floorOf(first), floorOf(first), first.getId(), first.getId());
+    }
+
+    private IndoorStep createArriveStep(IndoorNode last) {
+        String label = last.getLabel() != null ? last.getLabel() : last.getId();
+        String instruction = "You have arrived";
+
+        if ("room".equalsIgnoreCase(last.getType())) {
+            instruction = "Arrive at " + label;
+        } else if ("building_entry_exit".equalsIgnoreCase(last.getType())) {
+            instruction = "Exit the building";
+        }
+
+        return new IndoorStep(instruction, "ARRIVE", 0, 0,
+                floorOf(last), floorOf(last), last.getId(), last.getId());
     }
 
     private Map<String, IndoorEdge> buildEdgeLookup(List<IndoorEdge> edges) {
@@ -194,9 +185,9 @@ public class IndoorStepGeneratorService {
     }
 
     private double euclideanDistance(IndoorNode a, IndoorNode b) {
-        double dx = (b.getX() != null ? b.getX() : 0) - (a.getX() != null ? a.getX() : 0);
-        double dy = (b.getY() != null ? b.getY() : 0) - (a.getY() != null ? a.getY() : 0);
-        return Math.sqrt(dx * dx + dy * dy) * COORDINATE_SCALE;
+        double dx = val(b.getX()) - val(a.getX());
+        double dy = val(b.getY()) - val(a.getY());
+        return Math.hypot(dx, dy) * COORDINATE_SCALE;
     }
 
     String detectTurn(IndoorNode a, IndoorNode b, IndoorNode c) {

@@ -18,6 +18,7 @@ import { poiToBuilding } from "../../utils/poiUtils";
 import BuildingLayer from "./BuildingLayer";
 import DirectionPanel from "./DirectionPanel";
 import IndoorFloorView from "./IndoorFloorView";
+import IndoorPoiLayer from "./IndoorPoiLayer";
 import MapControls from "./MapControls";
 import MapOverlays from "./MapOverlays";
 import PoiMarker from "./PoiMarker";
@@ -201,6 +202,10 @@ export default function GoogleMaps({
           isDirectionsOpen={state.panel === "directions"}
           onSelect={onSelectBuilding}
           onDirectionPress={onDirectionPress}
+        />
+
+        <IndoorPoiLayer
+          buildingCode={state.selectedBuilding?.buildingCode ?? null}
         />
 
         <RoutePolyline route={state.route} travelMode={state.travelMode} />

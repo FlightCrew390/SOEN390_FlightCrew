@@ -173,6 +173,20 @@ jest.mock("../../src/components/LocationScreen/UserLocationMarker", () => {
   };
 });
 
+jest.mock("../../src/components/LocationScreen/IndoorPoiLayer", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require("react-native");
+  return {
+    __esModule: true,
+    default: (props: any) => (
+      <View
+        testID="indoor-poi-layer"
+        {...{ buildingCode: props.buildingCode }}
+      />
+    ),
+  };
+});
+
 // DirectionPanel – expose all props and callbacks
 jest.mock("../../src/components/LocationScreen/DirectionPanel", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports

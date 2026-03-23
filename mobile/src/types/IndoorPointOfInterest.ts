@@ -9,4 +9,6 @@ export interface IndoorPointOfInterest {
   latitude: number;
   longitude: number;
   description: string;
+  x?: number;
+  y?: number;
 }

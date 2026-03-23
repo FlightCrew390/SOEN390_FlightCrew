@@ -3,10 +3,12 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useEffect, useMemo, useReducer, useState } from "react";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+/* eslint-disable import/no-unresolved */
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
+/* eslint-enable import/no-unresolved */
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { SvgUri, Polyline } from "react-native-svg";
 import { API_CONFIG, COLORS } from "../../constants";
@@ -16,7 +18,9 @@ import {
   initialFloorPlanAssetState,
   initialFloorSelectorState,
 } from "../../reducers/indoorFloorViewReducer";
+import { getIndoorPoisForBuilding } from "../../services/IndoorPoiService";
 import { Building } from "../../types/Building";
+import { IndoorPoiCategory } from "../../types/IndoorPointOfInterest";
 import { IndoorRoom } from "../../types/IndoorRoom";
 import { RouteInfo } from "../../types/Directions";
 import { getManeuverIcon } from "../../utils/directionsUtils";
@@ -57,6 +61,55 @@ function sortFloorsForDisplay(buildingId: string, floors: number[]): number[] {
 }
 
 const INITIAL_SCALE = 0.82;
+
+/** Maps the buildingId used in IndoorFloorView to the buildingCode used in indoorPOIs */
+const BUILDING_ID_TO_POI_CODE: Record<string, string> = {
+  Hall: "H",
+  CC: "CC",
+  MB: "MB",
+};
+
+const AMENITY_ICON: Record<
+  IndoorPoiCategory,
+  "human-male-female" | "water" | "stairs" | "elevator"
+> = {
+  washroom: "human-male-female",
+  fountain: "water",
+  stairs: "stairs",
+  elevator: "elevator",
+};
+
+function getViewBoxInfo(bId: string, floor: number) {
+  if (bId === "CC") return { minX: 0, minY: 0, width: 4096, height: 1024 };
+  if (bId === "Hall") {
+    if (floor === 8)
+      return { minX: -60, minY: -260, width: 1180, height: 1340 };
+    if (floor === 9) return { minX: -40, minY: -40, width: 1120, height: 1120 };
+  }
+  return { minX: 0, minY: 0, width: 1024, height: 1024 };
+}
+
+function getMappedPoint(bId: string, px: number, py: number) {
+  if (bId === "Hall" || bId === "CC" || bId === "VE") {
+    return { x: px * 0.5, y: py * 0.5 };
+  }
+  return { x: px, y: py };
+}
+
+/** Shared base style for all icon pins overlaid on the floor plan. */
+const PIN_BASE_STYLE = {
+  position: "absolute" as const,
+  transform: [{ translateX: -12 }, { translateY: -12 }],
+  borderRadius: 12,
+  padding: 4,
+  alignItems: "center" as const,
+  justifyContent: "center" as const,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.3,
+  shadowRadius: 2,
+  elevation: 3,
+};
 
 function ZoomableFloorPlan({
   buildingId,
@@ -148,40 +201,16 @@ function ZoomableFloorPlan({
     dispatchFloorPlanAsset({ type: "RESET" });
   }, [assetUri]);
 
-  const getViewBoxInfo = (bId: string, f: number) => {
-    if (bId === "CC") return { minX: 0, minY: 0, width: 4096, height: 1024 };
-    if (bId === "Hall") {
-      if (f === 8) return { minX: -60, minY: -260, width: 1180, height: 1340 };
-      if (f === 9) return { minX: -40, minY: -40, width: 1120, height: 1120 };
-    }
-    return { minX: 0, minY: 0, width: 1024, height: 1024 };
-  };
-
-  const getMappedPoint = (bId: string, f: number, px: number, py: number) => {
-    if (bId === "Hall") {
-      return { x: px * 0.5, y: py * 0.5 };
-    }
-    if (bId === "CC") {
-      return { x: px * 0.5, y: py * 0.5 };
-    }
-    if (bId === "VE") {
-      return { x: px * 0.5, y: py * 0.5 };
-    }
-    return { x: px, y: py };
-  };
-
-  const viewBoxInfo = getViewBoxInfo(buildingId, floor);
+  const viewBoxInfo = useMemo(
+    () => getViewBoxInfo(buildingId, floor),
+    [buildingId, floor],
+  );
   const mapAspectRatio = viewBoxInfo.width / viewBoxInfo.height;
   const viewBoxStr = `${viewBoxInfo.minX} ${viewBoxInfo.minY} ${viewBoxInfo.width} ${viewBoxInfo.height}`;
 
   const renderPin = () => {
     if (selectedRoom?.floor !== floor) return null;
-    const mapped = getMappedPoint(
-      buildingId,
-      floor,
-      selectedRoom.x,
-      selectedRoom.y,
-    );
+    const mapped = getMappedPoint(buildingId, selectedRoom.x, selectedRoom.y);
     return (
       <View
         style={{
@@ -220,25 +249,15 @@ function ZoomableFloorPlan({
     }
 
     return pins.map((node) => {
-      const mapped = getMappedPoint(buildingId, floor, node.x, node.y);
+      const mapped = getMappedPoint(buildingId, node.x, node.y);
       return (
         <View
           key={`entry-exit-pin-${node.id}`}
           style={{
-            position: "absolute",
+            ...PIN_BASE_STYLE,
             left: `${((mapped.x - viewBoxInfo.minX) / viewBoxInfo.width) * 100}%`,
             top: `${((mapped.y - viewBoxInfo.minY) / viewBoxInfo.height) * 100}%`,
-            transform: [{ translateX: -12 }, { translateY: -12 }],
             backgroundColor: "#4caf50",
-            borderRadius: 12,
-            padding: 4,
-            alignItems: "center",
-            justifyContent: "center",
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.3,
-            shadowRadius: 2,
-            elevation: 3,
             zIndex: 41,
           }}
         >
@@ -264,25 +283,15 @@ function ZoomableFloorPlan({
     }
 
     return transitionPins.map((t) => {
-      const mapped = getMappedPoint(buildingId, floor, t.node.x, t.node.y);
+      const mapped = getMappedPoint(buildingId, t.node.x, t.node.y);
       return (
         <View
           key={`transition-pin-${t.node.id}`}
           style={{
-            position: "absolute",
+            ...PIN_BASE_STYLE,
             left: `${((mapped.x - viewBoxInfo.minX) / viewBoxInfo.width) * 100}%`,
             top: `${((mapped.y - viewBoxInfo.minY) / viewBoxInfo.height) * 100}%`,
-            transform: [{ translateX: -12 }, { translateY: -12 }],
             backgroundColor: COLORS.concordiaMaroon,
-            borderRadius: 12,
-            padding: 4,
-            alignItems: "center",
-            justifyContent: "center",
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.3,
-            shadowRadius: 2,
-            elevation: 3,
             zIndex: 40,
           }}
         >
@@ -296,6 +305,37 @@ function ZoomableFloorPlan({
     });
   };
 
+  const indoorPois = useMemo(() => {
+    const code = BUILDING_ID_TO_POI_CODE[buildingId];
+    if (!code) return [];
+    return getIndoorPoisForBuilding(code).filter(
+      (poi) => poi.floor === floor && poi.x != null && poi.y != null,
+    );
+  }, [buildingId, floor]);
+
+  const renderIndoorPois = () =>
+    indoorPois.map((poi) => {
+      const mapped = getMappedPoint(buildingId, poi.x!, poi.y!);
+      const iconName = AMENITY_ICON[poi.category] ?? "map-marker";
+      return (
+        <View
+          key={poi.id}
+          testID={`indoor-poi-pin-${poi.id}`}
+          accessibilityLabel={poi.name}
+          accessibilityRole="image"
+          style={{
+            ...PIN_BASE_STYLE,
+            left: `${((mapped.x - viewBoxInfo.minX) / viewBoxInfo.width) * 100}%`,
+            top: `${((mapped.y - viewBoxInfo.minY) / viewBoxInfo.height) * 100}%`,
+            backgroundColor: COLORS.concordiaMaroon,
+            zIndex: 35,
+          }}
+        >
+          <MaterialCommunityIcons name={iconName} size={16} color="white" />
+        </View>
+      );
+    });
+
   const renderPath = () => {
     if (!route || !activeIndoorPath) return null;
 
@@ -303,7 +343,7 @@ function ZoomableFloorPlan({
     const pointsStr = activeIndoorPath
       .filter((node) => node.floor === floor)
       .map((node) => {
-        const mapped = getMappedPoint(buildingId, floor, node.x, node.y);
+        const mapped = getMappedPoint(buildingId, node.x, node.y);
         return `${mapped.x},${mapped.y}`;
       })
       .join(" ");
@@ -363,6 +403,7 @@ function ZoomableFloorPlan({
               onError={() => dispatchFloorPlanAsset({ type: "LOAD_FAILED" })}
             />
             {renderPath()}
+            {renderIndoorPois()}
             {renderTransitionPins()}
             {renderEntryExitPins()}
             {renderPin()}
@@ -382,6 +423,7 @@ function ZoomableFloorPlan({
               onError={() => dispatchFloorPlanAsset({ type: "LOAD_FAILED" })}
             />
             {renderPath()}
+            {renderIndoorPois()}
             {renderTransitionPins()}
             {renderEntryExitPins()}
             {renderPin()}

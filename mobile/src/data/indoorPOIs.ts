@@ -16,6 +16,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.49704,
       longitude: -73.57898,
       description: "Near main entrance lobby",
+      x: 1100,
+      y: 1700,
     },
     {
       id: "H-washroom-8",
@@ -26,6 +28,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.49715,
       longitude: -73.57873,
       description: "Near elevator bank",
+      x: 800,
+      y: 850,
     },
     {
       id: "H-fountain-1",
@@ -36,6 +40,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.49698,
       longitude: -73.57889,
       description: "By the main corridor",
+      x: 850,
+      y: 1100,
     },
     {
       id: "H-fountain-5",

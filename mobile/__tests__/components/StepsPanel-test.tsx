@@ -425,4 +425,48 @@ describe("StepsPanel", () => {
     // Steps with durationSeconds > 0 show duration with dot separator
     expect(screen.getByText("Head north")).toBeTruthy();
   });
+
+  it("renders departure indoor map button when startRoom is provided", () => {
+    const onOpenStartIndoor = jest.fn();
+    render(
+      <StepsPanel
+        startBuilding={startBuilding}
+        building={building}
+        route={route}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+        startRoom={
+          { id: "811", label: "811", nodeType: "room", floor: 8 } as any
+        }
+        onOpenStartIndoor={onOpenStartIndoor}
+      />,
+    );
+
+    const btn = screen.getByLabelText("Show Indoor Departure Map");
+    expect(btn).toBeTruthy();
+    fireEvent.press(btn);
+    expect(onOpenStartIndoor).toHaveBeenCalled();
+  });
+
+  it("renders destination indoor map button when destinationRoom is provided", () => {
+    const onOpenIndoor = jest.fn();
+    render(
+      <StepsPanel
+        startBuilding={startBuilding}
+        building={building}
+        route={route}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+        destinationRoom={
+          { id: "911", label: "911", nodeType: "room", floor: 9 } as any
+        }
+        onOpenIndoor={onOpenIndoor}
+      />,
+    );
+
+    const btn = screen.getByLabelText("Show Indoor Map");
+    expect(btn).toBeTruthy();
+    fireEvent.press(btn);
+    expect(onOpenIndoor).toHaveBeenCalled();
+  });
 });

@@ -146,39 +146,41 @@ export function useDirections({
         if (route && !route.indoorPathOrigin && startRoom) {
           try {
             const { IndoorDataService } =
-              await import("../services/IndoorDataService");
+              // eslint-disable-next-line @typescript-eslint/no-require-imports
+              require("../services/IndoorDataService");
             await IndoorDataService.ensureLoaded();
 
             const bId = startRoom.buildingId;
             const nodes = IndoorDataService.getAllNodes();
             let exitNodes = nodes.filter(
-              (n) =>
+              (n: any) =>
                 n.buildingId === bId &&
                 n.type?.includes("entry_exit") &&
                 n.floor === 1,
             );
             if (exitNodes.length === 0)
               exitNodes = nodes.filter(
-                (n) => n.buildingId === bId && n.type?.includes("entry_exit"),
+                (n: any) =>
+                  n.buildingId === bId && n.type?.includes("entry_exit"),
               );
             if (exitNodes.length === 0)
               exitNodes = nodes.filter(
-                (n) =>
+                (n: any) =>
                   n.buildingId === bId && n.type === "doorway" && n.floor === 1,
               );
             if (exitNodes.length === 0)
               exitNodes = nodes.filter(
-                (n) => n.buildingId === bId && n.floor === 1,
+                (n: any) => n.buildingId === bId && n.floor === 1,
               );
             if (exitNodes.length === 0)
-              exitNodes = nodes.filter((n) => n.buildingId === bId);
+              exitNodes = nodes.filter((n: any) => n.buildingId === bId);
 
             let bestPath = null;
             let bestExitNode = null;
             let bestSteps: any[] = [];
             let minDistance = Infinity;
 
-            const promises = exitNodes.map(async (en) => {
+            const promises = exitNodes.map(async (en: any) => {
               if (en.id === startRoom.id)
                 return { en, res: { path: [en], distanceMeters: 0 } as any };
               const res = await IndoorPathfindingService.getDirections(
@@ -240,39 +242,41 @@ export function useDirections({
         if (route && !route.indoorPath && destinationRoom) {
           try {
             const { IndoorDataService } =
-              await import("../services/IndoorDataService");
+              // eslint-disable-next-line @typescript-eslint/no-require-imports
+              require("../services/IndoorDataService");
             await IndoorDataService.ensureLoaded();
 
             const bId = destinationRoom.buildingId;
             const nodes = IndoorDataService.getAllNodes();
             let entryNodes = nodes.filter(
-              (n) =>
+              (n: any) =>
                 n.buildingId === bId &&
                 n.type?.includes("entry_exit") &&
                 n.floor === 1,
             );
             if (entryNodes.length === 0)
               entryNodes = nodes.filter(
-                (n) => n.buildingId === bId && n.type?.includes("entry_exit"),
+                (n: any) =>
+                  n.buildingId === bId && n.type?.includes("entry_exit"),
               );
             if (entryNodes.length === 0)
               entryNodes = nodes.filter(
-                (n) =>
+                (n: any) =>
                   n.buildingId === bId && n.type === "doorway" && n.floor === 1,
               );
             if (entryNodes.length === 0)
               entryNodes = nodes.filter(
-                (n) => n.buildingId === bId && n.floor === 1,
+                (n: any) => n.buildingId === bId && n.floor === 1,
               );
             if (entryNodes.length === 0)
-              entryNodes = nodes.filter((n) => n.buildingId === bId);
+              entryNodes = nodes.filter((n: any) => n.buildingId === bId);
 
             let bestPath = null;
             let bestEntryNode = null;
             let bestSteps: any[] = [];
             let minDistance = Infinity;
 
-            const promises = entryNodes.map(async (en) => {
+            const promises = entryNodes.map(async (en: any) => {
               if (en.id === destinationRoom.id)
                 return { en, res: { path: [en], distanceMeters: 0 } as any };
               const res = await IndoorPathfindingService.getDirections(

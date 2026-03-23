@@ -48,6 +48,9 @@ type MapUIState = Omit<
   searchOrigin: "default" | "directions";
   poiResults: any[];
   selectedPoi: any;
+  roomResults?: any[];
+  indoorBuildingId?: string | null;
+  indoorFloor?: number | null;
 };
 
 let mockMapUIState: MapUIState = { ...defaultMapUIState };
@@ -297,10 +300,20 @@ jest.mock("../../src/services/IndoorDataService", () => ({
   },
 }));
 
-jest.mock("../../src/components/LocationScreen/IndoorFloorView", () => ({
-  __esModule: true,
-  default: () => null,
-}));
+jest.mock("../../src/components/LocationScreen/IndoorFloorView", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View, Text } = require("react-native");
+  return {
+    __esModule: true,
+    default: (props: any) => (
+      <View testID="mock-indoor-floor-view">
+        <Text>MockIndoorFloorView</Text>
+        <Text>Building: {props.buildingId}</Text>
+        <Text>Floor: {props.currentFloor}</Text>
+      </View>
+    ),
+  };
+});
 
 jest.mock("../../src/components/LocationScreen/PoiMarker", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -1406,6 +1419,28 @@ describe("GoogleMaps", () => {
       expect(mockSetParams).toHaveBeenCalledWith({
         directionsTo: undefined,
       });
+    });
+  });
+
+  describe("Indoor and Room handling", () => {
+    it("renders IndoorFloorView when panel is indoor", () => {
+      mockMapUIState.panel = "indoor";
+      mockMapUIState.indoorBuildingId = "Hall";
+      mockMapUIState.indoorFloor = 8;
+      mockMapUIState.selectedBuilding = { buildingCode: "H" } as any;
+
+      render(<GoogleMaps />);
+      expect(screen.getByText("MockIndoorFloorView")).toBeTruthy();
+      expect(screen.getByText("Building: Hall")).toBeTruthy();
+      expect(screen.getByText("Floor: 8")).toBeTruthy();
+    });
+
+    it("renders RoomResultsPanel when panel is room-results", () => {
+      mockMapUIState.panel = "room-results";
+      mockMapUIState.roomResults = [{ id: "room1" }] as any;
+
+      render(<GoogleMaps />);
+      expect(screen.getByTestId("room-results-panel")).toBeTruthy();
     });
   });
 });

@@ -83,7 +83,7 @@ public class IndoorController {
     }
 
     @GetMapping("/directions")
-    public ResponseEntity<?> getIndoorDirections(
+    public ResponseEntity<Object> getIndoorDirections(
             @RequestParam String buildingId,
             @RequestParam String startNodeId,
             @RequestParam String endNodeId,
@@ -104,7 +104,7 @@ public class IndoorController {
 
             List<IndoorNode> fullPathNodes = pathIds.stream()
                     .map(nodeMap::get)
-                    .filter(node -> node != null)
+                    .filter(java.util.Objects::nonNull)
                     .toList();
 
             List<IndoorEdge> edges = indoorNavigationDataService.getEdgesByBuilding(buildingId);

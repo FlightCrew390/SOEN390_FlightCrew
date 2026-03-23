@@ -24,14 +24,11 @@ public class GoogleAuthService {
 
         // iOS client IDs are public clients — no secret needed.
         // Use empty string for the secret parameter.
-        return new GoogleAuthorizationCodeTokenRequest(
-                new NetHttpTransport(),
-                new GsonFactory(),
-                "https://oauth2.googleapis.com/token",
-                clientId,
-                secret,
-                authCode,
-                redirectUri).execute();
+        NetHttpTransport t = new NetHttpTransport();
+        GsonFactory f = new GsonFactory();
+        GoogleAuthorizationCodeTokenRequest req = new GoogleAuthorizationCodeTokenRequest(t, f,
+                "https://oauth2.googleapis.com/token", clientId, secret, authCode, redirectUri);
+        return req.execute();
     }
 
     public GoogleTokenResponse refreshAccessToken(String refreshToken, String clientId) throws IOException {
@@ -39,11 +36,9 @@ public class GoogleAuthService {
         // web/Android client IDs use the configured secret
         String secret = clientId.equals(this.clientId) ? clientSecret : "";
 
-        return new GoogleRefreshTokenRequest(
-                new NetHttpTransport(),
-                new GsonFactory(),
-                refreshToken,
-                clientId,
-                secret).execute();
+        NetHttpTransport t = new NetHttpTransport();
+        GsonFactory f = new GsonFactory();
+        GoogleRefreshTokenRequest req = new GoogleRefreshTokenRequest(t, f, refreshToken, clientId, secret);
+        return req.execute();
     }
 }

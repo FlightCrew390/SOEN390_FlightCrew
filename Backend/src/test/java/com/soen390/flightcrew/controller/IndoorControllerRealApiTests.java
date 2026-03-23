@@ -124,7 +124,7 @@ public class IndoorControllerRealApiTests {
         when(dataService.getEdgesByBuilding("H")).thenReturn(Collections.emptyList());
         when(stepGeneratorService.generateSteps(any(), any())).thenReturn(Collections.singletonList(step));
 
-        ResponseEntity<?> response = (ResponseEntity<?>) controller.getIndoorDirections("H", "A", "B", false);
+        ResponseEntity<Object> response = (ResponseEntity<Object>) controller.getIndoorDirections("H", "A", "B", false);
         assertEquals(200, response.getStatusCode().value());
 
         assertTrue(response.getBody() instanceof Map);
@@ -138,14 +138,14 @@ public class IndoorControllerRealApiTests {
     @Test
     public void testGetIndoorDirections_NotFound() {
         when(pathfindingService.findShortestPath("H", "A", "B", false)).thenReturn(Collections.emptyList());
-        ResponseEntity<?> response = controller.getIndoorDirections("H", "A", "B", false);
+        ResponseEntity<Object> response = controller.getIndoorDirections("H", "A", "B", false);
         assertEquals(404, response.getStatusCode().value());
     }
 
     @Test
     public void testGetIndoorDirections_Exception() {
         when(pathfindingService.findShortestPath("H", "A", "B", false)).thenThrow(new RuntimeException("Test Error"));
-        ResponseEntity<?> response = controller.getIndoorDirections("H", "A", "B", false);
+        ResponseEntity<Object> response = controller.getIndoorDirections("H", "A", "B", false);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertTrue(response.getBody().toString().contains("Test Error"));
     }

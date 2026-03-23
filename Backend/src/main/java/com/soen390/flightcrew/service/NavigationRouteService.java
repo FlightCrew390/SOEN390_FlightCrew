@@ -55,31 +55,7 @@ public class NavigationRouteService {
     }
 
     private NavigationStepDTO parseStep(DirectionsResponse.Step step) {
-        NavigationTransitStepDetailsDTO transitDetails = null;
-
-        if (step.getTransitDetails() != null) {
-            DirectionsResponse.TransitDetails td = step.getTransitDetails();
-            transitDetails = new NavigationTransitStepDetailsDTO(
-                    td.getStopDetails() != null && td.getStopDetails().getDepartureStop() != null
-                            ? td.getStopDetails().getDepartureStop().getName()
-                            : "",
-                    td.getStopDetails() != null && td.getStopDetails().getArrivalStop() != null
-                            ? td.getStopDetails().getArrivalStop().getName()
-                            : "",
-                    td.getStopDetails() != null ? td.getStopDetails().getDepartureTime() : "",
-                    td.getStopDetails() != null ? td.getStopDetails().getArrivalTime() : "",
-                    td.getTransitLine() != null ? td.getTransitLine().getName() : "",
-                    td.getTransitLine() != null ? td.getTransitLine().getNameShort() : "",
-                    td.getTransitLine() != null && td.getTransitLine().getVehicle() != null
-                            ? td.getTransitLine().getVehicle().getType()
-                            : "",
-                    td.getTransitLine() != null
-                            && td.getTransitLine().getVehicle() != null
-                            && td.getTransitLine().getVehicle().getName() != null
-                                    ? td.getTransitLine().getVehicle().getName().getText()
-                                    : "",
-                    td.getStopCount() != null ? td.getStopCount() : 0);
-        }
+        NavigationTransitStepDetailsDTO transitDetails = parseTransitDetails(step.getTransitDetails());
 
         return new NavigationStepDTO(
                 step.getDistanceMeters() != null ? step.getDistanceMeters() : 0,
@@ -88,6 +64,50 @@ public class NavigationRouteService {
                 step.getNavigationInstruction() != null ? step.getNavigationInstruction().getManeuver() : "",
                 decodePolyline(step.getPolyline() != null ? step.getPolyline().getEncodedPolyline() : null),
                 transitDetails);
+    }
+
+    private NavigationTransitStepDetailsDTO parseTransitDetails(DirectionsResponse.TransitDetails td) {
+        if (td == null) {
+            return null;
+        }
+        return new NavigationTransitStepDetailsDTO(
+                getDepartureStopName(td.getStopDetails()),
+                getArrivalStopName(td.getStopDetails()),
+                td.getStopDetails() != null ? td.getStopDetails().getDepartureTime() : "",
+                td.getStopDetails() != null ? td.getStopDetails().getArrivalTime() : "",
+                td.getTransitLine() != null ? td.getTransitLine().getName() : "",
+                td.getTransitLine() != null ? td.getTransitLine().getNameShort() : "",
+                getVehicleType(td.getTransitLine()),
+                getVehicleName(td.getTransitLine()),
+                td.getStopCount() != null ? td.getStopCount() : 0);
+    }
+
+    private String getDepartureStopName(DirectionsResponse.StopDetails details) {
+        if (details != null && details.getDepartureStop() != null) {
+            return details.getDepartureStop().getName();
+        }
+        return "";
+    }
+
+    private String getArrivalStopName(DirectionsResponse.StopDetails details) {
+        if (details != null && details.getArrivalStop() != null) {
+            return details.getArrivalStop().getName();
+        }
+        return "";
+    }
+
+    private String getVehicleType(DirectionsResponse.TransitLine line) {
+        if (line != null && line.getVehicle() != null) {
+            return line.getVehicle().getType();
+        }
+        return "";
+    }
+
+    private String getVehicleName(DirectionsResponse.TransitLine line) {
+        if (line != null && line.getVehicle() != null && line.getVehicle().getName() != null) {
+            return line.getVehicle().getName().getText();
+        }
+        return "";
     }
 
     private int parseDuration(String rawDuration) {

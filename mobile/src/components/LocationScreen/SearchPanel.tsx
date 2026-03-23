@@ -16,7 +16,13 @@ import {
   searchPanelReducer,
 } from "../../reducers/searchPanelReducer";
 import { LOCATION_OPTIONS, RADIUS_OPTIONS } from "../../constants/searchPanel";
-import { LocationType, isClassroom, isPoi } from "../../state/SearchPanelState";
+import {
+  LocationType,
+  isClassroom,
+  isPoi,
+  SearchPanelState,
+  SearchPanelAction,
+} from "../../state/SearchPanelState";
 import styles from "../../styles/SearchPanel";
 import { Building } from "../../types/Building";
 
@@ -195,6 +201,111 @@ function AutocompleteList({
   );
 }
 
+function ClassroomSearchInputs({
+  state,
+  dispatch,
+  handleSearch,
+  placeholderText,
+}: Readonly<{
+  state: SearchPanelState;
+  dispatch: React.Dispatch<SearchPanelAction>;
+  handleSearch: () => void;
+  placeholderText: string;
+}>) {
+  const getClassroomBuildingLabel = () => {
+    if (!state.classroomBuildingId) return "All Buildings";
+    return (
+      BUILDING_NAMES[state.classroomBuildingId] ?? state.classroomBuildingId
+    );
+  };
+  const classroomBuildingLabel = getClassroomBuildingLabel();
+
+  return (
+    <>
+      <Text style={styles.label}>Building</Text>
+      <View style={styles.dropdownMenuWrapper}>
+        <Pressable
+          style={[
+            styles.dropdownTrigger,
+            state.classroomBuildingDropdownOpen && styles.dropdownTriggerOpen,
+          ]}
+          onPress={() =>
+            dispatch({ type: "TOGGLE_CLASSROOM_BUILDING_DROPDOWN" })
+          }
+          accessibilityLabel="Select building"
+          accessibilityRole="button"
+        >
+          <Text style={styles.dropdownTriggerText}>
+            {classroomBuildingLabel}
+          </Text>
+          <FontAwesome5
+            name={
+              state.classroomBuildingDropdownOpen
+                ? "chevron-up"
+                : "chevron-down"
+            }
+            size={12}
+            color="#666"
+          />
+        </Pressable>
+        {state.classroomBuildingDropdownOpen && (
+          <View style={styles.dropdownMenu}>
+            {CLASSROOM_BUILDINGS.map((b, idx) => (
+              <React.Fragment key={b.label}>
+                {idx > 0 && <View style={styles.dropdownDivider} />}
+                <Pressable
+                  style={[
+                    styles.dropdownOption,
+                    b.id === state.classroomBuildingId &&
+                      styles.dropdownOptionSelected,
+                  ]}
+                  onPress={() =>
+                    dispatch({
+                      type: "SELECT_CLASSROOM_BUILDING",
+                      buildingId: b.id,
+                    })
+                  }
+                  accessibilityLabel={b.label}
+                  accessibilityRole="menuitem"
+                >
+                  <Text style={styles.dropdownOptionText}>
+                    {b.id ? (BUILDING_NAMES[b.id] ?? b.id) : "All Buildings"}
+                  </Text>
+                </Pressable>
+              </React.Fragment>
+            ))}
+          </View>
+        )}
+      </View>
+
+      <View style={styles.textInputWrapper}>
+        <TextInput
+          style={styles.textInputInner}
+          placeholder={placeholderText}
+          placeholderTextColor="#999"
+          value={state.query}
+          onChangeText={(text) => dispatch({ type: "UPDATE_QUERY", text })}
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="search"
+          onSubmitEditing={handleSearch}
+          accessibilityLabel="Search classroom name"
+        />
+        {state.query.length > 0 && (
+          <Pressable
+            onPress={() => dispatch({ type: "CLEAR_QUERY" })}
+            accessibilityLabel="Clear search"
+            accessibilityRole="button"
+            style={styles.clearButton}
+          >
+            <Text style={styles.clearButtonText}>×</Text>
+          </Pressable>
+        )}
+      </View>
+    </>
+  );
+}
+
 export default function SearchPanel({
   visible,
   onClose,
@@ -227,16 +338,12 @@ export default function SearchPanel({
   const radiusLabel =
     RADIUS_OPTIONS.find((o) => o.value === state.radiusKm)?.label ?? "No limit";
 
-  const placeholderText =
-    state.locationType === "building"
-      ? "Building name"
-      : isClassroomType
-        ? "Classroom name..."
-        : "Location name";
-
-  const classroomBuildingLabel = state.classroomBuildingId
-    ? (BUILDING_NAMES[state.classroomBuildingId] ?? state.classroomBuildingId)
-    : "All Buildings";
+  const getPlaceholderText = () => {
+    if (state.locationType === "building") return "Building name";
+    if (isClassroomType) return "Classroom name...";
+    return "Location name";
+  };
+  const placeholderText = getPlaceholderText();
 
   const handleSearch = () => {
     dispatch({ type: "BLUR_INPUT" });
@@ -290,91 +397,12 @@ export default function SearchPanel({
 
       {/* Classroom: building filter + room name input */}
       {isClassroomType ? (
-        <>
-          <Text style={styles.label}>Building</Text>
-          <View style={styles.dropdownMenuWrapper}>
-            <Pressable
-              style={[
-                styles.dropdownTrigger,
-                state.classroomBuildingDropdownOpen &&
-                  styles.dropdownTriggerOpen,
-              ]}
-              onPress={() =>
-                dispatch({ type: "TOGGLE_CLASSROOM_BUILDING_DROPDOWN" })
-              }
-              accessibilityLabel="Select building"
-              accessibilityRole="button"
-            >
-              <Text style={styles.dropdownTriggerText}>
-                {classroomBuildingLabel}
-              </Text>
-              <FontAwesome5
-                name={
-                  state.classroomBuildingDropdownOpen
-                    ? "chevron-up"
-                    : "chevron-down"
-                }
-                size={12}
-                color="#666"
-              />
-            </Pressable>
-            {state.classroomBuildingDropdownOpen && (
-              <View style={styles.dropdownMenu}>
-                {CLASSROOM_BUILDINGS.map((b, idx) => (
-                  <React.Fragment key={b.label}>
-                    {idx > 0 && <View style={styles.dropdownDivider} />}
-                    <Pressable
-                      style={[
-                        styles.dropdownOption,
-                        b.id === state.classroomBuildingId &&
-                          styles.dropdownOptionSelected,
-                      ]}
-                      onPress={() =>
-                        dispatch({
-                          type: "SELECT_CLASSROOM_BUILDING",
-                          buildingId: b.id,
-                        })
-                      }
-                      accessibilityLabel={b.label}
-                      accessibilityRole="menuitem"
-                    >
-                      <Text style={styles.dropdownOptionText}>
-                        {b.id
-                          ? (BUILDING_NAMES[b.id] ?? b.id)
-                          : "All Buildings"}
-                      </Text>
-                    </Pressable>
-                  </React.Fragment>
-                ))}
-              </View>
-            )}
-          </View>
-
-          <View style={styles.textInputWrapper}>
-            <TextInput
-              style={styles.textInputInner}
-              placeholder={placeholderText}
-              placeholderTextColor="#999"
-              value={state.query}
-              onChangeText={(text) => dispatch({ type: "UPDATE_QUERY", text })}
-              autoCapitalize="none"
-              autoCorrect={false}
-              returnKeyType="search"
-              onSubmitEditing={handleSearch}
-              accessibilityLabel="Search classroom name"
-            />
-            {state.query.length > 0 && (
-              <Pressable
-                onPress={() => dispatch({ type: "CLEAR_QUERY" })}
-                accessibilityLabel="Clear search"
-                accessibilityRole="button"
-                style={styles.clearButton}
-              >
-                <Text style={styles.clearButtonText}>×</Text>
-              </Pressable>
-            )}
-          </View>
-        </>
+        <ClassroomSearchInputs
+          state={state}
+          dispatch={dispatch}
+          handleSearch={handleSearch}
+          placeholderText={placeholderText}
+        />
       ) : isPoiType ? (
         <>
           <Text style={styles.label}>Distance from location</Text>

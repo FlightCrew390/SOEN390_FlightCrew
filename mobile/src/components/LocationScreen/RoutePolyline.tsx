@@ -14,7 +14,7 @@ export default function RoutePolyline({
   route,
   travelMode,
 }: Readonly<RoutePolylineProps>) {
-  if (!route || !route.coordinates || route.coordinates.length < 2) return null;
+  if (!route?.coordinates || route.coordinates.length < 2) return null;
 
   return (
     <Polyline

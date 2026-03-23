@@ -479,7 +479,7 @@ export default function DirectionPanel({
 
             <View style={styles.divider} />
 
-            {route && route.steps && route.steps.length > 0 ? (
+            {(route?.steps?.length ?? 0) > 0 && (
               <Pressable
                 style={styles.viewStepsButton}
                 onPress={onShowSteps}
@@ -498,9 +498,10 @@ export default function DirectionPanel({
                   color={COLORS.white}
                 />
               </Pressable>
-            ) : route ? null : ( // Don't show building details when an indoor route is active
-              !routeLoading &&
-              !routeError && <BuildingDetails building={building} />
+            )}
+
+            {!route && !routeLoading && !routeError && (
+              <BuildingDetails building={building} />
             )}
           </>
         )}

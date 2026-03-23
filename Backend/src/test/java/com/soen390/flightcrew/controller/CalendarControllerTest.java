@@ -135,4 +135,29 @@ class CalendarControllerTest {
                                 .andExpect(jsonPath("$[0].start").value("2023-01-01"))
                                 .andExpect(jsonPath("$[0].end").value("2023-01-02"));
         }
+
+        @Test
+        void getCalendarList_Success() throws Exception {
+                // Arrange
+                List<com.soen390.flightcrew.model.CalendarInfoDTO> mockCalendars = Arrays.asList(
+                                new com.soen390.flightcrew.model.CalendarInfoDTO("1", "Primary Calendar", "desc",
+                                                "blue", true),
+                                new com.soen390.flightcrew.model.CalendarInfoDTO("2", "Work Calendar", "desc2", "red",
+                                                false));
+                when(googleCalendarService.fetchCalendarList(anyString())).thenReturn(mockCalendars);
+
+                // Act & Assert
+                mockMvc.perform(get("/api/v1/calendar/list")
+                                .header("Authorization", "Bearer test-token"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.length()").value(2))
+                                .andExpect(jsonPath("$[0].id").value("1"))
+                                .andExpect(jsonPath("$[0].summary").value("Primary Calendar"));
+        }
+
+        @Test
+        void getCalendarList_MissingAuthorizationHeader() throws Exception {
+                mockMvc.perform(get("/api/v1/calendar/list"))
+                                .andExpect(status().isBadRequest());
+        }
 }

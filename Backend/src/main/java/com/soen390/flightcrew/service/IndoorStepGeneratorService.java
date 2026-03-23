@@ -20,6 +20,7 @@ public class IndoorStepGeneratorService {
     private static final double STRAIGHT_THRESHOLD_DEG = 20.0;
     private static final double SLIGHT_TURN_THRESHOLD_DEG = 60.0;
     private static final double SHARP_TURN_THRESHOLD_DEG = 150.0;
+    private static final String MANEUVER_STRAIGHT = "STRAIGHT";
 
     public List<IndoorStep> generateSteps(List<IndoorNode> pathNodes, List<IndoorEdge> edges) {
         if (pathNodes == null || pathNodes.size() < 2) {
@@ -47,86 +48,108 @@ public class IndoorStepGeneratorService {
             boolean isStair = "stair".equalsIgnoreCase(edgeType);
 
             if (isElevator || isStair || isFloorTransition(prev, curr)) {
-                int floors = Math.max(1, Math.abs(floorOf(curr) - floorOf(prev)));
-
-                if (isElevator) {
-                    steps.add(new IndoorStep("Take the elevator to floor " + floorOf(curr), "ELEVATOR",
-                            0, ELEVATOR_SECONDS_PER_FLOOR * floors, floorOf(prev), floorOf(curr), prev.getId(),
-                            curr.getId()));
-                } else {
-                    steps.add(new IndoorStep("Take the stairs to floor " + floorOf(curr), "STAIRS",
-                            0, STAIRS_SECONDS_PER_FLOOR * floors, floorOf(prev), floorOf(curr), prev.getId(),
-                            curr.getId()));
-                }
-                i++;
+                i = handleFloorTransition(steps, prev, curr, isElevator, i);
                 continue;
             }
 
-            // Corridor walking — detect turns and merge straight segments
-            String startNodeId = prev.getId();
-            int startFloor = floorOf(prev);
-            double totalDist = 0;
-            String turnManeuver = null;
-
-            // Check for a turn at this node (requires looking at prev, curr, next)
-            if (i + 1 < pathNodes.size() && onSameFloor(prev, curr)
-                    && onSameFloor(curr, pathNodes.get(i + 1))) {
-                turnManeuver = detectTurn(prev, curr, pathNodes.get(i + 1));
-            }
-
-            if (turnManeuver != null && !"STRAIGHT".equals(turnManeuver)) {
-                // Emit the distance walked so far to reach this turn point
-                totalDist = euclideanDistance(prev, curr);
-                int duration = (int) Math.round(totalDist / WALKING_SPEED_MPS);
-                String instruction = turnToInstruction(turnManeuver);
-                steps.add(new IndoorStep(instruction, turnManeuver, totalDist, duration,
-                        startFloor, floorOf(curr), startNodeId, curr.getId()));
-                i++;
-            } else {
-                // Merge consecutive straight corridor segments
-                double segDist = euclideanDistance(prev, curr);
-                totalDist += segDist;
-                int segEnd = i;
-
-                while (segEnd + 1 < pathNodes.size()) {
-                    IndoorNode segCurr = pathNodes.get(segEnd);
-                    IndoorNode segNext = pathNodes.get(segEnd + 1);
-
-                    if (!onSameFloor(segCurr, segNext))
-                        break;
-
-                    IndoorEdge nextEdge = lookupEdge(edgeLookup, segCurr.getId(), segNext.getId());
-                    String nextEdgeType = nextEdge != null ? nextEdge.getType() : "";
-                    if ("elevator".equalsIgnoreCase(nextEdgeType) || "stair".equalsIgnoreCase(nextEdgeType))
-                        break;
-
-                    // Check if there's a turn at segNext
-                    if (segEnd + 2 < pathNodes.size() && onSameFloor(segNext, pathNodes.get(segEnd + 2))) {
-                        String nextTurn = detectTurn(segCurr, segNext, pathNodes.get(segEnd + 2));
-                        if (nextTurn != null && !"STRAIGHT".equals(nextTurn))
-                            break;
-                    }
-
-                    totalDist += euclideanDistance(segCurr, segNext);
-                    segEnd++;
-                }
-
-                if (totalDist > 0) {
-                    int duration = (int) Math.round(totalDist / WALKING_SPEED_MPS);
-                    steps.add(new IndoorStep("Walk down the corridor", "STRAIGHT",
-                            Math.round(totalDist * 100.0) / 100.0, duration,
-                            startFloor, floorOf(pathNodes.get(segEnd)),
-                            startNodeId, pathNodes.get(segEnd).getId()));
-                }
-
-                i = segEnd + 1;
-            }
+            i = processCorridorSegment(pathNodes, edgeLookup, steps, i, prev, curr);
         }
 
         // Arrive step
         steps.add(createArriveStep(pathNodes.get(pathNodes.size() - 1)));
 
         return steps;
+    }
+
+    private int handleFloorTransition(List<IndoorStep> steps, IndoorNode prev, IndoorNode curr, boolean isElevator,
+            int currentIndex) {
+        int floors = Math.max(1, Math.abs(floorOf(curr) - floorOf(prev)));
+
+        if (isElevator) {
+            steps.add(new IndoorStep("Take the elevator to floor " + floorOf(curr), "ELEVATOR",
+                    0, ELEVATOR_SECONDS_PER_FLOOR * floors, floorOf(prev), floorOf(curr), prev.getId(),
+                    curr.getId()));
+        } else {
+            steps.add(new IndoorStep("Take the stairs to floor " + floorOf(curr), "STAIRS",
+                    0, STAIRS_SECONDS_PER_FLOOR * floors, floorOf(prev), floorOf(curr), prev.getId(),
+                    curr.getId()));
+        }
+        return currentIndex + 1;
+    }
+
+    private int processCorridorSegment(List<IndoorNode> pathNodes, Map<String, IndoorEdge> edgeLookup,
+            List<IndoorStep> steps, int i, IndoorNode prev, IndoorNode curr) {
+        String startNodeId = prev.getId();
+        int startFloor = floorOf(prev);
+        String turnManeuver = null;
+
+        // Check for a turn at this node (requires looking at prev, curr, next)
+        if (i + 1 < pathNodes.size() && onSameFloor(prev, curr) && onSameFloor(curr, pathNodes.get(i + 1))) {
+            turnManeuver = detectTurn(prev, curr, pathNodes.get(i + 1));
+        }
+
+        if (turnManeuver != null && !MANEUVER_STRAIGHT.equals(turnManeuver)) {
+            return emitTurnStep(steps, i, prev, curr, startNodeId, startFloor, turnManeuver);
+        } else {
+            return mergeStraightSegments(pathNodes, edgeLookup, steps, i, prev, curr, startNodeId, startFloor);
+        }
+    }
+
+    private int emitTurnStep(List<IndoorStep> steps, int i, IndoorNode prev, IndoorNode curr, String startNodeId,
+            int startFloor, String turnManeuver) {
+        double totalDist = euclideanDistance(prev, curr);
+        int duration = (int) Math.round(totalDist / WALKING_SPEED_MPS);
+        String instruction = turnToInstruction(turnManeuver);
+        steps.add(new IndoorStep(instruction, turnManeuver, totalDist, duration,
+                startFloor, floorOf(curr), startNodeId, curr.getId()));
+        return i + 1;
+    }
+
+    private int mergeStraightSegments(List<IndoorNode> pathNodes, Map<String, IndoorEdge> edgeLookup,
+            List<IndoorStep> steps, int i, IndoorNode prev, IndoorNode curr, String startNodeId, int startFloor) {
+        double totalDist = euclideanDistance(prev, curr);
+        int segEnd = i;
+        boolean breakLoop = false;
+
+        while (segEnd + 1 < pathNodes.size() && !breakLoop) {
+            IndoorNode segCurr = pathNodes.get(segEnd);
+            IndoorNode segNext = pathNodes.get(segEnd + 1);
+
+            if (!onSameFloor(segCurr, segNext)) {
+                breakLoop = true;
+            }
+
+            if (!breakLoop) {
+                IndoorEdge nextEdge = lookupEdge(edgeLookup, segCurr.getId(), segNext.getId());
+                String nextEdgeType = nextEdge != null ? nextEdge.getType() : "";
+                if ("elevator".equalsIgnoreCase(nextEdgeType) || "stair".equalsIgnoreCase(nextEdgeType)) {
+                    breakLoop = true;
+                }
+            }
+
+            // Check if there's a turn at segNext
+            if (!breakLoop && segEnd + 2 < pathNodes.size() && onSameFloor(segNext, pathNodes.get(segEnd + 2))) {
+                String nextTurn = detectTurn(segCurr, segNext, pathNodes.get(segEnd + 2));
+                if (nextTurn != null && !MANEUVER_STRAIGHT.equals(nextTurn)) {
+                    breakLoop = true;
+                }
+            }
+
+            if (!breakLoop) {
+                totalDist += euclideanDistance(segCurr, segNext);
+                segEnd++;
+            }
+        }
+
+        if (totalDist > 0) {
+            int duration = (int) Math.round(totalDist / WALKING_SPEED_MPS);
+            steps.add(new IndoorStep("Walk down the corridor", MANEUVER_STRAIGHT,
+                    Math.round(totalDist * 100.0) / 100.0, duration,
+                    startFloor, floorOf(pathNodes.get(segEnd)),
+                    startNodeId, pathNodes.get(segEnd).getId()));
+        }
+
+        return segEnd + 1;
     }
 
     private IndoorStep createDepartStep(IndoorNode first) {
@@ -201,7 +224,7 @@ public class IndoorStepGeneratorService {
         double angle = Math.toDegrees(Math.abs(Math.atan2(cross, dot)));
 
         if (angle < STRAIGHT_THRESHOLD_DEG) {
-            return "STRAIGHT";
+            return MANEUVER_STRAIGHT;
         }
 
         boolean isLeft = cross > 0;

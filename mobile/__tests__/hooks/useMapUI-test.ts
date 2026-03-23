@@ -518,6 +518,7 @@ describe("useMapUI", () => {
 
     jest
       .spyOn(
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         require("../../src/services/IndoorDataService").IndoorDataService,
         "ensureLoaded",
       )
@@ -525,6 +526,7 @@ describe("useMapUI", () => {
 
     jest
       .spyOn(
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         require("../../src/services/IndoorDataService").IndoorDataService,
         "searchRooms",
       )
@@ -547,6 +549,7 @@ describe("useMapUI", () => {
 
     jest
       .spyOn(
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         require("../../src/services/IndoorDataService").IndoorDataService,
         "ensureLoaded",
       )
@@ -554,6 +557,7 @@ describe("useMapUI", () => {
 
     jest
       .spyOn(
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         require("../../src/services/IndoorDataService").IndoorDataService,
         "searchRoomsByBuilding",
       )
@@ -574,6 +578,7 @@ describe("useMapUI", () => {
 
     jest
       .spyOn(
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         require("../../src/services/IndoorDataService").IndoorDataService,
         "ensureLoaded",
       )
@@ -581,6 +586,7 @@ describe("useMapUI", () => {
 
     jest
       .spyOn(
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         require("../../src/services/IndoorDataService").IndoorDataService,
         "getRooms",
       )

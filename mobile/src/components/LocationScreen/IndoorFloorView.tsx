@@ -174,32 +174,6 @@ function ZoomableFloorPlan({
   const mapAspectRatio = viewBoxInfo.width / viewBoxInfo.height;
   const viewBoxStr = `${viewBoxInfo.minX} ${viewBoxInfo.minY} ${viewBoxInfo.width} ${viewBoxInfo.height}`;
 
-  // For debugging: render pins for all rooms on the floor
-  /*
-  const renderAllPins = () => {
-    const rooms = IndoorDataService.getRoomsByBuildingAndFloor(
-      buildingId,
-      floor,
-    );
-    return rooms.map((room) => {
-      const mapped = getMappedPoint(buildingId, floor, room.x, room.y);
-      return (
-        <View
-          key={room.id}
-          style={{
-            position: "absolute",
-            left: `${((mapped.x - viewBoxInfo.minX) / viewBoxInfo.width) * 100}%`,
-            top: `${((mapped.y - viewBoxInfo.minY) / viewBoxInfo.height) * 100}%`,
-            transform: [{ translateX: -16 }, { translateY: -32 }],
-          }}
-        >
-          <MaterialCommunityIcons name="map-marker" size={32} color="blue" />
-        </View>
-      );
-    });
-  };
-  */
-
   const renderPin = () => {
     if (selectedRoom?.floor !== floor) return null;
     const mapped = getMappedPoint(
@@ -232,7 +206,7 @@ function ZoomableFloorPlan({
       return null;
     const pins = [];
     const first = activeIndoorPath[0];
-    const last = activeIndoorPath[activeIndoorPath.length - 1];
+    const last = activeIndoorPath.at(-1)!;
 
     if (first.floor === floor && first.id.includes("entry_exit")) {
       pins.push(first);
@@ -245,11 +219,11 @@ function ZoomableFloorPlan({
       pins.push(last);
     }
 
-    return pins.map((node, idx) => {
+    return pins.map((node) => {
       const mapped = getMappedPoint(buildingId, floor, node.x, node.y);
       return (
         <View
-          key={`entry-exit-pin-${idx}`}
+          key={`entry-exit-pin-${node.id}`}
           style={{
             position: "absolute",
             left: `${((mapped.x - viewBoxInfo.minX) / viewBoxInfo.width) * 100}%`,
@@ -289,11 +263,11 @@ function ZoomableFloorPlan({
       }
     }
 
-    return transitionPins.map((t, idx) => {
+    return transitionPins.map((t) => {
       const mapped = getMappedPoint(buildingId, floor, t.node.x, t.node.y);
       return (
         <View
-          key={`transition-pin-${idx}`}
+          key={`transition-pin-${t.node.id}`}
           style={{
             position: "absolute",
             left: `${((mapped.x - viewBoxInfo.minX) / viewBoxInfo.width) * 100}%`,
@@ -392,7 +366,6 @@ function ZoomableFloorPlan({
             {renderTransitionPins()}
             {renderEntryExitPins()}
             {renderPin()}
-            {/* {renderAllPins()} */}
           </View>
         </View>
       );
@@ -412,7 +385,6 @@ function ZoomableFloorPlan({
             {renderTransitionPins()}
             {renderEntryExitPins()}
             {renderPin()}
-            {/* {renderAllPins()} */}
           </View>
         </View>
       );
@@ -513,7 +485,7 @@ export default function IndoorFloorView({
 
     let hasOutdoor = false;
     const first = activeIndoorPath[0];
-    const last = activeIndoorPath[activeIndoorPath.length - 1];
+    const last = activeIndoorPath.at(-1)!;
 
     // If there is an outdoor path component, we check if the entry/exit node is on this floor
     if (route.coordinates && route.coordinates.length > 0) {

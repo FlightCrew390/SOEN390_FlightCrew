@@ -55,6 +55,71 @@ export function useDirections({
   // Use a ref for the abort controller so we can cancel in-flight requests
   const abortRef = useRef<AbortController | null>(null);
 
+  const getRoute = async (
+    originLat: number,
+    originLng: number,
+    destination: Building,
+    startRoom: IndoorRoom | null,
+    destinationRoom: IndoorRoom | null,
+    startBuilding: Building | null,
+    travelMode: TravelMode,
+    departureTime: string | undefined,
+    arrivalTime: string | undefined,
+    departureConfig: DepartureTimeConfig,
+  ) => {
+    // Handle indoor pathfinding if both start and dest are rooms in the same building
+    if (
+      startRoom?.buildingId &&
+      startRoom.buildingId === destinationRoom?.buildingId
+    ) {
+      try {
+        const indoorRes = await IndoorPathfindingService.getDirections(
+          startRoom.buildingId,
+          startRoom.id,
+          destinationRoom.id,
+        );
+
+        return {
+          distanceMeters: indoorRes.distanceMeters,
+          durationSeconds:
+            indoorRes.durationSeconds ?? indoorRes.distanceMeters * 2,
+          coordinates: [],
+          steps: (indoorRes.steps ?? []).map((s) => ({
+            distanceMeters: s.distanceMeters,
+            durationSeconds: s.durationSeconds,
+            instruction: s.instruction,
+            maneuver: s.maneuver,
+            coordinates: [],
+          })),
+          indoorPath: indoorRes.path,
+        } as RouteInfo;
+      } catch (e) {
+        console.error("Indoor pathfinding failed", e);
+        throw new Error("Could not compute indoor path.");
+      }
+    } else if (travelMode === TRAVEL_MODE.SHUTTLE) {
+      return await ShuttleDirectionsBuilder.buildShuttleRoute(
+        originLat,
+        originLng,
+        destination.latitude,
+        destination.longitude,
+        departureConfig,
+        startBuilding,
+        destination,
+      );
+    } else {
+      return await DirectionsService.fetchDirections(
+        originLat,
+        originLng,
+        destination.latitude,
+        destination.longitude,
+        travelMode,
+        departureTime,
+        arrivalTime,
+      );
+    }
+  };
+
   useEffect(() => {
     if (!active || !destination || travelMode == null) return;
 
@@ -88,59 +153,18 @@ export function useDirections({
       try {
         let route;
 
-        // Handle indoor pathfinding if both start and dest are rooms in the same building
-        if (
-          startRoom &&
-          destinationRoom &&
-          startRoom.buildingId === destinationRoom.buildingId
-        ) {
-          try {
-            // Note: IndoorPathfindingService now expects (buildingId, startNodeId, endNodeId)
-            const indoorRes = await IndoorPathfindingService.getDirections(
-              startRoom.buildingId,
-              startRoom.id,
-              destinationRoom.id,
-            );
-
-            route = {
-              distanceMeters: indoorRes.distanceMeters,
-              durationSeconds:
-                indoorRes.durationSeconds ?? indoorRes.distanceMeters * 2,
-              coordinates: [],
-              steps: (indoorRes.steps ?? []).map((s) => ({
-                distanceMeters: s.distanceMeters,
-                durationSeconds: s.durationSeconds,
-                instruction: s.instruction,
-                maneuver: s.maneuver,
-                coordinates: [],
-              })),
-              indoorPath: indoorRes.path,
-            } as RouteInfo;
-          } catch (e) {
-            console.error("Indoor pathfinding failed", e);
-            throw new Error("Could not compute indoor path.");
-          }
-        } else if (travelMode === TRAVEL_MODE.SHUTTLE) {
-          route = await ShuttleDirectionsBuilder.buildShuttleRoute(
-            originLat,
-            originLng,
-            destination.latitude,
-            destination.longitude,
-            departureConfig,
-            startBuilding,
-            destination,
-          );
-        } else {
-          route = await DirectionsService.fetchDirections(
-            originLat,
-            originLng,
-            destination.latitude,
-            destination.longitude,
-            travelMode,
-            departureTime,
-            arrivalTime,
-          );
-        }
+        route = await getRoute(
+          originLat,
+          originLng,
+          destination,
+          startRoom,
+          destinationRoom,
+          startBuilding,
+          travelMode,
+          departureTime,
+          arrivalTime,
+          departureConfig,
+        );
 
         // If outdoor route was fetched but we have a start room, fetch the indoor departure path
         if (route && !route.indoorPathOrigin && startRoom) {

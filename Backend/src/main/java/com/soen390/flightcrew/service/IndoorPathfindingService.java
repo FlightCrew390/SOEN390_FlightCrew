@@ -20,7 +20,7 @@ public class IndoorPathfindingService {
         Map<String, List<Edge>> graph = buildGraph(edges, requireAccessible);
 
         if (!graph.containsKey(startNodeId)) {
-            return null; // Start node not in graph
+            return Collections.emptyList(); // Start node not in graph
         }
 
         PriorityQueue<NodeDistance> pq = new PriorityQueue<>(Comparator.comparingInt(nd -> nd.distance));
@@ -58,7 +58,7 @@ public class IndoorPathfindingService {
             }
         }
 
-        return null; // Target unreachable
+        return Collections.emptyList(); // Target unreachable
     }
 
     private Map<String, List<Edge>> buildGraph(List<IndoorEdge> edges, boolean requireAccessible) {

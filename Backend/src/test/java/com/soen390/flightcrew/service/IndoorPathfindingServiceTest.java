@@ -88,7 +88,7 @@ public class IndoorPathfindingServiceTest {
     public void testFindShortestPath_StartNodeNotInGraph() {
         when(dataService.getEdgesByBuilding(anyString())).thenReturn(Collections.emptyList());
         List<String> path = pathfindingService.findShortestPath("building1", "Z", "X", false);
-        assertNull(path);
+        assertTrue(path.isEmpty());
     }
 
     @Test
@@ -108,6 +108,6 @@ public class IndoorPathfindingServiceTest {
         when(dataService.getEdgesByBuilding(anyString())).thenReturn(Arrays.asList(edge1, edge2));
 
         List<String> path = pathfindingService.findShortestPath("building1", "A", "C", false);
-        assertNull(path);
+        assertTrue(path.isEmpty());
     }
 }

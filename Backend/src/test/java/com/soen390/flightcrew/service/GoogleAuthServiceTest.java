@@ -38,6 +38,13 @@ class GoogleAuthServiceTest {
     }
 
     @Test
+    void testExchangeCodeForTokens_IosClient_ThrowsExceptionOnInvalidCode() {
+        assertThrows(IOException.class, () -> {
+            googleAuthService.exchangeCodeForTokens("fake-code", "uri", "ios-client-id");
+        });
+    }
+
+    @Test
     void testValueInjection() {
         // Verifies that our Reflection utility correctly set the private fields
         String clientId = (String) ReflectionTestUtils.getField(googleAuthService, "clientId");
@@ -54,6 +61,13 @@ class GoogleAuthServiceTest {
 
         assertThrows(IOException.class, () -> {
             googleAuthService.refreshAccessToken(fakeRefreshToken, clientId);
+        });
+    }
+
+    @Test
+    void testRefreshAccessToken_IosClient_ThrowsExceptionOnInvalidRefreshToken() {
+        assertThrows(IOException.class, () -> {
+            googleAuthService.refreshAccessToken("invalid-refresh-token", "ios-client-id");
         });
     }
 }

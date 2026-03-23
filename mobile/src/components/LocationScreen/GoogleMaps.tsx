@@ -15,7 +15,6 @@ import { LocationScreenParams } from "../../types/LocationScreenParams";
 import { PointOfInterest } from "../../types/PointOfInterest";
 import { findBuildingByLocation } from "../../utils/findBuildingByLocation";
 import { poiToBuilding } from "../../utils/poiUtils";
-import BuildingAmenityLayer from "./BuildingAmenityLayer";
 import BuildingLayer from "./BuildingLayer";
 import DirectionPanel from "./DirectionPanel";
 import IndoorFloorView from "./IndoorFloorView";
@@ -202,10 +201,6 @@ export default function GoogleMaps({
           isDirectionsOpen={state.panel === "directions"}
           onSelect={onSelectBuilding}
           onDirectionPress={onDirectionPress}
-        />
-
-        <BuildingAmenityLayer
-          buildingCode={state.selectedBuilding?.buildingCode ?? null}
         />
 
         <RoutePolyline route={state.route} travelMode={state.travelMode} />

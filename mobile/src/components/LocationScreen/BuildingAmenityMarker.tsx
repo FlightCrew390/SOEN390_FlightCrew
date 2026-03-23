@@ -76,9 +76,6 @@ export default function BuildingAmenityMarker({
   poi,
   onPress,
 }: Readonly<BuildingAmenityMarkerProps>) {
-  // Amenity callouts are display-only (no directions action), so we rely on
-  // the native Marker callout shown on tap rather than useMarkerCallout's
-  // auto-show/hide behaviour used by PoiMarker.
   return (
     <Marker
       coordinate={{ latitude: poi.latitude, longitude: poi.longitude }}

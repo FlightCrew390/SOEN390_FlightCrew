@@ -113,27 +113,12 @@ public class IndoorStepGeneratorService {
         int segEnd = i;
 
         while (segEnd + 1 < pathNodes.size()) {
+            if (shouldBreakStraightSegment(pathNodes, edgeLookup, segEnd)) {
+                break;
+            }
+
             IndoorNode segCurr = pathNodes.get(segEnd);
             IndoorNode segNext = pathNodes.get(segEnd + 1);
-
-            if (!onSameFloor(segCurr, segNext)) {
-                break;
-            }
-
-            IndoorEdge nextEdge = lookupEdge(edgeLookup, segCurr.getId(), segNext.getId());
-            String nextEdgeType = nextEdge != null ? nextEdge.getType() : "";
-            if ("elevator".equalsIgnoreCase(nextEdgeType) || "stair".equalsIgnoreCase(nextEdgeType)) {
-                break;
-            }
-
-            // Check if there's a turn at segNext
-            if (segEnd + 2 < pathNodes.size() && onSameFloor(segNext, pathNodes.get(segEnd + 2))) {
-                String nextTurn = detectTurn(segCurr, segNext, pathNodes.get(segEnd + 2));
-                if (nextTurn != null && !MANEUVER_STRAIGHT.equals(nextTurn)) {
-                    break;
-                }
-            }
-
             totalDist += euclideanDistance(segCurr, segNext);
             segEnd++;
         }
@@ -147,6 +132,32 @@ public class IndoorStepGeneratorService {
         }
 
         return segEnd + 1;
+    }
+
+    private boolean shouldBreakStraightSegment(List<IndoorNode> pathNodes, Map<String, IndoorEdge> edgeLookup,
+            int segEnd) {
+        IndoorNode segCurr = pathNodes.get(segEnd);
+        IndoorNode segNext = pathNodes.get(segEnd + 1);
+
+        if (!onSameFloor(segCurr, segNext)) {
+            return true;
+        }
+
+        IndoorEdge nextEdge = lookupEdge(edgeLookup, segCurr.getId(), segNext.getId());
+        String nextEdgeType = nextEdge != null ? nextEdge.getType() : "";
+        if ("elevator".equalsIgnoreCase(nextEdgeType) || "stair".equalsIgnoreCase(nextEdgeType)) {
+            return true;
+        }
+
+        // Check if there's a turn at segNext
+        if (segEnd + 2 < pathNodes.size() && onSameFloor(segNext, pathNodes.get(segEnd + 2))) {
+            String nextTurn = detectTurn(segCurr, segNext, pathNodes.get(segEnd + 2));
+            if (nextTurn != null && !MANEUVER_STRAIGHT.equals(nextTurn)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private IndoorStep createDepartStep(IndoorNode first) {

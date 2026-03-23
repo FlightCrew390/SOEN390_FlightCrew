@@ -870,7 +870,7 @@ export default function IndoorFloorView({
               >
                 {indoorSteps.map((step, idx) => (
                   <View
-                    key={`indoor-step-${idx}`}
+                    key={`${step.instruction}-${step.distanceMeters}`}
                     style={{
                       flexDirection: "row",
                       alignItems: "center",

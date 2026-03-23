@@ -396,14 +396,17 @@ export default function SearchPanel({
       />
 
       {/* Classroom: building filter + room name input */}
-      {isClassroomType ? (
+      {isClassroomType && (
         <ClassroomSearchInputs
           state={state}
           dispatch={dispatch}
           handleSearch={handleSearch}
           placeholderText={placeholderText}
         />
-      ) : isPoiType ? (
+      )}
+
+      {/* POI: Distance from location dropdown */}
+      {!isClassroomType && isPoiType && (
         <>
           <Text style={styles.label}>Distance from location</Text>
           <RadiusDropdown
@@ -416,7 +419,10 @@ export default function SearchPanel({
             }
           />
         </>
-      ) : (
+      )}
+
+      {/* Default: Search text input */}
+      {!isClassroomType && !isPoiType && (
         <>
           {/* Search text input */}
           <View

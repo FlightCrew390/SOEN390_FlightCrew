@@ -91,7 +91,7 @@ public class IndoorStepGeneratorService {
         if (turnManeuver != null && !MANEUVER_STRAIGHT.equals(turnManeuver)) {
             return emitTurnStep(steps, i, prev, curr, startNodeId, startFloor, turnManeuver);
         } else {
-            return mergeStraightSegments(pathNodes, edgeLookup, steps, i, prev, curr, startNodeId, startFloor);
+            return mergeStraightSegments(pathNodes, edgeLookup, steps, i, prev, curr);
         }
     }
 
@@ -106,39 +106,36 @@ public class IndoorStepGeneratorService {
     }
 
     private int mergeStraightSegments(List<IndoorNode> pathNodes, Map<String, IndoorEdge> edgeLookup,
-            List<IndoorStep> steps, int i, IndoorNode prev, IndoorNode curr, String startNodeId, int startFloor) {
+            List<IndoorStep> steps, int i, IndoorNode prev, IndoorNode curr) {
+        String startNodeId = prev.getId();
+        int startFloor = floorOf(prev);
         double totalDist = euclideanDistance(prev, curr);
         int segEnd = i;
-        boolean breakLoop = false;
 
-        while (segEnd + 1 < pathNodes.size() && !breakLoop) {
+        while (segEnd + 1 < pathNodes.size()) {
             IndoorNode segCurr = pathNodes.get(segEnd);
             IndoorNode segNext = pathNodes.get(segEnd + 1);
 
             if (!onSameFloor(segCurr, segNext)) {
-                breakLoop = true;
+                break;
             }
 
-            if (!breakLoop) {
-                IndoorEdge nextEdge = lookupEdge(edgeLookup, segCurr.getId(), segNext.getId());
-                String nextEdgeType = nextEdge != null ? nextEdge.getType() : "";
-                if ("elevator".equalsIgnoreCase(nextEdgeType) || "stair".equalsIgnoreCase(nextEdgeType)) {
-                    breakLoop = true;
-                }
+            IndoorEdge nextEdge = lookupEdge(edgeLookup, segCurr.getId(), segNext.getId());
+            String nextEdgeType = nextEdge != null ? nextEdge.getType() : "";
+            if ("elevator".equalsIgnoreCase(nextEdgeType) || "stair".equalsIgnoreCase(nextEdgeType)) {
+                break;
             }
 
             // Check if there's a turn at segNext
-            if (!breakLoop && segEnd + 2 < pathNodes.size() && onSameFloor(segNext, pathNodes.get(segEnd + 2))) {
+            if (segEnd + 2 < pathNodes.size() && onSameFloor(segNext, pathNodes.get(segEnd + 2))) {
                 String nextTurn = detectTurn(segCurr, segNext, pathNodes.get(segEnd + 2));
                 if (nextTurn != null && !MANEUVER_STRAIGHT.equals(nextTurn)) {
-                    breakLoop = true;
+                    break;
                 }
             }
 
-            if (!breakLoop) {
-                totalDist += euclideanDistance(segCurr, segNext);
-                segEnd++;
-            }
+            totalDist += euclideanDistance(segCurr, segNext);
+            segEnd++;
         }
 
         if (totalDist > 0) {

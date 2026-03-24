@@ -149,7 +149,9 @@ describe("useCurrentLocation", () => {
     // Simulate app going to background while dialog is open
     unmount();
 
-    // User taps "Don't Allow" — should not throw and must not call GPS
+    // User taps "Don't Allow" — the denial branch must run (no early isMounted
+    // return before setState) and must not proceed to GPS. We can't assert
+    // result.current.loading after unmount, but this confirms the path completes.
     resolvePermission!({ status: "denied" });
 
     expect(mockRequestForegroundPermissionsAsync).toHaveBeenCalled();

@@ -1,15 +1,6 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useEffect, useMemo, useReducer, useState } from "react";
-import {
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, Image, Pressable, ScrollView, Text, View } from "react-native";
 import {
   Gesture,
   GestureDetector,
@@ -35,8 +26,6 @@ import { Building } from "../../types/Building";
 import { IndoorPoiCategory } from "../../types/IndoorPointOfInterest";
 import { IndoorRoom } from "../../types/IndoorRoom";
 import { RouteInfo } from "../../types/Directions";
-import { getManeuverIcon } from "../../utils/directionsUtils";
-import { formatDistance } from "../../utils/formatHelper";
 import StepsPanel from "./StepsPanel";
 
 const BUILDING_NAMES: Record<string, string> = {

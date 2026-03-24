@@ -252,6 +252,12 @@ describe("DepartureTimePicker", () => {
       _dateTimePickerOnChange?.({}, newDate);
     });
 
+    // For iOS, press confirm
+    const confirmBtn = screen.queryByLabelText("Confirm time");
+    if (confirmBtn) {
+      fireEvent.press(confirmBtn);
+    }
+
     const lastCall = onConfigChange.mock.calls.at(
       -1,
     )?.[0] as DepartureTimeConfig;
@@ -276,6 +282,11 @@ describe("DepartureTimePicker", () => {
     act(() => {
       _dateTimePickerOnChange?.({}, newDate);
     });
+
+    const confirmBtn = screen.queryByLabelText("Confirm time");
+    if (confirmBtn) {
+      fireEvent.press(confirmBtn);
+    }
 
     const called = onConfigChange.mock.calls.at(-1)?.[0] as DepartureTimeConfig;
     expect(called.option).toBe("depart_at");
@@ -315,6 +326,11 @@ describe("DepartureTimePicker", () => {
     act(() => {
       _dateTimePickerOnChange?.({}, newDateTime);
     });
+
+    const confirmBtn = screen.queryByLabelText("Confirm time");
+    if (confirmBtn) {
+      fireEvent.press(confirmBtn);
+    }
 
     const lastCall = onConfigChange.mock.calls.at(
       -1,

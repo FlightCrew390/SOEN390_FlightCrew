@@ -98,6 +98,15 @@ export class ShuttleDirectionsBuilder {
         originCampus,
         maxDepartureTime,
       );
+
+      // Check wait time: If the departure is more than 30 mins before the maxDepartureTime, reject
+      if (targetDep) {
+        const waitTimeMs =
+          maxDepartureTime.getTime() - targetDep.departureTime.getTime();
+        if (waitTimeMs > 30 * 60 * 1000) {
+          return null;
+        }
+      }
     } else {
       // Must depart from originLat, originLng at baseTime
       // This means arriving at ShuttleStop by baseTime + walkToStop
@@ -109,19 +118,54 @@ export class ShuttleDirectionsBuilder {
         originCampus,
         arrivalAtStop,
       );
+
+      // Check wait time: If the departure is more than 30 mins after we arrive at the stop, reject
+      if (targetDep) {
+        const waitTimeMs =
+          targetDep.departureTime.getTime() - arrivalAtStop.getTime();
+        if (waitTimeMs > 30 * 60 * 1000) {
+          return null;
+        }
+      }
     }
 
     if (!targetDep) return null;
+
+    let waitTimeSeconds = 0;
+    if (departureConfig.option === "arrive_by") {
+      const walkFromTimeMs = (walkFromStop?.durationSeconds ?? 0) * 1000;
+      const shuttleRideMs = SHUTTLE_DURATION_SECONDS * 1000;
+      const maxDepartureTime = new Date(
+        baseTime.getTime() - walkFromTimeMs - shuttleRideMs,
+      );
+      waitTimeSeconds = Math.max(
+        0,
+        Math.floor(
+          (maxDepartureTime.getTime() - targetDep.departureTime.getTime()) /
+            1000,
+        ),
+      );
+    } else {
+      const walkToTimeMs = (walkToStop?.durationSeconds ?? 0) * 1000;
+      const arrivalAtStop = new Date(baseTime.getTime() + walkToTimeMs);
+      waitTimeSeconds = Math.max(
+        0,
+        Math.floor(
+          (targetDep.departureTime.getTime() - arrivalAtStop.getTime()) / 1000,
+        ),
+      );
+    }
 
     // Build shuttle leg
     const shuttleLeg = buildShuttleLeg(
       shuttleRoute,
       originCampus,
       targetDep.departureTime,
+      waitTimeSeconds,
     );
 
     // Compose full route
-    return composeRoute(walkToStop, shuttleLeg, walkFromStop);
+    return composeRoute(walkToStop, shuttleLeg, walkFromStop, waitTimeSeconds);
   }
 }
 
@@ -132,6 +176,7 @@ function buildShuttleLeg(
   route: ShuttleRouteResponse,
   originCampus: ShuttleCampus,
   departureTime: Date,
+  waitTimeSeconds: number,
 ): RouteInfo {
   const coordinates =
     originCampus === "SGW" ? route.sgw_to_loyola : route.loyola_to_sgw;
@@ -145,10 +190,16 @@ function buildShuttleLeg(
   const destLabel =
     originCampus === "SGW" ? "Loyola Campus" : "SGW (Hall Building)";
 
+  const waitMinutes = Math.round(waitTimeSeconds / 60);
+  const waitText =
+    waitMinutes > 0
+      ? `Wait approx ${waitMinutes} mins for the shuttle. Then take`
+      : "Take";
+
   const step: StepInfo = {
     distanceMeters: SHUTTLE_DISTANCE_METERS,
-    durationSeconds: SHUTTLE_DURATION_SECONDS,
-    instruction: `Take the Concordia Shuttle from ${originLabel} to ${destLabel}`,
+    durationSeconds: SHUTTLE_DURATION_SECONDS + waitTimeSeconds,
+    instruction: `${waitText} the Concordia Shuttle from ${originLabel} to ${destLabel}`,
     maneuver: "STRAIGHT",
     coordinates,
     transitDetails: {
@@ -167,7 +218,7 @@ function buildShuttleLeg(
   return {
     coordinates,
     distanceMeters: SHUTTLE_DISTANCE_METERS,
-    durationSeconds: SHUTTLE_DURATION_SECONDS,
+    durationSeconds: SHUTTLE_DURATION_SECONDS + waitTimeSeconds,
     steps: [step],
   };
 }
@@ -179,6 +230,7 @@ function composeRoute(
   walkToStop: RouteInfo | null,
   shuttleLeg: RouteInfo,
   walkFromStop: RouteInfo | null,
+  waitTimeSeconds: number,
 ): RouteInfo {
   const allCoords = [
     ...(walkToStop?.coordinates ?? []),

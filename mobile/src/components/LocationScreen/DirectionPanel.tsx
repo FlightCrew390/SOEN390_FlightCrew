@@ -372,9 +372,15 @@ export default function DirectionPanel({
 
   // helper: get duration label for a mode
   const getDuration = (mode: TravelMode): string => {
-    // If this mode is the active one and we have a full route, prefer that
-    if (travelMode === mode && route) {
-      return formatDuration(route.durationSeconds);
+    // If this mode is the active one, use the route's duration directly if available.
+    // If it's loaded and empty, it means no route was found, so show unavailable.
+    if (travelMode === mode) {
+      if (route) {
+        return formatDuration(route.durationSeconds);
+      }
+      if (!routeLoading && !routeError) {
+        return "-- min";
+      }
     }
     // Otherwise use the preview
     const preview = routePreviews?.[mode];

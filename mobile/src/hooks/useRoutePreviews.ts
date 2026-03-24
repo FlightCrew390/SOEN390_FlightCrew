@@ -53,6 +53,9 @@ export function useRoutePreviews({
 
     if (originLat == null || originLng == null) return;
 
+    // Clear stale previews immediately when inputs change
+    setPreviews({});
+
     let cancelled = false;
 
     const departureTime =

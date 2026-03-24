@@ -67,6 +67,7 @@ const mockSchedule = {
   service_end: "18:30",
   departures: [
     { loyola_departure: "09:15", sgw_departure: "09:30", last_bus: false },
+    { loyola_departure: "10:15", sgw_departure: "10:15", last_bus: false },
     { loyola_departure: "12:00", sgw_departure: "12:15", last_bus: false },
     { loyola_departure: "18:15", sgw_departure: "18:30", last_bus: true },
   ],

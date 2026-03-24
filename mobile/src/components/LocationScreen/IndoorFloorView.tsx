@@ -37,6 +37,7 @@ import { IndoorRoom } from "../../types/IndoorRoom";
 import { RouteInfo } from "../../types/Directions";
 import { getManeuverIcon } from "../../utils/directionsUtils";
 import { formatDistance } from "../../utils/formatHelper";
+import StepsPanel from "./StepsPanel";
 
 const BUILDING_NAMES: Record<string, string> = {
   Hall: "Henry F. Hall (H) Building",
@@ -59,7 +60,7 @@ const RASTER_PLAN_FILES: Record<string, Record<number, string>> = {
   VL: { 1: "vl_1.png", 2: "vl_2.png" },
 };
 
-function getFloorLabel(buildingId: string, floor: number): string {
+export function getFloorLabel(buildingId: string, floor: number): string {
   if (buildingId === "MB" && floor === 2) return "S2";
   if (buildingId === "MB" && floor === 1) return "1";
   return `${floor}F`;
@@ -577,21 +578,9 @@ export default function IndoorFloorView({
     initialFloorSelectorState,
   );
 
-  const { nextFloors, prevFloors, hasOutdoorEntryExit } = useMemo(() => {
+  const { nextFloors, prevFloors } = useMemo(() => {
     if (!route || !activeIndoorPath) {
-      return { nextFloors: [], prevFloors: [], hasOutdoorEntryExit: false };
-    }
-
-    let hasOutdoor = false;
-    const first = activeIndoorPath[0];
-    const last = activeIndoorPath.at(-1)!;
-
-    // If there is an outdoor path component, we check if the entry/exit node is on this floor
-    if (route.coordinates && route.coordinates.length > 0) {
-      if (first.floor === currentFloor && first.id.includes("entry_exit"))
-        hasOutdoor = true;
-      if (last.floor === currentFloor && last.id.includes("entry_exit"))
-        hasOutdoor = true;
+      return { nextFloors: [], prevFloors: [] };
     }
 
     const nextF: number[] = [];
@@ -611,7 +600,6 @@ export default function IndoorFloorView({
     return {
       nextFloors: Array.from(new Set(nextF)),
       prevFloors: Array.from(new Set(prevF)),
-      hasOutdoorEntryExit: hasOutdoor,
     };
   }, [route, currentFloor, activeIndoorPath]);
 
@@ -630,57 +618,6 @@ export default function IndoorFloorView({
         zIndex: 20,
       }}
     >
-      <SafeAreaView style={{ backgroundColor: "#e2e2e2" }}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            paddingHorizontal: 16,
-            paddingVertical: 10,
-          }}
-        >
-          <Pressable
-            onPress={onBack}
-            style={{ padding: 4, width: 36 }}
-            accessibilityLabel="Back to building info"
-            accessibilityRole="button"
-          >
-            <MaterialCommunityIcons
-              name="chevron-left"
-              size={28}
-              color={COLORS.concordiaMaroon}
-            />
-          </Pressable>
-          <View style={{ flex: 1, alignItems: "center", marginTop: 6 }}>
-            <Text
-              style={{
-                fontSize: 26,
-                fontWeight: "700",
-                color: "#222",
-                textAlign: "center",
-              }}
-              numberOfLines={1}
-            >
-              {buildingLabel}
-            </Text>
-            <Text
-              style={{
-                fontSize: 16,
-                color: "#666",
-                marginTop: 2,
-                textAlign: "center",
-              }}
-            >
-              Indoor view · Floor {getFloorLabel(buildingId, currentFloor)}
-              {selectedRoom?.floor === currentFloor
-                ? ` · ${selectedRoom.label}`
-                : ""}
-            </Text>
-          </View>
-          <View style={{ width: 36 }} />
-        </View>
-      </SafeAreaView>
-
       <View style={{ flex: 1 }}>
         <ZoomableFloorPlan
           buildingId={buildingId}
@@ -691,11 +628,83 @@ export default function IndoorFloorView({
           onFloorChange={onFloorChange}
         />
 
+        {/* Top Directions Panel (Using unified StepsPanel) */}
+        {indoorSteps.length > 0 && (
+          <StepsPanel
+            building={building}
+            route={{ ...route!, steps: indoorSteps }}
+            stepsOverride={indoorSteps}
+            departureConfig={{ option: "now", date: new Date() }}
+            onBack={onBack}
+            isIndoor={true}
+            destinationRoom={
+              selectedRoom?.floor === currentFloor ? selectedRoom : null
+            }
+          />
+        )}
+
+        {/* Standard Header (only shown if not navigating) */}
+        {indoorSteps.length === 0 && (
+          <View style={{ position: "absolute", top: 0, left: 0, right: 0 }}>
+            <SafeAreaView style={{ backgroundColor: "#e2e2e2" }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  paddingHorizontal: 16,
+                  paddingVertical: 10,
+                }}
+              >
+                <Pressable
+                  onPress={onBack}
+                  style={{ padding: 4, width: 36 }}
+                  accessibilityLabel="Back to building info"
+                  accessibilityRole="button"
+                >
+                  <MaterialCommunityIcons
+                    name="chevron-left"
+                    size={28}
+                    color={COLORS.concordiaMaroon}
+                  />
+                </Pressable>
+                <View style={{ flex: 1, alignItems: "center", marginTop: 6 }}>
+                  <Text
+                    style={{
+                      fontSize: 26,
+                      fontWeight: "700",
+                      color: "#222",
+                      textAlign: "center",
+                    }}
+                    numberOfLines={1}
+                  >
+                    {buildingLabel}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      color: "#666",
+                      marginTop: 2,
+                      textAlign: "center",
+                    }}
+                  >
+                    Indoor view · Floor{" "}
+                    {getFloorLabel(buildingId, currentFloor)}
+                    {selectedRoom?.floor === currentFloor
+                      ? ` · ${selectedRoom.label}`
+                      : ""}
+                  </Text>
+                </View>
+                <View style={{ width: 36 }} />
+              </View>
+            </SafeAreaView>
+          </View>
+        )}
+
         {/* Floor selector (Moved to Left) */}
         <View
           style={{
             position: "absolute",
-            top: 12,
+            top: indoorSteps.length > 0 ? "52%" : 112,
             left: 12,
             alignItems: "center",
             zIndex: 30,
@@ -782,7 +791,7 @@ export default function IndoorFloorView({
         <View
           style={{
             position: "absolute",
-            top: 12,
+            top: indoorSteps.length > 0 ? 100 : 112,
             right: 12,
             alignItems: "center",
             zIndex: 30,
@@ -858,9 +867,7 @@ export default function IndoorFloorView({
         </View>
 
         {/* Floor Transitions */}
-        {(nextFloors.length > 0 ||
-          prevFloors.length > 0 ||
-          hasOutdoorEntryExit) && (
+        {(nextFloors.length > 0 || prevFloors.length > 0) && (
           <View
             style={{
               position: "absolute",
@@ -874,36 +881,6 @@ export default function IndoorFloorView({
               paddingHorizontal: 20,
             }}
           >
-            {hasOutdoorEntryExit && (
-              <Pressable
-                onPress={onBack}
-                style={{
-                  backgroundColor: "#4caf50",
-                  paddingHorizontal: 20,
-                  paddingVertical: 14,
-                  borderRadius: 25,
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 4,
-                  elevation: 5,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 6,
-                }}
-              >
-                <MaterialCommunityIcons
-                  name="door-open"
-                  size={20}
-                  color="white"
-                />
-                <Text
-                  style={{ color: "white", fontWeight: "bold", fontSize: 16 }}
-                >
-                  Go Outside
-                </Text>
-              </Pressable>
-            )}
             {prevFloors.map((tFloor) => (
               <Pressable
                 key={`prev-${tFloor}`}
@@ -988,111 +965,6 @@ export default function IndoorFloorView({
               color={COLORS.concordiaMaroon}
             />
           </Pressable>
-        )}
-
-        {/* Indoor Steps Panel */}
-        {indoorSteps.length > 0 && (
-          <View
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              backgroundColor: "#fff",
-              borderTopLeftRadius: 16,
-              borderTopRightRadius: 16,
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: -2 },
-              shadowOpacity: 0.15,
-              shadowRadius: 4,
-              elevation: 10,
-              zIndex: 50,
-            }}
-          >
-            <Pressable
-              onPress={() => setStepsExpanded(!stepsExpanded)}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                paddingVertical: 14,
-                paddingHorizontal: 20,
-                borderBottomWidth: stepsExpanded ? 1 : 0,
-                borderBottomColor: "#e0e0e0",
-              }}
-              accessibilityLabel={
-                stepsExpanded
-                  ? "Collapse indoor directions"
-                  : "Expand indoor directions"
-              }
-              accessibilityRole="button"
-            >
-              <Text style={{ fontSize: 16, fontWeight: "600", color: "#222" }}>
-                Indoor Directions
-              </Text>
-              <MaterialCommunityIcons
-                name={stepsExpanded ? "chevron-down" : "chevron-up"}
-                size={24}
-                color={COLORS.concordiaMaroon}
-              />
-            </Pressable>
-
-            {stepsExpanded && (
-              <ScrollView
-                style={{ maxHeight: 280 }}
-                contentContainerStyle={{
-                  paddingHorizontal: 16,
-                  paddingBottom: 20,
-                }}
-                showsVerticalScrollIndicator
-                onStartShouldSetResponder={() => true}
-              >
-                {indoorSteps.map((step, idx) => (
-                  <View
-                    key={`${step.instruction}-${step.distanceMeters}`}
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      paddingVertical: 10,
-                      paddingHorizontal: 8,
-                      backgroundColor:
-                        idx % 2 === 0 ? "#f8f8f8" : "transparent",
-                      borderRadius: 8,
-                      gap: 12,
-                    }}
-                  >
-                    <MaterialIcons
-                      name={getManeuverIcon(step.maneuver) as any}
-                      size={28}
-                      color={COLORS.concordiaMaroon}
-                    />
-                    <View style={{ flex: 1 }}>
-                      <Text
-                        style={{
-                          fontSize: 14,
-                          fontWeight: "500",
-                          color: "#222",
-                        }}
-                      >
-                        {step.instruction}
-                      </Text>
-                      {step.distanceMeters > 0 && (
-                        <Text
-                          style={{
-                            fontSize: 12,
-                            color: "#888",
-                            marginTop: 2,
-                          }}
-                        >
-                          {formatDistance(step.distanceMeters)}
-                        </Text>
-                      )}
-                    </View>
-                  </View>
-                ))}
-              </ScrollView>
-            )}
-          </View>
         )}
       </View>
     </View>

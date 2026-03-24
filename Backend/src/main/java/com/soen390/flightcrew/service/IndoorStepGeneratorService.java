@@ -48,7 +48,7 @@ public class IndoorStepGeneratorService {
             boolean isStair = "stair".equalsIgnoreCase(edgeType);
 
             if (isElevator || isStair || isFloorTransition(prev, curr)) {
-                i = handleFloorTransition(steps, prev, curr, isElevator, i);
+                i = handleFloorTransition(pathNodes, edgeLookup, steps, i, isElevator);
                 continue;
             }
 
@@ -61,20 +61,48 @@ public class IndoorStepGeneratorService {
         return steps;
     }
 
-    private int handleFloorTransition(List<IndoorStep> steps, IndoorNode prev, IndoorNode curr, boolean isElevator,
-            int currentIndex) {
-        int floors = Math.max(1, Math.abs(floorOf(curr) - floorOf(prev)));
+    private int handleFloorTransition(List<IndoorNode> pathNodes, Map<String, IndoorEdge> edgeLookup,
+            List<IndoorStep> steps, int currentIndex, boolean initiallyElevator) {
+        IndoorNode startNode = pathNodes.get(currentIndex - 1);
+        int startFloor = floorOf(startNode);
+        int segEnd = currentIndex;
+        boolean isElevator = initiallyElevator;
+
+        // Merge all subsequent nodes that are part of the same floor transition (elevator or stairs)
+        while (segEnd < pathNodes.size()) {
+            IndoorNode prev = pathNodes.get(segEnd - 1);
+            IndoorNode curr = pathNodes.get(segEnd);
+            IndoorEdge edge = lookupEdge(edgeLookup, prev.getId(), curr.getId());
+            String edgeType = edge != null ? edge.getType() : "";
+
+            boolean currentIsElevator = "elevator".equalsIgnoreCase(edgeType)
+                    || "elevator_door".equalsIgnoreCase(prev.getType())
+                    || "elevator_door".equalsIgnoreCase(curr.getType());
+            boolean currentIsStair = "stair".equalsIgnoreCase(edgeType);
+
+            if (currentIsElevator || currentIsStair || isFloorTransition(prev, curr)) {
+                if (currentIsElevator)
+                    isElevator = true; // If any segment is an elevator, treat the whole transition as one
+                segEnd++;
+            } else {
+                break;
+            }
+        }
+
+        IndoorNode endNode = pathNodes.get(segEnd - 1);
+        int endFloor = floorOf(endNode);
+        int floors = Math.max(1, Math.abs(endFloor - startFloor));
 
         if (isElevator) {
-            steps.add(new IndoorStep("Take the elevator to floor " + floorOf(curr), "ELEVATOR",
-                    0, ELEVATOR_SECONDS_PER_FLOOR * floors, floorOf(prev), floorOf(curr), prev.getId(),
-                    curr.getId()));
+            steps.add(new IndoorStep("Take the elevator to floor " + endFloor, "ELEVATOR",
+                    0, ELEVATOR_SECONDS_PER_FLOOR * floors, startFloor, endFloor, startNode.getId(),
+                    endNode.getId()));
         } else {
-            steps.add(new IndoorStep("Take the stairs to floor " + floorOf(curr), "STAIRS",
-                    0, STAIRS_SECONDS_PER_FLOOR * floors, floorOf(prev), floorOf(curr), prev.getId(),
-                    curr.getId()));
+            steps.add(new IndoorStep("Take the stairs to floor " + endFloor, "STAIRS",
+                    0, STAIRS_SECONDS_PER_FLOOR * floors, startFloor, endFloor, startNode.getId(),
+                    endNode.getId()));
         }
-        return currentIndex + 1;
+        return segEnd;
     }
 
     private int processCorridorSegment(List<IndoorNode> pathNodes, Map<String, IndoorEdge> edgeLookup,

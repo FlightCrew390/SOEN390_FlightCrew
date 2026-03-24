@@ -229,4 +229,54 @@ describe("ShuttleDirectionsBuilder", () => {
     );
     expect(shuttleStep).toBeDefined();
   });
+
+  it("calculates backward time correctly for arrive_by option", async () => {
+    mockGetSchedule.mockResolvedValue(mockSchedule);
+    mockGetRoute.mockResolvedValue(mockShuttleRoute);
+
+    // Walk from shuttle stop takes 10 minutes (600 seconds)
+    const longWalkRoute: RouteInfo = {
+      ...mockWalkRoute,
+      durationSeconds: 600,
+    };
+    mockFetchDirections.mockResolvedValue(longWalkRoute);
+
+    // I want to arrive by 13:00 (1:00 PM) today
+    const departureConfig = {
+      option: "arrive_by" as const,
+      date: new Date(2026, 2, 2, 13, 0, 0),
+    };
+
+    const result = await ShuttleDirectionsBuilder.buildShuttleRoute(
+      loyBuilding.latitude,
+      loyBuilding.longitude,
+      sgwBuilding.latitude,
+      sgwBuilding.longitude,
+      departureConfig,
+      loyBuilding,
+      sgwBuilding,
+    );
+
+    expect(result).not.toBeNull();
+
+    const shuttleStep = result!.steps.find(
+      (s) => s.transitDetails?.vehicleName === "Concordia Shuttle",
+    );
+
+    // Arrival target is 13:00
+    // Walk time from stop is 10m. So latest shuttle arrival is 12:50.
+    // Shuttle duration is 21m. So latest shuttle departure is 12:29.
+    // The closest departure at or before 12:29 from LOY is at "12:00".
+
+    // Check if the shuttle departure matches "12:00"
+    const matchedDepartureTimeString = new Date(
+      shuttleStep!.transitDetails!.departureTime,
+    ).toISOString();
+
+    // Local date parsing inside the builder uses the same target date just updating hours
+    const expectedDepartureTime = new Date(2026, 2, 2, 12, 0, 0);
+    expect(matchedDepartureTimeString).toBe(
+      expectedDepartureTime.toISOString(),
+    );
+  });
 });

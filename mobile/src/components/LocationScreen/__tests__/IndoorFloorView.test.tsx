@@ -6,7 +6,7 @@ import IndoorFloorView from "../IndoorFloorView";
 
 jest.mock("react-native-gesture-handler", () => {
   const React = require("react");
-  const { View } = require("react-native");
+  const { View, TouchableOpacity } = require("react-native");
   return {
     Gesture: {
       Pan: () => ({
@@ -19,6 +19,7 @@ jest.mock("react-native-gesture-handler", () => {
     },
     GestureDetector: ({ children }: { children: React.ReactNode }) =>
       React.createElement(View, { testID: "gesture-detector" }, children),
+    TouchableOpacity: TouchableOpacity,
   };
 });
 
@@ -31,6 +32,7 @@ jest.mock("react-native-svg", () => {
       React.createElement(View, null, children),
     SvgUri: () => React.createElement(View, { testID: "svg-uri" }),
     Polyline: () => React.createElement(View, null),
+    Path: () => React.createElement(View, null),
     Svg: ({ children }: { children: React.ReactNode }) =>
       React.createElement(View, null, children),
   };

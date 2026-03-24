@@ -7,6 +7,7 @@ import {
   getCampusForLocation,
   getCampusForBuilding,
   getNextDeparture,
+  getPreviousDeparture,
   getDayOfWeek,
 } from "../utils/shuttleUtils";
 import type { Building } from "../types/Building";
@@ -49,48 +50,74 @@ export class ShuttleDirectionsBuilder {
     if (!originCampus || !destCampus || originCampus === destCampus)
       return null;
 
-    // Fetch schedule and route in parallel
-    const now =
+    const baseTime =
       departureConfig.option === "now" ? new Date() : departureConfig.date;
-
-    const [schedule, shuttleRoute] = await Promise.all([
-      ShuttleService.getSchedule(getDayOfWeek(now)),
-      ShuttleService.getRoute(),
-    ]);
-
-    if (schedule.no_service) return null;
-
-    // Find next departure from origin campus
-    const nextDep = getNextDeparture(schedule.departures, originCampus, now);
-    if (!nextDep) return null;
 
     // Get shuttle stops
     const originStop = SHUTTLE_STOPS[originCampus];
     const destStop = SHUTTLE_STOPS[destCampus];
 
-    // Fetch walking directions in parallel
-    const [walkToStop, walkFromStop] = await Promise.all([
-      DirectionsService.fetchDirections(
-        originLat,
-        originLng,
-        originStop.latitude,
-        originStop.longitude,
-        "WALK",
-      ),
-      DirectionsService.fetchDirections(
-        destStop.latitude,
-        destStop.longitude,
-        destLat,
-        destLng,
-        "WALK",
-      ),
-    ]);
+    // Fetch schedule, route, and walking directions in parallel
+    const [schedule, shuttleRoute, walkToStop, walkFromStop] =
+      await Promise.all([
+        ShuttleService.getSchedule(getDayOfWeek(baseTime)),
+        ShuttleService.getRoute(),
+        DirectionsService.fetchDirections(
+          originLat,
+          originLng,
+          originStop.latitude,
+          originStop.longitude,
+          "WALK",
+        ),
+        DirectionsService.fetchDirections(
+          destStop.latitude,
+          destStop.longitude,
+          destLat,
+          destLng,
+          "WALK",
+        ),
+      ]);
+
+    if (schedule.no_service) return null;
+
+    let targetDep;
+
+    if (departureConfig.option === "arrive_by") {
+      // Must arrive at destLat, destLng by baseTime
+      // This means arriving at ShuttleStop by baseTime - walkFromStop
+      const walkFromTimeMs = (walkFromStop?.durationSeconds ?? 0) * 1000;
+      // Also account for the shuttle duration
+      const shuttleRideMs = SHUTTLE_DURATION_SECONDS * 1000;
+
+      const maxDepartureTime = new Date(
+        baseTime.getTime() - walkFromTimeMs - shuttleRideMs,
+      );
+
+      targetDep = getPreviousDeparture(
+        schedule.departures,
+        originCampus,
+        maxDepartureTime,
+      );
+    } else {
+      // Must depart from originLat, originLng at baseTime
+      // This means arriving at ShuttleStop by baseTime + walkToStop
+      const walkToTimeMs = (walkToStop?.durationSeconds ?? 0) * 1000;
+      const arrivalAtStop = new Date(baseTime.getTime() + walkToTimeMs);
+
+      targetDep = getNextDeparture(
+        schedule.departures,
+        originCampus,
+        arrivalAtStop,
+      );
+    }
+
+    if (!targetDep) return null;
 
     // Build shuttle leg
     const shuttleLeg = buildShuttleLeg(
       shuttleRoute,
       originCampus,
-      nextDep.departureTime,
+      targetDep.departureTime,
     );
 
     // Compose full route

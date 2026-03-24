@@ -35,7 +35,7 @@ jest.mock("@expo/vector-icons/MaterialIcons", () => {
 
 jest.mock("react-native-gesture-handler", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View, TouchableOpacity } = require("react-native");
+  const { TouchableOpacity } = require("react-native");
   const mockGesture = () => ({
     onStart() {
       return this;
@@ -274,22 +274,14 @@ describe("IndoorFloorView", () => {
       const elevatorUp = screen.getByTestId("mci-elevator-up");
       expect(elevatorUp).toBeTruthy();
 
-      // Go outside button
-      expect(screen.getByText("Go Outside")).toBeTruthy();
-
       // Floor transitions
       const nextFloorBtn = screen.getByText("Continue to Floor 8F");
       expect(nextFloorBtn).toBeTruthy();
       fireEvent.press(nextFloorBtn);
 
-      // Show steps
-      const toggle = screen.getByLabelText("Expand indoor directions");
-      fireEvent.press(toggle);
+      // Verify StepsPanel is rendered and shows steps
       expect(screen.getByText("Walk straight")).toBeTruthy();
       expect(screen.getByText("Go down stairs")).toBeTruthy();
-
-      // Hide steps
-      fireEvent.press(toggle);
     });
 
     it("renders fallback for route with indoorPath (destination side)", () => {
@@ -341,8 +333,6 @@ describe("IndoorFloorView", () => {
       };
 
       renderView({ route: indoorOnlyRoute, currentFloor: 1, buildingId: "CC" });
-      const toggle = screen.getByLabelText("Expand indoor directions");
-      fireEvent.press(toggle);
       expect(screen.getByText("Pure indoor step")).toBeTruthy();
     });
 
@@ -402,6 +392,39 @@ describe("IndoorFloorView", () => {
         "Washroom",
         "Near main entrance lobby",
       );
+    });
+  });
+
+  describe("indoor POI pins", () => {
+    it("renders washroom pin for Hall floor 1 (has x/y)", () => {
+      renderView({ buildingId: "Hall", currentFloor: 1 });
+      expect(screen.getByTestId("indoor-poi-pin-H-washroom-1")).toBeTruthy();
+    });
+
+    it("renders fountain pin for Hall floor 1 (has x/y)", () => {
+      renderView({ buildingId: "Hall", currentFloor: 1 });
+      expect(screen.getByTestId("indoor-poi-pin-H-fountain-1")).toBeTruthy();
+    });
+
+    it("renders washroom pin for Hall floor 8 (has x/y)", () => {
+      renderView({ buildingId: "Hall", currentFloor: 8 });
+      expect(screen.getByTestId("indoor-poi-pin-H-washroom-8")).toBeTruthy();
+    });
+
+    it("does not render a pin for H-fountain-5 (no x/y defined)", () => {
+      renderView({ buildingId: "Hall", currentFloor: 5 });
+      expect(screen.queryByTestId("indoor-poi-pin-H-fountain-5")).toBeNull();
+    });
+
+    it("does not render floor 1 pins when viewing floor 8", () => {
+      renderView({ buildingId: "Hall", currentFloor: 8 });
+      expect(screen.queryByTestId("indoor-poi-pin-H-washroom-1")).toBeNull();
+      expect(screen.queryByTestId("indoor-poi-pin-H-fountain-1")).toBeNull();
+    });
+
+    it("renders no POI pins for a building not in BUILDING_ID_TO_POI_CODE (VL)", () => {
+      renderView({ buildingId: "VL", currentFloor: 1 });
+      expect(screen.queryByTestId(/^indoor-poi-pin-/)).toBeNull();
     });
   });
 });

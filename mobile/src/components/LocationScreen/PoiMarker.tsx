@@ -11,6 +11,7 @@ interface PoiMarkerProps {
   readonly isDirectionsOpen?: boolean;
   readonly onPress?: () => void;
   readonly onDirectionPress?: () => void;
+  readonly testID?: string;
 }
 
 /** Pure SVG paths for each POI category — rendered inside the marker circle. */

@@ -77,6 +77,7 @@ export function useMapUI(
   const routePreviews = useRoutePreviews({
     destination: state.selectedBuilding,
     startBuilding: state.startBuilding,
+    startRoom: state.startRoom,
     userLocation: userCoords,
     departureConfig: state.departureConfig,
     active: state.panel === "directions" || state.panel === "room-info",

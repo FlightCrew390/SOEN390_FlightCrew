@@ -1,9 +1,8 @@
 import { useEffect, useRef } from "react";
 import { DirectionsService } from "../services/DirectionsService";
-import { ShuttleDirectionsBuilder } from "../services/ShuttleDirectionsBuilder";
 import { IndoorPathfindingService } from "../services/IndoorPathfindingService";
+import { ShuttleDirectionsBuilder } from "../services/ShuttleDirectionsBuilder";
 import { Building } from "../types/Building";
-import { IndoorRoom } from "../types/IndoorRoom";
 import {
   DepartureTimeConfig,
   RouteInfo,
@@ -11,6 +10,8 @@ import {
   TRAVEL_MODE,
   TravelMode,
 } from "../types/Directions";
+import { IndoorRoom } from "../types/IndoorRoom";
+import { getDirectionOriginCoords } from "../utils/directionsUtils";
 
 const getEdgeNodes = (bId: string, IndoorDataService: any) => {
   const nodes = IndoorDataService.getAllNodes();
@@ -293,8 +294,13 @@ export function useDirections({
     if (!active || !destination || travelMode == null) return;
 
     // Determine the origin coordinates
-    const originLat = startBuilding?.latitude ?? userLocation?.latitude;
-    const originLng = startBuilding?.longitude ?? userLocation?.longitude;
+    const originCoords = getDirectionOriginCoords(
+      startBuilding,
+      startRoom,
+      userLocation,
+    );
+    const originLat = originCoords?.latitude;
+    const originLng = originCoords?.longitude;
 
     if (originLat == null || originLng == null) return;
 

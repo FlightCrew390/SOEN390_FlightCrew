@@ -21,8 +21,9 @@ export const useCurrentLocation = () => {
       try {
         // Request permissions
         const { status } = await Location.requestForegroundPermissionsAsync();
-        if (!isMounted) return;
 
+        // Denial must always clear the loading state, even if the component
+        // unmounted while the system dialog was open (e.g. app backgrounded).
         if (status !== "granted") {
           setState({
             location: null,
@@ -32,6 +33,8 @@ export const useCurrentLocation = () => {
           });
           return;
         }
+
+        if (!isMounted) return;
 
         // Get current position
         const location = await Location.getCurrentPositionAsync({

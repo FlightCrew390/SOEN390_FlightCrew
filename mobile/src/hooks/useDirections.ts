@@ -80,6 +80,8 @@ async function fetchIndoorDeparturePath(startRoom: IndoorRoom) {
         instruction: s.instruction,
         maneuver: s.maneuver,
         coordinates: [],
+        startFloor: s.startFloor,
+        endFloor: s.endFloor,
       })) as StepInfo[],
     };
   } else if (exitNodes.length > 0) {
@@ -147,6 +149,8 @@ async function fetchIndoorArrivalPath(destinationRoom: IndoorRoom) {
         instruction: s.instruction,
         maneuver: s.maneuver,
         coordinates: [],
+        startFloor: s.startFloor,
+        endFloor: s.endFloor,
       })) as StepInfo[],
     };
   } else if (entryNodes.length > 0) {
@@ -260,6 +264,8 @@ export function useDirections({
             instruction: s.instruction,
             maneuver: s.maneuver,
             coordinates: [],
+            startFloor: s.startFloor,
+            endFloor: s.endFloor,
           })),
           indoorPath: indoorRes.path,
         } as RouteInfo;

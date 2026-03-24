@@ -250,6 +250,8 @@ describe("IndoorFloorView", () => {
           maneuver: "STRAIGHT",
           durationSeconds: 5,
           coordinates: [],
+          startFloor: 9,
+          endFloor: 9,
         },
         {
           instruction: "Go down stairs",
@@ -257,6 +259,8 @@ describe("IndoorFloorView", () => {
           maneuver: "TURN_RIGHT",
           durationSeconds: 5,
           coordinates: [],
+          startFloor: 9,
+          endFloor: 8,
         },
       ],
     };
@@ -274,22 +278,36 @@ describe("IndoorFloorView", () => {
       const elevatorUp = screen.getByTestId("mci-elevator-up");
       expect(elevatorUp).toBeTruthy();
 
-      // Go outside button
-      expect(screen.getByText("Go Outside")).toBeTruthy();
+      // Floor transitions buttons are GONE
+      expect(screen.queryByText("Continue to Floor 8F")).toBeNull();
+    });
 
-      // Floor transitions
-      const nextFloorBtn = screen.getByText("Continue to Floor 8F");
-      expect(nextFloorBtn).toBeTruthy();
-      fireEvent.press(nextFloorBtn);
+    it("triggers floor change when a step with different floor is pressed", () => {
+      // Test step click triggers floor change
+      const onFloorChange = jest.fn();
+      renderView({
+        route: {
+          ...mockRoute,
+          steps: [
+            { instruction: "Step 1", startFloor: 9, endFloor: 9 } as any,
+            {
+              instruction: "Go down stairs",
+              startFloor: 9,
+              endFloor: 8,
+            } as any,
+          ],
+        },
+        currentFloor: 9,
+        buildingId: "Hall",
+        onFloorChange,
+      });
 
-      // Show steps
-      const toggle = screen.getByLabelText("Expand indoor directions");
-      fireEvent.press(toggle);
-      expect(screen.getByText("Walk straight")).toBeTruthy();
-      expect(screen.getByText("Go down stairs")).toBeTruthy();
+      // Find step and press it (it's in the StepsPanel)
+      fireEvent.press(screen.getByText("Go down stairs"));
 
-      // Hide steps
-      fireEvent.press(toggle);
+      // It might be called once for initial sync (if startFloor != currentFloor)
+      // and once for the press.
+      expect(onFloorChange).toHaveBeenCalledWith(8);
     });
 
     it("renders fallback for route with indoorPath (destination side)", () => {
@@ -307,11 +325,8 @@ describe("IndoorFloorView", () => {
         buildingId: "Hall",
       });
 
-      expect(screen.getByText("Back to Floor 9F")).toBeTruthy();
-
-      // Click transition button
-      fireEvent.press(screen.getByText("Back to Floor 9F"));
-      expect(props.onFloorChange).toHaveBeenCalledWith(9);
+      // Old buttons are gone
+      expect(screen.queryByText("Back to Floor 9F")).toBeNull();
     });
 
     it("renders pure indoor route steps", () => {
@@ -341,8 +356,7 @@ describe("IndoorFloorView", () => {
       };
 
       renderView({ route: indoorOnlyRoute, currentFloor: 1, buildingId: "CC" });
-      const toggle = screen.getByLabelText("Expand indoor directions");
-      fireEvent.press(toggle);
+      // Steps are shown automatically now, no toggle
       expect(screen.getByText("Pure indoor step")).toBeTruthy();
     });
 
@@ -374,7 +388,8 @@ describe("IndoorFloorView", () => {
         onFloorChange: jest.fn(),
       });
 
-      expect(screen.getByText("Continue to Floor S2")).toBeTruthy();
+      // Buttons are gone
+      expect(screen.queryByText("Continue to Floor S2")).toBeNull();
     });
 
     it("handles SvgUri onError", () => {

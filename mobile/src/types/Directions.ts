@@ -96,6 +96,8 @@ export interface StepInfo {
   maneuver: string;
   coordinates: { latitude: number; longitude: number }[];
   transitDetails?: TransitStepDetails;
+  startFloor?: number;
+  endFloor?: number;
 }
 
 /** Parsed transit details for a transit step */

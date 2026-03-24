@@ -232,7 +232,7 @@ export function mapUIReducer(
       };
 
     case "OPEN_STEPS":
-      return { ...state, panel: "steps", indoorFloor: null };
+      return { ...state, panel: "steps" };
 
     case "CLOSE_STEPS":
       return { ...state, panel: "directions" };

@@ -516,7 +516,7 @@ export default function IndoorFloorView({
   route,
   hideSteps = false,
 }: Readonly<IndoorFloorViewProps>) {
-  const [stepsExpanded, setStepsExpanded] = useState(false);
+  const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [amenityOpen, setAmenityOpen] = useState(false);
   const [selectedAmenities, setSelectedAmenities] = useState<
     Set<IndoorPoiCategory>
@@ -550,6 +550,18 @@ export default function IndoorFloorView({
     }
     return null;
   }, [route, buildingId]);
+
+  // Sync initial floor to start of route if needed
+  useEffect(() => {
+    if (activeIndoorPath && activeIndoorPath.length > 0) {
+      const startFloor = activeIndoorPath[0].floor;
+      if (startFloor !== currentFloor) {
+        onFloorChange(startFloor);
+      }
+    }
+    // Only run once when route/path is first available for this building
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!activeIndoorPath]);
 
   const indoorSteps = useMemo(() => {
     if (!route) return [];
@@ -605,6 +617,18 @@ export default function IndoorFloorView({
     };
   }, [route, currentFloor, activeIndoorPath]);
 
+  const handleStepPress = (index: number) => {
+    setActiveStepIndex(index);
+    const step = indoorSteps[index];
+    if (step) {
+      // If it's an indoor step with floor info, sync the floor view
+      const targetFloor = step.endFloor ?? step.startFloor;
+      if (typeof targetFloor === "number" && targetFloor !== currentFloor) {
+        onFloorChange(targetFloor);
+      }
+    }
+  };
+
   const buildingLabel =
     building.buildingName ?? BUILDING_NAMES[buildingId] ?? buildingId;
 
@@ -642,6 +666,8 @@ export default function IndoorFloorView({
             destinationRoom={
               selectedRoom?.floor === currentFloor ? selectedRoom : null
             }
+            activeStepIndex={activeStepIndex}
+            onStepPress={handleStepPress}
           />
         )}
 
@@ -867,76 +893,6 @@ export default function IndoorFloorView({
             </View>
           )}
         </View>
-
-        {/* Floor Transitions */}
-        {(nextFloors.length > 0 || prevFloors.length > 0) && (
-          <View
-            style={{
-              position: "absolute",
-              bottom: 60,
-              alignSelf: "center",
-              flexDirection: "row",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              gap: 10,
-              zIndex: 40,
-              paddingHorizontal: 20,
-            }}
-          >
-            {prevFloors.map((tFloor) => (
-              <Pressable
-                key={`prev-${tFloor}`}
-                onPress={() => onFloorChange(tFloor)}
-                style={{
-                  backgroundColor: "#fff",
-                  paddingHorizontal: 20,
-                  paddingVertical: 14,
-                  borderRadius: 25,
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 4,
-                  elevation: 5,
-                  borderWidth: 1,
-                  borderColor: COLORS.concordiaMaroon,
-                }}
-              >
-                <Text
-                  style={{
-                    color: COLORS.concordiaMaroon,
-                    fontWeight: "bold",
-                    fontSize: 16,
-                  }}
-                >
-                  Back to Floor {getFloorLabel(buildingId, tFloor)}
-                </Text>
-              </Pressable>
-            ))}
-            {nextFloors.map((tFloor) => (
-              <Pressable
-                key={`next-${tFloor}`}
-                onPress={() => onFloorChange(tFloor)}
-                style={{
-                  backgroundColor: COLORS.concordiaMaroon,
-                  paddingHorizontal: 20,
-                  paddingVertical: 14,
-                  borderRadius: 25,
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 4,
-                  elevation: 5,
-                }}
-              >
-                <Text
-                  style={{ color: "white", fontWeight: "bold", fontSize: 16 }}
-                >
-                  Continue to Floor {getFloorLabel(buildingId, tFloor)}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        )}
 
         {/* Outdoor toggle */}
         {!route && (

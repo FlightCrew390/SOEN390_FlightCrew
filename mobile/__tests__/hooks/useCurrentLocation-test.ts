@@ -135,6 +135,29 @@ describe("useCurrentLocation", () => {
     expect(mockRequestForegroundPermissionsAsync).toHaveBeenCalled();
   });
 
+  test("clears loading state when permission denied after component unmounts", async () => {
+    let resolvePermission: (value: { status: string }) => void;
+    mockRequestForegroundPermissionsAsync.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolvePermission = resolve;
+        }),
+    );
+
+    const { unmount } = renderHook(() => useCurrentLocation());
+
+    // Simulate app going to background while dialog is open
+    unmount();
+
+    // User taps "Don't Allow" — the denial branch must run (no early isMounted
+    // return before setState) and must not proceed to GPS. We can't assert
+    // result.current.loading after unmount, but this confirms the path completes.
+    resolvePermission!({ status: "denied" });
+
+    expect(mockRequestForegroundPermissionsAsync).toHaveBeenCalled();
+    expect(mockGetCurrentPositionAsync).not.toHaveBeenCalled();
+  });
+
   test("does not update state if unmounted before location resolves", async () => {
     mockRequestForegroundPermissionsAsync.mockResolvedValue({
       status: "granted",

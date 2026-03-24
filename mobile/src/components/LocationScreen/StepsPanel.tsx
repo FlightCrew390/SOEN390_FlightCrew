@@ -18,6 +18,8 @@ import {
 } from "../../utils/formatHelper";
 import TransitBadge from "./TransitBadge";
 
+import { getFloorLabel } from "./IndoorFloorView";
+
 interface StepsPanelProps {
   readonly building: Building;
   readonly startBuilding?: Building | null;
@@ -28,6 +30,8 @@ interface StepsPanelProps {
   readonly destinationRoom?: IndoorRoom | null;
   readonly onOpenStartIndoor?: () => void;
   readonly onOpenIndoor?: () => void;
+  readonly isIndoor?: boolean;
+  readonly stepsOverride?: StepInfo[];
 }
 
 export default function StepsPanel({
@@ -40,7 +44,10 @@ export default function StepsPanel({
   destinationRoom,
   onOpenStartIndoor,
   onOpenIndoor,
+  isIndoor = false,
+  stepsOverride,
 }: Readonly<StepsPanelProps>) {
+  const stepsToDisplay = stepsOverride ?? route.steps;
   const distanceText =
     route.distanceText ?? formatDistance(route.distanceMeters);
   const initialDeparture = getDepartureDate(
@@ -48,12 +55,27 @@ export default function StepsPanel({
     route.durationSeconds,
   );
   const { visibleSteps, stepTimes, departureDate, arrivalDate } =
-    computeStepTimeline(route.steps, initialDeparture);
+    computeStepTimeline(stepsToDisplay, initialDeparture);
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        isIndoor && {
+          bottom: undefined,
+          height: "35%",
+          borderBottomLeftRadius: 16,
+          borderBottomRightRadius: 16,
+        },
+      ]}
+    >
       {/* Header with building info and back chevron */}
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          isIndoor && { backgroundColor: "#d0d0d0", paddingTop: 50 },
+        ]}
+      >
         <Pressable
           style={styles.backButton}
           onPress={onBack}
@@ -72,38 +94,46 @@ export default function StepsPanel({
             {building.buildingName ?? building.buildingCode}
           </Text>
           <Text style={styles.buildingAddress} numberOfLines={2}>
-            {building.address ?? ""}
+            {isIndoor
+              ? `Indoor Directions · Floor ${getFloorLabel(building.buildingCode, destinationRoom?.floor ?? 1)}`
+              : (building.address ?? "")}
           </Text>
         </View>
 
-        <Text style={styles.distanceText}>{distanceText}</Text>
+        {!isIndoor && <Text style={styles.distanceText}>{distanceText}</Text>}
       </View>
 
-      {/* Departure & arrival summary */}
-      <View style={styles.timeSummaryRow}>
-        <View style={styles.timeSummaryItem}>
-          <FontAwesome5 name="clock" size={13} color={COLORS.concordiaMaroon} />
-          <Text style={styles.timeSummaryLabel}>Depart</Text>
-          <Text style={styles.timeSummaryValue}>
-            {formatDateTime(departureDate)}
-          </Text>
+      {/* Departure & arrival summary - Hide for indoor */}
+      {!isIndoor && (
+        <View style={styles.timeSummaryRow}>
+          <View style={styles.timeSummaryItem}>
+            <FontAwesome5
+              name="clock"
+              size={13}
+              color={COLORS.concordiaMaroon}
+            />
+            <Text style={styles.timeSummaryLabel}>Depart</Text>
+            <Text style={styles.timeSummaryValue}>
+              {formatDateTime(departureDate)}
+            </Text>
+          </View>
+          <View style={styles.timeSummaryDivider} />
+          <View style={styles.timeSummaryItem}>
+            <FontAwesome5 name="flag-checkered" size={13} color="#555" />
+            <Text style={styles.timeSummaryLabel}>Arrive</Text>
+            <Text style={styles.timeSummaryValue}>
+              {formatDateTime(arrivalDate)}
+            </Text>
+          </View>
+          <View style={styles.timeSummaryDivider} />
+          <View style={styles.timeSummaryItem}>
+            <MaterialIcons name="timer" size={15} color="#555" />
+            <Text style={styles.timeSummaryValue}>
+              {route.durationText ?? formatDuration(route.durationSeconds)}
+            </Text>
+          </View>
         </View>
-        <View style={styles.timeSummaryDivider} />
-        <View style={styles.timeSummaryItem}>
-          <FontAwesome5 name="flag-checkered" size={13} color="#555" />
-          <Text style={styles.timeSummaryLabel}>Arrive</Text>
-          <Text style={styles.timeSummaryValue}>
-            {formatDateTime(arrivalDate)}
-          </Text>
-        </View>
-        <View style={styles.timeSummaryDivider} />
-        <View style={styles.timeSummaryItem}>
-          <MaterialIcons name="timer" size={15} color="#555" />
-          <Text style={styles.timeSummaryValue}>
-            {route.durationText ?? formatDuration(route.durationSeconds)}
-          </Text>
-        </View>
-      </View>
+      )}
 
       {/* Step-by-step directions */}
       <ScrollView
@@ -112,7 +142,7 @@ export default function StepsPanel({
         showsVerticalScrollIndicator
         onStartShouldSetResponder={() => true}
       >
-        {startBuilding && (
+        {startBuilding && !isIndoor && (
           <View
             key={`step-start-${startBuilding.buildingCode}`}
             style={styles.stepRow}
@@ -163,9 +193,11 @@ export default function StepsPanel({
             style={[styles.stepRow, idx % 2 === 0 && styles.stepRowOdd]}
           >
             <View style={styles.stepContent}>
-              <Text style={styles.stepTimestamp}>
-                {formatDateTime(stepTimes[idx])}
-              </Text>
+              {!isIndoor && (
+                <Text style={styles.stepTimestamp}>
+                  {formatDateTime(stepTimes[idx])}
+                </Text>
+              )}
               <Text style={styles.stepInstruction}>{step.instruction}</Text>
               <Text style={styles.stepMeta}>
                 {formatDistance(step.distanceMeters)}
@@ -185,55 +217,57 @@ export default function StepsPanel({
           </View>
         ))}
 
-        {/* Arrival row */}
-        <View style={styles.stepRow}>
-          <View style={styles.stepContent}>
-            <Text style={styles.stepTimestamp}>
-              {formatDateTime(arrivalDate)}
-            </Text>
-            <Text style={styles.stepInstruction}>
-              Arrive at {building.buildingName ?? building.buildingCode}
-            </Text>
-            {destinationRoom && onOpenIndoor && (
-              <Pressable
-                style={{
-                  marginTop: 12,
-                  backgroundColor: COLORS.concordiaMaroon,
-                  paddingVertical: 10,
-                  paddingHorizontal: 16,
-                  borderRadius: 8,
-                  alignSelf: "flex-start",
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-                onPress={onOpenIndoor}
-                accessibilityLabel="Show Indoor Map"
-                accessibilityRole="button"
-              >
-                <MaterialIcons
-                  name="map"
-                  size={18}
-                  color={COLORS.white}
-                  style={{ marginRight: 6 }}
-                />
-                <Text
+        {/* Arrival row - Hide for indoor or adjust */}
+        {!isIndoor && (
+          <View style={styles.stepRow}>
+            <View style={styles.stepContent}>
+              <Text style={styles.stepTimestamp}>
+                {formatDateTime(arrivalDate)}
+              </Text>
+              <Text style={styles.stepInstruction}>
+                Arrive at {building.buildingName ?? building.buildingCode}
+              </Text>
+              {destinationRoom && onOpenIndoor && (
+                <Pressable
                   style={{
-                    color: COLORS.white,
-                    fontWeight: "600",
-                    fontSize: 14,
+                    marginTop: 12,
+                    backgroundColor: COLORS.concordiaMaroon,
+                    paddingVertical: 10,
+                    paddingHorizontal: 16,
+                    borderRadius: 8,
+                    alignSelf: "flex-start",
+                    flexDirection: "row",
+                    alignItems: "center",
                   }}
+                  onPress={onOpenIndoor}
+                  accessibilityLabel="Show Indoor Map"
+                  accessibilityRole="button"
                 >
-                  Show Indoor Map
-                </Text>
-              </Pressable>
-            )}
+                  <MaterialIcons
+                    name="map"
+                    size={18}
+                    color={COLORS.white}
+                    style={{ marginRight: 6 }}
+                  />
+                  <Text
+                    style={{
+                      color: COLORS.white,
+                      fontWeight: "600",
+                      fontSize: 14,
+                    }}
+                  >
+                    Show Indoor Map
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+            <MaterialIcons
+              name="place"
+              size={42}
+              color={COLORS.concordiaMaroon}
+            />
           </View>
-          <MaterialIcons
-            name="place"
-            size={42}
-            color={COLORS.concordiaMaroon}
-          />
-        </View>
+        )}
       </ScrollView>
     </View>
   );

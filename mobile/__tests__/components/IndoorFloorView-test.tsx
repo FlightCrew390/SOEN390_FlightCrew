@@ -77,6 +77,7 @@ jest.mock("react-native-svg", () => {
     Svg,
     Polyline: (props: any) => <Text testID="svg-polyline">{props.points}</Text>,
     SvgUri: (props: any) => <Text testID="svg-uri">{props.uri}</Text>,
+    Path: (props: any) => <View testID="svg-path" {...props} />,
   };
 });
 

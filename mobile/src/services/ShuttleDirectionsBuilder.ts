@@ -80,81 +80,16 @@ export class ShuttleDirectionsBuilder {
 
     if (schedule.no_service) return null;
 
-    let targetDep;
-
-    if (departureConfig.option === "arrive_by") {
-      // Must arrive at destLat, destLng by baseTime
-      // This means arriving at ShuttleStop by baseTime - walkFromStop
-      const walkFromTimeMs = (walkFromStop?.durationSeconds ?? 0) * 1000;
-      // Also account for the shuttle duration
-      const shuttleRideMs = SHUTTLE_DURATION_SECONDS * 1000;
-
-      const maxDepartureTime = new Date(
-        baseTime.getTime() - walkFromTimeMs - shuttleRideMs,
-      );
-
-      targetDep = getPreviousDeparture(
-        schedule.departures,
-        originCampus,
-        maxDepartureTime,
-      );
-
-      // Check wait time: If the departure is more than 30 mins before the maxDepartureTime, reject
-      if (targetDep) {
-        const waitTimeMs =
-          maxDepartureTime.getTime() - targetDep.departureTime.getTime();
-        if (waitTimeMs > 30 * 60 * 1000) {
-          return null;
-        }
-      }
-    } else {
-      // Must depart from originLat, originLng at baseTime
-      // This means arriving at ShuttleStop by baseTime + walkToStop
-      const walkToTimeMs = (walkToStop?.durationSeconds ?? 0) * 1000;
-      const arrivalAtStop = new Date(baseTime.getTime() + walkToTimeMs);
-
-      targetDep = getNextDeparture(
-        schedule.departures,
-        originCampus,
-        arrivalAtStop,
-      );
-
-      // Check wait time: If the departure is more than 30 mins after we arrive at the stop, reject
-      if (targetDep) {
-        const waitTimeMs =
-          targetDep.departureTime.getTime() - arrivalAtStop.getTime();
-        if (waitTimeMs > 30 * 60 * 1000) {
-          return null;
-        }
-      }
-    }
+    const { targetDep, waitTimeSeconds } = calculateTargetDeparture(
+      departureConfig,
+      baseTime,
+      schedule,
+      originCampus,
+      walkToStop,
+      walkFromStop,
+    );
 
     if (!targetDep) return null;
-
-    let waitTimeSeconds = 0;
-    if (departureConfig.option === "arrive_by") {
-      const walkFromTimeMs = (walkFromStop?.durationSeconds ?? 0) * 1000;
-      const shuttleRideMs = SHUTTLE_DURATION_SECONDS * 1000;
-      const maxDepartureTime = new Date(
-        baseTime.getTime() - walkFromTimeMs - shuttleRideMs,
-      );
-      waitTimeSeconds = Math.max(
-        0,
-        Math.floor(
-          (maxDepartureTime.getTime() - targetDep.departureTime.getTime()) /
-            1000,
-        ),
-      );
-    } else {
-      const walkToTimeMs = (walkToStop?.durationSeconds ?? 0) * 1000;
-      const arrivalAtStop = new Date(baseTime.getTime() + walkToTimeMs);
-      waitTimeSeconds = Math.max(
-        0,
-        Math.floor(
-          (targetDep.departureTime.getTime() - arrivalAtStop.getTime()) / 1000,
-        ),
-      );
-    }
 
     // Build shuttle leg
     const shuttleLeg = buildShuttleLeg(
@@ -167,6 +102,61 @@ export class ShuttleDirectionsBuilder {
     // Compose full route
     return composeRoute(walkToStop, shuttleLeg, walkFromStop, waitTimeSeconds);
   }
+}
+
+function calculateTargetDeparture(
+  departureConfig: DepartureTimeConfig,
+  baseTime: Date,
+  schedule: any,
+  originCampus: ShuttleCampus,
+  walkToStop: RouteInfo | null,
+  walkFromStop: RouteInfo | null,
+) {
+  let targetDep;
+  let waitTimeSeconds = 0;
+
+  if (departureConfig.option === "arrive_by") {
+    const walkFromTimeMs = (walkFromStop?.durationSeconds ?? 0) * 1000;
+    const shuttleRideMs = SHUTTLE_DURATION_SECONDS * 1000;
+    const maxDepartureTime = new Date(
+      baseTime.getTime() - walkFromTimeMs - shuttleRideMs,
+    );
+
+    targetDep = getPreviousDeparture(
+      schedule.departures,
+      originCampus,
+      maxDepartureTime,
+    );
+
+    if (targetDep) {
+      const waitTimeMs =
+        maxDepartureTime.getTime() - targetDep.departureTime.getTime();
+      if (waitTimeMs > 30 * 60 * 1000) {
+        return { targetDep: null, waitTimeSeconds: 0 };
+      }
+      waitTimeSeconds = Math.max(0, Math.floor(waitTimeMs / 1000));
+    }
+  } else {
+    const walkToTimeMs = (walkToStop?.durationSeconds ?? 0) * 1000;
+    const arrivalAtStop = new Date(baseTime.getTime() + walkToTimeMs);
+
+    targetDep = getNextDeparture(
+      schedule.departures,
+      originCampus,
+      arrivalAtStop,
+    );
+
+    if (targetDep) {
+      const waitTimeMs =
+        targetDep.departureTime.getTime() - arrivalAtStop.getTime();
+      if (waitTimeMs > 30 * 60 * 1000) {
+        return { targetDep: null, waitTimeSeconds: 0 };
+      }
+      waitTimeSeconds = Math.max(0, Math.floor(waitTimeMs / 1000));
+    }
+  }
+
+  return { targetDep, waitTimeSeconds };
 }
 
 /**

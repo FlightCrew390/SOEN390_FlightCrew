@@ -50,14 +50,12 @@ export default function DepartureTimePicker({
   };
 
   const handleDateTimeChange = (event: DateTimePickerEvent, date?: Date) => {
-    if (Platform.OS !== "ios") {
+    if (Platform.OS === "ios" && date) {
+      setTempDate(date);
+    } else if (Platform.OS !== "ios") {
       dispatch({ type: "HIDE_PICKER" });
       if (event.type === "set" && date) {
         onConfigChange({ ...config, date });
-      }
-    } else {
-      if (date) {
-        setTempDate(date);
       }
     }
   };

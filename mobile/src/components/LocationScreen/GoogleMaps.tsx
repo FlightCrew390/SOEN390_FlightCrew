@@ -1,6 +1,6 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
 import React, { useEffect, useRef } from "react";
-import { Platform, View } from "react-native";
+import { Alert, Platform, View } from "react-native";
 import MapView, { PROVIDER_DEFAULT, PROVIDER_GOOGLE } from "react-native-maps";
 import { MAP_CONFIG } from "../../constants";
 import { useBuildings } from "../../contexts/BuildingContext";
@@ -218,8 +218,14 @@ export default function GoogleMaps({
             isDirectionsOpen={
               state.panel === "directions" || state.panel === "steps"
             }
-            onPress={() => onPoiDirectionPress(state.selectedPoi!)}
+            onPress={() => {
+              Alert.alert(
+                state.selectedPoi!.name,
+                state.selectedPoi!.description,
+              );
+            }}
             onDirectionPress={() => onPoiDirectionPress(state.selectedPoi!)}
+            testID="poi-marker"
           />
         )}
       </MapView>

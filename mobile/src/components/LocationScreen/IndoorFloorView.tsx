@@ -1,16 +1,28 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useEffect, useMemo, useReducer, useState } from "react";
-import { Image, Pressable, ScrollView, Text, View } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-/* eslint-disable import/no-unresolved */
+import {
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import {
+  Gesture,
+  GestureDetector,
+  TouchableOpacity as GHTouchableOpacity,
+} from "react-native-gesture-handler";
+
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-/* eslint-enable import/no-unresolved */
+
 import { SafeAreaView } from "react-native-safe-area-context";
-import Svg, { SvgUri, Polyline } from "react-native-svg";
+import Svg, { SvgUri, Polyline, Path } from "react-native-svg";
 import { API_CONFIG, COLORS } from "../../constants";
 import {
   floorPlanAssetReducer,
@@ -111,17 +123,36 @@ const PIN_BASE_STYLE = {
   elevation: 3,
 };
 
+function CustomAmenitySelectorIcon({
+  size = 30,
+  color = COLORS.concordiaMaroon,
+}: {
+  size?: number;
+  color?: string;
+}) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path d="M12 4L15.5 7.5L12 11L8.5 7.5Z" fill={color} />
+      <Path d="M12 13L15.5 16.5L12 20L8.5 16.5Z" fill={color} />
+      <Path d="M7.5 8.5L11 12L7.5 15.5L4 12Z" fill={color} />
+      <Path d="M16.5 8.5L20 12L16.5 15.5L13 12Z" fill={color} />
+    </Svg>
+  );
+}
+
 function ZoomableFloorPlan({
   buildingId,
   floor,
   selectedRoom,
   route,
+  selectedAmenities,
   onFloorChange,
 }: Readonly<{
   buildingId: string;
   floor: number;
   selectedRoom?: IndoorRoom | null;
   route?: RouteInfo | null;
+  selectedAmenities: Set<IndoorPoiCategory>;
   onFloorChange: (floor: number) => void;
 }>) {
   const activeIndoorPath = useMemo(() => {
@@ -309,9 +340,13 @@ function ZoomableFloorPlan({
     const code = BUILDING_ID_TO_POI_CODE[buildingId];
     if (!code) return [];
     return getIndoorPoisForBuilding(code).filter(
-      (poi) => poi.floor === floor && poi.x != null && poi.y != null,
+      (poi) =>
+        poi.floor === floor &&
+        poi.x != null &&
+        poi.y != null &&
+        selectedAmenities.has(poi.category),
     );
-  }, [buildingId, floor]);
+  }, [buildingId, floor, selectedAmenities]);
 
   const renderIndoorPois = () =>
     indoorPois.map((poi) => {
@@ -320,9 +355,6 @@ function ZoomableFloorPlan({
       return (
         <View
           key={poi.id}
-          testID={`indoor-poi-pin-${poi.id}`}
-          accessibilityLabel={poi.name}
-          accessibilityRole="image"
           style={{
             ...PIN_BASE_STYLE,
             left: `${((mapped.x - viewBoxInfo.minX) / viewBoxInfo.width) * 100}%`,
@@ -331,7 +363,16 @@ function ZoomableFloorPlan({
             zIndex: 35,
           }}
         >
-          <MaterialCommunityIcons name={iconName} size={16} color="white" />
+          <GHTouchableOpacity
+            testID={`indoor-poi-pin-${poi.id}`}
+            accessibilityLabel={poi.name}
+            accessibilityRole="button"
+            onPress={() => {
+              Alert.alert(poi.name, poi.description);
+            }}
+          >
+            <MaterialCommunityIcons name={iconName} size={16} color="white" />
+          </GHTouchableOpacity>
         </View>
       );
     });
@@ -473,6 +514,22 @@ export default function IndoorFloorView({
   route,
 }: Readonly<IndoorFloorViewProps>) {
   const [stepsExpanded, setStepsExpanded] = useState(false);
+  const [amenityOpen, setAmenityOpen] = useState(false);
+  const [selectedAmenities, setSelectedAmenities] = useState<
+    Set<IndoorPoiCategory>
+  >(new Set(["washroom", "fountain", "stairs", "elevator"]));
+
+  const toggleAmenity = (category: IndoorPoiCategory) => {
+    setSelectedAmenities((prev) => {
+      const next = new Set(prev);
+      if (next.has(category)) {
+        next.delete(category);
+      } else {
+        next.add(category);
+      }
+      return next;
+    });
+  };
 
   const activeIndoorPath = useMemo(() => {
     if (!route) return null;
@@ -630,15 +687,16 @@ export default function IndoorFloorView({
           floor={currentFloor}
           selectedRoom={selectedRoom}
           route={route}
+          selectedAmenities={selectedAmenities}
           onFloorChange={onFloorChange}
         />
 
-        {/* Floor selector */}
+        {/* Floor selector (Moved to Left) */}
         <View
           style={{
             position: "absolute",
             top: 12,
-            right: 12,
+            left: 12,
             alignItems: "center",
             zIndex: 30,
           }}
@@ -716,6 +774,85 @@ export default function IndoorFloorView({
                   </Pressable>
                 ))}
               </ScrollView>
+            </View>
+          )}
+        </View>
+
+        {/* Amenity selector (New, on Right) */}
+        <View
+          style={{
+            position: "absolute",
+            top: 12,
+            right: 12,
+            alignItems: "center",
+            zIndex: 30,
+          }}
+        >
+          <Pressable
+            onPress={() => setAmenityOpen(!amenityOpen)}
+            style={{
+              width: 60,
+              height: 60,
+              borderRadius: 30,
+              backgroundColor: "#fff",
+              alignItems: "center",
+              justifyContent: "center",
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.2,
+              shadowRadius: 3,
+              elevation: 4,
+            }}
+            accessibilityLabel="Filter amenities"
+            accessibilityRole="button"
+          >
+            <CustomAmenitySelectorIcon size={38} />
+          </Pressable>
+
+          {amenityOpen && (
+            <View
+              style={{
+                marginTop: 8,
+                backgroundColor: "#fff",
+                borderRadius: 14,
+                overflow: "hidden",
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
+                elevation: 6,
+              }}
+            >
+              {(
+                [
+                  "washroom",
+                  "fountain",
+                  "stairs",
+                  "elevator",
+                ] as IndoorPoiCategory[]
+              ).map((cat) => (
+                <Pressable
+                  key={cat}
+                  onPress={() => toggleAmenity(cat)}
+                  style={{
+                    width: 60,
+                    height: 60,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: selectedAmenities.has(cat)
+                      ? COLORS.concordiaMaroon
+                      : "transparent",
+                  }}
+                  accessibilityLabel={`Toggle ${cat}`}
+                  accessibilityRole="button"
+                >
+                  <MaterialCommunityIcons
+                    name={AMENITY_ICON[cat]}
+                    size={24}
+                    color={selectedAmenities.has(cat) ? "#fff" : "#333"}
+                  />
+                </Pressable>
+              ))}
             </View>
           )}
         </View>

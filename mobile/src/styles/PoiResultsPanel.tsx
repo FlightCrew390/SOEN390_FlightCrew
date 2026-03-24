@@ -84,6 +84,12 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     marginTop: 2,
   },
+  poiDescription: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginTop: 1,
+    fontStyle: "italic",
+  },
   iconRow: {
     flexDirection: "row",
     alignItems: "center",

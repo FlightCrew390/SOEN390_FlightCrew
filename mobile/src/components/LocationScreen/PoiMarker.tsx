@@ -102,7 +102,7 @@ export default function PoiMarker({
       ref={markerRef}
       coordinate={{ latitude: poi.latitude, longitude: poi.longitude }}
       title={poi.name}
-      description={poi.address}
+      description={`${poi.address} — ${poi.description}`}
       anchor={{ x: 0.5, y: 1 }}
       onPress={onPress}
       onCalloutPress={onDirectionPress}

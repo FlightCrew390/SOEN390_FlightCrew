@@ -1,11 +1,13 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
-import { Image } from "react-native";
+import { Alert, Image } from "react-native";
 import React from "react";
 
 import IndoorFloorView from "../../src/components/LocationScreen/IndoorFloorView";
 import { Building, StructureType } from "../../src/types/Building";
 import { IndoorRoom } from "../../src/types/IndoorRoom";
 import { RouteInfo } from "../../src/types/Directions";
+
+jest.spyOn(Alert, "alert").mockImplementation(() => {});
 
 jest.mock("@expo/vector-icons/MaterialCommunityIcons", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -32,6 +34,8 @@ jest.mock("@expo/vector-icons/MaterialIcons", () => {
 });
 
 jest.mock("react-native-gesture-handler", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View, TouchableOpacity } = require("react-native");
   const mockGesture = () => ({
     onStart() {
       return this;
@@ -48,6 +52,7 @@ jest.mock("react-native-gesture-handler", () => {
       Pan: jest.fn(() => mockGesture()),
       Simultaneous: jest.fn(() => ({})),
     },
+    TouchableOpacity: TouchableOpacity,
   };
 });
 
@@ -385,20 +390,17 @@ describe("IndoorFloorView", () => {
       expect(screen.getByText("Floor plan failed to load.")).toBeTruthy();
     });
 
-    it("covers CC and VE map logic", () => {
-      renderView({
-        currentFloor: 1,
-        buildingId: "CC",
-        selectedRoom: { ...selectedRoom, buildingId: "CC", floor: 1 },
-      });
-      expect(screen.getByTestId("svg-uri")).toBeTruthy();
+    it("renders indoor POIs and shows Alert on press", () => {
+      renderView({ currentFloor: 1, buildingId: "Hall" });
 
-      renderView({
-        currentFloor: 1,
-        buildingId: "VE",
-        selectedRoom: { ...selectedRoom, buildingId: "VE", floor: 1 },
-      });
-      expect(screen.getByTestId("svg-uri")).toBeTruthy();
+      const poiPin = screen.getByTestId("indoor-poi-pin-H-washroom-1");
+      expect(poiPin).toBeTruthy();
+
+      fireEvent.press(poiPin);
+      expect(Alert.alert).toHaveBeenCalledWith(
+        "Washroom",
+        "Near main entrance lobby",
+      );
     });
   });
 });

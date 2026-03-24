@@ -1,14 +1,26 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useEffect, useMemo, useReducer, useState } from "react";
-import { Image, Pressable, ScrollView, Text, View } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-/* eslint-disable import/no-unresolved */
+import {
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import {
+  Gesture,
+  GestureDetector,
+  TouchableOpacity as GHTouchableOpacity,
+} from "react-native-gesture-handler";
+
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-/* eslint-enable import/no-unresolved */
+
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { SvgUri, Polyline } from "react-native-svg";
 import { API_CONFIG, COLORS } from "../../constants";
@@ -320,9 +332,6 @@ function ZoomableFloorPlan({
       return (
         <View
           key={poi.id}
-          testID={`indoor-poi-pin-${poi.id}`}
-          accessibilityLabel={poi.name}
-          accessibilityRole="image"
           style={{
             ...PIN_BASE_STYLE,
             left: `${((mapped.x - viewBoxInfo.minX) / viewBoxInfo.width) * 100}%`,
@@ -331,7 +340,16 @@ function ZoomableFloorPlan({
             zIndex: 35,
           }}
         >
-          <MaterialCommunityIcons name={iconName} size={16} color="white" />
+          <GHTouchableOpacity
+            testID={`indoor-poi-pin-${poi.id}`}
+            accessibilityLabel={poi.name}
+            accessibilityRole="button"
+            onPress={() => {
+              Alert.alert(poi.name, poi.description);
+            }}
+          >
+            <MaterialCommunityIcons name={iconName} size={16} color="white" />
+          </GHTouchableOpacity>
         </View>
       );
     });

@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { Alert } from "react-native";
 import { getIndoorPoisForBuilding } from "../../services/IndoorPoiService";
 import BuildingAmenityMarker from "./BuildingAmenityMarker";
 
@@ -28,7 +29,13 @@ export default function BuildingAmenityLayer({
   return (
     <>
       {pois.map((poi) => (
-        <BuildingAmenityMarker key={poi.id} poi={poi} />
+        <BuildingAmenityMarker
+          key={poi.id}
+          poi={poi}
+          onPress={() => {
+            Alert.alert(poi.name, poi.description);
+          }}
+        />
       ))}
     </>
   );

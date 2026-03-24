@@ -30,6 +30,7 @@ jest.mock("../../src/styles/PoiResultsPanel", () => ({
     resultContent: {},
     poiName: {},
     poiAddress: {},
+    poiDescription: {},
     iconRow: {},
     iconButton: {},
     emptyContainer: {},
@@ -103,12 +104,14 @@ describe("PoiResultsPanel", () => {
     expect(screen.getByText("1 result")).toBeTruthy();
   });
 
-  it("renders POI names and addresses", () => {
+  it("renders POI names, addresses, and descriptions", () => {
     renderPanel();
     expect(screen.getByText("Café Gentile")).toBeTruthy();
     expect(screen.getByText("4126 Ste-Catherine St W")).toBeTruthy();
+    expect(screen.getByText("Italian-style café")).toBeTruthy();
     expect(screen.getByText("Tim Hortons")).toBeTruthy();
     expect(screen.getByText("1432 Guy St")).toBeTruthy();
+    expect(screen.getByText("Coffee chain")).toBeTruthy();
   });
 
   it("calls onBack when back button is pressed", () => {

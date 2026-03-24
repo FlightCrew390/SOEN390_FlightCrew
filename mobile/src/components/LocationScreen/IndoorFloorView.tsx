@@ -742,7 +742,7 @@ export default function IndoorFloorView({
         <View
           style={{
             position: "absolute",
-            top: indoorSteps.length > 0 ? "52%" : 112,
+            top: indoorSteps.length > 0 ? "52%" : 180,
             left: 12,
             alignItems: "center",
             zIndex: 30,
@@ -829,7 +829,7 @@ export default function IndoorFloorView({
         <View
           style={{
             position: "absolute",
-            top: indoorSteps.length > 0 ? 100 : 112,
+            top: indoorSteps.length > 0 ? 100 : 180,
             right: 12,
             alignItems: "center",
             zIndex: 30,

@@ -66,16 +66,25 @@ export default function StepsPanel({
   );
   const { visibleSteps, stepTimes, departureDate, arrivalDate } =
     computeStepTimeline(stepsToDisplay, initialDeparture);
+  const lastActiveIndex = useRef(activeStepIndex);
 
   useEffect(() => {
-    if (activeStepIndex !== -1 && scrollRef.current) {
-      // Approximate step height is 90. Scroll to the next step (activeStepIndex + 1)
-      const nextIdx = Math.min(activeStepIndex + 1, visibleSteps.length - 1);
+    // Only scroll if the index actually changed and we are in a valid state
+    if (
+      activeStepIndex !== -1 &&
+      scrollRef.current &&
+      activeStepIndex !== lastActiveIndex.current
+    ) {
+      // Step height is roughly 56px (42px icon + 14px padding)
+      // Scroll so that the NEXT step (the first incomplete one) is at the top
+      const nextIdx = activeStepIndex + 1;
+      const scrollY = Math.max(0, nextIdx * 56);
       scrollRef.current.scrollTo({
-        y: nextIdx * 90,
+        y: scrollY,
         animated: true,
       });
     }
+    lastActiveIndex.current = activeStepIndex;
   }, [activeStepIndex, visibleSteps.length]);
 
   const isSameBuildingRoomRoute =
@@ -215,7 +224,7 @@ export default function StepsPanel({
           </View>
         )}
         {visibleSteps.map((step, idx) => {
-          const isCompleted = activeStepIndex !== -1 && idx < activeStepIndex;
+          const isCompleted = activeStepIndex !== -1 && idx <= activeStepIndex;
           const isActive = activeStepIndex !== -1 && idx === activeStepIndex;
 
           return (

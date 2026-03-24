@@ -516,7 +516,7 @@ export default function IndoorFloorView({
   route,
   hideSteps = false,
 }: Readonly<IndoorFloorViewProps>) {
-  const [activeStepIndex, setActiveStepIndex] = useState(0);
+  const [activeStepIndex, setActiveStepIndex] = useState(-1);
   const [amenityOpen, setAmenityOpen] = useState(false);
   const [selectedAmenities, setSelectedAmenities] = useState<
     Set<IndoorPoiCategory>

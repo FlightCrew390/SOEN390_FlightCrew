@@ -247,6 +247,7 @@ export function mapUIReducer(
         route: null,
         routeLoading: false,
         routeError: null,
+        travelMode: null,
       };
 
     case "BACK_TO_SEARCH":

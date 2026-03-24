@@ -36,12 +36,13 @@ describe("INDOOR_POIS", () => {
     });
   });
 
-  describe("other buildings have no x/y (not yet mapped)", () => {
-    it("MB entries have no x/y", () => {
-      const mbPois = INDOOR_POIS["MB"] ?? [];
+  describe("MB building sample entries with x/y coordinates", () => {
+    const mbPois = INDOOR_POIS["MB"] ?? [];
+
+    it("has MB entries with valid x/y", () => {
       mbPois.forEach((poi) => {
-        expect(poi.x).toBeUndefined();
-        expect(poi.y).toBeUndefined();
+        expect(typeof poi.x).toBe("number");
+        expect(typeof poi.y).toBe("number");
       });
     });
 

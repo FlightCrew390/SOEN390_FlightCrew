@@ -62,6 +62,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.4972,
       longitude: -73.57895,
       description: "Central stairwell, floors 1–11",
+      x: 1000,
+      y: 1200,
     },
     {
       id: "H-stairs-east",
@@ -72,6 +74,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.49708,
       longitude: -73.57865,
       description: "East wing stairwell, floors 1–11",
+      x: 1300,
+      y: 1500,
     },
     {
       id: "H-elevator-main",
@@ -82,6 +86,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.49712,
       longitude: -73.57902,
       description: "Accessible elevator, floors 1–11",
+      x: 950,
+      y: 1400,
     },
     // Floor 2
     {
@@ -615,6 +621,20 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.49569,
       longitude: -73.57934,
       description: "Ground floor near atrium",
+      x: 500,
+      y: 500,
+    },
+    {
+      id: "MB-washroom-3",
+      name: "Washroom",
+      category: "washroom",
+      buildingCode: "MB",
+      floor: 3,
+      latitude: 45.49578,
+      longitude: -73.57921,
+      description: "Near lecture halls",
+      x: 500,
+      y: 500,
     },
     {
       id: "MB-fountain-1",
@@ -625,6 +645,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.49562,
       longitude: -73.57943,
       description: "Atrium level",
+      x: 450,
+      y: 550,
     },
     {
       id: "MB-stairs-1",
@@ -635,6 +657,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.49575,
       longitude: -73.5795,
       description: "Main stairwell, all floors",
+      x: 400,
+      y: 600,
     },
     {
       id: "MB-elevator-1",
@@ -645,6 +669,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.49581,
       longitude: -73.57928,
       description: "Accessible elevator, all floors",
+      x: 550,
+      y: 450,
     },
     // Floor 2
     {
@@ -741,6 +767,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.49556,
       longitude: -73.57784,
       description: "Ground floor",
+      x: 400,
+      y: 400,
     },
     {
       id: "EV-washroom-2",
@@ -751,6 +779,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.49563,
       longitude: -73.57771,
       description: "Second floor corridor",
+      x: 400,
+      y: 400,
     },
     {
       id: "EV-fountain-1",
@@ -761,6 +791,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.49549,
       longitude: -73.57793,
       description: "Near main entrance",
+      x: 350,
+      y: 450,
     },
     {
       id: "EV-stairs-main",
@@ -771,6 +803,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.4957,
       longitude: -73.5778,
       description: "Central stairwell",
+      x: 450,
+      y: 350,
     },
     {
       id: "EV-elevator-main",
@@ -781,6 +815,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.49558,
       longitude: -73.57768,
       description: "Accessible elevator, all floors",
+      x: 500,
+      y: 500,
     },
   ],
 
@@ -795,6 +831,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.45844,
       longitude: -73.63989,
       description: "Ground floor",
+      x: 2000,
+      y: 500,
     },
     {
       id: "CC-fountain-1",
@@ -805,6 +843,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.45851,
       longitude: -73.63975,
       description: "Main corridor",
+      x: 2100,
+      y: 550,
     },
     {
       id: "CC-stairs-main",
@@ -815,6 +855,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.45838,
       longitude: -73.63981,
       description: "Central stairwell",
+      x: 1900,
+      y: 450,
     },
     {
       id: "CC-elevator-main",
@@ -825,6 +867,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.45857,
       longitude: -73.63967,
       description: "Accessible elevator",
+      x: 2200,
+      y: 500,
     },
   ],
 
@@ -1007,6 +1051,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.45872,
       longitude: -73.64012,
       description: "Ground floor",
+      x: 500,
+      y: 500,
     },
     {
       id: "SP-fountain-1",
@@ -1017,6 +1063,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.45865,
       longitude: -73.64025,
       description: "Near lab entrance",
+      x: 550,
+      y: 450,
     },
     {
       id: "SP-stairs-main",
@@ -1027,6 +1075,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.4588,
       longitude: -73.64003,
       description: "Main stairwell",
+      x: 450,
+      y: 550,
     },
     {
       id: "SP-elevator-main",
@@ -1037,6 +1087,8 @@ const INDOOR_POIS: Record<string, IndoorPointOfInterest[]> = {
       latitude: 45.45858,
       longitude: -73.64018,
       description: "Accessible elevator",
+      x: 600,
+      y: 500,
     },
   ],
 };

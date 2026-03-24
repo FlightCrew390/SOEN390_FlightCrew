@@ -78,7 +78,7 @@ export default function GoogleMaps({
     : null;
 
   const showIndoorRoute =
-    state.panel === "directions" &&
+    (state.panel === "directions" || state.panel === "steps") &&
     state.route?.indoorPath &&
     state.route.indoorPath.length > 0 &&
     (!state.route.coordinates || state.route.coordinates.length === 0);
@@ -298,8 +298,23 @@ export default function GoogleMaps({
         showSteps={state.panel === "steps"}
         onShowSteps={() => dispatch({ type: "OPEN_STEPS" })}
         onHideSteps={() => dispatch({ type: "CLOSE_STEPS" })}
+        isIndoor={showIndoorRoute}
         shuttleEligible={state.shuttleEligible}
         routePreviews={routePreviews}
+        activeStepIndex={state.activeStepIndex}
+        onStepPress={(index) => {
+          dispatch({ type: "SET_ACTIVE_STEP", index });
+          const step = state.route?.steps?.[index];
+          if (step) {
+            const targetFloor = step.endFloor ?? step.startFloor;
+            if (
+              typeof targetFloor === "number" &&
+              targetFloor !== activeIndoorFloor
+            ) {
+              dispatch({ type: "SET_INDOOR_FLOOR", floor: targetFloor });
+            }
+          }
+        }}
       />
 
       {state.panel === "room-results" && (
@@ -382,12 +397,57 @@ export default function GoogleMaps({
               onFloorChange={(floor) =>
                 dispatch({ type: "SET_INDOOR_FLOOR", floor })
               }
-              onBack={() => dispatch({ type: "CLOSE_INDOOR" })}
+              onBack={() => {
+                if (state.panel === "steps") {
+                  if (showIndoorRoute) {
+                    // For indoor-only routes, dismissing steps should close directions entirely
+                    dispatch({ type: "CLOSE_PANEL" });
+                  } else {
+                    dispatch({ type: "CLOSE_STEPS" });
+                  }
+                } else {
+                  dispatch({ type: "CLOSE_INDOOR" });
+                }
+              }}
               onRoomPress={(room) => {
                 dispatch({ type: "OPEN_ROOM_INFO", room });
               }}
               selectedRoom={state.indoorSelectedRoom ?? state.destinationRoom}
               route={state.route}
+              hideSteps={state.panel === "steps"}
+              activeStepIndex={
+                showIndoorRoute
+                  ? state.activeStepIndex
+                  : state.activeIndoorStepIndex
+              }
+              onStepPress={(index) => {
+                if (showIndoorRoute) {
+                  dispatch({ type: "SET_ACTIVE_STEP", index });
+                } else {
+                  dispatch({ type: "SET_ACTIVE_INDOOR_STEP", index });
+                }
+
+                // Sync floor for indoor steps
+                const indoorSteps =
+                  state.route?.indoorPathOrigin?.[0]?.buildingId ===
+                    activeIndoorBuildingId && state.route?.indoorStepsOrigin
+                    ? state.route.indoorStepsOrigin
+                    : state.route?.indoorSteps;
+
+                const step = showIndoorRoute
+                  ? state.route?.steps?.[index]
+                  : indoorSteps?.[index];
+
+                if (step) {
+                  const targetFloor = step.endFloor ?? step.startFloor;
+                  if (
+                    typeof targetFloor === "number" &&
+                    targetFloor !== activeIndoorFloor
+                  ) {
+                    dispatch({ type: "SET_INDOOR_FLOOR", floor: targetFloor });
+                  }
+                }
+              }}
             />
           );
         })()}

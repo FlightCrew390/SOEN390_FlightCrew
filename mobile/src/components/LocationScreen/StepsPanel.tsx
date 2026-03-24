@@ -1,5 +1,6 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useEffect, useRef } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { COLORS } from "../../constants";
 import styles from "../../styles/StepsPanel";
@@ -36,6 +37,8 @@ interface StepsPanelProps {
   readonly onOpenIndoor?: () => void;
   readonly isIndoor?: boolean;
   readonly stepsOverride?: StepInfo[];
+  readonly activeStepIndex?: number;
+  readonly onStepPress?: (index: number) => void;
 }
 
 export default function StepsPanel({
@@ -50,7 +53,10 @@ export default function StepsPanel({
   onOpenIndoor,
   isIndoor = false,
   stepsOverride,
+  activeStepIndex = -1,
+  onStepPress,
 }: Readonly<StepsPanelProps>) {
+  const scrollRef = useRef<ScrollView>(null);
   const stepsToDisplay = stepsOverride ?? route.steps;
   const distanceText =
     route.distanceText ?? formatDistance(route.distanceMeters);
@@ -60,6 +66,27 @@ export default function StepsPanel({
   );
   const { visibleSteps, stepTimes, departureDate, arrivalDate } =
     computeStepTimeline(stepsToDisplay, initialDeparture);
+  const lastActiveIndex = useRef(activeStepIndex);
+
+  useEffect(() => {
+    // Only scroll if the index actually changed and we are in a valid state
+    if (
+      activeStepIndex !== -1 &&
+      scrollRef.current &&
+      activeStepIndex !== lastActiveIndex.current
+    ) {
+      // Step height is roughly 56px (42px icon + 14px padding)
+      // Scroll so that the NEXT step (the first incomplete one) is at the top
+      const nextIdx = activeStepIndex + 1;
+      const scrollY = Math.max(0, nextIdx * 56);
+      scrollRef.current.scrollTo({
+        y: scrollY,
+        animated: true,
+      });
+    }
+    lastActiveIndex.current = activeStepIndex;
+  }, [activeStepIndex, visibleSteps.length]);
+
   const isSameBuildingRoomRoute =
     !!startRoom?.buildingId &&
     !!destinationRoom?.buildingId &&
@@ -145,6 +172,7 @@ export default function StepsPanel({
 
       {/* Step-by-step directions */}
       <ScrollView
+        ref={scrollRef}
         style={styles.stepScroll}
         contentContainerStyle={{ paddingBottom: 20 }}
         showsVerticalScrollIndicator
@@ -195,35 +223,55 @@ export default function StepsPanel({
             </View>
           </View>
         )}
-        {visibleSteps.map((step, idx) => (
-          <View
-            key={`step-${step.instruction}-${idx}`}
-            style={[styles.stepRow, idx % 2 === 0 && styles.stepRowOdd]}
-          >
-            <View style={styles.stepContent}>
-              {!isIndoor && (
-                <Text style={styles.stepTimestamp}>
-                  {formatDateTime(stepTimes[idx])}
+        {visibleSteps.map((step, idx) => {
+          const isCompleted = activeStepIndex !== -1 && idx <= activeStepIndex;
+          const isActive = activeStepIndex !== -1 && idx === activeStepIndex;
+
+          return (
+            <Pressable
+              key={`step-${step.instruction}-${idx}`}
+              onPress={() => onStepPress?.(idx)}
+              style={({ pressed }) => [
+                styles.stepRow,
+                idx % 2 === 0 && styles.stepRowOdd,
+                isCompleted && { opacity: 0.5 },
+                pressed && { backgroundColor: "#eee" },
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel={`Step ${idx + 1}: ${step.instruction}${isCompleted ? " (Completed)" : ""}`}
+            >
+              <View style={styles.stepContent}>
+                {!isIndoor && (
+                  <Text style={styles.stepTimestamp}>
+                    {formatDateTime(stepTimes[idx])}
+                  </Text>
+                )}
+                <Text
+                  style={[
+                    styles.stepInstruction,
+                    isCompleted && { textDecorationLine: "line-through" },
+                  ]}
+                >
+                  {step.instruction}
                 </Text>
-              )}
-              <Text style={styles.stepInstruction}>{step.instruction}</Text>
-              <Text style={styles.stepMeta}>
-                {formatDistance(step.distanceMeters)}
-                {step.durationSeconds > 0
-                  ? ` · ${formatDuration(step.durationSeconds)}`
-                  : ""}
-              </Text>
-              {step.transitDetails && (
-                <TransitBadge transit={step.transitDetails} />
-              )}
-            </View>
-            <MaterialIcons
-              name={getManeuverIcon(step.maneuver) as any}
-              size={42}
-              color={COLORS.textSecondary}
-            />
-          </View>
-        ))}
+                <Text style={styles.stepMeta}>
+                  {formatDistance(step.distanceMeters)}
+                  {step.durationSeconds > 0
+                    ? ` · ${formatDuration(step.durationSeconds)}`
+                    : ""}
+                </Text>
+                {step.transitDetails && (
+                  <TransitBadge transit={step.transitDetails} />
+                )}
+              </View>
+              <MaterialIcons
+                name={getManeuverIcon(step.maneuver) as any}
+                size={42}
+                color={isCompleted ? "#aaa" : COLORS.textSecondary}
+              />
+            </Pressable>
+          );
+        })}
 
         {/* Arrival row */}
         {!isIndoor && !isSameBuildingRoomRoute && (

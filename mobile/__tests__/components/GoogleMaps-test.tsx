@@ -1474,6 +1474,22 @@ describe("GoogleMaps", () => {
       expect(screen.getByText("Floor: 8")).toBeTruthy();
     });
 
+    it("renders IndoorFloorView when panel is steps and route is indoor", () => {
+      mockMapUIState = {
+        ...defaultMapUIState,
+        panel: "steps",
+        route: {
+          indoorPath: [{ buildingId: "Hall", floor: 8, x: 0, y: 0 }],
+          coordinates: [],
+        } as any,
+        destinationRoom: { buildingId: "Hall", floor: 8 } as any,
+      };
+
+      render(<GoogleMaps />);
+      expect(screen.getByText("MockIndoorFloorView")).toBeTruthy();
+      expect(screen.getByText("Building: Hall")).toBeTruthy();
+    });
+
     it("renders RoomResultsPanel when panel is room-results", () => {
       mockMapUIState.panel = "room-results";
       mockMapUIState.roomResults = [{ id: "room1" }] as any;

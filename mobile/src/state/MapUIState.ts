@@ -45,6 +45,8 @@ export interface MapUIState {
   indoorBuildingId: string | null;
   indoorFloor: number | null;
   indoorSelectedRoom: IndoorRoom | null;
+  activeStepIndex: number;
+  activeIndoorStepIndex: number;
 }
 
 export type MapUIAction =
@@ -67,6 +69,8 @@ export type MapUIAction =
   | { type: "ROUTE_ERROR"; error: string }
   | { type: "OPEN_STEPS" }
   | { type: "CLOSE_STEPS" }
+  | { type: "SET_ACTIVE_STEP"; index: number }
+  | { type: "SET_ACTIVE_INDOOR_STEP"; index: number }
   | { type: "SET_SHUTTLE_ELIGIBLE"; eligible: boolean }
   | { type: "POI_LOADING" }
   | { type: "POI_LOADED"; results: PointOfInterest[] }

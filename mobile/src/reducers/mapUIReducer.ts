@@ -24,6 +24,8 @@ export const initialMapUIState: MapUIState = {
   indoorBuildingId: null,
   indoorFloor: null,
   indoorSelectedRoom: null,
+  activeStepIndex: -1,
+  activeIndoorStepIndex: -1,
 };
 
 function handleClosePanel(state: MapUIState): MapUIState {
@@ -42,6 +44,8 @@ function handleClosePanel(state: MapUIState): MapUIState {
     selectedPoi: null,
     poiLoading: false,
     poiError: null,
+    activeStepIndex: -1,
+    activeIndoorStepIndex: -1,
   };
 }
 
@@ -62,6 +66,8 @@ function handleOpenDirections(state: MapUIState, action: any): MapUIState {
     indoorBuildingId: null,
     indoorFloor: null,
     indoorSelectedRoom: null,
+    activeStepIndex: -1,
+    activeIndoorStepIndex: -1,
   };
 }
 
@@ -75,6 +81,8 @@ function handleSetStartBuilding(state: MapUIState, action: any): MapUIState {
     route: null,
     routeLoading: false,
     routeError: null,
+    activeStepIndex: -1,
+    activeIndoorStepIndex: -1,
   };
 }
 
@@ -221,7 +229,13 @@ export function mapUIReducer(
       return { ...state, routeLoading: true, routeError: null };
 
     case "ROUTE_LOADED":
-      return { ...state, route: action.route, routeLoading: false };
+      return {
+        ...state,
+        route: action.route,
+        routeLoading: false,
+        activeStepIndex: -1,
+        activeIndoorStepIndex: -1,
+      };
 
     case "ROUTE_ERROR":
       return {
@@ -229,6 +243,8 @@ export function mapUIReducer(
         routeLoading: false,
         routeError: action.error,
         route: null,
+        activeStepIndex: -1,
+        activeIndoorStepIndex: -1,
       };
 
     case "OPEN_STEPS":
@@ -236,6 +252,12 @@ export function mapUIReducer(
 
     case "CLOSE_STEPS":
       return { ...state, panel: "directions" };
+
+    case "SET_ACTIVE_STEP":
+      return { ...state, activeStepIndex: action.index };
+
+    case "SET_ACTIVE_INDOOR_STEP":
+      return { ...state, activeIndoorStepIndex: action.index };
 
     case "SET_SHUTTLE_ELIGIBLE":
       return { ...state, shuttleEligible: action.eligible };

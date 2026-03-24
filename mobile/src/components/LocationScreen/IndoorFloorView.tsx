@@ -502,6 +502,8 @@ interface IndoorFloorViewProps {
   readonly selectedRoom?: IndoorRoom | null;
   readonly route?: RouteInfo | null;
   readonly hideSteps?: boolean;
+  readonly activeStepIndex?: number;
+  readonly onStepPress?: (index: number) => void;
 }
 
 export default function IndoorFloorView({
@@ -514,8 +516,9 @@ export default function IndoorFloorView({
   selectedRoom,
   route,
   hideSteps = false,
+  activeStepIndex = -1,
+  onStepPress,
 }: Readonly<IndoorFloorViewProps>) {
-  const [activeStepIndex, setActiveStepIndex] = useState(-1);
   const [amenityOpen, setAmenityOpen] = useState(false);
   const [selectedAmenities, setSelectedAmenities] = useState<
     Set<IndoorPoiCategory>
@@ -616,18 +619,6 @@ export default function IndoorFloorView({
     };
   }, [route, currentFloor, activeIndoorPath]);
 
-  const handleStepPress = (index: number) => {
-    setActiveStepIndex(index);
-    const step = indoorSteps[index];
-    if (step) {
-      // If it's an indoor step with floor info, sync the floor view
-      const targetFloor = step.endFloor ?? step.startFloor;
-      if (typeof targetFloor === "number" && targetFloor !== currentFloor) {
-        onFloorChange(targetFloor);
-      }
-    }
-  };
-
   const buildingLabel =
     building.buildingName ?? BUILDING_NAMES[buildingId] ?? buildingId;
 
@@ -666,7 +657,7 @@ export default function IndoorFloorView({
               selectedRoom?.floor === currentFloor ? selectedRoom : null
             }
             activeStepIndex={activeStepIndex}
-            onStepPress={handleStepPress}
+            onStepPress={onStepPress}
           />
         )}
 

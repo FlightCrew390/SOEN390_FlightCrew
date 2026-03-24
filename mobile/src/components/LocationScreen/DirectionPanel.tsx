@@ -88,6 +88,8 @@ interface DirectionPanelProps {
   readonly onOpenIndoor?: () => void;
   readonly shuttleEligible?: boolean;
   readonly routePreviews?: RoutePreviews;
+  readonly activeStepIndex?: number;
+  readonly onStepPress?: (index: number) => void;
 }
 
 function StartLocationRow({
@@ -362,6 +364,8 @@ export default function DirectionPanel({
   onOpenIndoor,
   shuttleEligible,
   routePreviews,
+  activeStepIndex,
+  onStepPress,
 }: Readonly<DirectionPanelProps>) {
   const { animatedStyle } = usePanelAnimation(visible);
 
@@ -537,6 +541,8 @@ export default function DirectionPanel({
           onOpenStartIndoor={onOpenStartIndoor}
           onOpenIndoor={onOpenIndoor}
           isIndoor={isIndoor}
+          activeStepIndex={activeStepIndex}
+          onStepPress={onStepPress}
         />
       )}
     </>

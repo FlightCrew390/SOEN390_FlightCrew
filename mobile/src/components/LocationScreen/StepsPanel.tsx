@@ -4,8 +4,8 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import { COLORS } from "../../constants";
 import styles from "../../styles/StepsPanel";
 import { Building } from "../../types/Building";
-import { IndoorRoom } from "../../types/IndoorRoom";
 import { DepartureTimeConfig, RouteInfo } from "../../types/Directions";
+import { IndoorRoom } from "../../types/IndoorRoom";
 import {
   computeStepTimeline,
   getDepartureDate,
@@ -49,6 +49,10 @@ export default function StepsPanel({
   );
   const { visibleSteps, stepTimes, departureDate, arrivalDate } =
     computeStepTimeline(route.steps, initialDeparture);
+  const isSameBuildingRoomRoute =
+    !!startRoom?.buildingId &&
+    !!destinationRoom?.buildingId &&
+    startRoom.buildingId === destinationRoom.buildingId;
 
   return (
     <View style={styles.container}>
@@ -112,7 +116,7 @@ export default function StepsPanel({
         showsVerticalScrollIndicator
         onStartShouldSetResponder={() => true}
       >
-        {startBuilding && (
+        {startBuilding && !isSameBuildingRoomRoute && (
           <View
             key={`step-start-${startBuilding.buildingCode}`}
             style={styles.stepRow}
@@ -186,54 +190,56 @@ export default function StepsPanel({
         ))}
 
         {/* Arrival row */}
-        <View style={styles.stepRow}>
-          <View style={styles.stepContent}>
-            <Text style={styles.stepTimestamp}>
-              {formatDateTime(arrivalDate)}
-            </Text>
-            <Text style={styles.stepInstruction}>
-              Arrive at {building.buildingName ?? building.buildingCode}
-            </Text>
-            {destinationRoom && onOpenIndoor && (
-              <Pressable
-                style={{
-                  marginTop: 12,
-                  backgroundColor: COLORS.concordiaMaroon,
-                  paddingVertical: 10,
-                  paddingHorizontal: 16,
-                  borderRadius: 8,
-                  alignSelf: "flex-start",
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-                onPress={onOpenIndoor}
-                accessibilityLabel="Show Indoor Map"
-                accessibilityRole="button"
-              >
-                <MaterialIcons
-                  name="map"
-                  size={18}
-                  color={COLORS.white}
-                  style={{ marginRight: 6 }}
-                />
-                <Text
+        {!isSameBuildingRoomRoute && (
+          <View style={styles.stepRow}>
+            <View style={styles.stepContent}>
+              <Text style={styles.stepTimestamp}>
+                {formatDateTime(arrivalDate)}
+              </Text>
+              <Text style={styles.stepInstruction}>
+                Arrive at {building.buildingName ?? building.buildingCode}
+              </Text>
+              {destinationRoom && onOpenIndoor && (
+                <Pressable
                   style={{
-                    color: COLORS.white,
-                    fontWeight: "600",
-                    fontSize: 14,
+                    marginTop: 12,
+                    backgroundColor: COLORS.concordiaMaroon,
+                    paddingVertical: 10,
+                    paddingHorizontal: 16,
+                    borderRadius: 8,
+                    alignSelf: "flex-start",
+                    flexDirection: "row",
+                    alignItems: "center",
                   }}
+                  onPress={onOpenIndoor}
+                  accessibilityLabel="Show Indoor Map"
+                  accessibilityRole="button"
                 >
-                  Show Indoor Map
-                </Text>
-              </Pressable>
-            )}
+                  <MaterialIcons
+                    name="map"
+                    size={18}
+                    color={COLORS.white}
+                    style={{ marginRight: 6 }}
+                  />
+                  <Text
+                    style={{
+                      color: COLORS.white,
+                      fontWeight: "600",
+                      fontSize: 14,
+                    }}
+                  >
+                    Show Indoor Map
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+            <MaterialIcons
+              name="place"
+              size={42}
+              color={COLORS.concordiaMaroon}
+            />
           </View>
-          <MaterialIcons
-            name="place"
-            size={42}
-            color={COLORS.concordiaMaroon}
-          />
-        </View>
+        )}
       </ScrollView>
     </View>
   );

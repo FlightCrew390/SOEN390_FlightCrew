@@ -1,6 +1,8 @@
 import type MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ComponentProps } from "react";
+import { Building } from "../types/Building";
 import { DepartureTimeConfig, StepInfo } from "../types/Directions";
+import { IndoorRoom } from "../types/IndoorRoom";
 import { calculateDistance } from "./buildingDetection";
 import { formatDistance } from "./formatHelper";
 
@@ -9,6 +11,49 @@ type MaterialIconName = ComponentProps<typeof MaterialIcons>["name"];
 interface LatLng {
   latitude: number;
   longitude: number;
+}
+
+function getBuildingDisplayName(building: Building): string {
+  return building.buildingName ?? building.buildingCode;
+}
+
+/**
+ * Returns the effective outdoor origin coordinates for direction calculations.
+ * Classroom starts currently resolve to their building coordinates.
+ */
+export function getDirectionOriginCoords(
+  startBuilding: Building | null | undefined,
+  startRoom: IndoorRoom | null | undefined,
+  userLocation: LatLng | null | undefined,
+): LatLng | null {
+  if (startBuilding) {
+    return {
+      latitude: startBuilding.latitude,
+      longitude: startBuilding.longitude,
+    };
+  }
+
+  // A room-only start without a mapped building has no outdoor coordinates yet.
+  if (startRoom) {
+    return userLocation ?? null;
+  }
+
+  return userLocation ?? null;
+}
+
+export function getStartLocationText(
+  startBuilding: Building | null | undefined,
+  startRoom: IndoorRoom | null | undefined,
+): string {
+  if (!startBuilding) {
+    return "Starting from your current location";
+  }
+
+  if (startRoom?.label) {
+    return `Starting at ${startRoom.label} (${getBuildingDisplayName(startBuilding)})`;
+  }
+
+  return `Starting at ${getBuildingDisplayName(startBuilding)}`;
 }
 
 export function getBirdsEyeDistanceText(

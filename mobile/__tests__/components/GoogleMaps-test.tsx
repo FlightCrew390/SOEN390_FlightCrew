@@ -22,6 +22,9 @@ const defaultMapUIState = {
   currentBuilding: null,
   searchOrigin: "default" as const,
   startBuilding: null,
+  startRoom: null,
+  destinationRoom: null,
+  indoorSelectedRoom: null,
   travelMode: null,
   route: null,
   routeLoading: false,
@@ -203,6 +206,7 @@ jest.mock("../../src/components/LocationScreen/DirectionPanel", () => {
         <Text testID="dp-start-building">
           {props.startBuilding?.buildingCode ?? "null"}
         </Text>
+        <Text testID="dp-room-label">{props.roomLabel ?? "null"}</Text>
         <Text testID="dp-has-route">{String(props.route != null)}</Text>
         <Text testID="dp-route-loading">{String(props.routeLoading)}</Text>
         <Text testID="dp-route-error">{props.routeError ?? "null"}</Text>
@@ -744,6 +748,27 @@ describe("GoogleMaps", () => {
     } as any;
     render(<GoogleMaps />);
     expect(screen.getByTestId("dp-start-building").children[0]).toBe("EV");
+  });
+
+  it("passes destination room label to DirectionPanel when panel is directions", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "directions",
+      destinationRoom: mockRoom,
+    } as any;
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("dp-room-label").children[0]).toBe("H-920");
+  });
+
+  it("prefers indoor selected room label in room-info mode", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "room-info",
+      destinationRoom: { ...mockRoom, label: "H-920" },
+      indoorSelectedRoom: { ...mockRoom, label: "H-927" },
+    } as any;
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("dp-room-label").children[0]).toBe("H-927");
   });
 
   it("passes route to DirectionPanel", () => {

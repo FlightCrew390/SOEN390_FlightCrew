@@ -16,14 +16,18 @@ import { usePanelAnimation } from "../../hooks/usePanelAnimation";
 import type { RoutePreviews } from "../../hooks/useRoutePreviews";
 import styles from "../../styles/DirectionPanel";
 import { Building, StructureType } from "../../types/Building";
-import { IndoorRoom } from "../../types/IndoorRoom";
 import {
   DepartureTimeConfig,
   RouteInfo,
   TRAVEL_MODE,
   TravelMode,
 } from "../../types/Directions";
-import { getBirdsEyeDistanceText } from "../../utils/directionsUtils";
+import { IndoorRoom } from "../../types/IndoorRoom";
+import {
+  getBirdsEyeDistanceText,
+  getDirectionOriginCoords,
+  getStartLocationText,
+} from "../../utils/directionsUtils";
 import { formatDuration } from "../../utils/formatHelper";
 import Tooltip from "../common/Tooltip";
 import DepartureTimePicker from "./DepartureTimePicker";
@@ -87,10 +91,12 @@ interface DirectionPanelProps {
 
 function StartLocationRow({
   startBuilding,
+  startRoom,
   onOpenSearch,
   onResetStart,
 }: Readonly<{
   startBuilding: Building | null | undefined;
+  startRoom: IndoorRoom | null | undefined;
   onOpenSearch?: () => void;
   onResetStart?: () => void;
 }>) {
@@ -100,13 +106,11 @@ function StartLocationRow({
         style={styles.changeStartRow}
         onPress={() => onOpenSearch?.()}
         disabled={!onOpenSearch}
-        accessibilityLabel="Search buildings to change directions start"
+        accessibilityLabel="Search locations to change directions start"
         accessibilityRole="button"
       >
         <Text style={styles.changeStartText} testID="start-location">
-          {startBuilding
-            ? `Starting at ${startBuilding.buildingName ?? startBuilding.buildingCode}`
-            : "Starting from your current location"}
+          {getStartLocationText(startBuilding, startRoom)}
         </Text>
         <Text style={styles.changeStart} testID="change-start">
           change
@@ -359,6 +363,13 @@ export default function DirectionPanel({
 }: Readonly<DirectionPanelProps>) {
   const { animatedStyle } = usePanelAnimation(visible);
 
+  const destinationBuildingName =
+    building?.buildingName ?? building?.buildingCode ?? "";
+  const destinationTitle = roomLabel
+    ? `${roomLabel} (${destinationBuildingName})`
+    : destinationBuildingName;
+  const destinationSubtitle = building?.address ?? "";
+
   // helper: get duration label for a mode
   const getDuration = (mode: TravelMode): string => {
     // If this mode is the active one and we have a full route, prefer that
@@ -371,12 +382,11 @@ export default function DirectionPanel({
     return "-- min";
   };
 
-  const originCoords = startBuilding
-    ? {
-        latitude: startBuilding.latitude,
-        longitude: startBuilding.longitude,
-      }
-    : userLocation;
+  const originCoords = getDirectionOriginCoords(
+    startBuilding,
+    startRoom,
+    userLocation,
+  );
 
   const distanceText = getBirdsEyeDistanceText(originCoords, building);
 
@@ -410,12 +420,10 @@ export default function DirectionPanel({
             <View style={styles.buildingInfoRow}>
               <View style={styles.headerLeft}>
                 <Text style={styles.buildingName} numberOfLines={1}>
-                  {roomLabel ?? building.buildingName ?? building.buildingCode}
+                  {destinationTitle}
                 </Text>
                 <Text style={styles.buildingAddress} numberOfLines={2}>
-                  {roomLabel
-                    ? (building.buildingName ?? building.buildingCode)
-                    : (building.address ?? "")}
+                  {destinationSubtitle}
                 </Text>
               </View>
               <Text style={styles.distanceText}>{distanceText}</Text>
@@ -423,6 +431,7 @@ export default function DirectionPanel({
 
             <StartLocationRow
               startBuilding={startBuilding}
+              startRoom={startRoom}
               onOpenSearch={onOpenSearch}
               onResetStart={onResetStart}
             />

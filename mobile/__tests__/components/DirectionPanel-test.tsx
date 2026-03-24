@@ -8,6 +8,7 @@ import {
   RouteInfo,
   TravelMode,
 } from "../../src/types/Directions";
+import { IndoorRoom } from "../../src/types/IndoorRoom";
 import { hallBuilding, libraryBuilding, makeRoute } from "../fixtures";
 
 // ── Mocks ──
@@ -240,7 +241,9 @@ jest.mock("../../../assets/car.png", () => 4, { virtual: true });
 interface Props {
   visible?: boolean;
   building?: Building | null;
+  roomLabel?: string | null;
   startBuilding?: Building | null;
+  startRoom?: IndoorRoom | null;
   route?: RouteInfo | null;
   routeLoading?: boolean;
   routeError?: string | null;
@@ -265,7 +268,9 @@ function renderPanel(overrides: Props = {}) {
   const props = {
     visible: true,
     building: hallBuilding,
+    roomLabel: null,
     startBuilding: null,
+    startRoom: null,
     route: null,
     routeLoading: false,
     routeError: null,
@@ -356,6 +361,11 @@ describe("DirectionPanel", () => {
     expect(screen.getByText("H")).toBeTruthy();
   });
 
+  it("shows room destination and building on one line when roomLabel is provided", () => {
+    renderPanel({ roomLabel: "H-920" });
+    expect(screen.getByText("H-920 (Hall Building)")).toBeTruthy();
+  });
+
   // ── Distance text ──
 
   it("shows -- m when no route", () => {
@@ -383,10 +393,26 @@ describe("DirectionPanel", () => {
     expect(screen.getByText("Starting at Library Building")).toBeTruthy();
   });
 
+  it("shows room label and building name when classroom start is set", () => {
+    const startRoom: IndoorRoom = {
+      id: "room-h920",
+      buildingId: "Hall",
+      floor: 9,
+      label: "H-920",
+      x: 12,
+      y: 28,
+      type: "room",
+      accessible: true,
+    };
+
+    renderPanel({ startBuilding: hallBuilding, startRoom });
+    expect(screen.getByText("Starting at H-920 (Hall Building)")).toBeTruthy();
+  });
+
   it("calls onOpenSearch when change is pressed", () => {
     const { props } = renderPanel();
     fireEvent.press(
-      screen.getByLabelText("Search buildings to change directions start"),
+      screen.getByLabelText("Search locations to change directions start"),
     );
     expect(props.onOpenSearch).toHaveBeenCalledTimes(1);
   });

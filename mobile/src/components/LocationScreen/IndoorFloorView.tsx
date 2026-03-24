@@ -1,11 +1,15 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useEffect, useMemo, useReducer, useState } from "react";
-import { Alert, Image, Pressable, ScrollView, Text, View } from "react-native";
 import {
-  Gesture,
-  GestureDetector,
-  TouchableOpacity as GHTouchableOpacity,
-} from "react-native-gesture-handler";
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+  TouchableOpacity,
+} from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 import Animated, {
   useAnimatedStyle,
@@ -117,8 +121,8 @@ function CustomAmenitySelectorIcon({
   size = 30,
   color = COLORS.concordiaMaroon,
 }: {
-  size?: number;
-  color?: string;
+  readonly size?: number;
+  readonly color?: string;
 }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
@@ -363,7 +367,7 @@ function ZoomableFloorPlan({
             zIndex: 35,
           }}
         >
-          <GHTouchableOpacity
+          <TouchableOpacity
             testID={`indoor-poi-pin-${poi.id}`}
             accessibilityLabel={poi.name}
             accessibilityRole="button"
@@ -372,7 +376,7 @@ function ZoomableFloorPlan({
             }}
           >
             <MaterialCommunityIcons name={iconName} size={16} color="white" />
-          </GHTouchableOpacity>
+          </TouchableOpacity>
         </View>
       );
     });

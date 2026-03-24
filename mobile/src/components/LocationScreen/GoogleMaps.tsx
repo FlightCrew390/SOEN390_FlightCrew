@@ -235,8 +235,10 @@ export default function GoogleMaps({
         building={state.selectedBuilding}
         roomLabel={
           state.panel === "room-info"
-            ? (state.indoorSelectedRoom?.label ?? null)
-            : null
+            ? (state.indoorSelectedRoom?.label ??
+              state.destinationRoom?.label ??
+              null)
+            : (state.destinationRoom?.label ?? null)
         }
         startBuilding={state.startBuilding}
         route={state.route}

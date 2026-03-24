@@ -241,6 +241,7 @@ jest.mock("../../../assets/car.png", () => 4, { virtual: true });
 interface Props {
   visible?: boolean;
   building?: Building | null;
+  roomLabel?: string | null;
   startBuilding?: Building | null;
   startRoom?: IndoorRoom | null;
   route?: RouteInfo | null;
@@ -267,6 +268,7 @@ function renderPanel(overrides: Props = {}) {
   const props = {
     visible: true,
     building: hallBuilding,
+    roomLabel: null,
     startBuilding: null,
     startRoom: null,
     route: null,
@@ -357,6 +359,11 @@ describe("DirectionPanel", () => {
     const building = { ...hallBuilding, buildingName: null as any };
     renderPanel({ building });
     expect(screen.getByText("H")).toBeTruthy();
+  });
+
+  it("shows room destination and building on one line when roomLabel is provided", () => {
+    renderPanel({ roomLabel: "H-920" });
+    expect(screen.getByText("H-920 (Hall Building)")).toBeTruthy();
   });
 
   // ── Distance text ──

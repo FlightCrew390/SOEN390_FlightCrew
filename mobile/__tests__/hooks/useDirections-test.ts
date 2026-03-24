@@ -1,13 +1,13 @@
 import { renderHook, waitFor } from "@testing-library/react-native";
 import { useDirections } from "../../src/hooks/useDirections";
 import { DirectionsService } from "../../src/services/DirectionsService";
+import { IndoorPathfindingService } from "../../src/services/IndoorPathfindingService";
+import { ShuttleDirectionsBuilder } from "../../src/services/ShuttleDirectionsBuilder";
 import { Building, StructureType } from "../../src/types/Building";
 import {
   DEFAULT_DEPARTURE_CONFIG,
   RouteInfo,
 } from "../../src/types/Directions";
-import { ShuttleDirectionsBuilder } from "../../src/services/ShuttleDirectionsBuilder";
-import { IndoorPathfindingService } from "../../src/services/IndoorPathfindingService";
 
 jest.mock("../../src/services/DirectionsService");
 jest.mock("../../src/services/ShuttleDirectionsBuilder");
@@ -462,15 +462,18 @@ describe("useDirections", () => {
 
     expect(onLoading).toHaveBeenCalled();
 
-    await waitFor(() =>
-      expect(onLoaded).toHaveBeenCalledWith(
-        expect.objectContaining({
-          distanceMeters: 100,
-          durationSeconds: 120,
-          indoorPath: [startRoom, destRoom],
-        }),
-      ),
+    await waitFor(() => expect(onLoaded).toHaveBeenCalled());
+
+    const finalRoute = onLoaded.mock.calls[0][0];
+    expect(finalRoute).toEqual(
+      expect.objectContaining({
+        distanceMeters: 100,
+        durationSeconds: 120,
+        indoorPath: [startRoom, destRoom],
+      }),
     );
+    expect(finalRoute.indoorPathOrigin).toBeUndefined();
+    expect(IndoorPathfindingService.getDirections).toHaveBeenCalledTimes(1);
   });
 
   it("calls onError if indoor pathfinding fails", async () => {

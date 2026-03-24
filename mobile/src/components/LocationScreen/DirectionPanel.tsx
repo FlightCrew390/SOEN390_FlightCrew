@@ -363,6 +363,13 @@ export default function DirectionPanel({
 }: Readonly<DirectionPanelProps>) {
   const { animatedStyle } = usePanelAnimation(visible);
 
+  const destinationBuildingName =
+    building?.buildingName ?? building?.buildingCode ?? "";
+  const destinationTitle = roomLabel
+    ? `${roomLabel} (${destinationBuildingName})`
+    : destinationBuildingName;
+  const destinationSubtitle = building?.address ?? "";
+
   // helper: get duration label for a mode
   const getDuration = (mode: TravelMode): string => {
     // If this mode is the active one and we have a full route, prefer that
@@ -413,12 +420,10 @@ export default function DirectionPanel({
             <View style={styles.buildingInfoRow}>
               <View style={styles.headerLeft}>
                 <Text style={styles.buildingName} numberOfLines={1}>
-                  {roomLabel ?? building.buildingName ?? building.buildingCode}
+                  {destinationTitle}
                 </Text>
                 <Text style={styles.buildingAddress} numberOfLines={2}>
-                  {roomLabel
-                    ? (building.buildingName ?? building.buildingCode)
-                    : (building.address ?? "")}
+                  {destinationSubtitle}
                 </Text>
               </View>
               <Text style={styles.distanceText}>{distanceText}</Text>

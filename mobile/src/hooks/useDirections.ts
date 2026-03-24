@@ -290,6 +290,50 @@ export function useDirections({
     }
   };
 
+  const appendIndoorSegmentsIfNeeded = async (route: RouteInfo | null) => {
+    if (!route) {
+      return route;
+    }
+
+    const isPureIndoorSameBuildingRoute =
+      !!startRoom?.buildingId &&
+      startRoom.buildingId === destinationRoom?.buildingId;
+
+    if (isPureIndoorSameBuildingRoute) {
+      return route;
+    }
+
+    // If outdoor route was fetched but we have a start room, fetch the indoor departure path
+    if (!route.indoorPathOrigin && startRoom) {
+      try {
+        const indoorDeparture = await fetchIndoorDeparturePath(startRoom);
+        route.indoorPathOrigin = indoorDeparture.pathOrigin;
+        route.indoorStepsOrigin = indoorDeparture.stepsOrigin;
+      } catch (e) {
+        console.warn(
+          "Could not compute indoor->outdoor departure path segment:",
+          e,
+        );
+      }
+    }
+
+    // If outdoor route was fetched but we have a destination room, fetch the indoor arrival path
+    if (!route.indoorPath && destinationRoom) {
+      try {
+        const indoorArrival = await fetchIndoorArrivalPath(destinationRoom);
+        route.indoorPath = indoorArrival.path;
+        route.indoorSteps = indoorArrival.steps;
+      } catch (e) {
+        console.warn(
+          "Could not compute outdoor->indoor arrival path segment:",
+          e,
+        );
+      }
+    }
+
+    return route;
+  };
+
   useEffect(() => {
     if (!active || !destination || travelMode == null) return;
 
@@ -326,9 +370,7 @@ export function useDirections({
     const fetchRoute = async () => {
       onLoading();
       try {
-        let route;
-
-        route = await getRoute({
+        const route = await getRoute({
           originLat,
           originLng,
           destination,
@@ -340,36 +382,9 @@ export function useDirections({
           arrivalTime,
           departureConfig,
         });
+        const augmentedRoute = await appendIndoorSegmentsIfNeeded(route);
 
-        // If outdoor route was fetched but we have a start room, fetch the indoor departure path
-        if (route && !route.indoorPathOrigin && startRoom) {
-          try {
-            const indoorDeparture = await fetchIndoorDeparturePath(startRoom);
-            route.indoorPathOrigin = indoorDeparture.pathOrigin;
-            route.indoorStepsOrigin = indoorDeparture.stepsOrigin;
-          } catch (e) {
-            console.warn(
-              "Could not compute indoor->outdoor departure path segment:",
-              e,
-            );
-          }
-        }
-
-        // If outdoor route was fetched but we have a destination room, fetch the indoor arrival path
-        if (route && !route.indoorPath && destinationRoom) {
-          try {
-            const indoorArrival = await fetchIndoorArrivalPath(destinationRoom);
-            route.indoorPath = indoorArrival.path;
-            route.indoorSteps = indoorArrival.steps;
-          } catch (e) {
-            console.warn(
-              "Could not compute outdoor->indoor arrival path segment:",
-              e,
-            );
-          }
-        }
-
-        if (!cancelled) onLoaded(route);
+        if (!cancelled) onLoaded(augmentedRoute);
       } catch (err) {
         if (!cancelled) {
           onError(

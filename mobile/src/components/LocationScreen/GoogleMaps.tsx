@@ -78,7 +78,7 @@ export default function GoogleMaps({
     : null;
 
   const showIndoorRoute =
-    state.panel === "directions" &&
+    (state.panel === "directions" || state.panel === "steps") &&
     state.route?.indoorPath &&
     state.route.indoorPath.length > 0 &&
     (!state.route.coordinates || state.route.coordinates.length === 0);
@@ -298,6 +298,7 @@ export default function GoogleMaps({
         showSteps={state.panel === "steps"}
         onShowSteps={() => dispatch({ type: "OPEN_STEPS" })}
         onHideSteps={() => dispatch({ type: "CLOSE_STEPS" })}
+        isIndoor={showIndoorRoute}
         shuttleEligible={state.shuttleEligible}
         routePreviews={routePreviews}
       />
@@ -388,6 +389,7 @@ export default function GoogleMaps({
               }}
               selectedRoom={state.indoorSelectedRoom ?? state.destinationRoom}
               route={state.route}
+              hideSteps={state.panel === "steps"}
             />
           );
         })()}

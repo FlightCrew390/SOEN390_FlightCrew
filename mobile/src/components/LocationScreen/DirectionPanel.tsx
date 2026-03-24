@@ -81,6 +81,7 @@ interface DirectionPanelProps {
   readonly showSteps: boolean;
   readonly onShowSteps: () => void;
   readonly onHideSteps: () => void;
+  readonly isIndoor?: boolean;
   readonly startRoom?: IndoorRoom | null;
   readonly destinationRoom?: IndoorRoom | null;
   readonly onOpenStartIndoor?: () => void;
@@ -354,6 +355,7 @@ export default function DirectionPanel({
   showSteps,
   onShowSteps,
   onHideSteps,
+  isIndoor,
   startRoom,
   destinationRoom,
   onOpenStartIndoor,
@@ -528,6 +530,7 @@ export default function DirectionPanel({
           destinationRoom={destinationRoom}
           onOpenStartIndoor={onOpenStartIndoor}
           onOpenIndoor={onOpenIndoor}
+          isIndoor={isIndoor}
         />
       )}
     </>

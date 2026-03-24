@@ -502,6 +502,7 @@ interface IndoorFloorViewProps {
   readonly onRoomPress: (room: IndoorRoom) => void;
   readonly selectedRoom?: IndoorRoom | null;
   readonly route?: RouteInfo | null;
+  readonly hideSteps?: boolean;
 }
 
 export default function IndoorFloorView({
@@ -513,6 +514,7 @@ export default function IndoorFloorView({
   onBack,
   selectedRoom,
   route,
+  hideSteps = false,
 }: Readonly<IndoorFloorViewProps>) {
   const [stepsExpanded, setStepsExpanded] = useState(false);
   const [amenityOpen, setAmenityOpen] = useState(false);
@@ -629,7 +631,7 @@ export default function IndoorFloorView({
         />
 
         {/* Top Directions Panel (Using unified StepsPanel) */}
-        {indoorSteps.length > 0 && (
+        {indoorSteps.length > 0 && !hideSteps && (
           <StepsPanel
             building={building}
             route={{ ...route!, steps: indoorSteps }}

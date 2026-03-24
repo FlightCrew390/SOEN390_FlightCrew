@@ -70,6 +70,7 @@ export function makeStep(overrides: Partial<StepInfo> = {}): StepInfo {
       { latitude: 45.4973, longitude: -73.5789 },
       { latitude: 45.498, longitude: -73.5789 },
     ],
+    travelMode: "WALK", // Default travel mode
     ...overrides,
   };
 }

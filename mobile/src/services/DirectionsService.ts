@@ -91,6 +91,7 @@ function parseRoute(data: DirectionsResponse): RouteInfo | null {
         coordinates: step.polyline?.encodedPolyline
           ? decodePolyline(step.polyline.encodedPolyline)
           : [],
+        travelMode: step.travelMode, // Preserve travel mode for step-level coloring
       };
 
       // Parse transit details if present

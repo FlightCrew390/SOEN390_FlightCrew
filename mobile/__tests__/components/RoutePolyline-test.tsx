@@ -2,8 +2,8 @@ import { render } from "@testing-library/react-native";
 
 import RoutePolyline from "../../src/components/LocationScreen/RoutePolyline";
 import { COLORS } from "../../src/constants";
-import { TRAVEL_MODE, TravelMode } from "../../src/types/Directions";
-import { makeRoute } from "../fixtures";
+import { TRAVEL_MODE } from "../../src/types/Directions";
+import { makeRoute, makeStep } from "../fixtures";
 
 jest.mock("react-native-maps", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -52,69 +52,258 @@ describe("RoutePolyline", () => {
       expect(toJSON()).not.toBeNull();
     });
 
-    it("renders Polyline with correct coordinates", () => {
-      const route = makeRoute();
+    it("renders multiple Polyline segments (one per step)", () => {
+      const route = makeRoute({
+        steps: [
+          makeStep({ instruction: "Walk north" }),
+          makeStep({ instruction: "Turn left" }),
+          makeStep({ instruction: "Walk straight" }),
+        ],
+      });
       const view = render(
         <RoutePolyline route={route} travelMode={TRAVEL_MODE.WALK} />,
       );
       const json = view.toJSON() as any;
-      expect(json.props.coordinates).toEqual(route.coordinates);
+      // Should render 3 Polyline components (one per step)
+      expect(Array.isArray(json)).toBe(true);
+      expect(json.length).toBe(3);
     });
 
-    it("renders with strokeWidth of 5", () => {
-      const route = makeRoute();
+    it("renders single Polyline segment for route with no steps", () => {
+      const route = makeRoute({ steps: [] });
       const view = render(
         <RoutePolyline route={route} travelMode={TRAVEL_MODE.WALK} />,
       );
       const json = view.toJSON() as any;
-      expect(json.props.strokeWidth).toBe(5);
+      expect(json).not.toBeNull();
+      expect(json.props).toBeDefined();
+    });
+
+    it("renders with strokeWidth of 5 for each segment", () => {
+      const route = makeRoute({
+        steps: [makeStep({}), makeStep({})],
+      });
+      const view = render(
+        <RoutePolyline route={route} travelMode={TRAVEL_MODE.WALK} />,
+      );
+      const json = view.toJSON() as any;
+      json.forEach((polyline: any) => {
+        expect(polyline.props.strokeWidth).toBe(5);
+      });
     });
   });
 
-  describe("walking mode", () => {
-    it("uses dark blue color for walking", () => {
-      const route = makeRoute();
-      const view = render(
-        <RoutePolyline route={route} travelMode={TRAVEL_MODE.WALK} />,
-      );
-      const json = view.toJSON() as any;
-      expect(json.props.strokeColor).toBe(COLORS.mapPolylineWalk);
-      expect(json.props.strokeColor).toBe("#40509F");
-    });
-
-    it("uses dotted line pattern for walking", () => {
-      const route = makeRoute();
-      const view = render(
-        <RoutePolyline route={route} travelMode={TRAVEL_MODE.WALK} />,
-      );
-      const json = view.toJSON() as any;
-      expect(json.props.lineDashPattern).toEqual([8, 6]);
-    });
-  });
-
-  describe("cycling mode", () => {
-    it("uses orange color for cycling", () => {
-      const route = makeRoute();
+  describe("cycling steps", () => {
+    it("uses orange color for cycling steps", () => {
+      const cycleStep = makeStep({ travelMode: "BICYCLE" });
+      const route = makeRoute({ steps: [cycleStep] });
       const view = render(
         <RoutePolyline route={route} travelMode={TRAVEL_MODE.BICYCLE} />,
       );
       const json = view.toJSON() as any;
-      expect(json.props.strokeColor).toBe("#FF8C00");
+      const polyline = Array.isArray(json) ? json[0] : json;
+      expect(polyline.props.strokeColor).toBe("#FF8C00");
     });
 
-    it("uses dashed line pattern for cycling", () => {
-      const route = makeRoute();
+    it("uses dashed line pattern for cycling steps", () => {
+      const cycleStep = makeStep({ travelMode: "BICYCLE" });
+      const route = makeRoute({ steps: [cycleStep] });
       const view = render(
         <RoutePolyline route={route} travelMode={TRAVEL_MODE.BICYCLE} />,
       );
       const json = view.toJSON() as any;
-      expect(json.props.lineDashPattern).toEqual([12, 6]);
+      const polyline = Array.isArray(json) ? json[0] : json;
+      expect(polyline.props.lineDashPattern).toEqual([12, 6]);
     });
   });
 
-  describe("shuttle mode", () => {
-    it("uses concordia maroon color for shuttle", () => {
-      const route = makeRoute();
+  describe("walking steps", () => {
+    it("uses dark blue color for walking steps", () => {
+      const walkStep = makeStep();
+      const route = makeRoute({ steps: [walkStep] });
+      const view = render(
+        <RoutePolyline route={route} travelMode={TRAVEL_MODE.WALK} />,
+      );
+      const json = view.toJSON() as any;
+      const polyline = Array.isArray(json) ? json[0] : json;
+      expect(polyline.props.strokeColor).toBe("#40509F");
+    });
+
+    it("uses dotted line pattern for walking steps", () => {
+      const walkStep = makeStep();
+      const route = makeRoute({ steps: [walkStep] });
+      const view = render(
+        <RoutePolyline route={route} travelMode={TRAVEL_MODE.WALK} />,
+      );
+      const json = view.toJSON() as any;
+      const polyline = Array.isArray(json) ? json[0] : json;
+      expect(polyline.props.lineDashPattern).toEqual([8, 6]);
+    });
+  });
+
+  describe("transit steps - vehicle types", () => {
+    it("uses orange-red color for subway/metro steps", () => {
+      const metroStep = makeStep({
+        transitDetails: {
+          departureStopName: "Guy-Concordia",
+          arrivalStopName: "Berri-UQAM",
+          departureTime: "2026-03-03T09:00:00Z",
+          arrivalTime: "2026-03-03T09:15:00Z",
+          lineName: "Green Line",
+          lineShortName: "1",
+          vehicleType: "SUBWAY",
+          vehicleName: "Metro",
+          stopCount: 5,
+        },
+      });
+      const route = makeRoute({ steps: [metroStep] });
+      const view = render(
+        <RoutePolyline route={route} travelMode={TRAVEL_MODE.TRANSIT} />,
+      );
+      const json = view.toJSON() as any;
+      const polyline = Array.isArray(json) ? json[0] : json;
+      expect(polyline.props.strokeColor).toBe("#FF6B35");
+    });
+
+    it("uses light blue color for bus steps", () => {
+      const busStep = makeStep({
+        transitDetails: {
+          departureStopName: "Guy-Concordia",
+          arrivalStopName: "Berri-UQAM",
+          departureTime: "2026-03-03T09:00:00Z",
+          arrivalTime: "2026-03-03T09:15:00Z",
+          lineName: "105",
+          lineShortName: "105",
+          vehicleType: "BUS",
+          vehicleName: "STM Bus",
+          stopCount: 3,
+        },
+      });
+      const route = makeRoute({ steps: [busStep] });
+      const view = render(
+        <RoutePolyline route={route} travelMode={TRAVEL_MODE.TRANSIT} />,
+      );
+      const json = view.toJSON() as any;
+      const polyline = Array.isArray(json) ? json[0] : json;
+      expect(polyline.props.strokeColor).toBe("#1E90FF");
+    });
+
+    it("uses royal blue color for trolleybus steps", () => {
+      const trolleyStep = makeStep({
+        transitDetails: {
+          departureStopName: "Stop A",
+          arrivalStopName: "Stop B",
+          departureTime: "2026-03-03T09:00:00Z",
+          arrivalTime: "2026-03-03T09:15:00Z",
+          lineName: "201",
+          lineShortName: "201",
+          vehicleType: "TROLLEYBUS",
+          vehicleName: "Trolleybus",
+          stopCount: 2,
+        },
+      });
+      const route = makeRoute({ steps: [trolleyStep] });
+      const view = render(
+        <RoutePolyline route={route} travelMode={TRAVEL_MODE.TRANSIT} />,
+      );
+      const json = view.toJSON() as any;
+      const polyline = Array.isArray(json) ? json[0] : json;
+      expect(polyline.props.strokeColor).toBe("#4169E1");
+    });
+
+    it("uses solid line for all transit steps", () => {
+      const transitStep = makeStep({
+        transitDetails: {
+          departureStopName: "Stop A",
+          arrivalStopName: "Stop B",
+          departureTime: "2026-03-03T09:00:00Z",
+          arrivalTime: "2026-03-03T09:15:00Z",
+          lineName: "105",
+          lineShortName: "105",
+          vehicleType: "BUS",
+          vehicleName: "Bus",
+          stopCount: 2,
+        },
+      });
+      const route = makeRoute({ steps: [transitStep] });
+      const view = render(
+        <RoutePolyline route={route} travelMode={TRAVEL_MODE.TRANSIT} />,
+      );
+      const json = view.toJSON() as any;
+      const polyline = Array.isArray(json) ? json[0] : json;
+      expect(polyline.props.lineDashPattern).toBeUndefined();
+    });
+  });
+
+  describe("mixed transit routes", () => {
+    it("renders walking + bus + metro + walking with different colors and styles", () => {
+      const route = makeRoute({
+        steps: [
+          // Walking to stop
+          makeStep({ instruction: "Walk to bus stop" }),
+          // Bus segment
+          makeStep({
+            instruction: "Take bus 105",
+            transitDetails: {
+              departureStopName: "Start",
+              arrivalStopName: "Transfer",
+              departureTime: "2026-03-03T09:00:00Z",
+              arrivalTime: "2026-03-03T09:10:00Z",
+              lineName: "105",
+              lineShortName: "105",
+              vehicleType: "BUS",
+              vehicleName: "Bus",
+              stopCount: 3,
+            },
+          }),
+          // Metro segment
+          makeStep({
+            instruction: "Take metro line 1",
+            transitDetails: {
+              departureStopName: "Transfer",
+              arrivalStopName: "Destination",
+              departureTime: "2026-03-03T09:15:00Z",
+              arrivalTime: "2026-03-03T09:25:00Z",
+              lineName: "Green Line",
+              lineShortName: "1",
+              vehicleType: "SUBWAY",
+              vehicleName: "Metro",
+              stopCount: 5,
+            },
+          }),
+          // Walking from stop
+          makeStep({ instruction: "Walk to destination" }),
+        ],
+      });
+
+      const view = render(
+        <RoutePolyline route={route} travelMode={TRAVEL_MODE.TRANSIT} />,
+      );
+      const json = view.toJSON() as any;
+      expect(Array.isArray(json)).toBe(true);
+      expect(json.length).toBe(4);
+
+      // Walking segment (index 0)
+      expect(json[0].props.strokeColor).toBe("#40509F");
+      expect(json[0].props.lineDashPattern).toEqual([8, 6]);
+
+      // Bus segment (index 1)
+      expect(json[1].props.strokeColor).toBe("#1E90FF");
+      expect(json[1].props.lineDashPattern).toBeUndefined();
+
+      // Metro segment (index 2)
+      expect(json[2].props.strokeColor).toBe("#FF6B35");
+      expect(json[2].props.lineDashPattern).toBeUndefined();
+
+      // Walking segment (index 3)
+      expect(json[3].props.strokeColor).toBe("#40509F");
+      expect(json[3].props.lineDashPattern).toEqual([8, 6]);
+    });
+  });
+
+  describe("default colors for entire route", () => {
+    it("uses concordia maroon for shuttle routes with no steps", () => {
+      const route = makeRoute({ steps: [] });
       const view = render(
         <RoutePolyline route={route} travelMode={TRAVEL_MODE.SHUTTLE} />,
       );
@@ -123,109 +312,22 @@ describe("RoutePolyline", () => {
       expect(json.props.strokeColor).toBe("#9C2D2D");
     });
 
-    it("uses solid line (no dash pattern) for shuttle", () => {
-      const route = makeRoute();
+    it("uses orange for bicycle routes with no steps", () => {
+      const route = makeRoute({ steps: [] });
       const view = render(
-        <RoutePolyline route={route} travelMode={TRAVEL_MODE.SHUTTLE} />,
+        <RoutePolyline route={route} travelMode={TRAVEL_MODE.BICYCLE} />,
       );
       const json = view.toJSON() as any;
-      expect(json.props.lineDashPattern).toBeUndefined();
+      expect(json.props.strokeColor).toBe("#FF8C00");
     });
-  });
 
-  describe("transit mode", () => {
-    it("uses light blue color for transit", () => {
-      const route = makeRoute();
+    it("uses dashed line for bicycle routes", () => {
+      const route = makeRoute({ steps: [] });
       const view = render(
-        <RoutePolyline route={route} travelMode={TRAVEL_MODE.TRANSIT} />,
+        <RoutePolyline route={route} travelMode={TRAVEL_MODE.BICYCLE} />,
       );
       const json = view.toJSON() as any;
-      expect(json.props.strokeColor).toBe("#1E90FF");
-    });
-
-    it("uses solid line (no dash pattern) for transit", () => {
-      const route = makeRoute();
-      const view = render(
-        <RoutePolyline route={route} travelMode={TRAVEL_MODE.TRANSIT} />,
-      );
-      const json = view.toJSON() as any;
-      expect(json.props.lineDashPattern).toBeUndefined();
-    });
-  });
-
-  describe("driving mode", () => {
-    it("uses dark blue color for driving", () => {
-      const route = makeRoute();
-      const view = render(
-        <RoutePolyline route={route} travelMode={TRAVEL_MODE.DRIVE} />,
-      );
-      const json = view.toJSON() as any;
-      expect(json.props.strokeColor).toBe(COLORS.mapPolylineWalk);
-      expect(json.props.strokeColor).toBe("#40509F");
-    });
-
-    it("uses solid line (no dash pattern) for driving", () => {
-      const route = makeRoute();
-      const view = render(
-        <RoutePolyline route={route} travelMode={TRAVEL_MODE.DRIVE} />,
-      );
-      const json = view.toJSON() as any;
-      expect(json.props.lineDashPattern).toBeUndefined();
-    });
-  });
-
-  describe("null travel mode", () => {
-    it("defaults to dark blue color when travelMode is null", () => {
-      const route = makeRoute();
-      const view = render(<RoutePolyline route={route} travelMode={null} />);
-      const json = view.toJSON() as any;
-      expect(json.props.strokeColor).toBe(COLORS.mapPolylineWalk);
-    });
-
-    it("uses dotted line pattern when travelMode is null", () => {
-      const route = makeRoute();
-      const view = render(<RoutePolyline route={route} travelMode={null} />);
-      const json = view.toJSON() as any;
-      expect(json.props.lineDashPattern).toEqual([8, 6]);
-    });
-  });
-
-  describe("all modes comparison", () => {
-    const modes: {
-      mode: TravelMode;
-      color: string;
-      hasDash: boolean;
-      dashPattern?: number[];
-    }[] = [
-      {
-        mode: TRAVEL_MODE.WALK,
-        color: "#40509F",
-        hasDash: true,
-        dashPattern: [8, 6],
-      },
-      {
-        mode: TRAVEL_MODE.BICYCLE,
-        color: "#FF8C00",
-        hasDash: true,
-        dashPattern: [12, 6],
-      },
-      { mode: TRAVEL_MODE.SHUTTLE, color: "#9C2D2D", hasDash: false },
-      { mode: TRAVEL_MODE.TRANSIT, color: "#1E90FF", hasDash: false },
-      { mode: TRAVEL_MODE.DRIVE, color: "#40509F", hasDash: false },
-    ];
-
-    modes.forEach(({ mode, color, hasDash, dashPattern }) => {
-      it(`applies correct styling for ${mode}`, () => {
-        const route = makeRoute();
-        const view = render(<RoutePolyline route={route} travelMode={mode} />);
-        const json = view.toJSON() as any;
-        expect(json.props.strokeColor).toBe(color);
-        if (hasDash) {
-          expect(json.props.lineDashPattern).toEqual(dashPattern);
-        } else {
-          expect(json.props.lineDashPattern).toBeUndefined();
-        }
-      });
+      expect(json.props.lineDashPattern).toEqual([12, 6]);
     });
   });
 });

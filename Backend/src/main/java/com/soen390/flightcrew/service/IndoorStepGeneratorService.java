@@ -41,14 +41,17 @@ public class IndoorStepGeneratorService {
             IndoorEdge edge = lookupEdge(edgeLookup, prev.getId(), curr.getId());
             String edgeType = edge != null ? edge.getType() : "";
 
-            // Floor transition via elevator or stairs
-            boolean isElevator = "elevator".equalsIgnoreCase(edgeType)
-                    || "elevator_door".equalsIgnoreCase(prev.getType())
-                    || "elevator_door".equalsIgnoreCase(curr.getType());
-            boolean isStair = "stair".equalsIgnoreCase(edgeType);
+            boolean isExplicitElevatorEdge = "elevator".equalsIgnoreCase(edgeType);
+            boolean isExplicitStairEdge = "stair".equalsIgnoreCase(edgeType);
+            boolean isFloorChange = isFloorTransition(prev, curr);
 
-            if (isElevator || isStair || isFloorTransition(prev, curr)) {
-                i = handleFloorTransition(pathNodes, edgeLookup, steps, i, isElevator);
+            if (isExplicitElevatorEdge || isExplicitStairEdge || isFloorChange) {
+                // If it's a floor change, detect if it's via elevator or stairs
+                boolean detectedElevator = isExplicitElevatorEdge
+                        || "elevator_door".equalsIgnoreCase(prev.getType())
+                        || "elevator_door".equalsIgnoreCase(curr.getType());
+                
+                i = handleFloorTransition(pathNodes, edgeLookup, steps, i, detectedElevator);
                 continue;
             }
 
@@ -93,14 +96,29 @@ public class IndoorStepGeneratorService {
         int endFloor = floorOf(endNode);
         int floors = Math.max(1, Math.abs(endFloor - startFloor));
 
-        if (isElevator) {
-            steps.add(new IndoorStep("Take the elevator to floor " + endFloor, "ELEVATOR",
-                    0, ELEVATOR_SECONDS_PER_FLOOR * floors, startFloor, endFloor, startNode.getId(),
-                    endNode.getId()));
-        } else {
-            steps.add(new IndoorStep("Take the stairs to floor " + endFloor, "STAIRS",
-                    0, STAIRS_SECONDS_PER_FLOOR * floors, startFloor, endFloor, startNode.getId(),
-                    endNode.getId()));
+        // Only add a step if the floor actually changed
+        if (startFloor != endFloor) {
+            String instruction = (isElevator ? "Take the elevator" : "Take the stairs") + " to floor " + endFloor;
+            String maneuver = isElevator ? "ELEVATOR" : "STAIRS";
+
+            // Avoid duplicate consecutive identical instructions
+            boolean isDuplicate = false;
+            if (!steps.isEmpty()) {
+                IndoorStep lastStep = steps.get(steps.size() - 1);
+                if (lastStep.getInstruction().equals(instruction)) {
+                    isDuplicate = true;
+                    // Optionally update the last step's end node/floor if needed, 
+                    // but since they are identical, it's likely already correct.
+                    lastStep.setEndNodeId(endNode.getId());
+                    lastStep.setEndFloor(endFloor);
+                }
+            }
+
+            if (!isDuplicate) {
+                steps.add(new IndoorStep(instruction, maneuver,
+                        0, (isElevator ? ELEVATOR_SECONDS_PER_FLOOR : STAIRS_SECONDS_PER_FLOOR) * floors,
+                        startFloor, endFloor, startNode.getId(), endNode.getId()));
+            }
         }
         return segEnd;
     }

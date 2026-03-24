@@ -316,6 +316,10 @@ function ZoomableFloorPlan({
 
     return transitionPins.map((t) => {
       const mapped = getMappedPoint(buildingId, t.node.x, t.node.y);
+      const isStair =
+        t.node.type === "stair_landing" ||
+        t.node.id.toLowerCase().includes("stair");
+
       return (
         <View
           key={`transition-pin-${t.node.id}`}
@@ -328,7 +332,13 @@ function ZoomableFloorPlan({
           }}
         >
           <MaterialCommunityIcons
-            name={t.type === "next" ? "elevator-up" : "elevator-down"}
+            name={
+              isStair
+                ? "stairs"
+                : t.type === "next"
+                  ? "elevator-up"
+                  : "elevator-down"
+            }
             size={16}
             color="white"
           />

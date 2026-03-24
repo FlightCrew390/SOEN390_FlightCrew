@@ -144,6 +144,30 @@ export function getNextDeparture(
 }
 
 /**
+ * Find the latest shuttle departure from `originCampus` strictly at or before `maxTime`.
+ * Returns null if no eligible departures.
+ */
+export function getPreviousDeparture(
+  departures: ShuttleDeparture[],
+  originCampus: ShuttleCampus,
+  maxTime: Date = new Date(),
+): { departure: ShuttleDeparture; departureTime: Date } | null {
+  // Departures in the schedule are usually chronological, so we loop backwards.
+  for (let i = departures.length - 1; i >= 0; i--) {
+    const dep = departures[i];
+    const timeStr =
+      originCampus === "LOY" ? dep.loyola_departure : dep.sgw_departure;
+    if (!timeStr) continue;
+
+    const depTime = parseScheduleTime(timeStr, maxTime);
+    if (depTime <= maxTime) {
+      return { departure: dep, departureTime: depTime };
+    }
+  }
+  return null;
+}
+
+/**
  * Returns the next weekday (Mon–Fri) at 9:15 AM.
  * If today is a weekday and 9:15 AM is still in the future, returns today at 9:15.
  */

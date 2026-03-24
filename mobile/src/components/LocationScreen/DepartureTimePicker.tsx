@@ -2,8 +2,8 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import { useReducer } from "react";
-import { Platform, Pressable, Text, View } from "react-native";
+import { useEffect, useReducer, useState } from "react";
+import { Platform, Pressable, Text, View, StyleSheet } from "react-native";
 
 import { COLORS } from "../../constants";
 import { DEPARTURE_OPTIONS } from "../../constants/departureOptions";
@@ -30,6 +30,11 @@ export default function DepartureTimePicker({
     initialDepartureTimePickerState,
   );
   const { showPicker, expanded } = state;
+  const [tempDate, setTempDate] = useState<Date>(config.date);
+
+  useEffect(() => {
+    setTempDate(config.date);
+  }, [config.date]);
 
   const handleOptionSelect = (option: DepartureOption) => {
     if (option === "now") {
@@ -37,17 +42,29 @@ export default function DepartureTimePicker({
       dispatch({ type: "COLLAPSE" });
       dispatch({ type: "HIDE_PICKER" });
     } else {
+      setTempDate(config.date);
       onConfigChange({ option, date: config.date });
       dispatch({ type: "COLLAPSE" });
       dispatch({ type: "SHOW_PICKER" });
     }
   };
 
-  const handleDateTimeChange = (_event: DateTimePickerEvent, date?: Date) => {
-    if (Platform.OS !== "ios") dispatch({ type: "HIDE_PICKER" });
-    if (date) {
-      onConfigChange({ ...config, date });
+  const handleDateTimeChange = (event: DateTimePickerEvent, date?: Date) => {
+    if (Platform.OS !== "ios") {
+      dispatch({ type: "HIDE_PICKER" });
+      if (event.type === "set" && date) {
+        onConfigChange({ ...config, date });
+      }
+    } else {
+      if (date) {
+        setTempDate(date);
+      }
     }
+  };
+
+  const confirmIOSDate = () => {
+    dispatch({ type: "HIDE_PICKER" });
+    onConfigChange({ ...config, date: tempDate });
   };
 
   const isPastTime =
@@ -139,14 +156,46 @@ export default function DepartureTimePicker({
 
       {/* Native date & time picker */}
       {showPicker && (
-        <DateTimePicker
-          testID="datetime-picker"
-          value={config.date}
-          mode="datetime"
-          minimumDate={new Date()}
-          onChange={handleDateTimeChange}
-        />
+        <View style={localStyles.pickerContainer}>
+          <DateTimePicker
+            testID="datetime-picker"
+            value={tempDate}
+            mode="datetime"
+            minimumDate={new Date()}
+            onChange={handleDateTimeChange}
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+          />
+          {Platform.OS === "ios" && (
+            <Pressable
+              style={localStyles.confirmButton}
+              onPress={confirmIOSDate}
+              accessibilityLabel="Confirm time"
+              accessibilityRole="button"
+            >
+              <Text style={localStyles.confirmButtonText}>Confirm Time</Text>
+            </Pressable>
+          )}
+        </View>
       )}
     </View>
   );
 }
+
+const localStyles = StyleSheet.create({
+  pickerContainer: {
+    alignItems: "center",
+    marginTop: 10,
+  },
+  confirmButton: {
+    marginTop: 10,
+    backgroundColor: COLORS.concordiaMaroon,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  confirmButtonText: {
+    color: "#ffffff",
+    fontSize: 15,
+    fontWeight: "600",
+  },
+});

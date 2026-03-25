@@ -45,6 +45,8 @@ const mockPoi: PointOfInterest = {
 describe("mapUIReducer", () => {
   it("has correct initial state", () => {
     expect(initialMapUIState).toEqual({
+      activeStepIndex: -1,
+      activeIndoorStepIndex: -1,
       destinationRoom: null,
       indoorBuildingId: null,
       indoorFloor: null,

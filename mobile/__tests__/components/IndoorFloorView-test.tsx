@@ -127,6 +127,7 @@ interface Props {
   onFloorChange?: (floor: number) => void;
   onBack?: () => void;
   route?: RouteInfo | null;
+  onStepPress?: (index: number) => void;
 }
 
 function renderView(overrides: Props = {}) {
@@ -282,9 +283,9 @@ describe("IndoorFloorView", () => {
       expect(screen.queryByText("Continue to Floor 8F")).toBeNull();
     });
 
-    it("triggers floor change when a step with different floor is pressed", () => {
-      // Test step click triggers floor change
-      const onFloorChange = jest.fn();
+    it("triggers step press when a step is pressed", () => {
+      // Test step click triggers onStepPress
+      const onStepPress = jest.fn();
       renderView({
         route: {
           ...mockRoute,
@@ -299,15 +300,14 @@ describe("IndoorFloorView", () => {
         },
         currentFloor: 9,
         buildingId: "Hall",
-        onFloorChange,
+        onStepPress,
       });
 
       // Find step and press it (it's in the StepsPanel)
       fireEvent.press(screen.getByText("Go down stairs"));
 
-      // It might be called once for initial sync (if startFloor != currentFloor)
-      // and once for the press.
-      expect(onFloorChange).toHaveBeenCalledWith(8);
+      // It should call onStepPress with the index of the step
+      expect(onStepPress).toHaveBeenCalledWith(1);
     });
 
     it("renders fallback for route with indoorPath (destination side)", () => {

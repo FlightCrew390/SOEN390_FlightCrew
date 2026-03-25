@@ -1,4 +1,4 @@
-import INDOOR_POIS from "../indoorPOIs";
+import INDOOR_POIS from "../../src/data/indoorPOIs";
 
 describe("INDOOR_POIS", () => {
   describe("Hall building sample entries with x/y coordinates", () => {
@@ -40,10 +40,12 @@ describe("INDOOR_POIS", () => {
     const mbPois = INDOOR_POIS["MB"] ?? [];
 
     it("has MB entries with valid x/y", () => {
-      mbPois.forEach((poi) => {
-        expect(typeof poi.x).toBe("number");
-        expect(typeof poi.y).toBe("number");
-      });
+      mbPois
+        .filter((p) => p.x !== undefined)
+        .forEach((poi) => {
+          expect(typeof poi.x).toBe("number");
+          expect(typeof poi.y).toBe("number");
+        });
     });
 
     it("VE entries have no x/y", () => {

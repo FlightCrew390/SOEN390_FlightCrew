@@ -310,7 +310,7 @@ function ZoomableFloorPlan({
     return transitionPins.map((t) => {
       const mapped = getMappedPoint(buildingId, t.node.x, t.node.y);
       const isStair =
-        t.node.type === "stair_landing" ||
+        (t.node as any).type === "stair_landing" ||
         t.node.id.toLowerCase().includes("stair");
 
       return (
@@ -598,6 +598,8 @@ export default function IndoorFloorView({
     initialFloorSelectorState,
   );
 
+  // We analyze floors just for state completeness, though not visually displayed anymore
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { nextFloors, prevFloors } = useMemo(() => {
     if (!route || !activeIndoorPath) {
       return { nextFloors: [], prevFloors: [] };

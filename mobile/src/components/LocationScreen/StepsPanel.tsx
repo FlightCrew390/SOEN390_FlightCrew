@@ -225,7 +225,6 @@ export default function StepsPanel({
         )}
         {visibleSteps.map((step, idx) => {
           const isCompleted = activeStepIndex !== -1 && idx <= activeStepIndex;
-          const isActive = activeStepIndex !== -1 && idx === activeStepIndex;
 
           return (
             <Pressable

@@ -313,6 +313,9 @@ function ZoomableFloorPlan({
         (t.node as any).type === "stair_landing" ||
         t.node.id.toLowerCase().includes("stair");
 
+      const elevatorIcon = t.type === "next" ? "elevator-up" : "elevator-down";
+      const iconName = isStair ? "stairs" : elevatorIcon;
+
       return (
         <View
           key={`transition-pin-${t.node.id}`}
@@ -324,17 +327,7 @@ function ZoomableFloorPlan({
             zIndex: 40,
           }}
         >
-          <MaterialCommunityIcons
-            name={
-              isStair
-                ? "stairs"
-                : t.type === "next"
-                  ? "elevator-up"
-                  : "elevator-down"
-            }
-            size={16}
-            color="white"
-          />
+          <MaterialCommunityIcons name={iconName} size={16} color="white" />
         </View>
       );
     });
@@ -597,33 +590,6 @@ export default function IndoorFloorView({
     floorSelectorReducer,
     initialFloorSelectorState,
   );
-
-  // We analyze floors just for state completeness, though not visually displayed anymore
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { nextFloors, prevFloors } = useMemo(() => {
-    if (!route || !activeIndoorPath) {
-      return { nextFloors: [], prevFloors: [] };
-    }
-
-    const nextF: number[] = [];
-    const prevF: number[] = [];
-    for (let i = 0; i < activeIndoorPath.length - 1; i++) {
-      const current = activeIndoorPath[i];
-      const next = activeIndoorPath[i + 1];
-      if (current.floor === currentFloor && next.floor !== currentFloor) {
-        nextF.push(next.floor);
-      } else if (
-        current.floor !== currentFloor &&
-        next.floor === currentFloor
-      ) {
-        prevF.push(current.floor);
-      }
-    }
-    return {
-      nextFloors: Array.from(new Set(nextF)),
-      prevFloors: Array.from(new Set(prevF)),
-    };
-  }, [route, currentFloor, activeIndoorPath]);
 
   const buildingLabel =
     building.buildingName ?? BUILDING_NAMES[buildingId] ?? buildingId;

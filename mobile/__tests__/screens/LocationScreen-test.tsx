@@ -98,4 +98,16 @@ describe("LocationScreen", () => {
 
     expect(screen.getByTestId("current-campus").props.children).toBe("SGW");
   });
+
+  test("changing campus updates activeCampusId", () => {
+    render(<LocationScreen />);
+
+    // Initial campus is SGW
+    expect(screen.getByTestId("current-campus").props.children).toBe("SGW");
+
+    // Press change campus button - should change to LOYOLA
+    fireEvent.press(screen.getByTestId("change-campus-button"));
+
+    expect(screen.getByTestId("current-campus").props.children).toBe("LOYOLA");
+  });
 });

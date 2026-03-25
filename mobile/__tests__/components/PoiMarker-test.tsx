@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react-native";
+import { render, screen } from "@testing-library/react-native";
 import PoiMarker from "../../src/components/LocationScreen/PoiMarker";
 import { PointOfInterest } from "../../src/types/PointOfInterest";
 
@@ -109,10 +109,10 @@ describe("PoiMarker", () => {
     );
   });
 
-  it("shows the POI address as native callout description", () => {
+  it("shows the POI address and description as native callout description", () => {
     render(<PoiMarker poi={mockPoi} />);
     expect(screen.getByTestId("marker-description")).toHaveTextContent(
-      "4126 Ste-Catherine St W",
+      "4126 Ste-Catherine St W — Italian-style café",
     );
   });
 

@@ -80,6 +80,11 @@ export default function PoiResultsPanel({
             <View style={styles.resultContent}>
               <Text style={styles.poiName}>{poi.name}</Text>
               <Text style={styles.poiAddress}>{poi.address}</Text>
+              {poi.description ? (
+                <Text style={styles.poiDescription} numberOfLines={2}>
+                  {poi.description}
+                </Text>
+              ) : null}
             </View>
 
             <View style={styles.iconRow}>

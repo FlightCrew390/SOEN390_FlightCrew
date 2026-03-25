@@ -14,7 +14,7 @@ export default function RoutePolyline({
   route,
   travelMode,
 }: Readonly<RoutePolylineProps>) {
-  if (!route || route.coordinates.length < 2) return null;
+  if (!route?.coordinates || route.coordinates.length < 2) return null;
 
   return (
     <Polyline
@@ -26,6 +26,7 @@ export default function RoutePolyline({
       }
       strokeWidth={5}
       lineDashPattern={travelMode === TRAVEL_MODE.WALK ? [8, 6] : undefined}
+      zIndex={100}
     />
   );
 }

@@ -8,12 +8,15 @@ import {
   TRAVEL_MODE,
   TravelMode,
 } from "../types/Directions";
+import { IndoorRoom } from "../types/IndoorRoom";
+import { getDirectionOriginCoords } from "../utils/directionsUtils";
 
 export type RoutePreviews = Partial<Record<TravelMode, number | null>>;
 
 interface UseRoutePreviewsParams {
   destination: Building | null;
   startBuilding: Building | null;
+  startRoom: IndoorRoom | null;
   userLocation: { latitude: number; longitude: number } | null;
   departureConfig: DepartureTimeConfig;
   active: boolean;
@@ -27,6 +30,7 @@ interface UseRoutePreviewsParams {
 export function useRoutePreviews({
   destination,
   startBuilding,
+  startRoom,
   userLocation,
   departureConfig,
   active,
@@ -39,10 +43,18 @@ export function useRoutePreviews({
       return;
     }
 
-    const originLat = startBuilding?.latitude ?? userLocation?.latitude;
-    const originLng = startBuilding?.longitude ?? userLocation?.longitude;
+    const originCoords = getDirectionOriginCoords(
+      startBuilding,
+      startRoom,
+      userLocation,
+    );
+    const originLat = originCoords?.latitude;
+    const originLng = originCoords?.longitude;
 
     if (originLat == null || originLng == null) return;
+
+    // Clear stale previews immediately when inputs change
+    setPreviews({});
 
     let cancelled = false;
 
@@ -113,6 +125,7 @@ export function useRoutePreviews({
     active,
     destination?.buildingCode,
     startBuilding?.buildingCode,
+    startRoom?.id,
     userLocation?.latitude,
     userLocation?.longitude,
     departureConfig.option,

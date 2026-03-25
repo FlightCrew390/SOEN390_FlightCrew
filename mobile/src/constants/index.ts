@@ -4,6 +4,7 @@ import { Platform } from "react-native";
 export const COLORS = {
   concordiaMaroon: "#9C2D2D",
   concordiaMaroonLight: "#8b2020",
+  concordiaYellow: "#F2C94C",
   concordiaBlue: "#4a90e2",
   textPrimary: "#333",
   textSecondary: "#666",

@@ -62,6 +62,22 @@ const route: RouteInfo = {
   ],
 };
 
+const sameBuildingStartRoom = {
+  id: "H-899-51",
+  label: "H-899-51",
+  buildingId: "H",
+  nodeType: "room",
+  floor: 8,
+} as any;
+
+const sameBuildingDestinationRoom = {
+  id: "H-920",
+  label: "H-920",
+  buildingId: "H",
+  nodeType: "room",
+  floor: 9,
+} as any;
+
 const transitRoute: RouteInfo = {
   coordinates: [],
   distanceMeters: 5000,
@@ -139,6 +155,22 @@ describe("StepsPanel", () => {
     expect(
       screen.getByText(/Exit Engineering and Visual Arts Complex/),
     ).toBeTruthy();
+  });
+
+  it("hides start exit row for same-building room routes", () => {
+    render(
+      <StepsPanel
+        building={building}
+        startBuilding={building}
+        route={route}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+        startRoom={sameBuildingStartRoom}
+        destinationRoom={sameBuildingDestinationRoom}
+      />,
+    );
+
+    expect(screen.queryByText(/Exit H starting from room H-899-51/)).toBeNull();
   });
 
   it("calls onBack when back button pressed", () => {
@@ -424,5 +456,69 @@ describe("StepsPanel", () => {
     );
     // Steps with durationSeconds > 0 show duration with dot separator
     expect(screen.getByText("Head north")).toBeTruthy();
+  });
+
+  it("renders departure indoor map button when startRoom is provided", () => {
+    const onOpenStartIndoor = jest.fn();
+    render(
+      <StepsPanel
+        startBuilding={startBuilding}
+        building={building}
+        route={route}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+        startRoom={
+          { id: "811", label: "811", nodeType: "room", floor: 8 } as any
+        }
+        onOpenStartIndoor={onOpenStartIndoor}
+      />,
+    );
+
+    const btn = screen.getByLabelText("Show Indoor Departure Map");
+    expect(btn).toBeTruthy();
+    fireEvent.press(btn);
+    expect(onOpenStartIndoor).toHaveBeenCalled();
+  });
+
+  it("renders destination indoor map button when destinationRoom is provided", () => {
+    const onOpenIndoor = jest.fn();
+    render(
+      <StepsPanel
+        startBuilding={startBuilding}
+        building={building}
+        route={route}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+        destinationRoom={
+          { id: "911", label: "911", nodeType: "room", floor: 9 } as any
+        }
+        onOpenIndoor={onOpenIndoor}
+      />,
+    );
+
+    const btn = screen.getByLabelText("Show Indoor Map");
+    expect(btn).toBeTruthy();
+    fireEvent.press(btn);
+    expect(onOpenIndoor).toHaveBeenCalled();
+  });
+
+  it("hides arrival row and indoor map button for same-building room routes", () => {
+    const onOpenIndoor = jest.fn();
+
+    render(
+      <StepsPanel
+        startBuilding={building}
+        building={building}
+        route={route}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+        startRoom={sameBuildingStartRoom}
+        destinationRoom={sameBuildingDestinationRoom}
+        onOpenIndoor={onOpenIndoor}
+      />,
+    );
+
+    expect(screen.queryByText(/Arrive at Hall Building/)).toBeNull();
+    expect(screen.queryByLabelText("Show Indoor Map")).toBeNull();
   });
 });

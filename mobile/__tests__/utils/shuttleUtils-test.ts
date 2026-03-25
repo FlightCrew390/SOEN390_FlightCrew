@@ -10,6 +10,7 @@ import {
   isWithinOperatingHours,
   parseScheduleTime,
   SHUTTLE_STOPS,
+  getPreviousDeparture,
 } from "../../src/utils/shuttleUtils";
 
 const makeBuilding = (campus: string): Building => ({
@@ -235,5 +236,22 @@ describe("shuttleUtils", () => {
       expect(result.getHours()).toBe(9);
       expect(result.getMinutes()).toBe(15);
     });
+  });
+});
+
+describe("getPreviousDeparture", () => {
+  const departures = [
+    makeDeparture("09:15", "09:30"),
+    makeDeparture("12:00", "12:15"),
+    makeDeparture("18:15", "18:30", true),
+  ];
+
+  it("finds the latest departure before a given arrival deadline", () => {
+    const maxTime = new Date(2026, 2, 7, 12, 10, 0);
+    // 12:10 is before the 12:15 departure from SGW, so it should catch the 09:30 one!
+    const result = getPreviousDeparture(departures, "SGW", maxTime);
+    expect(result).not.toBeNull();
+    expect(result!.departureTime.getHours()).toBe(9);
+    expect(result!.departureTime.getMinutes()).toBe(30);
   });
 });

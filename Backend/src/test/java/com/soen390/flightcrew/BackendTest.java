@@ -39,4 +39,17 @@ class BackendTest {
         assertNotNull(objectMapper);
         assertInstanceOf(ObjectMapper.class, objectMapper);
     }
+
+    @Test
+    void mainStartsApplication() {
+        try (org.mockito.MockedStatic<org.springframework.boot.SpringApplication> mocked = org.mockito.Mockito
+                .mockStatic(org.springframework.boot.SpringApplication.class)) {
+            mocked.when(() -> org.springframework.boot.SpringApplication.run(Backend.class, new String[] {}))
+                    .thenReturn(null);
+
+            Backend.main(new String[] {});
+
+            mocked.verify(() -> org.springframework.boot.SpringApplication.run(Backend.class, new String[] {}));
+        }
+    }
 }

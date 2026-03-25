@@ -393,4 +393,60 @@ describe("SearchPanel", () => {
     jest.advanceTimersByTime(250);
     jest.useRealTimers();
   });
+
+  // ── Classroom Search ──
+
+  it("shows classroom building dropdown and clears text when classroom type is selected", () => {
+    renderSearchPanel();
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Classroom"));
+
+    expect(screen.getByText("Building")).toBeTruthy();
+    expect(screen.getByText("All Buildings")).toBeTruthy(); // Default
+    expect(screen.getByLabelText("Search classroom name")).toBeTruthy();
+  });
+
+  it("opens classroom dropdown, selects a building, and updates label", () => {
+    renderSearchPanel();
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Classroom"));
+
+    fireEvent.press(screen.getByLabelText("Select building"));
+    fireEvent.press(screen.getByLabelText("Hall"));
+
+    expect(
+      screen.getAllByText("Henry F. Hall (H) Building").length,
+    ).toBeGreaterThan(0);
+  });
+
+  it("calls onSearch with query and building id when classroom is searched", () => {
+    const { props } = renderSearchPanel();
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Classroom"));
+
+    fireEvent.press(screen.getByLabelText("Select building"));
+    fireEvent.press(screen.getByLabelText("Hall"));
+
+    fireEvent.changeText(screen.getByLabelText("Search classroom name"), "811");
+    fireEvent.press(screen.getByLabelText("Search"));
+
+    expect(props.onSearch).toHaveBeenCalledWith(
+      "811",
+      "classroom",
+      null,
+      "Hall",
+    );
+  });
+
+  it("clears query in classroom view", () => {
+    renderSearchPanel();
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Classroom"));
+
+    fireEvent.changeText(screen.getByLabelText("Search classroom name"), "9");
+    expect(screen.getByLabelText("Clear search")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Clear search"));
+    expect(screen.getByLabelText("Search classroom name").props.value).toBe("");
+  });
 });

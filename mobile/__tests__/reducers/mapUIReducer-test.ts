@@ -3,8 +3,8 @@ import {
   mapUIReducer,
 } from "../../src/reducers/mapUIReducer";
 import { MapUIState } from "../../src/state/MapUIState";
-import { DEFAULT_DEPARTURE_CONFIG } from "../../src/types/Directions";
 import { Building, StructureType } from "../../src/types/Building";
+import { DEFAULT_DEPARTURE_CONFIG } from "../../src/types/Directions";
 import { PointOfInterest } from "../../src/types/PointOfInterest";
 
 const mockBuilding: Building = {
@@ -45,11 +45,19 @@ const mockPoi: PointOfInterest = {
 describe("mapUIReducer", () => {
   it("has correct initial state", () => {
     expect(initialMapUIState).toEqual({
+      activeStepIndex: -1,
+      activeIndoorStepIndex: -1,
+      destinationRoom: null,
+      indoorBuildingId: null,
+      indoorFloor: null,
+      indoorSelectedRoom: null,
+      roomResults: [],
       panel: "none",
       selectedBuilding: null,
       currentBuilding: null,
       searchOrigin: "default",
       startBuilding: null,
+      startRoom: null,
       travelMode: null,
       departureConfig: { option: "now", date: expect.any(Date) },
       route: null,
@@ -308,6 +316,96 @@ describe("mapUIReducer", () => {
       type: "UNKNOWN_ACTION" as any,
     });
     expect(state).toBe(initialMapUIState);
+  });
+
+  it("RESET_TRAVEL_MODE resets travel mode and clears route", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      travelMode: "TRANSIT",
+      route: { legs: [] } as any,
+    };
+    const state = mapUIReducer(prev, { type: "RESET_TRAVEL_MODE", mode: null });
+    expect(state.travelMode).toBeNull();
+    expect(state.route).toBeNull();
+  });
+
+  it("OPEN_STEPS changes panel to steps", () => {
+    const state = mapUIReducer(initialMapUIState, { type: "OPEN_STEPS" });
+    expect(state.panel).toBe("steps");
+  });
+
+  it("CLOSE_STEPS changes panel to directions", () => {
+    const state = mapUIReducer(initialMapUIState, { type: "CLOSE_STEPS" });
+    expect(state.panel).toBe("directions");
+  });
+
+  it("ROOM_LOADED sets roomResults and changes panel to room-results", () => {
+    const results = [{ roomId: "H-8" }] as any;
+    const state = mapUIReducer(initialMapUIState, {
+      type: "ROOM_LOADED",
+      results,
+    });
+    expect(state.roomResults).toBe(results);
+    expect(state.panel).toBe("room-results");
+  });
+
+  it("ROOM_BACK changes panel to search and clears roomResults", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      roomResults: [{ roomId: "H-8" }] as any,
+      panel: "room-results",
+    };
+    const state = mapUIReducer(prev, { type: "ROOM_BACK" });
+    expect(state.panel).toBe("search");
+    expect(state.roomResults).toEqual([]);
+  });
+
+  it("OPEN_INDOOR sets indoor params and clears indoorSelectedRoom", () => {
+    const state = mapUIReducer(initialMapUIState, {
+      type: "OPEN_INDOOR",
+      buildingId: "H",
+      floor: 8,
+    });
+    expect(state.panel).toBe("indoor");
+    expect(state.indoorBuildingId).toBe("H");
+    expect(state.indoorFloor).toBe(8);
+    expect(state.indoorSelectedRoom).toBeNull();
+  });
+
+  it("CLOSE_INDOOR changes panel to directions", () => {
+    const state = mapUIReducer(initialMapUIState, { type: "CLOSE_INDOOR" });
+    expect(state.panel).toBe("directions");
+  });
+
+  it("SET_INDOOR_FLOOR sets indoor floor and clears indoorSelectedRoom", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      indoorSelectedRoom: {} as any,
+    };
+    const state = mapUIReducer(prev, { type: "SET_INDOOR_FLOOR", floor: 9 });
+    expect(state.indoorFloor).toBe(9);
+    expect(state.indoorSelectedRoom).toBeNull();
+  });
+
+  it("OPEN_ROOM_INFO changes panel and sets indoorSelectedRoom", () => {
+    const room = { roomId: "H-9" } as any;
+    const state = mapUIReducer(initialMapUIState, {
+      type: "OPEN_ROOM_INFO",
+      room,
+    });
+    expect(state.panel).toBe("room-info");
+    expect(state.indoorSelectedRoom).toBe(room);
+  });
+
+  it("BACK_TO_INDOOR changes panel and clears indoorSelectedRoom", () => {
+    const prev: MapUIState = {
+      ...initialMapUIState,
+      panel: "room-info",
+      indoorSelectedRoom: {} as any,
+    };
+    const state = mapUIReducer(prev, { type: "BACK_TO_INDOOR" });
+    expect(state.panel).toBe("indoor");
+    expect(state.indoorSelectedRoom).toBeNull();
   });
 
   it("SET_DEPARTURE_CONFIG updates departureConfig and clears route state", () => {

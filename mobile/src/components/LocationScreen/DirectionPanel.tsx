@@ -22,7 +22,12 @@ import {
   TRAVEL_MODE,
   TravelMode,
 } from "../../types/Directions";
-import { getBirdsEyeDistanceText } from "../../utils/directionsUtils";
+import { IndoorRoom } from "../../types/IndoorRoom";
+import {
+  getBirdsEyeDistanceText,
+  getDirectionOriginCoords,
+  getStartLocationText,
+} from "../../utils/directionsUtils";
 import { formatDuration } from "../../utils/formatHelper";
 import Tooltip from "../common/Tooltip";
 import DepartureTimePicker from "./DepartureTimePicker";
@@ -60,6 +65,7 @@ const TRANSPORT_OPTIONS: {
 interface DirectionPanelProps {
   readonly visible: boolean;
   readonly building: Building | null;
+  readonly roomLabel?: string | null;
   readonly startBuilding?: Building | null;
   readonly route: RouteInfo | null;
   readonly routeLoading: boolean;
@@ -75,16 +81,25 @@ interface DirectionPanelProps {
   readonly showSteps: boolean;
   readonly onShowSteps: () => void;
   readonly onHideSteps: () => void;
+  readonly isIndoor?: boolean;
+  readonly startRoom?: IndoorRoom | null;
+  readonly destinationRoom?: IndoorRoom | null;
+  readonly onOpenStartIndoor?: () => void;
+  readonly onOpenIndoor?: () => void;
   readonly shuttleEligible?: boolean;
   readonly routePreviews?: RoutePreviews;
+  readonly activeStepIndex?: number;
+  readonly onStepPress?: (index: number) => void;
 }
 
 function StartLocationRow({
   startBuilding,
+  startRoom,
   onOpenSearch,
   onResetStart,
 }: Readonly<{
   startBuilding: Building | null | undefined;
+  startRoom: IndoorRoom | null | undefined;
   onOpenSearch?: () => void;
   onResetStart?: () => void;
 }>) {
@@ -94,13 +109,11 @@ function StartLocationRow({
         style={styles.changeStartRow}
         onPress={() => onOpenSearch?.()}
         disabled={!onOpenSearch}
-        accessibilityLabel="Search buildings to change directions start"
+        accessibilityLabel="Search locations to change directions start"
         accessibilityRole="button"
       >
         <Text style={styles.changeStartText} testID="start-location">
-          {startBuilding
-            ? `Starting at ${startBuilding.buildingName ?? startBuilding.buildingCode}`
-            : "Starting from your current location"}
+          {getStartLocationText(startBuilding, startRoom)}
         </Text>
         <Text style={styles.changeStart} testID="change-start">
           change
@@ -328,6 +341,7 @@ function ShuttleCard({
 export default function DirectionPanel({
   visible,
   building,
+  roomLabel,
   startBuilding,
   route,
   routeLoading,
@@ -343,16 +357,36 @@ export default function DirectionPanel({
   showSteps,
   onShowSteps,
   onHideSteps,
+  isIndoor,
+  startRoom,
+  destinationRoom,
+  onOpenStartIndoor,
+  onOpenIndoor,
   shuttleEligible,
   routePreviews,
+  activeStepIndex,
+  onStepPress,
 }: Readonly<DirectionPanelProps>) {
   const { animatedStyle } = usePanelAnimation(visible);
 
+  const destinationBuildingName =
+    building?.buildingName ?? building?.buildingCode ?? "";
+  const destinationTitle = roomLabel
+    ? `${roomLabel} (${destinationBuildingName})`
+    : destinationBuildingName;
+  const destinationSubtitle = building?.address ?? "";
+
   // helper: get duration label for a mode
   const getDuration = (mode: TravelMode): string => {
-    // If this mode is the active one and we have a full route, prefer that
-    if (travelMode === mode && route) {
-      return formatDuration(route.durationSeconds);
+    // If this mode is the active one, use the route's duration directly if available.
+    // If it's loaded and empty, it means no route was found, so show unavailable.
+    if (travelMode === mode) {
+      if (route) {
+        return formatDuration(route.durationSeconds);
+      }
+      if (!routeLoading && !routeError) {
+        return "-- min";
+      }
     }
     // Otherwise use the preview
     const preview = routePreviews?.[mode];
@@ -360,12 +394,11 @@ export default function DirectionPanel({
     return "-- min";
   };
 
-  const originCoords = startBuilding
-    ? {
-        latitude: startBuilding.latitude,
-        longitude: startBuilding.longitude,
-      }
-    : userLocation;
+  const originCoords = getDirectionOriginCoords(
+    startBuilding,
+    startRoom,
+    userLocation,
+  );
 
   const distanceText = getBirdsEyeDistanceText(originCoords, building);
 
@@ -399,10 +432,10 @@ export default function DirectionPanel({
             <View style={styles.buildingInfoRow}>
               <View style={styles.headerLeft}>
                 <Text style={styles.buildingName} numberOfLines={1}>
-                  {building.buildingName ?? building.buildingCode}
+                  {destinationTitle}
                 </Text>
                 <Text style={styles.buildingAddress} numberOfLines={2}>
-                  {building.address ?? ""}
+                  {destinationSubtitle}
                 </Text>
               </View>
               <Text style={styles.distanceText}>{distanceText}</Text>
@@ -410,6 +443,7 @@ export default function DirectionPanel({
 
             <StartLocationRow
               startBuilding={startBuilding}
+              startRoom={startRoom}
               onOpenSearch={onOpenSearch}
               onResetStart={onResetStart}
             />
@@ -466,7 +500,7 @@ export default function DirectionPanel({
 
             <View style={styles.divider} />
 
-            {route && route.steps.length > 0 ? (
+            {(route?.steps?.length ?? 0) > 0 && (
               <Pressable
                 style={styles.viewStepsButton}
                 onPress={onShowSteps}
@@ -485,9 +519,10 @@ export default function DirectionPanel({
                   color={COLORS.white}
                 />
               </Pressable>
-            ) : (
-              !routeLoading &&
-              !routeError && <BuildingDetails building={building} />
+            )}
+
+            {!route && !routeLoading && !routeError && (
+              <BuildingDetails building={building} />
             )}
           </>
         )}
@@ -501,6 +536,13 @@ export default function DirectionPanel({
           route={route}
           departureConfig={departureConfig}
           onBack={onHideSteps}
+          startRoom={startRoom}
+          destinationRoom={destinationRoom}
+          onOpenStartIndoor={onOpenStartIndoor}
+          onOpenIndoor={onOpenIndoor}
+          isIndoor={isIndoor}
+          activeStepIndex={activeStepIndex}
+          onStepPress={onStepPress}
         />
       )}
     </>

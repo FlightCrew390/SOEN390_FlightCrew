@@ -9,6 +9,8 @@ export const initialSearchPanelState: SearchPanelState = {
   selectedResult: null,
   radiusKm: null,
   radiusDropdownOpen: false,
+  classroomBuildingId: null,
+  classroomBuildingDropdownOpen: false,
 };
 
 export function searchPanelReducer(
@@ -79,6 +81,20 @@ export function searchPanelReducer(
 
     case "SELECT_RADIUS":
       return { ...state, radiusKm: action.radiusKm, radiusDropdownOpen: false };
+
+    case "TOGGLE_CLASSROOM_BUILDING_DROPDOWN":
+      return {
+        ...state,
+        classroomBuildingDropdownOpen: !state.classroomBuildingDropdownOpen,
+        dropdownOpen: false,
+      };
+
+    case "SELECT_CLASSROOM_BUILDING":
+      return {
+        ...state,
+        classroomBuildingId: action.buildingId,
+        classroomBuildingDropdownOpen: false,
+      };
 
     default:
       return state;

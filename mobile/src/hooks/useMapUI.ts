@@ -1,19 +1,21 @@
 import { useCallback, useEffect, useMemo, useReducer } from "react";
 import { initialMapUIState, mapUIReducer } from "../reducers/mapUIReducer";
+import { IndoorDataService } from "../services/IndoorDataService";
 import { PoiService } from "../services/PoiService";
-import { LocationType, isPoi } from "../state/SearchPanelState";
+import { LocationType, isClassroom, isPoi } from "../state/SearchPanelState";
 import { Building } from "../types/Building";
 import { DepartureTimeConfig, TravelMode } from "../types/Directions";
+import { IndoorRoom } from "../types/IndoorRoom";
 import { PointOfInterest } from "../types/PointOfInterest";
 import { findCurrentBuilding } from "../utils/buildingDetection";
 import { haversineDistance } from "../utils/distanceUtils";
-import { useDirections } from "./useDirections";
-import { useRoutePreviews } from "./useRoutePreviews";
 import {
   getCampusForBuilding,
   getCampusForLocation,
   isShuttleEligible,
 } from "../utils/shuttleUtils";
+import { useDirections } from "./useDirections";
+import { useRoutePreviews } from "./useRoutePreviews";
 
 interface UserCoords {
   latitude: number;
@@ -60,10 +62,12 @@ export function useMapUI(
   useDirections({
     destination: state.selectedBuilding,
     startBuilding: state.startBuilding,
+    destinationRoom: state.destinationRoom,
+    startRoom: state.startRoom,
     userLocation: userCoords,
     travelMode: state.travelMode,
     departureConfig: state.departureConfig,
-    active: state.panel === "directions",
+    active: state.panel === "directions" || state.panel === "room-info",
     onLoading: onRouteLoading,
     onLoaded: onRouteLoaded,
     onError: onRouteError,
@@ -73,9 +77,10 @@ export function useMapUI(
   const routePreviews = useRoutePreviews({
     destination: state.selectedBuilding,
     startBuilding: state.startBuilding,
+    startRoom: state.startRoom,
     userLocation: userCoords,
     departureConfig: state.departureConfig,
-    active: state.panel === "directions",
+    active: state.panel === "directions" || state.panel === "room-info",
   });
 
   // ── Detect current building ──
@@ -124,12 +129,48 @@ export function useMapUI(
     dispatch({ type: "SELECT_BUILDING", building });
   }, []);
 
-  const openDirections = useCallback((building: Building) => {
-    dispatch({ type: "OPEN_DIRECTIONS", building });
-  }, []);
+  const openDirections = useCallback(
+    (building: Building, room?: IndoorRoom) => {
+      dispatch({ type: "OPEN_DIRECTIONS", building, room });
+    },
+    [],
+  );
 
   const handleSearch = useCallback(
-    (query: string, locationType: LocationType, radiusKm?: number | null) => {
+    (
+      query: string,
+      locationType: LocationType,
+      radiusKm?: number | null,
+      classroomBuildingId?: string | null,
+    ) => {
+      if (isClassroom(locationType)) {
+        IndoorDataService.ensureLoaded()
+          .then(() => {
+            let rooms;
+            const trimmedQuery = query.trim();
+
+            if (classroomBuildingId) {
+              rooms = trimmedQuery
+                ? IndoorDataService.searchRoomsByBuilding(
+                    trimmedQuery,
+                    classroomBuildingId,
+                  )
+                : IndoorDataService.getRoomsByBuilding(classroomBuildingId);
+            } else {
+              rooms = trimmedQuery
+                ? IndoorDataService.searchRooms(trimmedQuery)
+                : IndoorDataService.getRooms();
+            }
+
+            // If we are searching for a start location, wrap these results
+            dispatch({ type: "ROOM_LOADED", results: rooms });
+          })
+          .catch(() => {
+            dispatch({ type: "ROOM_LOADED", results: [] });
+          });
+        return null;
+      }
+
       if (isPoi(locationType)) {
         // POI search — fetch from backend, filter client-side
         dispatch({ type: "POI_LOADING" });
@@ -175,6 +216,10 @@ export function useMapUI(
     [buildings, userCoords],
   );
 
+  const openIndoorView = useCallback((buildingId: string, floor: number) => {
+    dispatch({ type: "OPEN_INDOOR", buildingId, floor });
+  }, []);
+
   const selectPoi = useCallback((poi: PointOfInterest) => {
     dispatch({ type: "SELECT_POI", poi });
   }, []);
@@ -205,6 +250,7 @@ export function useMapUI(
     routePreviews,
     selectBuilding,
     openDirections,
+    openIndoorView,
     handleSearch,
     handleTravelModeChange,
     selectPoi,

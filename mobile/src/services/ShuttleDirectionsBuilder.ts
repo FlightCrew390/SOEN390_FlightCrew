@@ -7,6 +7,7 @@ import {
   getCampusForLocation,
   getCampusForBuilding,
   getNextDeparture,
+  getPreviousDeparture,
   getDayOfWeek,
 } from "../utils/shuttleUtils";
 import type { Building } from "../types/Building";
@@ -49,53 +50,113 @@ export class ShuttleDirectionsBuilder {
     if (!originCampus || !destCampus || originCampus === destCampus)
       return null;
 
-    // Fetch schedule and route in parallel
-    const now =
+    const baseTime =
       departureConfig.option === "now" ? new Date() : departureConfig.date;
-
-    const [schedule, shuttleRoute] = await Promise.all([
-      ShuttleService.getSchedule(getDayOfWeek(now)),
-      ShuttleService.getRoute(),
-    ]);
-
-    if (schedule.no_service) return null;
-
-    // Find next departure from origin campus
-    const nextDep = getNextDeparture(schedule.departures, originCampus, now);
-    if (!nextDep) return null;
 
     // Get shuttle stops
     const originStop = SHUTTLE_STOPS[originCampus];
     const destStop = SHUTTLE_STOPS[destCampus];
 
-    // Fetch walking directions in parallel
-    const [walkToStop, walkFromStop] = await Promise.all([
-      DirectionsService.fetchDirections(
-        originLat,
-        originLng,
-        originStop.latitude,
-        originStop.longitude,
-        "WALK",
-      ),
-      DirectionsService.fetchDirections(
-        destStop.latitude,
-        destStop.longitude,
-        destLat,
-        destLng,
-        "WALK",
-      ),
-    ]);
+    // Fetch schedule, route, and walking directions in parallel
+    const [schedule, shuttleRoute, walkToStop, walkFromStop] =
+      await Promise.all([
+        ShuttleService.getSchedule(getDayOfWeek(baseTime)),
+        ShuttleService.getRoute(),
+        DirectionsService.fetchDirections(
+          originLat,
+          originLng,
+          originStop.latitude,
+          originStop.longitude,
+          "WALK",
+        ),
+        DirectionsService.fetchDirections(
+          destStop.latitude,
+          destStop.longitude,
+          destLat,
+          destLng,
+          "WALK",
+        ),
+      ]);
+
+    if (schedule.no_service) return null;
+
+    const { targetDep, waitTimeSeconds } = calculateTargetDeparture(
+      departureConfig,
+      baseTime,
+      schedule,
+      originCampus,
+      walkToStop,
+      walkFromStop,
+    );
+
+    if (!targetDep) return null;
 
     // Build shuttle leg
     const shuttleLeg = buildShuttleLeg(
       shuttleRoute,
       originCampus,
-      nextDep.departureTime,
+      targetDep.departureTime,
+      waitTimeSeconds,
     );
 
     // Compose full route
-    return composeRoute(walkToStop, shuttleLeg, walkFromStop);
+    return composeRoute(walkToStop, shuttleLeg, walkFromStop, waitTimeSeconds);
   }
+}
+
+function calculateTargetDeparture(
+  departureConfig: DepartureTimeConfig,
+  baseTime: Date,
+  schedule: any,
+  originCampus: ShuttleCampus,
+  walkToStop: RouteInfo | null,
+  walkFromStop: RouteInfo | null,
+) {
+  let targetDep;
+  let waitTimeSeconds = 0;
+
+  if (departureConfig.option === "arrive_by") {
+    const walkFromTimeMs = (walkFromStop?.durationSeconds ?? 0) * 1000;
+    const shuttleRideMs = SHUTTLE_DURATION_SECONDS * 1000;
+    const maxDepartureTime = new Date(
+      baseTime.getTime() - walkFromTimeMs - shuttleRideMs,
+    );
+
+    targetDep = getPreviousDeparture(
+      schedule.departures,
+      originCampus,
+      maxDepartureTime,
+    );
+
+    if (targetDep) {
+      const waitTimeMs =
+        maxDepartureTime.getTime() - targetDep.departureTime.getTime();
+      if (waitTimeMs > 30 * 60 * 1000) {
+        return { targetDep: null, waitTimeSeconds: 0 };
+      }
+      waitTimeSeconds = Math.max(0, Math.floor(waitTimeMs / 1000));
+    }
+  } else {
+    const walkToTimeMs = (walkToStop?.durationSeconds ?? 0) * 1000;
+    const arrivalAtStop = new Date(baseTime.getTime() + walkToTimeMs);
+
+    targetDep = getNextDeparture(
+      schedule.departures,
+      originCampus,
+      arrivalAtStop,
+    );
+
+    if (targetDep) {
+      const waitTimeMs =
+        targetDep.departureTime.getTime() - arrivalAtStop.getTime();
+      if (waitTimeMs > 30 * 60 * 1000) {
+        return { targetDep: null, waitTimeSeconds: 0 };
+      }
+      waitTimeSeconds = Math.max(0, Math.floor(waitTimeMs / 1000));
+    }
+  }
+
+  return { targetDep, waitTimeSeconds };
 }
 
 /**
@@ -105,6 +166,7 @@ function buildShuttleLeg(
   route: ShuttleRouteResponse,
   originCampus: ShuttleCampus,
   departureTime: Date,
+  waitTimeSeconds: number,
 ): RouteInfo {
   const coordinates =
     originCampus === "SGW" ? route.sgw_to_loyola : route.loyola_to_sgw;
@@ -118,10 +180,16 @@ function buildShuttleLeg(
   const destLabel =
     originCampus === "SGW" ? "Loyola Campus" : "SGW (Hall Building)";
 
+  const waitMinutes = Math.round(waitTimeSeconds / 60);
+  const waitText =
+    waitMinutes > 0
+      ? `Wait approx ${waitMinutes} mins for the shuttle. Then take`
+      : "Take";
+
   const step: StepInfo = {
     distanceMeters: SHUTTLE_DISTANCE_METERS,
-    durationSeconds: SHUTTLE_DURATION_SECONDS,
-    instruction: `Take the Concordia Shuttle from ${originLabel} to ${destLabel}`,
+    durationSeconds: SHUTTLE_DURATION_SECONDS + waitTimeSeconds,
+    instruction: `${waitText} the Concordia Shuttle from ${originLabel} to ${destLabel}`,
     maneuver: "STRAIGHT",
     coordinates,
     transitDetails: {
@@ -140,7 +208,7 @@ function buildShuttleLeg(
   return {
     coordinates,
     distanceMeters: SHUTTLE_DISTANCE_METERS,
-    durationSeconds: SHUTTLE_DURATION_SECONDS,
+    durationSeconds: SHUTTLE_DURATION_SECONDS + waitTimeSeconds,
     steps: [step],
   };
 }
@@ -152,6 +220,7 @@ function composeRoute(
   walkToStop: RouteInfo | null,
   shuttleLeg: RouteInfo,
   walkFromStop: RouteInfo | null,
+  waitTimeSeconds: number,
 ): RouteInfo {
   const allCoords = [
     ...(walkToStop?.coordinates ?? []),

@@ -4,7 +4,27 @@ import {
   getDepartureDate,
   getManeuverIcon,
   parseTime,
+  getBirdsEyeDistanceText,
 } from "../../src/utils/directionsUtils";
+
+// ── getBirdsEyeDistanceText ──
+
+describe("getBirdsEyeDistanceText", () => {
+  it("returns '-- m' if origin or destination is undefined/null", () => {
+    expect(getBirdsEyeDistanceText(null, { latitude: 0, longitude: 0 })).toBe(
+      "-- m",
+    );
+    expect(
+      getBirdsEyeDistanceText({ latitude: 0, longitude: 0 }, undefined),
+    ).toBe("-- m");
+  });
+
+  it("returns formatted distance", () => {
+    const origin = { latitude: 45.497, longitude: -73.579 };
+    const destination = { latitude: 45.498, longitude: -73.58 };
+    expect(getBirdsEyeDistanceText(origin, destination)).toMatch(/.*m/);
+  });
+});
 
 // ── getManeuverIcon ──
 
@@ -28,6 +48,9 @@ describe("getManeuverIcon", () => {
     ["ROUNDABOUT_RIGHT", "roundabout-right"],
     ["UTURN_LEFT", "u-turn-left"],
     ["UTURN_RIGHT", "u-turn-right"],
+    ["ELEVATOR", "elevator"],
+    ["STAIRS", "stairs"],
+    ["ARRIVE", "place"],
   ];
 
   it.each(cases)("maps %s → %s", (maneuver, expected) => {

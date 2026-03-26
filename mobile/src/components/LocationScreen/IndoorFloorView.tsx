@@ -6,8 +6,8 @@ import {
   Pressable,
   ScrollView,
   Text,
-  View,
   TouchableOpacity,
+  View,
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
@@ -17,7 +17,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import Svg, { SvgUri, Polyline, Path } from "react-native-svg";
+import Svg, { Path, Polyline, SvgUri } from "react-native-svg";
 import { API_CONFIG, COLORS } from "../../constants";
 import {
   floorPlanAssetReducer,
@@ -27,9 +27,10 @@ import {
 } from "../../reducers/indoorFloorViewReducer";
 import { getIndoorPoisForBuilding } from "../../services/IndoorPoiService";
 import { Building } from "../../types/Building";
+import { RouteInfo } from "../../types/Directions";
 import { IndoorPoiCategory } from "../../types/IndoorPointOfInterest";
 import { IndoorRoom } from "../../types/IndoorRoom";
-import { RouteInfo } from "../../types/Directions";
+import { getFloorLabel } from "../../utils/indoorFloorUtils";
 import StepsPanel from "./StepsPanel";
 
 const BUILDING_NAMES: Record<string, string> = {
@@ -52,12 +53,6 @@ const RASTER_PLAN_FILES: Record<string, Record<number, string>> = {
   MB: { 1: "mb_1.png", 2: "mb_s2.png" },
   VL: { 1: "vl_1.png", 2: "vl_2.png" },
 };
-
-export function getFloorLabel(buildingId: string, floor: number): string {
-  if (buildingId === "MB" && floor === 2) return "S2";
-  if (buildingId === "MB" && floor === 1) return "1";
-  return `${floor}F`;
-}
 
 function sortFloorsForDisplay(buildingId: string, floors: number[]): number[] {
   if (buildingId === "MB") {

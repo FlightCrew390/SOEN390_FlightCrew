@@ -105,6 +105,11 @@ export default function GoogleMaps({
     animateToBuilding,
   } = useMapCamera(mapRef, location, state.route, state.panel);
 
+  const showRoutePolyline =
+    state.panel === "directions" ||
+    state.panel === "steps" ||
+    state.panel === "room-info";
+
   // ── Handle deep-link from Calendar (or other screens) ──
   useEffect(() => {
     if (!params.directionsTo || buildings.length === 0) return;
@@ -203,7 +208,9 @@ export default function GoogleMaps({
           onDirectionPress={onDirectionPress}
         />
 
-        <RoutePolyline route={state.route} travelMode={state.travelMode} />
+        {showRoutePolyline && (
+          <RoutePolyline route={state.route} travelMode={state.travelMode} />
+        )}
 
         {location && (
           <UserLocationMarker

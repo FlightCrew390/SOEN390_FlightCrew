@@ -100,13 +100,12 @@ describe("DailyEventList", () => {
     // "Lunch with Sarah" is the next future event — it should show the pill
     expect(screen.getByText("Next class")).toBeTruthy();
 
-    // and its card should have the maroon border applied via eventItemUpcoming
     const nextEvent = screen.getByTestId("event-2");
-    expect(nextEvent.props.style).toContainEqual(
-      expect.objectContaining({ borderColor: "#9E1B32" }),
+    const flatStyle = nextEvent.props.style.filter(Boolean);
+    expect(flatStyle).toContainEqual(
+      expect.objectContaining({ borderWidth: 1.5 }),
     );
   });
-
   it("does not show next class pill on already-started events", () => {
     render(
       <DailyEventList

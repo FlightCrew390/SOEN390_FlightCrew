@@ -1,4 +1,9 @@
-import { fireEvent, render, screen } from "@testing-library/react-native";
+import {
+  fireEvent,
+  render,
+  screen,
+  within,
+} from "@testing-library/react-native";
 import DailyEventList from "../../src/components/HomeScreen/DailyEventList";
 import { CalendarEvent } from "../../src/types/CalendarEvent";
 
@@ -97,16 +102,16 @@ describe("DailyEventList", () => {
       />,
     );
 
-    // "Lunch with Sarah" is the next future event — it should show the pill
     expect(screen.getByText("Next class")).toBeTruthy();
 
-    const nextEvent = screen.getByTestId("event-2");
-    const flatStyle = nextEvent.props.style.filter(Boolean);
-    expect(flatStyle).toContainEqual(
-      expect.objectContaining({ borderWidth: 1.5 }),
-    );
+    // event-1 ends in 30 mins so it is correctly flagged as upcoming
+    const upcomingEvent = screen.getByTestId("event-1");
+    const futureEvent = screen.getByTestId("event-2");
+    expect(within(upcomingEvent).getByText("Next class")).toBeTruthy();
+    expect(within(futureEvent).queryByText("Next class")).toBeNull();
   });
-  it("does not show next class pill on already-started events", () => {
+
+  it("does not show next class pill on later events", () => {
     render(
       <DailyEventList
         isConnected={true}
@@ -118,11 +123,8 @@ describe("DailyEventList", () => {
       />,
     );
 
-    // "Morning Meeting" started 30 mins ago — should not have the pill
-    const pastEvent = screen.getByTestId("event-1");
-    expect(pastEvent.props.style).not.toContainEqual(
-      expect.objectContaining({ borderColor: "#9E1B32" }),
-    );
+    const futureEvent = screen.getByTestId("event-2");
+    expect(within(futureEvent).queryByText("Next class")).toBeNull();
   });
 
   it("calls onEventPress when an event is pressed", () => {

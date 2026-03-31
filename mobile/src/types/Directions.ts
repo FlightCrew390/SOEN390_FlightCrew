@@ -95,7 +95,7 @@ export interface StepInfo {
   instruction: string;
   maneuver: string;
   coordinates: { latitude: number; longitude: number }[];
-  travelMode?: string; // e.g., "WALK", "BICYCLE", "TRANSIT"
+  travelMode?: TravelMode; // e.g., TRAVEL_MODE.WALK, TRAVEL_MODE.BICYCLE, TRAVEL_MODE.TRANSIT
   transitDetails?: TransitStepDetails;
   startFloor?: number;
   endFloor?: number;

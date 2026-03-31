@@ -22,7 +22,7 @@ const mockEvents: CalendarEvent[] = [
     description: "Catch up over lunch",
     location: "Cafe Bistro",
     start: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // Starts in 1 hour
-    end: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // Ends in 2 hours
+    end: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
     allDay: false,
   },
 ];
@@ -70,7 +70,63 @@ describe("DailyEventList", () => {
     expect(screen.getByText("No events scheduled for this day")).toBeTruthy();
   });
 
-  it("renders list of events and highlights upcoming event", () => {
+  it("renders list of events", () => {
+    render(
+      <DailyEventList
+        isConnected={true}
+        loading={false}
+        error={null}
+        events={mockEvents}
+        isToday={true}
+        onEventPress={jest.fn()}
+      />,
+    );
+    expect(screen.getByText("Morning Meeting")).toBeTruthy();
+    expect(screen.getByText("Lunch with Sarah")).toBeTruthy();
+  });
+
+  it("marks the next upcoming event with the next class pill", () => {
+    render(
+      <DailyEventList
+        isConnected={true}
+        loading={false}
+        error={null}
+        events={mockEvents}
+        isToday={true}
+        onEventPress={jest.fn()}
+      />,
+    );
+
+    // "Lunch with Sarah" is the next future event — it should show the pill
+    expect(screen.getByText("Next class")).toBeTruthy();
+
+    // and its card should have the maroon border applied via eventItemUpcoming
+    const nextEvent = screen.getByTestId("event-2");
+    expect(nextEvent.props.style).toContainEqual(
+      expect.objectContaining({ borderColor: "#9E1B32" }),
+    );
+  });
+
+  it("does not show next class pill on already-started events", () => {
+    render(
+      <DailyEventList
+        isConnected={true}
+        loading={false}
+        error={null}
+        events={mockEvents}
+        isToday={true}
+        onEventPress={jest.fn()}
+      />,
+    );
+
+    // "Morning Meeting" started 30 mins ago — should not have the pill
+    const pastEvent = screen.getByTestId("event-1");
+    expect(pastEvent.props.style).not.toContainEqual(
+      expect.objectContaining({ borderColor: "#9E1B32" }),
+    );
+  });
+
+  it("calls onEventPress when an event is pressed", () => {
     const mockOnPress = jest.fn();
     render(
       <DailyEventList
@@ -82,17 +138,8 @@ describe("DailyEventList", () => {
         onEventPress={mockOnPress}
       />,
     );
-    expect(screen.getByText("Morning Meeting")).toBeTruthy();
-    expect(screen.getByText("Lunch with Sarah")).toBeTruthy();
 
-    // The first event should be highlighted as upcoming
-    const morningMeeting = screen.getByTestId("event-1");
-    expect(morningMeeting.props.style).toContainEqual(
-      expect.objectContaining({ borderColor: "#ff0000" }),
-    );
-
-    // Simulate pressing the event
-    fireEvent.press(morningMeeting);
+    fireEvent.press(screen.getByTestId("event-1"));
     expect(mockOnPress).toHaveBeenCalledWith(mockEvents[0]);
   });
 });

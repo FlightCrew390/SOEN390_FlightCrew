@@ -146,13 +146,19 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
     flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  eventInnerRow: {
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+  },
+  eventTextBlock: {
+    flex: 1,
   },
   eventItemUpcoming: {
-    borderWidth: 2,
-    borderColor: COLORS.error,
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.concordiaMaroon,
+    borderColor: COLORS.concordiaMaroon,
+    borderWidth: 1.5,
   },
   eventSummary: {
     fontSize: 16,
@@ -227,6 +233,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginLeft: 8,
+    marginTop: 26,
   },
 
   /* ── Event error state ── */
@@ -353,6 +360,30 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.concordiaMaroon,
     marginTop: -3,
     zIndex: 10,
+  },
+  nextClassPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    gap: 5,
+    backgroundColor: COLORS.concordiaMaroon + "18",
+    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginBottom: 6,
+  },
+  nextClassDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: COLORS.concordiaMaroon,
+  },
+  nextClassPillText: {
+    fontSize: 10,
+    fontWeight: "600",
+    color: COLORS.concordiaMaroon,
+    letterSpacing: 0.4,
+    textTransform: "uppercase",
   },
 });
 

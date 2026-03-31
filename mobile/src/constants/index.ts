@@ -17,6 +17,11 @@ export const COLORS = {
   buildingFill: "rgba(156, 45, 45, 0.3)",
   groundsFill: "rgba(134, 134, 5, 0.3)",
   mapPolylineWalk: "#40509F",
+  mapPolylineBicycle: "#FF8C00",
+  mapPolylineDrive: "#40509F",
+  mapPolylineRail: "#FF6B35",
+  mapPolylineBus: "#1E90FF",
+  mapPolylineTrolleybus: "#4169E1",
 };
 
 export const METRO_ACCESS_BUILDINGS = ["H", "EV", "MB", "LB"];

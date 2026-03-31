@@ -21,9 +21,8 @@ import {
   formatDistance,
   formatDuration,
 } from "../../utils/formatHelper";
+import { getFloorLabel } from "../../utils/indoorFloorUtils";
 import TransitBadge from "./TransitBadge";
-
-import { getFloorLabel } from "./IndoorFloorView";
 
 interface StepsPanelProps {
   readonly building: Building;

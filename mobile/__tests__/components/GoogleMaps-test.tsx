@@ -1160,6 +1160,7 @@ describe("GoogleMaps", () => {
   it("renders route polyline when route has coordinates", () => {
     mockMapUIState = {
       ...defaultMapUIState,
+      panel: "directions",
       route: {
         coordinates: [
           { latitude: 45.4973, longitude: -73.5789 },
@@ -1179,6 +1180,7 @@ describe("GoogleMaps", () => {
   it("renders polyline without dash pattern for non-WALK mode", () => {
     mockMapUIState = {
       ...defaultMapUIState,
+      panel: "directions",
       route: {
         coordinates: [
           { latitude: 45.4973, longitude: -73.5789 },
@@ -1198,11 +1200,30 @@ describe("GoogleMaps", () => {
   it("does not render polyline when route has fewer than 2 coordinates", () => {
     mockMapUIState = {
       ...defaultMapUIState,
+      panel: "directions",
       route: {
         coordinates: [{ latitude: 45.4973, longitude: -73.5789 }],
         duration: 0,
         distance: 0,
       },
+    } as any;
+    render(<GoogleMaps />);
+    expect(screen.queryByTestId("route-polyline")).toBeNull();
+  });
+
+  it("does not render route polyline when directions panel is closed", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "none",
+      route: {
+        coordinates: [
+          { latitude: 45.4973, longitude: -73.5789 },
+          { latitude: 45.4957, longitude: -73.5773 },
+        ],
+        duration: 300,
+        distance: 500,
+      },
+      travelMode: "WALK",
     } as any;
     render(<GoogleMaps />);
     expect(screen.queryByTestId("route-polyline")).toBeNull();

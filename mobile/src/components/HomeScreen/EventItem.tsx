@@ -85,6 +85,12 @@ export default function EventItem({
       onPress={onPress}
     >
       <View style={styles.eventContent}>
+        {isUpcoming && (
+          <View style={styles.nextClassPill}>
+            <View style={styles.nextClassDot} />
+            <Text style={styles.nextClassPillText}>Next class</Text>
+          </View>
+        )}
         <Text style={styles.eventSummary}>{event.summary}</Text>
         <Text style={styles.eventDetails}>
           {event.allDay ? "All day" : `${startTime} - ${endTime}`}

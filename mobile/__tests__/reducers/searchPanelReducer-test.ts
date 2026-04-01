@@ -31,6 +31,7 @@ describe("searchPanelReducer", () => {
       radiusDropdownOpen: false,
       classroomBuildingDropdownOpen: false,
       classroomBuildingId: null,
+      filtersExpanded: false,
     });
   });
 
@@ -211,5 +212,56 @@ describe("searchPanelReducer", () => {
     const state = searchPanelReducer(prev, { type: "PANEL_CLOSED" });
     expect(state.dropdownOpen).toBe(false);
     expect(state.radiusDropdownOpen).toBe(false);
+  });
+
+  // ── filtersExpanded actions ──
+
+  it("TOGGLE_FILTERS_EXPANDED toggles filtersExpanded", () => {
+    const state = searchPanelReducer(initialSearchPanelState, {
+      type: "TOGGLE_FILTERS_EXPANDED",
+    });
+    expect(state.filtersExpanded).toBe(true);
+
+    const state2 = searchPanelReducer(state, {
+      type: "TOGGLE_FILTERS_EXPANDED",
+    });
+    expect(state2.filtersExpanded).toBe(false);
+  });
+
+  it("SELECT_LOCATION_TYPE with a secondary type auto-sets filtersExpanded to true", () => {
+    for (const secondary of ["pharmacy", "bar", "grocery"] as const) {
+      const state = searchPanelReducer(initialSearchPanelState, {
+        type: "SELECT_LOCATION_TYPE",
+        locationType: secondary,
+      });
+      expect(state.filtersExpanded).toBe(true);
+    }
+  });
+
+  it("SELECT_LOCATION_TYPE with a primary type preserves filtersExpanded", () => {
+    const expanded: SearchPanelState = {
+      ...initialSearchPanelState,
+      filtersExpanded: true,
+    };
+    for (const primary of [
+      "building",
+      "classroom",
+      "cafe",
+      "restaurant",
+    ] as const) {
+      const state = searchPanelReducer(expanded, {
+        type: "SELECT_LOCATION_TYPE",
+        locationType: primary,
+      });
+      expect(state.filtersExpanded).toBe(true);
+    }
+  });
+
+  it("SELECT_LOCATION_TYPE with a primary type does not expand when collapsed", () => {
+    const state = searchPanelReducer(initialSearchPanelState, {
+      type: "SELECT_LOCATION_TYPE",
+      locationType: "cafe",
+    });
+    expect(state.filtersExpanded).toBe(false);
   });
 });

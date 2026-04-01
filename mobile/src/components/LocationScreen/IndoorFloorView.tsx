@@ -512,6 +512,7 @@ export default function IndoorFloorView({
   onStepPress,
 }: Readonly<IndoorFloorViewProps>) {
   const [amenityOpen, setAmenityOpen] = useState(false);
+  const [amenityPanelExpanded, setAmenityPanelExpanded] = useState(false);
   const [selectedAmenities, setSelectedAmenities] = useState<
     Set<IndoorPoiCategory>
   >(new Set(["washroom", "fountain", "stairs", "elevator"]));
@@ -817,13 +818,14 @@ export default function IndoorFloorView({
                 elevation: 6,
               }}
             >
-              {(
-                [
-                  "washroom",
-                  "fountain",
-                  "stairs",
-                  "elevator",
-                ] as IndoorPoiCategory[]
+              {(amenityPanelExpanded
+                ? ([
+                    "washroom",
+                    "fountain",
+                    "stairs",
+                    "elevator",
+                  ] as IndoorPoiCategory[])
+                : (["washroom", "fountain"] as IndoorPoiCategory[])
               ).map((cat) => (
                 <Pressable
                   key={cat}
@@ -847,6 +849,28 @@ export default function IndoorFloorView({
                   />
                 </Pressable>
               ))}
+              <Pressable
+                onPress={() => setAmenityPanelExpanded(!amenityPanelExpanded)}
+                style={{
+                  width: 60,
+                  height: 44,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "transparent",
+                }}
+                accessibilityLabel={
+                  amenityPanelExpanded
+                    ? "Show fewer amenities"
+                    : "Show more amenities"
+                }
+                accessibilityRole="button"
+              >
+                <MaterialCommunityIcons
+                  name={amenityPanelExpanded ? "chevron-up" : "chevron-down"}
+                  size={20}
+                  color="#888"
+                />
+              </Pressable>
             </View>
           )}
         </View>

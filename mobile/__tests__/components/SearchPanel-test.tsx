@@ -328,8 +328,9 @@ describe("SearchPanel", () => {
 
   it("opens radius dropdown when toggle is pressed", () => {
     renderSearchPanel();
-    // Switch to POI type
+    // Switch to POI type (Pharmacy is secondary — expand first)
     fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Show more categories"));
     fireEvent.press(screen.getByLabelText("Pharmacy"));
     // Open radius dropdown
     fireEvent.press(screen.getByLabelText("Select distance radius"));
@@ -340,7 +341,9 @@ describe("SearchPanel", () => {
 
   it("selects a radius value from the dropdown", () => {
     renderSearchPanel();
+    // Bar is a secondary category — expand first
     fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Show more categories"));
     fireEvent.press(screen.getByLabelText("Bar"));
     // Open radius dropdown and select 2 km
     fireEvent.press(screen.getByLabelText("Select distance radius"));
@@ -351,8 +354,9 @@ describe("SearchPanel", () => {
 
   it("calls onSearch with empty query, POI type, and radius when search is pressed", () => {
     const { props } = renderSearchPanel();
-    // Switch to grocery
+    // Grocery is a secondary category — expand first
     fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Show more categories"));
     fireEvent.press(screen.getByLabelText("Grocery"));
     // Select 5 km radius
     fireEvent.press(screen.getByLabelText("Select distance radius"));
@@ -448,5 +452,66 @@ describe("SearchPanel", () => {
 
     fireEvent.press(screen.getByLabelText("Clear search"));
     expect(screen.getByLabelText("Search classroom name").props.value).toBe("");
+  });
+
+  // ── Filter collapse / expand ──
+
+  it("hides secondary categories (Pharmacy, Bar, Grocery) by default when dropdown opens", () => {
+    renderSearchPanel();
+    fireEvent.press(screen.getByLabelText("Select location type"));
+
+    expect(screen.queryByLabelText("Pharmacy")).toBeNull();
+    expect(screen.queryByLabelText("Bar")).toBeNull();
+    expect(screen.queryByLabelText("Grocery")).toBeNull();
+  });
+
+  it("shows all primary categories when dropdown opens", () => {
+    renderSearchPanel();
+    fireEvent.press(screen.getByLabelText("Select location type"));
+
+    expect(screen.getByLabelText("Campus Building")).toBeTruthy();
+    expect(screen.getByLabelText("Classroom")).toBeTruthy();
+    expect(screen.getByLabelText("Cafe")).toBeTruthy();
+    expect(screen.getByLabelText("Restaurant")).toBeTruthy();
+  });
+
+  it("shows 'Show more categories' button when dropdown is open and collapsed", () => {
+    renderSearchPanel();
+    fireEvent.press(screen.getByLabelText("Select location type"));
+
+    expect(screen.getByLabelText("Show more categories")).toBeTruthy();
+  });
+
+  it("reveals secondary categories after pressing Show more", () => {
+    renderSearchPanel();
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Show more categories"));
+
+    expect(screen.getByLabelText("Pharmacy")).toBeTruthy();
+    expect(screen.getByLabelText("Bar")).toBeTruthy();
+    expect(screen.getByLabelText("Grocery")).toBeTruthy();
+  });
+
+  it("hides secondary categories again after pressing Show fewer", () => {
+    renderSearchPanel();
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Show more categories"));
+    fireEvent.press(screen.getByLabelText("Show fewer categories"));
+
+    expect(screen.queryByLabelText("Pharmacy")).toBeNull();
+    expect(screen.queryByLabelText("Bar")).toBeNull();
+    expect(screen.queryByLabelText("Grocery")).toBeNull();
+  });
+
+  it("auto-expands filter panel when a secondary category is selected", () => {
+    renderSearchPanel();
+    // Expand, select Pharmacy, then reopen dropdown
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    fireEvent.press(screen.getByLabelText("Show more categories"));
+    fireEvent.press(screen.getByLabelText("Pharmacy"));
+
+    // Reopen — Pharmacy should still be visible (filtersExpanded persisted)
+    fireEvent.press(screen.getByLabelText("Select location type"));
+    expect(screen.getByLabelText("Pharmacy")).toBeTruthy();
   });
 });

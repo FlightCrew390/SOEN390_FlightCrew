@@ -1,8 +1,8 @@
-import { render, screen } from "@testing-library/react-native";
+import { render, screen, waitFor } from "@testing-library/react-native";
 import BuildingAmenityLayer from "../../src/components/LocationScreen/BuildingAmenityLayer";
 
 jest.mock("../../src/services/IndoorPoiService", () => ({
-  getIndoorPoisForBuilding: (code: string) => {
+  getIndoorPoisForBuilding: async (code: string) => {
     if (code === "H") {
       return [
         {
@@ -85,20 +85,28 @@ describe("BuildingAmenityLayer", () => {
     expect(screen.queryAllByTestId("building-amenity-marker")).toHaveLength(0);
   });
 
-  it("renders a marker for each POI in the building", () => {
+  it("renders a marker for each POI in the building", async () => {
     render(<BuildingAmenityLayer buildingCode="H" />);
     // Mock returns 3 fixtures for "H" (intentional — isolates component from data layer)
-    expect(screen.getAllByTestId("building-amenity-marker")).toHaveLength(3);
+    await waitFor(() => {
+      expect(screen.getAllByTestId("building-amenity-marker")).toHaveLength(3);
+    });
   });
 
-  it("renders nothing for an unknown building code", () => {
+  it("renders nothing for an unknown building code", async () => {
     render(<BuildingAmenityLayer buildingCode="UNKNOWN" />);
-    expect(screen.queryAllByTestId("building-amenity-marker")).toHaveLength(0);
+    await waitFor(() => {
+      expect(screen.queryAllByTestId("building-amenity-marker")).toHaveLength(
+        0,
+      );
+    });
   });
 
-  it("renders markers with correct coordinates", () => {
+  it("renders markers with correct coordinates", async () => {
     render(<BuildingAmenityLayer buildingCode="H" />);
-    const markers = screen.getAllByTestId("building-amenity-marker");
-    expect(markers[0].props.accessibilityLabel).toBe("45.497,-73.579");
+    await waitFor(() => {
+      const markers = screen.getAllByTestId("building-amenity-marker");
+      expect(markers[0].props.accessibilityLabel).toBe("45.497,-73.579");
+    });
   });
 });

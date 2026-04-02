@@ -1,7 +1,7 @@
 import { getIndoorPoisForBuilding } from "../../src/services/IndoorPoiService";
 
 // Mock fetch globally
-global.fetch = jest.fn();
+globalThis.fetch = jest.fn();
 
 describe("getIndoorPoisForBuilding", () => {
   beforeEach(() => {
@@ -21,7 +21,7 @@ describe("getIndoorPoisForBuilding", () => {
         description: "Test",
       },
     ];
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
+    (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockPois,
     });
@@ -44,7 +44,7 @@ describe("getIndoorPoisForBuilding", () => {
         description: "Test",
       },
     ];
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => mockPois,
     });
@@ -55,7 +55,7 @@ describe("getIndoorPoisForBuilding", () => {
   });
 
   it("returns empty array for unknown building code", async () => {
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
+    (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
     });
 
@@ -86,7 +86,7 @@ describe("getIndoorPoisForBuilding", () => {
         description: "Test",
       },
     ];
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
+    (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockPois,
     });
@@ -97,7 +97,7 @@ describe("getIndoorPoisForBuilding", () => {
   });
 
   it("handles fetch errors gracefully", async () => {
-    (global.fetch as jest.Mock).mockRejectedValueOnce(
+    (globalThis.fetch as jest.Mock).mockRejectedValueOnce(
       new Error("Network error"),
     );
 

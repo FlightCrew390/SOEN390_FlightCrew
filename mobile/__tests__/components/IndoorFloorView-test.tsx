@@ -414,7 +414,7 @@ describe("IndoorFloorView", () => {
         indoorSteps: mockRoute.indoorStepsOrigin,
       };
 
-      const { props } = renderView({
+      renderView({
         route: destRoute,
         currentFloor: 8,
         buildingId: "Hall",
@@ -505,16 +505,15 @@ describe("IndoorFloorView", () => {
     it("renders indoor POIs and shows Alert on press", async () => {
       renderView({ currentFloor: 1, buildingId: "Hall" });
 
-      fireEvent.press(poiPin);
-      await waitFor(() => {
-        const poiPin = screen.getByTestId("indoor-poi-pin-H-washroom-1");
-        expect(poiPin).toBeTruthy();
+      // Wait for POI pin to render (POIs are fetched asynchronously)
+      const poiPin = await screen.findByTestId("indoor-poi-pin-H-washroom-1");
 
-        expect(Alert.alert).toHaveBeenCalledWith(
-          "Washroom",
-          "Near main entrance lobby",
-        );
-      });
+      fireEvent.press(poiPin);
+
+      expect(Alert.alert).toHaveBeenCalledWith(
+        "Washroom",
+        "Near main entrance lobby",
+      );
     });
   });
 

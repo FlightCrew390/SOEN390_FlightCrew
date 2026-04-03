@@ -7,8 +7,6 @@ import { Building, StructureType } from "../../src/types/Building";
 import { IndoorRoom } from "../../src/types/IndoorRoom";
 import { RouteInfo } from "../../src/types/Directions";
 
-jest.spyOn(Alert, "alert").mockImplementation(() => {});
-
 jest.mock("@expo/vector-icons/MaterialCommunityIcons", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { Text } = require("react-native");
@@ -148,6 +146,17 @@ function renderView(overrides: Props = {}) {
     props,
   };
 }
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  jest.spyOn(console, "error").mockImplementation(() => {});
+  jest.spyOn(console, "warn").mockImplementation(() => {});
+  jest.spyOn(Alert, "alert").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
+});
 
 describe("IndoorFloorView", () => {
   it("renders building title and current floor subtitle", () => {

@@ -116,6 +116,16 @@ const transitRoute: RouteInfo = {
   ],
 };
 
+beforeEach(() => {
+  jest.clearAllMocks();
+  jest.spyOn(console, "error").mockImplementation(() => {});
+  jest.spyOn(console, "warn").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
+});
+
 describe("StepsPanel", () => {
   const onBack = jest.fn();
 

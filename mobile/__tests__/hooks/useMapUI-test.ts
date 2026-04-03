@@ -60,6 +60,7 @@ const mockLocation = {
 describe("useMapUI", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(console, "error").mockImplementation(() => {});
     mockFindCurrentBuilding.mockReturnValue(null);
     mockFetchPois.mockReset();
     mockFetchPois.mockResolvedValue([]);

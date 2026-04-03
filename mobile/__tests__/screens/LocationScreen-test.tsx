@@ -3,6 +3,13 @@ import React from "react";
 
 import LocationScreen from "../../src/screens/LocationScreen";
 
+// Mock BuildingDataService
+jest.mock("../../src/services/BuildingDataService", () => ({
+  BuildingDataService: {
+    fetchBuildings: jest.fn(() => Promise.resolve([])),
+  },
+}));
+
 // Mock useCurrentLocation hook
 const mockLocation = {
   coords: {
@@ -71,6 +78,12 @@ jest.mock("../../src/styles/Screen", () => ({
 describe("LocationScreen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    jest.spyOn(console, "warn").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   test("renders location screen with child components", () => {

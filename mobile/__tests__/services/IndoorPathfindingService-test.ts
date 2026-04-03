@@ -7,6 +7,12 @@ globalThis.fetch = mockFetch;
 beforeEach(() => {
   jest.clearAllMocks();
   jest.spyOn(API_CONFIG, "getBaseUrl").mockReturnValue("http://localhost:8080");
+  jest.spyOn(console, "error").mockImplementation(() => {});
+  jest.spyOn(console, "warn").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
 });
 
 describe("IndoorPathfindingService", () => {

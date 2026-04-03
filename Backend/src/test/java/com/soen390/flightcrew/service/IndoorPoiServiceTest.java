@@ -1,21 +1,24 @@
 package com.soen390.flightcrew.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soen390.flightcrew.model.IndoorPointOfInterest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
 class IndoorPoiServiceTest {
 
-    @Autowired
     private IndoorPoiService indoorPoiService;
+
+    @BeforeEach
+    void setUp() {
+        indoorPoiService = new IndoorPoiService(new ObjectMapper());
+    }
 
     @Test
     @DisplayName("Should load indoor POI data on startup")

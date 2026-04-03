@@ -20,11 +20,18 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path, Polyline, SvgUri } from "react-native-svg";
 import { API_CONFIG, COLORS } from "../../constants";
 import {
+  ALL_AMENITY_CATEGORIES,
+  PRIMARY_AMENITY_CATEGORIES,
+} from "../../constants/indoorPoi";
+import {
+  amenitySelectorReducer,
   floorPlanAssetReducer,
   floorSelectorReducer,
+  initialAmenitySelectorState,
   initialFloorPlanAssetState,
   initialFloorSelectorState,
 } from "../../reducers/indoorFloorViewReducer";
+import indoorFloorViewStyles from "../../styles/IndoorFloorView";
 import { getIndoorPoisForBuilding } from "../../services/IndoorPoiService";
 import { Building } from "../../types/Building";
 import { RouteInfo } from "../../types/Directions";
@@ -511,8 +518,8 @@ export default function IndoorFloorView({
   activeStepIndex = -1,
   onStepPress,
 }: Readonly<IndoorFloorViewProps>) {
-  const [amenityOpen, setAmenityOpen] = useState(false);
-  const [amenityPanelExpanded, setAmenityPanelExpanded] = useState(false);
+  const [{ amenityOpen, amenityPanelExpanded }, dispatchAmenitySelector] =
+    useReducer(amenitySelectorReducer, initialAmenitySelectorState);
   const [selectedAmenities, setSelectedAmenities] = useState<
     Set<IndoorPoiCategory>
   >(new Set(["washroom", "fountain", "stairs", "elevator"]));
@@ -591,18 +598,8 @@ export default function IndoorFloorView({
     building.buildingName ?? BUILDING_NAMES[buildingId] ?? buildingId;
 
   return (
-    <View
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "#f0f0f0",
-        zIndex: 20,
-      }}
-    >
-      <View style={{ flex: 1 }}>
+    <View style={indoorFloorViewStyles.container}>
+      <View style={indoorFloorViewStyles.flexWrapper}>
         <ZoomableFloorPlan
           buildingId={buildingId}
           floor={currentFloor}
@@ -631,19 +628,12 @@ export default function IndoorFloorView({
 
         {/* Standard Header (only shown if not navigating) */}
         {indoorSteps.length === 0 && (
-          <View style={{ position: "absolute", top: 0, left: 0, right: 0 }}>
-            <SafeAreaView style={{ backgroundColor: "#e2e2e2" }}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  paddingHorizontal: 16,
-                  paddingVertical: 10,
-                }}
-              >
+          <View style={indoorFloorViewStyles.headerContainer}>
+            <SafeAreaView style={indoorFloorViewStyles.safeAreaHeader}>
+              <View style={indoorFloorViewStyles.headerRow}>
                 <Pressable
                   onPress={onBack}
-                  style={{ padding: 4, width: 36 }}
+                  style={indoorFloorViewStyles.backButton}
                   accessibilityLabel="Back to building info"
                   accessibilityRole="button"
                 >
@@ -653,26 +643,14 @@ export default function IndoorFloorView({
                     color={COLORS.concordiaMaroon}
                   />
                 </Pressable>
-                <View style={{ flex: 1, alignItems: "center", marginTop: 6 }}>
+                <View style={indoorFloorViewStyles.headerTitleWrapper}>
                   <Text
-                    style={{
-                      fontSize: 26,
-                      fontWeight: "700",
-                      color: "#222",
-                      textAlign: "center",
-                    }}
+                    style={indoorFloorViewStyles.headerTitle}
                     numberOfLines={1}
                   >
                     {buildingLabel}
                   </Text>
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      color: "#666",
-                      marginTop: 2,
-                      textAlign: "center",
-                    }}
-                  >
+                  <Text style={indoorFloorViewStyles.headerSubtitle}>
                     Indoor view · Floor{" "}
                     {getFloorLabel(buildingId, currentFloor)}
                     {selectedRoom?.floor === currentFloor
@@ -680,7 +658,7 @@ export default function IndoorFloorView({
                       : ""}
                   </Text>
                 </View>
-                <View style={{ width: 36 }} />
+                <View style={indoorFloorViewStyles.headerSpacer} />
               </View>
             </SafeAreaView>
           </View>
@@ -698,19 +676,7 @@ export default function IndoorFloorView({
         >
           <Pressable
             onPress={() => dispatchFloorSelector({ type: "TOGGLE" })}
-            style={{
-              width: 60,
-              height: 60,
-              borderRadius: 30,
-              backgroundColor: "#fff",
-              alignItems: "center",
-              justifyContent: "center",
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.2,
-              shadowRadius: 3,
-              elevation: 4,
-            }}
+            style={indoorFloorViewStyles.floatButton}
             accessibilityLabel="Select floor"
             accessibilityRole="button"
           >
@@ -723,18 +689,10 @@ export default function IndoorFloorView({
 
           {floorOpen && (
             <View
-              style={{
-                marginTop: 8,
-                backgroundColor: "#fff",
-                borderRadius: 14,
-                overflow: "hidden",
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.2,
-                shadowRadius: 4,
-                elevation: 6,
-                maxHeight: Math.min(7, floors.length) * 60,
-              }}
+              style={[
+                indoorFloorViewStyles.floorSelectorDropdown,
+                { maxHeight: Math.min(7, floors.length) * 60 },
+              ]}
             >
               <ScrollView showsVerticalScrollIndicator={false}>
                 {sortFloorsForDisplay(buildingId, floors).map((floor) => (
@@ -744,25 +702,20 @@ export default function IndoorFloorView({
                       onFloorChange(floor);
                       dispatchFloorSelector({ type: "CLOSE" });
                     }}
-                    style={{
-                      width: 60,
-                      height: 60,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      backgroundColor:
-                        floor === currentFloor
-                          ? COLORS.concordiaMaroon
-                          : "transparent",
-                    }}
+                    style={[
+                      indoorFloorViewStyles.floorOption,
+                      floor === currentFloor
+                        ? indoorFloorViewStyles.selectedOption
+                        : indoorFloorViewStyles.unselectedOption,
+                    ]}
                     accessibilityLabel={`Floor ${floor}`}
                     accessibilityRole="button"
                   >
                     <Text
-                      style={{
-                        fontSize: 14,
-                        fontWeight: "700",
-                        color: floor === currentFloor ? "#fff" : "#333",
-                      }}
+                      style={[
+                        indoorFloorViewStyles.floorOptionText,
+                        { color: floor === currentFloor ? "#fff" : "#333" },
+                      ]}
                     >
                       {getFloorLabel(buildingId, floor)}
                     </Text>
@@ -784,20 +737,8 @@ export default function IndoorFloorView({
           }}
         >
           <Pressable
-            onPress={() => setAmenityOpen(!amenityOpen)}
-            style={{
-              width: 60,
-              height: 60,
-              borderRadius: 30,
-              backgroundColor: "#fff",
-              alignItems: "center",
-              justifyContent: "center",
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.2,
-              shadowRadius: 3,
-              elevation: 4,
-            }}
+            onPress={() => dispatchAmenitySelector({ type: "TOGGLE_OPEN" })}
+            style={indoorFloorViewStyles.floatButton}
             accessibilityLabel="Filter amenities"
             accessibilityRole="button"
           >
@@ -805,40 +746,20 @@ export default function IndoorFloorView({
           </Pressable>
 
           {amenityOpen && (
-            <View
-              style={{
-                marginTop: 8,
-                backgroundColor: "#fff",
-                borderRadius: 14,
-                overflow: "hidden",
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.2,
-                shadowRadius: 4,
-                elevation: 6,
-              }}
-            >
+            <View style={indoorFloorViewStyles.amenityDropdown}>
               {(amenityPanelExpanded
-                ? ([
-                    "washroom",
-                    "fountain",
-                    "stairs",
-                    "elevator",
-                  ] as IndoorPoiCategory[])
-                : (["washroom", "fountain"] as IndoorPoiCategory[])
+                ? ALL_AMENITY_CATEGORIES
+                : PRIMARY_AMENITY_CATEGORIES
               ).map((cat) => (
                 <Pressable
                   key={cat}
                   onPress={() => toggleAmenity(cat)}
-                  style={{
-                    width: 60,
-                    height: 60,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: selectedAmenities.has(cat)
-                      ? COLORS.concordiaMaroon
-                      : "transparent",
-                  }}
+                  style={[
+                    indoorFloorViewStyles.amenityOption,
+                    selectedAmenities.has(cat)
+                      ? indoorFloorViewStyles.selectedOption
+                      : indoorFloorViewStyles.unselectedOption,
+                  ]}
                   accessibilityLabel={`Toggle ${cat}`}
                   accessibilityRole="button"
                 >
@@ -850,14 +771,10 @@ export default function IndoorFloorView({
                 </Pressable>
               ))}
               <Pressable
-                onPress={() => setAmenityPanelExpanded(!amenityPanelExpanded)}
-                style={{
-                  width: 60,
-                  height: 44,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: "transparent",
-                }}
+                onPress={() =>
+                  dispatchAmenitySelector({ type: "TOGGLE_EXPANDED" })
+                }
+                style={indoorFloorViewStyles.amenityExpandToggle}
                 accessibilityLabel={
                   amenityPanelExpanded
                     ? "Show fewer amenities"
@@ -879,22 +796,7 @@ export default function IndoorFloorView({
         {!route && (
           <Pressable
             onPress={onBack}
-            style={{
-              position: "absolute",
-              bottom: 24,
-              right: 12,
-              width: 52,
-              height: 52,
-              borderRadius: 26,
-              backgroundColor: "#fff",
-              alignItems: "center",
-              justifyContent: "center",
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.2,
-              shadowRadius: 3,
-              elevation: 4,
-            }}
+            style={indoorFloorViewStyles.outdoorToggleButton}
             accessibilityLabel="Switch to outdoor map"
             accessibilityRole="button"
           >

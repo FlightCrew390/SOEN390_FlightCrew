@@ -39,6 +39,7 @@ const route: RouteInfo = {
   durationSeconds: 600,
   steps: [
     {
+      id: "step-1",
       distanceMeters: 200,
       durationSeconds: 120,
       instruction: "Head north",
@@ -46,6 +47,7 @@ const route: RouteInfo = {
       coordinates: [],
     },
     {
+      id: "step-2",
       distanceMeters: 300,
       durationSeconds: 180,
       instruction: "Turn left",
@@ -53,6 +55,7 @@ const route: RouteInfo = {
       coordinates: [],
     },
     {
+      id: "step-3",
       distanceMeters: 0,
       durationSeconds: 0,
       instruction: "",
@@ -84,6 +87,7 @@ const transitRoute: RouteInfo = {
   durationSeconds: 1200,
   steps: [
     {
+      id: "step-1",
       distanceMeters: 200,
       durationSeconds: 120,
       instruction: "Walk to bus stop",
@@ -91,6 +95,7 @@ const transitRoute: RouteInfo = {
       coordinates: [],
     },
     {
+      id: "step-2",
       distanceMeters: 4000,
       durationSeconds: 900,
       instruction: "Take bus",
@@ -270,6 +275,7 @@ describe("StepsPanel", () => {
       durationSeconds: 1200,
       steps: [
         {
+          id: "step-bad",
           distanceMeters: 4000,
           durationSeconds: 900,
           instruction: "Take bus",
@@ -339,6 +345,7 @@ describe("StepsPanel", () => {
       "UNKNOWN_MANEUVER",
     ];
     const steps = allManeuvers.map((maneuver, i) => ({
+      id: `maneuver-step-${i}`,
       distanceMeters: 100,
       durationSeconds: 60,
       instruction: `Step ${maneuver}`,
@@ -364,6 +371,7 @@ describe("StepsPanel", () => {
       durationSeconds: 600,
       steps: [
         {
+          id: "metro-step",
           distanceMeters: 2000,
           durationSeconds: 600,
           instruction: "Take metro",
@@ -402,6 +410,7 @@ describe("StepsPanel", () => {
       durationSeconds: 1800,
       steps: [
         {
+          id: "rail-step",
           distanceMeters: 10000,
           durationSeconds: 1800,
           instruction: "Take train",

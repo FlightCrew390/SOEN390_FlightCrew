@@ -81,9 +81,11 @@ function parseRoute(data: DirectionsResponse): RouteInfo | null {
     : [];
 
   const steps: StepInfo[] = [];
+  let stepCounter = 0;
   for (const leg of route.legs ?? []) {
     for (const step of leg.steps ?? []) {
       const parsed: StepInfo = {
+        id: `step-${stepCounter++}`,
         distanceMeters: step.distanceMeters ?? 0,
         durationSeconds: parseDuration(step.staticDuration),
         instruction: step.navigationInstruction?.instructions ?? "",

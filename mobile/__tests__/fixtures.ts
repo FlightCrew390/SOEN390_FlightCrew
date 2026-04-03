@@ -62,6 +62,7 @@ export const testBuildings: Building[] = [
 
 export function makeStep(overrides: Partial<StepInfo> = {}): StepInfo {
   return {
+    id: "test-step",
     distanceMeters: 100,
     durationSeconds: 60,
     instruction: "Walk north on Guy Street",

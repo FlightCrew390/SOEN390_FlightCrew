@@ -227,7 +227,7 @@ export default function StepsPanel({
 
           return (
             <Pressable
-              key={`step-${step.instruction}-${idx}`}
+              key={step.id}
               onPress={() => onStepPress?.(idx)}
               style={({ pressed }) => [
                 styles.stepRow,

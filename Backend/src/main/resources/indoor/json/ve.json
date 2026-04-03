@@ -1524,7 +1524,7 @@
       "target": "VE_F1_stair_landing_25",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     }
   ]
 }

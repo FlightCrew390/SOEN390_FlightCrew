@@ -11013,28 +11013,28 @@
       "target": "Hall_F2_stair_landing_5",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     },
     {
       "source": "Hall_F1_stair_landing_2",
       "target": "Hall_F2_stair_landing_6",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     },
     {
       "source": "Hall_F1_stair_landing_3",
       "target": "Hall_F2_stair_landing_7",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     },
     {
       "source": "Hall_F1_stair_landing_4",
       "target": "Hall_F2_stair_landing_8",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     },
     {
       "source": "Hall_F2_elevator_door_2",
@@ -11069,70 +11069,70 @@
       "target": "Hall_F8_stair_landing_29",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     },
     {
       "source": "Hall_F2_stair_landing_9",
       "target": "Hall_F8_stair_landing_28",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     },
     {
       "source": "Hall_F2_stair_landing_9",
       "target": "Hall_F9_stair_landing_20",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     },
     {
       "source": "Hall_F8_stair_landing_29",
       "target": "Hall_F9_stair_landing_21",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     },
     {
       "source": "Hall_F9_stair_landing_20",
       "target": "Hall_F8_stair_landing_28",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     },
     {
       "source": "Hall_F2_stair_landing_10",
       "target": "Hall_F9_stair_landing_21",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     },
     {
       "source": "Hall_F9_stair_landing_23",
       "target": "Hall_F8_stair_landing_30",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     },
     {
       "source": "Hall_F8_stair_landing_26",
       "target": "Hall_F9_stair_landing_22",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     },
     {
       "source": "Hall_F9_stair_landing_25",
       "target": "Hall_F8_stair_landing_31",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     },
     {
       "source": "Hall_F9_stair_landing_19",
       "target": "Hall_F8_stair_landing_27",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     }
   ]
 }

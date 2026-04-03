@@ -2718,14 +2718,14 @@
       "target": "MB_F1_stair3",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     },
     {
       "source": "MB-S2_F0_stair1",
       "target": "MB_F1_stair_1",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     }
   ]
 }

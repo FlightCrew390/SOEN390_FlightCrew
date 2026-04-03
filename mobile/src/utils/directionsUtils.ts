@@ -75,53 +75,32 @@ export function getBirdsEyeDistanceText(
 /**
  * Maps a Google Directions maneuver string to a MaterialIcons icon name.
  */
+const MANEUVER_ICONS: Record<string, MaterialIconName> = {
+  DEPART: "start",
+  STRAIGHT: "straight",
+  RAMP_LEFT: "ramp-left",
+  RAMP_RIGHT: "ramp-right",
+  MERGE: "merge",
+  FORK_LEFT: "fork-left",
+  FORK_RIGHT: "fork-right",
+  FERRY: "directions-ferry",
+  TURN_LEFT: "turn-left",
+  TURN_SLIGHT_LEFT: "turn-slight-left",
+  TURN_SHARP_LEFT: "turn-sharp-left",
+  TURN_RIGHT: "turn-right",
+  TURN_SLIGHT_RIGHT: "turn-slight-right",
+  TURN_SHARP_RIGHT: "turn-sharp-right",
+  ROUNDABOUT_LEFT: "roundabout-left",
+  ROUNDABOUT_RIGHT: "roundabout-right",
+  UTURN_LEFT: "u-turn-left",
+  UTURN_RIGHT: "u-turn-right",
+  ELEVATOR: "elevator",
+  STAIRS: "stairs",
+  ARRIVE: "place",
+};
+
 export function getManeuverIcon(maneuver: string): MaterialIconName {
-  switch (maneuver) {
-    case "DEPART":
-      return "start";
-    case "STRAIGHT":
-      return "straight";
-    case "RAMP_LEFT":
-      return "ramp-left";
-    case "RAMP_RIGHT":
-      return "ramp-right";
-    case "MERGE":
-      return "merge";
-    case "FORK_LEFT":
-      return "fork-left";
-    case "FORK_RIGHT":
-      return "fork-right";
-    case "FERRY":
-      return "directions-ferry";
-    case "TURN_LEFT":
-      return "turn-left";
-    case "TURN_SLIGHT_LEFT":
-      return "turn-slight-left";
-    case "TURN_SHARP_LEFT":
-      return "turn-sharp-left";
-    case "TURN_RIGHT":
-      return "turn-right";
-    case "TURN_SLIGHT_RIGHT":
-      return "turn-slight-right";
-    case "TURN_SHARP_RIGHT":
-      return "turn-sharp-right";
-    case "ROUNDABOUT_LEFT":
-      return "roundabout-left";
-    case "ROUNDABOUT_RIGHT":
-      return "roundabout-right";
-    case "UTURN_LEFT":
-      return "u-turn-left";
-    case "UTURN_RIGHT":
-      return "u-turn-right";
-    case "ELEVATOR":
-      return "elevator";
-    case "STAIRS":
-      return "stairs";
-    case "ARRIVE":
-      return "place";
-    default:
-      return "navigation";
-  }
+  return MANEUVER_ICONS[maneuver] ?? "navigation";
 }
 
 /** Parse an ISO time string; returns null on failure. */

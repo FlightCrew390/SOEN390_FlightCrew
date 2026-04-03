@@ -1,34 +1,21 @@
 import { StyleSheet } from "react-native";
 import { COLORS } from "../constants";
-
-const NAVBAR_GRAY = "#d0d0d0";
+import { CommonStyles } from "./CommonStyles";
 
 const styles = StyleSheet.create({
   overlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    ...CommonStyles.overlay,
     zIndex: 9,
   },
   container: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: NAVBAR_GRAY,
+    ...CommonStyles.bottomPanelContainer,
+    backgroundColor: "#d0d0d0", // NAVBAR_GRAY
     paddingTop: 112, // status-bar(48) + icon(56) + gap(8)
     paddingBottom: 16,
     paddingHorizontal: 16,
-    borderBottomLeftRadius: 14,
-    borderBottomRightRadius: 14,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
     elevation: 6,
     zIndex: 10,
+    bottom: undefined,
   },
   label: {
     fontSize: 13,
@@ -39,16 +26,7 @@ const styles = StyleSheet.create({
 
   /* Dropdown trigger */
   dropdownTrigger: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: COLORS.white,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#b0b0b0",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 10,
+    ...CommonStyles.dropdownTrigger,
   },
   dropdownTriggerOpen: {
     borderBottomLeftRadius: 0,
@@ -98,14 +76,7 @@ const styles = StyleSheet.create({
 
   /* Text input */
   textInputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: COLORS.white,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#b0b0b0",
-    marginBottom: 12,
-    paddingRight: 4,
+    ...CommonStyles.textInputWrapper,
   },
   textInputWrapperOpen: {
     borderBottomLeftRadius: 0,
@@ -148,19 +119,13 @@ const styles = StyleSheet.create({
 
   /* Search action button */
   searchActionButton: {
-    backgroundColor: COLORS.concordiaMaroon,
-    borderRadius: 8,
-    paddingVertical: 12,
-    alignItems: "center",
-    justifyContent: "center",
+    ...CommonStyles.searchActionButton,
   },
   searchActionButtonDisabled: {
     opacity: 0.4,
   },
   searchActionButtonText: {
-    color: COLORS.white,
-    fontSize: 15,
-    fontWeight: "700",
+    ...CommonStyles.searchActionButtonText,
   },
 });
 

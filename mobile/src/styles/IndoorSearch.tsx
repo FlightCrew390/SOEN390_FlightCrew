@@ -1,7 +1,6 @@
 import { StyleSheet } from "react-native";
 import { COLORS } from "../constants";
-
-const PANEL_GRAY = "#d0d0d0";
+import { CommonStyles } from "./CommonStyles";
 
 const styles = StyleSheet.create({
   screen: {
@@ -9,7 +8,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
   },
   panel: {
-    backgroundColor: PANEL_GRAY,
+    backgroundColor: "#d0d0d0", // PANEL_GRAY
     paddingTop: 60,
     paddingBottom: 16,
     paddingHorizontal: 16,
@@ -30,16 +29,7 @@ const styles = StyleSheet.create({
 
   /* Dropdown trigger */
   dropdownTrigger: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: COLORS.white,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#b0b0b0",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 10,
+    ...CommonStyles.dropdownTrigger,
   },
   dropdownTriggerOpen: {
     borderBottomLeftRadius: 0,
@@ -79,19 +69,12 @@ const styles = StyleSheet.create({
   },
   dropdownDivider: {
     height: 1,
-    backgroundColor: PANEL_GRAY,
+    backgroundColor: "#d0d0d0", // PANEL_GRAY
   },
 
   /* Text input */
   textInputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: COLORS.white,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#b0b0b0",
-    marginBottom: 12,
-    paddingRight: 4,
+    ...CommonStyles.textInputWrapper,
   },
   textInputInner: {
     flex: 1,
@@ -114,18 +97,11 @@ const styles = StyleSheet.create({
 
   /* Search button */
   searchActionButton: {
-    backgroundColor: COLORS.concordiaMaroon,
-    borderRadius: 8,
-    paddingVertical: 12,
-    alignItems: "center",
-    justifyContent: "center",
+    ...CommonStyles.searchActionButton,
   },
   searchActionButtonText: {
-    color: COLORS.white,
-    fontSize: 15,
-    fontWeight: "700",
+    ...CommonStyles.searchActionButtonText,
   },
-
   /* Results list */
   resultListContent: {
     paddingTop: 8,

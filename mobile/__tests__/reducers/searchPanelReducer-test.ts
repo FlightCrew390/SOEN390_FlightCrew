@@ -238,7 +238,7 @@ describe("searchPanelReducer", () => {
     }
   });
 
-  it("SELECT_LOCATION_TYPE with a primary type preserves filtersExpanded", () => {
+  it("SELECT_LOCATION_TYPE with a primary type resets filtersExpanded to false", () => {
     const expanded: SearchPanelState = {
       ...initialSearchPanelState,
       filtersExpanded: true,
@@ -253,7 +253,7 @@ describe("searchPanelReducer", () => {
         type: "SELECT_LOCATION_TYPE",
         locationType: primary,
       });
-      expect(state.filtersExpanded).toBe(true);
+      expect(state.filtersExpanded).toBe(false);
     }
   });
 

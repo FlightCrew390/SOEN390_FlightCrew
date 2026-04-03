@@ -35,7 +35,7 @@ export function searchPanelReducer(
         ...state,
         locationType: action.locationType,
         dropdownOpen: false,
-        filtersExpanded: isSecondary ? true : state.filtersExpanded,
+        filtersExpanded: isSecondary,
         query: "",
         showAutocomplete: false,
         selectedResult: null,

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useReducer } from "react";
 import { initialMapUIState, mapUIReducer } from "../reducers/mapUIReducer";
 import { IndoorDataService } from "../services/IndoorDataService";
 import { PoiService } from "../services/PoiService";
+import { UserPreferencesService } from "../services/UserPreferencesService";
 import { LocationType, isClassroom, isPoi } from "../state/SearchPanelState";
 import { Building } from "../types/Building";
 import { DepartureTimeConfig, TravelMode } from "../types/Directions";
@@ -68,6 +69,7 @@ export function useMapUI(
     travelMode: state.travelMode,
     departureConfig: state.departureConfig,
     active: state.panel === "directions" || state.panel === "room-info",
+    accessibilityMode: state.accessibilityMode,
     onLoading: onRouteLoading,
     onLoaded: onRouteLoaded,
     onError: onRouteError,
@@ -82,6 +84,15 @@ export function useMapUI(
     departureConfig: state.departureConfig,
     active: state.panel === "directions" || state.panel === "room-info",
   });
+
+  // ── Load persisted accessibility preference ──
+  useEffect(() => {
+    UserPreferencesService.load().then((prefs) => {
+      if (prefs.accessibilityMode) {
+        dispatch({ type: "SET_ACCESSIBILITY_MODE", enabled: true });
+      }
+    });
+  }, []);
 
   // ── Detect current building ──
   useEffect(() => {
@@ -243,6 +254,11 @@ export function useMapUI(
     [],
   );
 
+  const setAccessibilityMode = useCallback((enabled: boolean) => {
+    dispatch({ type: "SET_ACCESSIBILITY_MODE", enabled });
+    UserPreferencesService.save({ accessibilityMode: enabled });
+  }, []);
+
   return {
     state,
     dispatch,
@@ -256,5 +272,6 @@ export function useMapUI(
     selectPoi,
     clearPoi,
     handleDepartureConfigChange,
+    setAccessibilityMode,
   };
 }

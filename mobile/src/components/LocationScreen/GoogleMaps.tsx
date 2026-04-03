@@ -62,6 +62,7 @@ export default function GoogleMaps({
     handleTravelModeChange,
     selectPoi,
     handleDepartureConfigChange,
+    setAccessibilityMode,
   } = useMapUI(buildings, location);
 
   // Map building codes to indoor JSON buildingIds
@@ -306,6 +307,8 @@ export default function GoogleMaps({
         onShowSteps={() => dispatch({ type: "OPEN_STEPS" })}
         onHideSteps={() => dispatch({ type: "CLOSE_STEPS" })}
         isIndoor={showIndoorRoute}
+        accessibilityMode={state.accessibilityMode}
+        onAccessibilityModeChange={setAccessibilityMode}
         shuttleEligible={state.shuttleEligible}
         routePreviews={routePreviews}
         activeStepIndex={state.activeStepIndex}

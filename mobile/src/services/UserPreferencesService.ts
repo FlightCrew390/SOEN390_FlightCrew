@@ -4,13 +4,12 @@ const PREFERENCES_KEY = "user_preferences";
 
 export interface UserPreferences {
   studentId: string;
-  // Add future local-only preferences here, e.g.:
-  // preferredCampus: CampusId;
-  // notificationsEnabled: boolean;
+  accessibilityMode: boolean;
 }
 
 const DEFAULT_PREFERENCES: UserPreferences = {
   studentId: "",
+  accessibilityMode: false,
 };
 
 export class UserPreferencesService {

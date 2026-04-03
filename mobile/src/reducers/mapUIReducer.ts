@@ -26,6 +26,7 @@ export const initialMapUIState: MapUIState = {
   indoorSelectedRoom: null,
   activeStepIndex: -1,
   activeIndoorStepIndex: -1,
+  accessibilityMode: false,
 };
 
 function handleClosePanel(state: MapUIState): MapUIState {
@@ -280,6 +281,17 @@ export function mapUIReducer(
 
     case "ROOM_BACK":
       return { ...state, panel: "search", roomResults: [] };
+
+    case "SET_ACCESSIBILITY_MODE":
+      return {
+        ...state,
+        accessibilityMode: action.enabled,
+        route: null,
+        routeLoading: false,
+        routeError: null,
+        activeStepIndex: -1,
+        activeIndoorStepIndex: -1,
+      };
 
     default:
       return state;

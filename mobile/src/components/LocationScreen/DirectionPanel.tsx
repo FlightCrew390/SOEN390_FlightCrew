@@ -7,6 +7,7 @@ import {
   Image,
   Pressable,
   ScrollView,
+  Switch,
   Text,
   View,
 } from "react-native";
@@ -90,6 +91,8 @@ interface DirectionPanelProps {
   readonly routePreviews?: RoutePreviews;
   readonly activeStepIndex?: number;
   readonly onStepPress?: (index: number) => void;
+  readonly accessibilityMode?: boolean;
+  readonly onAccessibilityModeChange?: (enabled: boolean) => void;
 }
 
 function StartLocationRow({
@@ -366,6 +369,8 @@ export default function DirectionPanel({
   routePreviews,
   activeStepIndex,
   onStepPress,
+  accessibilityMode,
+  onAccessibilityModeChange,
 }: Readonly<DirectionPanelProps>) {
   const { animatedStyle } = usePanelAnimation(visible);
 
@@ -497,6 +502,24 @@ export default function DirectionPanel({
                   </Text>
                 </View>
               )}
+
+            {accessibilityMode != null && (
+              <View style={styles.accessibilityRow}>
+                <MaterialCommunityIcons
+                  name="wheelchair-accessibility"
+                  size={20}
+                  color={COLORS.concordiaMaroon}
+                />
+                <Text style={styles.accessibilityLabel}>Accessible route</Text>
+                <Switch
+                  value={accessibilityMode ?? false}
+                  onValueChange={onAccessibilityModeChange}
+                  trackColor={{ true: COLORS.concordiaMaroon }}
+                  accessibilityLabel="Toggle accessible route"
+                  accessibilityRole="switch"
+                />
+              </View>
+            )}
 
             <View style={styles.divider} />
 

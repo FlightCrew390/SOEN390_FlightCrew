@@ -5972,6 +5972,24 @@
       "y": 1915,
       "label": "",
       "accessible": false
+    },
+    {
+      "id": "Hall_F1_elevator_door_1",
+      "type": "elevator_door",
+      "buildingId": "Hall",
+      "floor": 1,
+      "x": 950,
+      "y": 1400,
+      "accessible": true
+    },
+    {
+      "id": "Hall_F1_elevator_door_2",
+      "type": "elevator_door",
+      "buildingId": "Hall",
+      "floor": 1,
+      "x": 1000,
+      "y": 1350,
+      "accessible": true
     }
   ],
   "edges": [
@@ -11133,6 +11151,62 @@
       "type": "stair",
       "weight": 0,
       "accessible": false
+    },
+    {
+      "source": "Hall_F1_hallway_waypoint_23",
+      "target": "Hall_F1_elevator_door_1",
+      "type": "hallway",
+      "weight": 80,
+      "accessible": true
+    },
+    {
+      "source": "Hall_F1_elevator_door_1",
+      "target": "Hall_F1_hallway_waypoint_23",
+      "type": "hallway",
+      "weight": 80,
+      "accessible": true
+    },
+    {
+      "source": "Hall_F1_hallway_waypoint_25",
+      "target": "Hall_F1_elevator_door_2",
+      "type": "hallway",
+      "weight": 100,
+      "accessible": true
+    },
+    {
+      "source": "Hall_F1_elevator_door_2",
+      "target": "Hall_F1_hallway_waypoint_25",
+      "type": "hallway",
+      "weight": 100,
+      "accessible": true
+    },
+    {
+      "source": "Hall_F1_elevator_door_1",
+      "target": "Hall_F2_elevator_door_1",
+      "type": "elevator",
+      "weight": 0,
+      "accessible": true
+    },
+    {
+      "source": "Hall_F2_elevator_door_1",
+      "target": "Hall_F1_elevator_door_1",
+      "type": "elevator",
+      "weight": 0,
+      "accessible": true
+    },
+    {
+      "source": "Hall_F1_elevator_door_2",
+      "target": "Hall_F2_elevator_door_2",
+      "type": "elevator",
+      "weight": 0,
+      "accessible": true
+    },
+    {
+      "source": "Hall_F2_elevator_door_2",
+      "target": "Hall_F1_elevator_door_2",
+      "type": "elevator",
+      "weight": 0,
+      "accessible": true
     }
   ]
 }

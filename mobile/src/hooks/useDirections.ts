@@ -35,7 +35,10 @@ const getEdgeNodes = (bId: string, IndoorDataService: any) => {
   return edgeNodes;
 };
 
-async function fetchIndoorDeparturePath(startRoom: IndoorRoom) {
+async function fetchIndoorDeparturePath(
+  startRoom: IndoorRoom,
+  accessible: boolean = false,
+) {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { IndoorDataService } = require("../services/IndoorDataService");
   await IndoorDataService.ensureLoaded();
@@ -55,6 +58,7 @@ async function fetchIndoorDeparturePath(startRoom: IndoorRoom) {
       bId,
       startRoom.id,
       en.id,
+      accessible,
     );
     return { en, res };
   });
@@ -62,11 +66,12 @@ async function fetchIndoorDeparturePath(startRoom: IndoorRoom) {
   const results = await Promise.allSettled(promises);
   for (const result of results) {
     if (result.status === "fulfilled") {
-      if (result.value.res.distanceMeters < minDistance) {
-        minDistance = result.value.res.distanceMeters;
-        bestPath = result.value.res.path;
-        bestSteps = result.value.res.steps ?? [];
-        bestExitNode = result.value.en;
+      const { en, res } = result.value;
+      if (res.distanceMeters < minDistance) {
+        minDistance = res.distanceMeters;
+        bestPath = res.path;
+        bestSteps = res.steps ?? [];
+        bestExitNode = en;
       }
     }
   }
@@ -88,7 +93,7 @@ async function fetchIndoorDeparturePath(startRoom: IndoorRoom) {
   } else if (exitNodes.length > 0) {
     const fallbackNode = exitNodes[0];
     console.warn(
-      "Backend graph missing path. Using artificial straight line fallback for departure.",
+      "Backend graph missing path. Using artificial straight line fallback.",
     );
     const artificialPath = [startRoom];
     if (fallbackNode.floor !== startRoom.floor) {
@@ -105,7 +110,10 @@ async function fetchIndoorDeparturePath(startRoom: IndoorRoom) {
   }
 }
 
-async function fetchIndoorArrivalPath(destinationRoom: IndoorRoom) {
+async function fetchIndoorArrivalPath(
+  destinationRoom: IndoorRoom,
+  accessible: boolean = false,
+) {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { IndoorDataService } = require("../services/IndoorDataService");
   await IndoorDataService.ensureLoaded();
@@ -125,6 +133,7 @@ async function fetchIndoorArrivalPath(destinationRoom: IndoorRoom) {
       bId,
       en.id,
       destinationRoom.id,
+      accessible,
     );
     return { en, res };
   });
@@ -132,11 +141,12 @@ async function fetchIndoorArrivalPath(destinationRoom: IndoorRoom) {
   const results = await Promise.allSettled(promises);
   for (const result of results) {
     if (result.status === "fulfilled") {
-      if (result.value.res.distanceMeters < minDistance) {
-        minDistance = result.value.res.distanceMeters;
-        bestPath = result.value.res.path;
-        bestSteps = result.value.res.steps ?? [];
-        bestEntryNode = result.value.en;
+      const { en, res } = result.value;
+      if (res.distanceMeters < minDistance) {
+        minDistance = res.distanceMeters;
+        bestPath = res.path;
+        bestSteps = res.steps ?? [];
+        bestEntryNode = en;
       }
     }
   }
@@ -192,6 +202,8 @@ interface UseDirectionsParams {
   departureConfig: DepartureTimeConfig;
   /** Whether the directions panel is open. */
   active: boolean;
+  /** Whether to request an accessible (stair-free) indoor route. */
+  accessibilityMode?: boolean;
   /** Callbacks into the reducer. */
   onLoading: () => void;
   onLoaded: (route: RouteInfo | null) => void;
@@ -211,6 +223,7 @@ export function useDirections({
   travelMode,
   departureConfig,
   active,
+  accessibilityMode = false,
   onLoading,
   onLoaded,
   onError,
@@ -253,6 +266,7 @@ export function useDirections({
           startRoom.buildingId,
           startRoom.id,
           destinationRoom.id,
+          accessibilityMode,
         );
 
         return {
@@ -315,7 +329,10 @@ export function useDirections({
     // If outdoor route was fetched but we have a start room, fetch the indoor departure path
     if (!route.indoorPathOrigin && startRoom) {
       try {
-        const indoorDeparture = await fetchIndoorDeparturePath(startRoom);
+        const indoorDeparture = await fetchIndoorDeparturePath(
+          startRoom,
+          accessibilityMode,
+        );
         route.indoorPathOrigin = indoorDeparture.pathOrigin;
         route.indoorStepsOrigin = indoorDeparture.stepsOrigin;
       } catch (e) {
@@ -329,7 +346,10 @@ export function useDirections({
     // If outdoor route was fetched but we have a destination room, fetch the indoor arrival path
     if (!route.indoorPath && destinationRoom) {
       try {
-        const indoorArrival = await fetchIndoorArrivalPath(destinationRoom);
+        const indoorArrival = await fetchIndoorArrivalPath(
+          destinationRoom,
+          accessibilityMode,
+        );
         route.indoorPath = indoorArrival.path;
         route.indoorSteps = indoorArrival.steps;
       } catch (e) {
@@ -421,5 +441,6 @@ export function useDirections({
     travelMode,
     departureConfig.option,
     departureConfig.date,
+    accessibilityMode,
   ]);
 }

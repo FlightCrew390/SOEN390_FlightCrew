@@ -17,8 +17,18 @@ jest.mock("../../src/services/IndoorDataService", () => {
     IndoorDataService: {
       ensureLoaded: jest.fn().mockResolvedValue(true),
       getAllNodes: jest.fn().mockReturnValue([
-        { id: "exit1", buildingId: "B1", type: "entry_exit", floor: 1 },
-        { id: "entry1", buildingId: "B2", type: "entry_exit", floor: 1 },
+        {
+          id: "exit1",
+          buildingId: "B1",
+          type: "building_entry_exit",
+          floor: 1,
+        },
+        {
+          id: "entry1",
+          buildingId: "B2",
+          type: "building_entry_exit",
+          floor: 1,
+        },
         { id: "room1", buildingId: "B1", type: "room", floor: 2 },
         { id: "synth_0", buildingId: "B1", type: "room", floor: 2 },
         { id: "room2", buildingId: "B2", type: "room", floor: 2 },
@@ -96,6 +106,7 @@ describe("useDirections", () => {
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -121,6 +132,7 @@ describe("useDirections", () => {
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -146,6 +158,7 @@ describe("useDirections", () => {
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -172,6 +185,7 @@ describe("useDirections", () => {
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -208,6 +222,7 @@ describe("useDirections", () => {
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -242,6 +257,7 @@ describe("useDirections", () => {
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -268,6 +284,7 @@ describe("useDirections", () => {
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -301,6 +318,7 @@ describe("useDirections", () => {
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -339,6 +357,7 @@ describe("useDirections", () => {
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -382,6 +401,7 @@ describe("useDirections", () => {
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -416,6 +436,7 @@ describe("useDirections", () => {
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -463,6 +484,7 @@ describe("useDirections", () => {
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -507,6 +529,7 @@ describe("useDirections", () => {
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -548,6 +571,7 @@ describe("useDirections", () => {
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -588,6 +612,7 @@ describe("useDirections", () => {
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 

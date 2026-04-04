@@ -13,6 +13,10 @@ jest.mock("../../src/hooks/useDirections", () => ({
   useDirections: jest.fn(),
 }));
 
+jest.mock("../../src/contexts/AccessibilityContext", () => ({
+  useAccessibility: () => ({ accessibilityMode: false }),
+}));
+
 // Mock findCurrentBuilding and calculateDistance (used by getClosestCampusId)
 const mockFindCurrentBuilding = jest.fn();
 jest.mock("../../src/utils/buildingDetection", () => ({

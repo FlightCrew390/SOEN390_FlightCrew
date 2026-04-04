@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
-import { useAccessibility } from "../contexts/AccessibilityContext";
+import { useEffect } from "react";
 import { DirectionsService } from "../services/DirectionsService";
+import { IndoorDataService } from "../services/IndoorDataService";
 import { IndoorPathfindingService } from "../services/IndoorPathfindingService";
 import { ShuttleDirectionsBuilder } from "../services/ShuttleDirectionsBuilder";
 import { Building } from "../types/Building";
@@ -11,148 +11,84 @@ import {
   TRAVEL_MODE,
   TravelMode,
 } from "../types/Directions";
-import { IndoorRoom } from "../types/IndoorRoom";
+import { IndoorNode, IndoorRoom, IndoorStep } from "../types/IndoorRoom";
 import { getDirectionOriginCoords } from "../utils/directionsUtils";
 
-const getEdgeNodes = (bId: string, IndoorDataService: any) => {
+const getEdgeNodes = (bId: string): IndoorNode[] => {
   const nodes = IndoorDataService.getAllNodes();
   let edgeNodes = nodes.filter(
-    (n: any) =>
-      n.buildingId === bId && n.type?.includes("entry_exit") && n.floor === 1,
+    (n) =>
+      n.buildingId === bId && n.type.includes("entry_exit") && n.floor === 1,
   );
   if (edgeNodes.length === 0)
     edgeNodes = nodes.filter(
-      (n: any) => n.buildingId === bId && n.type?.includes("entry_exit"),
+      (n) => n.buildingId === bId && n.type.includes("entry_exit"),
     );
   if (edgeNodes.length === 0)
     edgeNodes = nodes.filter(
-      (n: any) => n.buildingId === bId && n.type === "doorway" && n.floor === 1,
+      (n) => n.buildingId === bId && n.type === "doorway" && n.floor === 1,
     );
   if (edgeNodes.length === 0)
-    edgeNodes = nodes.filter((n: any) => n.buildingId === bId && n.floor === 1);
+    edgeNodes = nodes.filter((n) => n.buildingId === bId && n.floor === 1);
   if (edgeNodes.length === 0)
-    edgeNodes = nodes.filter((n: any) => n.buildingId === bId);
-
+    edgeNodes = nodes.filter((n) => n.buildingId === bId);
   return edgeNodes;
 };
 
-async function fetchIndoorDeparturePath(
-  startRoom: IndoorRoom,
-  accessible: boolean = false,
-) {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { IndoorDataService } = require("../services/IndoorDataService");
-  await IndoorDataService.ensureLoaded();
-
-  const bId = startRoom.buildingId;
-  const exitNodes = getEdgeNodes(bId, IndoorDataService);
-
-  let bestPath = null;
-  let bestExitNode = null;
-  let bestSteps: any[] = [];
-  let minDistance = Infinity;
-
-  const promises = exitNodes.map(async (en: any) => {
-    if (en.id === startRoom.id)
-      return { en, res: { path: [en], distanceMeters: 0 } as any };
-    const res = await IndoorPathfindingService.getDirections(
-      bId,
-      startRoom.id,
-      en.id,
-      accessible,
-    );
-    return { en, res };
-  });
-
-  const results = await Promise.allSettled(promises);
-  for (const result of results) {
-    if (result.status === "fulfilled") {
-      const { en, res } = result.value;
-      if (res.distanceMeters < minDistance) {
-        minDistance = res.distanceMeters;
-        bestPath = res.path;
-        bestSteps = res.steps ?? [];
-        bestExitNode = en;
-      }
-    }
-  }
-
-  if (bestPath && bestExitNode) {
-    return {
-      pathOrigin: bestPath as IndoorRoom[],
-      stepsOrigin: bestSteps.map((s: any, idx: number) => ({
-        id: `origin-step-${idx}`,
-        distanceMeters: s.distanceMeters,
-        durationSeconds: s.durationSeconds,
-        instruction: s.instruction,
-        maneuver: s.maneuver,
-        coordinates: [],
-        startFloor: s.startFloor,
-        endFloor: s.endFloor,
-      })) as StepInfo[],
-    };
-  } else if (exitNodes.length > 0) {
-    const fallbackNode = exitNodes[0];
-    console.warn(
-      "Backend graph missing path. Using artificial straight line fallback.",
-    );
-    const artificialPath = [startRoom];
-    if (fallbackNode.floor !== startRoom.floor) {
-      artificialPath.push({
-        ...(fallbackNode as IndoorRoom),
-        id: "synth_0",
-        floor: startRoom.floor,
-      });
-    }
-    artificialPath.push(fallbackNode as IndoorRoom);
-    return { pathOrigin: artificialPath, stepsOrigin: undefined };
-  } else {
-    return { pathOrigin: [startRoom], stepsOrigin: undefined };
-  }
+interface IndoorEdgePathResult {
+  path: IndoorRoom[];
+  steps: StepInfo[] | undefined;
 }
 
-async function fetchIndoorArrivalPath(
-  destinationRoom: IndoorRoom,
-  accessible: boolean = false,
-) {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { IndoorDataService } = require("../services/IndoorDataService");
+async function fetchIndoorEdgePath(
+  room: IndoorRoom,
+  direction: "departure" | "arrival",
+  accessible = false,
+): Promise<IndoorEdgePathResult> {
   await IndoorDataService.ensureLoaded();
 
-  const bId = destinationRoom.buildingId;
-  const entryNodes = getEdgeNodes(bId, IndoorDataService);
+  const bId = room.buildingId;
+  const edgeNodes = getEdgeNodes(bId);
 
-  let bestPath = null;
-  let bestEntryNode = null;
-  let bestSteps: any[] = [];
+  let bestPath: IndoorRoom[] | null = null;
+  let bestSteps: IndoorStep[] = [];
   let minDistance = Infinity;
 
-  const promises = entryNodes.map(async (en: any) => {
-    if (en.id === destinationRoom.id)
-      return { en, res: { path: [en], distanceMeters: 0 } as any };
-    const res = await IndoorPathfindingService.getDirections(
-      bId,
-      en.id,
-      destinationRoom.id,
-      accessible,
-    );
-    return { en, res };
-  });
+  const results = await Promise.allSettled(
+    edgeNodes.map(async (en) => {
+      if (en.id === room.id)
+        return {
+          en,
+          res: {
+            path: [en as IndoorRoom],
+            distanceMeters: 0,
+            steps: [] as IndoorStep[],
+          },
+        };
+      const [startId, endId] =
+        direction === "departure" ? [room.id, en.id] : [en.id, room.id];
+      const res = await IndoorPathfindingService.getDirections(
+        bId,
+        startId,
+        endId,
+        accessible,
+      );
+      return { en, res };
+    }),
+  );
 
-  const results = await Promise.allSettled(promises);
   for (const result of results) {
     if (result.status === "fulfilled") {
-      const { en, res } = result.value;
+      const { res } = result.value;
       if (res.distanceMeters < minDistance) {
         minDistance = res.distanceMeters;
         bestPath = res.path;
         bestSteps = res.steps ?? [];
-        bestEntryNode = en;
       }
     }
   }
 
-  if (bestPath && bestEntryNode) {
+  if (bestPath) {
     return {
       path: bestPath as IndoorRoom[],
       steps: bestSteps.map((s: any, idx: number) => ({
@@ -166,24 +102,36 @@ async function fetchIndoorArrivalPath(
         endFloor: s.endFloor,
       })) as StepInfo[],
     };
-  } else if (entryNodes.length > 0) {
-    const fallbackNode = entryNodes[0];
+  } else if (edgeNodes.length > 0) {
+    const fallbackNode = edgeNodes[0];
     console.warn(
       "Backend graph missing path. Using artificial straight line fallback.",
     );
-    const artificialPath = [fallbackNode as IndoorRoom];
-    if (fallbackNode.floor !== destinationRoom.floor) {
-      artificialPath.push({
-        ...(fallbackNode as IndoorRoom),
-        id: "synth_1",
-        floor: destinationRoom.floor,
-      });
-    }
-    artificialPath.push(destinationRoom);
+    const syntheticId = direction === "departure" ? "synth_0" : "synth_1";
+    const needsMid = fallbackNode.floor !== room.floor;
+    const midNode = {
+      ...fallbackNode,
+      id: syntheticId,
+      floor: room.floor,
+    } as unknown as IndoorRoom;
+
+    const artificialPath: IndoorRoom[] =
+      direction === "departure"
+        ? [
+            room,
+            ...(needsMid ? [midNode] : []),
+            fallbackNode as unknown as IndoorRoom,
+          ]
+        : [
+            fallbackNode as unknown as IndoorRoom,
+            ...(needsMid ? [midNode] : []),
+            room,
+          ];
+
     return { path: artificialPath, steps: undefined };
-  } else {
-    return { path: [destinationRoom], steps: undefined };
   }
+
+  return { path: [room], steps: undefined };
 }
 
 interface UseDirectionsParams {
@@ -203,6 +151,8 @@ interface UseDirectionsParams {
   departureConfig: DepartureTimeConfig;
   /** Whether the directions panel is open. */
   active: boolean;
+  /** Whether accessibility mode is enabled. */
+  accessibilityMode: boolean;
   /** Callbacks into the reducer. */
   onLoading: () => void;
   onLoaded: (route: RouteInfo | null) => void;
@@ -222,14 +172,11 @@ export function useDirections({
   travelMode,
   departureConfig,
   active,
+  accessibilityMode,
   onLoading,
   onLoaded,
   onError,
 }: UseDirectionsParams) {
-  const { accessibilityMode } = useAccessibility();
-  // Use a ref for the abort controller so we can cancel in-flight requests
-  const abortRef = useRef<AbortController | null>(null);
-
   const getRoute = async (options: {
     originLat: number;
     originLng: number;
@@ -241,7 +188,7 @@ export function useDirections({
     departureTime: string | undefined;
     arrivalTime: string | undefined;
     departureConfig: DepartureTimeConfig;
-  }) => {
+  }): Promise<RouteInfo | null> => {
     const {
       originLat,
       originLng,
@@ -312,28 +259,32 @@ export function useDirections({
     }
   };
 
-  const appendIndoorSegmentsIfNeeded = async (route: RouteInfo | null) => {
-    if (!route) {
-      return route;
-    }
+  const appendIndoorSegmentsIfNeeded = async (
+    route: RouteInfo | null,
+  ): Promise<RouteInfo | null> => {
+    if (!route) return route;
 
     const isPureIndoorSameBuildingRoute =
       !!startRoom?.buildingId &&
       startRoom.buildingId === destinationRoom?.buildingId;
 
-    if (isPureIndoorSameBuildingRoute) {
-      return route;
-    }
+    if (isPureIndoorSameBuildingRoute) return route;
+
+    let augmented = { ...route };
 
     // If outdoor route was fetched but we have a start room, fetch the indoor departure path
-    if (!route.indoorPathOrigin && startRoom) {
+    if (!augmented.indoorPathOrigin && startRoom) {
       try {
-        const indoorDeparture = await fetchIndoorDeparturePath(
+        const { path, steps } = await fetchIndoorEdgePath(
           startRoom,
+          "departure",
           accessibilityMode,
         );
-        route.indoorPathOrigin = indoorDeparture.pathOrigin;
-        route.indoorStepsOrigin = indoorDeparture.stepsOrigin;
+        augmented = {
+          ...augmented,
+          indoorPathOrigin: path,
+          indoorStepsOrigin: steps,
+        };
       } catch (e) {
         console.warn(
           "Could not compute indoor->outdoor departure path segment:",
@@ -343,14 +294,14 @@ export function useDirections({
     }
 
     // If outdoor route was fetched but we have a destination room, fetch the indoor arrival path
-    if (!route.indoorPath && destinationRoom) {
+    if (!augmented.indoorPath && destinationRoom) {
       try {
-        const indoorArrival = await fetchIndoorArrivalPath(
+        const { path, steps } = await fetchIndoorEdgePath(
           destinationRoom,
+          "arrival",
           accessibilityMode,
         );
-        route.indoorPath = indoorArrival.path;
-        route.indoorSteps = indoorArrival.steps;
+        augmented = { ...augmented, indoorPath: path, indoorSteps: steps };
       } catch (e) {
         console.warn(
           "Could not compute outdoor->indoor arrival path segment:",
@@ -359,7 +310,7 @@ export function useDirections({
       }
     }
 
-    return route;
+    return augmented;
   };
 
   useEffect(() => {
@@ -375,11 +326,6 @@ export function useDirections({
     const originLng = originCoords?.longitude;
 
     if (originLat == null || originLng == null) return;
-
-    // Cancel any previous in-flight request
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
 
     let cancelled = false;
 
@@ -426,7 +372,6 @@ export function useDirections({
 
     return () => {
       cancelled = true;
-      controller.abort();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- callbacks are stable dispatch wrappers
   }, [

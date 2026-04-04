@@ -91,6 +91,7 @@ const selectBestIndoorEdgePath = (
     if (!isFulfilled(result)) continue;
 
     const { res } = result.value;
+    if (!Array.isArray(res.path) || res.path.length === 0) continue;
     if (!bestPath || res.distanceMeters < bestPath.distanceMeters) {
       bestPath = res;
     }

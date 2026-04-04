@@ -1,4 +1,7 @@
-import { getIndoorPoisForBuilding } from "../../src/services/IndoorPoiService";
+import {
+  getAllIndoorPois,
+  getIndoorPoisForBuilding,
+} from "../../src/services/IndoorPoiService";
 
 // Mock fetch globally
 globalThis.fetch = jest.fn();
@@ -102,6 +105,56 @@ describe("getIndoorPoisForBuilding", () => {
     );
 
     const pois = await getIndoorPoisForBuilding("H");
+    expect(pois).toEqual([]);
+  });
+});
+
+describe("getAllIndoorPois", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("returns all pois across buildings", async () => {
+    const mockPois = [
+      {
+        id: "H-washroom-1",
+        name: "Washroom",
+        category: "washroom",
+        buildingCode: "H",
+        floor: 1,
+        latitude: 45.497,
+        longitude: -73.579,
+        description: "Test",
+      },
+      {
+        id: "MB-washroom-1",
+        name: "Washroom",
+        category: "washroom",
+        buildingCode: "MB",
+        floor: 1,
+        latitude: 45.496,
+        longitude: -73.579,
+        description: "Test",
+      },
+    ];
+    (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockPois,
+    });
+
+    const pois = await getAllIndoorPois();
+    expect(pois.length).toBeGreaterThan(0);
+    const buildingCodes = pois.map((poi) => poi.buildingCode);
+    expect(buildingCodes).toContain("H");
+    expect(buildingCodes).toContain("MB");
+  });
+
+  it("handles fetch errors gracefully", async () => {
+    (globalThis.fetch as jest.Mock).mockRejectedValueOnce(
+      new Error("Network error"),
+    );
+
+    const pois = await getAllIndoorPois();
     expect(pois).toEqual([]);
   });
 });

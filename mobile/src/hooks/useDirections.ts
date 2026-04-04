@@ -14,6 +14,17 @@ import {
 import { IndoorNode, IndoorRoom, IndoorStep } from "../types/IndoorRoom";
 import { getDirectionOriginCoords } from "../utils/directionsUtils";
 
+const mapStep = (s: IndoorStep): StepInfo => ({
+  id: `${s.startNodeId}-${s.endNodeId}`,
+  distanceMeters: s.distanceMeters,
+  durationSeconds: s.durationSeconds,
+  instruction: s.instruction,
+  maneuver: s.maneuver,
+  coordinates: [],
+  startFloor: s.startFloor,
+  endFloor: s.endFloor,
+});
+
 const getEdgeNodes = (bId: string): IndoorNode[] => {
   const nodes = IndoorDataService.getAllNodes();
   let edgeNodes = nodes.filter(
@@ -40,6 +51,54 @@ interface IndoorEdgePathResult {
   steps: StepInfo[] | undefined;
 }
 
+interface IndoorEdgePathCandidate {
+  path: IndoorRoom[];
+  distanceMeters: number;
+  steps?: IndoorStep[];
+}
+
+const isFulfilled = <T>(
+  result: PromiseSettledResult<T>,
+): result is PromiseFulfilledResult<T> => result.status === "fulfilled";
+
+const getArtificialIndoorEdgePath = (
+  room: IndoorRoom,
+  fallbackNode: IndoorRoom,
+  direction: "departure" | "arrival",
+): IndoorRoom[] => {
+  const syntheticId = direction === "departure" ? "synth_0" : "synth_1";
+  const needsMid = fallbackNode.floor !== room.floor;
+  const midNode: IndoorRoom = {
+    ...fallbackNode,
+    id: syntheticId,
+    floor: room.floor,
+  };
+
+  return direction === "departure"
+    ? [room, ...(needsMid ? [midNode] : []), fallbackNode]
+    : [fallbackNode, ...(needsMid ? [midNode] : []), room];
+};
+
+const selectBestIndoorEdgePath = (
+  results: PromiseSettledResult<{
+    en: IndoorNode;
+    res: IndoorEdgePathCandidate;
+  }>[],
+): IndoorEdgePathCandidate | null => {
+  let bestPath: IndoorEdgePathCandidate | null = null;
+
+  for (const result of results) {
+    if (!isFulfilled(result)) continue;
+
+    const { res } = result.value;
+    if (!bestPath || res.distanceMeters < bestPath.distanceMeters) {
+      bestPath = res;
+    }
+  }
+
+  return bestPath;
+};
+
 async function fetchIndoorEdgePath(
   room: IndoorRoom,
   direction: "departure" | "arrival",
@@ -49,10 +108,6 @@ async function fetchIndoorEdgePath(
 
   const bId = room.buildingId;
   const edgeNodes = getEdgeNodes(bId);
-
-  let bestPath: IndoorRoom[] | null = null;
-  let bestSteps: IndoorStep[] = [];
-  let minDistance = Infinity;
 
   const results = await Promise.allSettled(
     edgeNodes.map(async (en) => {
@@ -77,58 +132,21 @@ async function fetchIndoorEdgePath(
     }),
   );
 
-  for (const result of results) {
-    if (result.status === "fulfilled") {
-      const { res } = result.value;
-      if (res.distanceMeters < minDistance) {
-        minDistance = res.distanceMeters;
-        bestPath = res.path;
-        bestSteps = res.steps ?? [];
-      }
-    }
-  }
+  const bestPath = selectBestIndoorEdgePath(results);
 
   if (bestPath) {
-    return {
-      path: bestPath as IndoorRoom[],
-      steps: bestSteps.map((s: any, idx: number) => ({
-        id: `dest-step-${idx}`,
-        distanceMeters: s.distanceMeters,
-        durationSeconds: s.durationSeconds,
-        instruction: s.instruction,
-        maneuver: s.maneuver,
-        coordinates: [],
-        startFloor: s.startFloor,
-        endFloor: s.endFloor,
-      })) as StepInfo[],
-    };
-  } else if (edgeNodes.length > 0) {
-    const fallbackNode = edgeNodes[0];
+    return { path: bestPath.path, steps: (bestPath.steps ?? []).map(mapStep) };
+  }
+
+  if (edgeNodes.length > 0) {
+    const fallbackNode = edgeNodes[0] as IndoorRoom;
     console.warn(
       "Backend graph missing path. Using artificial straight line fallback.",
     );
-    const syntheticId = direction === "departure" ? "synth_0" : "synth_1";
-    const needsMid = fallbackNode.floor !== room.floor;
-    const midNode = {
-      ...fallbackNode,
-      id: syntheticId,
-      floor: room.floor,
-    } as unknown as IndoorRoom;
-
-    const artificialPath: IndoorRoom[] =
-      direction === "departure"
-        ? [
-            room,
-            ...(needsMid ? [midNode] : []),
-            fallbackNode as unknown as IndoorRoom,
-          ]
-        : [
-            fallbackNode as unknown as IndoorRoom,
-            ...(needsMid ? [midNode] : []),
-            room,
-          ];
-
-    return { path: artificialPath, steps: undefined };
+    return {
+      path: getArtificialIndoorEdgePath(room, fallbackNode, direction),
+      steps: undefined,
+    };
   }
 
   return { path: [room], steps: undefined };

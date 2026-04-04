@@ -47,7 +47,6 @@ export interface MapUIState {
   indoorSelectedRoom: IndoorRoom | null;
   activeStepIndex: number;
   activeIndoorStepIndex: number;
-  accessibilityMode: boolean;
 }
 
 export type MapUIAction =
@@ -85,5 +84,4 @@ export type MapUIAction =
   | { type: "CLOSE_INDOOR" }
   | { type: "SET_INDOOR_FLOOR"; floor: number }
   | { type: "OPEN_ROOM_INFO"; room: IndoorRoom }
-  | { type: "BACK_TO_INDOOR" }
-  | { type: "SET_ACCESSIBILITY_MODE"; enabled: boolean };
+  | { type: "BACK_TO_INDOOR" };

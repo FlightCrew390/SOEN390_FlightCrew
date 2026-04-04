@@ -4,6 +4,7 @@ import {
   createBottomTabNavigator,
 } from "@react-navigation/bottom-tabs";
 import { RouteProp } from "@react-navigation/native";
+import { AccessibilityProvider } from "../../contexts/AccessibilityContext";
 import { CalendarProvider } from "../../contexts/CalendarContext";
 import { UserProvider } from "../../contexts/UserContext";
 import HomeScreen from "../../screens/HomeScreen";
@@ -40,25 +41,27 @@ const screenOptions = ({
 export default function HomeScreenNavBar() {
   return (
     <UserProvider>
-      <CalendarProvider>
-        <Tab.Navigator screenOptions={screenOptions}>
-          <Tab.Screen
-            name="home"
-            component={HomeScreen}
-            options={{ tabBarButtonTestID: "home-tab" }}
-          />
-          <Tab.Screen
-            name="location"
-            component={LocationScreen}
-            options={{ tabBarButtonTestID: "location-tab" }}
-          />
-          <Tab.Screen
-            name="menu"
-            component={MenuScreen}
-            options={{ tabBarButtonTestID: "menu-tab" }}
-          />
-        </Tab.Navigator>
-      </CalendarProvider>
+      <AccessibilityProvider>
+        <CalendarProvider>
+          <Tab.Navigator screenOptions={screenOptions}>
+            <Tab.Screen
+              name="home"
+              component={HomeScreen}
+              options={{ tabBarButtonTestID: "home-tab" }}
+            />
+            <Tab.Screen
+              name="location"
+              component={LocationScreen}
+              options={{ tabBarButtonTestID: "location-tab" }}
+            />
+            <Tab.Screen
+              name="menu"
+              component={MenuScreen}
+              options={{ tabBarButtonTestID: "menu-tab" }}
+            />
+          </Tab.Navigator>
+        </CalendarProvider>
+      </AccessibilityProvider>
     </UserProvider>
   );
 }

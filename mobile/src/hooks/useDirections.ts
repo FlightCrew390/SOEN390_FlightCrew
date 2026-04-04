@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useAccessibility } from "../contexts/AccessibilityContext";
 import { DirectionsService } from "../services/DirectionsService";
 import { IndoorPathfindingService } from "../services/IndoorPathfindingService";
 import { ShuttleDirectionsBuilder } from "../services/ShuttleDirectionsBuilder";
@@ -202,8 +203,6 @@ interface UseDirectionsParams {
   departureConfig: DepartureTimeConfig;
   /** Whether the directions panel is open. */
   active: boolean;
-  /** Whether to request an accessible (stair-free) indoor route. */
-  accessibilityMode?: boolean;
   /** Callbacks into the reducer. */
   onLoading: () => void;
   onLoaded: (route: RouteInfo | null) => void;
@@ -223,11 +222,11 @@ export function useDirections({
   travelMode,
   departureConfig,
   active,
-  accessibilityMode = false,
   onLoading,
   onLoaded,
   onError,
 }: UseDirectionsParams) {
+  const { accessibilityMode } = useAccessibility();
   // Use a ref for the abort controller so we can cancel in-flight requests
   const abortRef = useRef<AbortController | null>(null);
 

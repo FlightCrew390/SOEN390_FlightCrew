@@ -15,14 +15,14 @@ const AccessibilityContext = createContext<AccessibilityContextValue | null>(
 export function AccessibilityProvider({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [accessibilityMode, setAccessibilityModeState] = React.useState(false);
+  const [accessibilityMode, setAccessibilityMode] = React.useState(false);
   const isMounted = React.useRef(true);
 
   React.useEffect(() => {
     isMounted.current = true;
     SecureStore.getItemAsync(ACCESSIBILITY_KEY).then((raw) => {
       if (isMounted.current && raw !== null) {
-        setAccessibilityModeState(raw === "true");
+        setAccessibilityMode(raw === "true");
       }
     });
     return () => {
@@ -30,15 +30,21 @@ export function AccessibilityProvider({
     };
   }, []);
 
-  const setAccessibilityMode = React.useCallback((enabled: boolean) => {
-    setAccessibilityModeState(enabled);
+  const updateAccessibilityMode = React.useCallback((enabled: boolean) => {
+    setAccessibilityMode(enabled);
     SecureStore.setItemAsync(ACCESSIBILITY_KEY, String(enabled));
   }, []);
 
+  const value = React.useMemo(
+    () => ({
+      accessibilityMode,
+      setAccessibilityMode: updateAccessibilityMode,
+    }),
+    [accessibilityMode, updateAccessibilityMode],
+  );
+
   return (
-    <AccessibilityContext.Provider
-      value={{ accessibilityMode, setAccessibilityMode }}
-    >
+    <AccessibilityContext.Provider value={value}>
       {children}
     </AccessibilityContext.Provider>
   );

@@ -495,8 +495,7 @@ export default function DirectionPanel({
                 <View style={styles.errorRow}>
                   <MaterialIcons name="info-outline" size={18} color="#888" />
                   <Text style={styles.shuttleUnavailableText}>
-                    Shuttle is not available at the selected time. Please try
-                    another transport method.
+                    No shuttle for this time. Try walking, transit, or driving.
                   </Text>
                 </View>
               )}

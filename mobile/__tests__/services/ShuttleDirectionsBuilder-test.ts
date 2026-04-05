@@ -281,4 +281,38 @@ describe("ShuttleDirectionsBuilder", () => {
       expectedDepartureTime.toISOString(),
     );
   });
+
+  it("assigns unique step ids when merging legs that reuse the same ids", async () => {
+    mockGetSchedule.mockResolvedValue(mockSchedule);
+    mockGetRoute.mockResolvedValue(mockShuttleRoute);
+    const dupStep = {
+      id: "step-0",
+      distanceMeters: 100,
+      durationSeconds: 60,
+      instruction: "Walk",
+      maneuver: "DEPART",
+      coordinates: [] as { latitude: number; longitude: number }[],
+    };
+    const walkWithDup: RouteInfo = {
+      coordinates: [],
+      distanceMeters: 100,
+      durationSeconds: 60,
+      steps: [dupStep],
+    };
+    mockFetchDirections.mockResolvedValue(walkWithDup);
+
+    const result = await ShuttleDirectionsBuilder.buildShuttleRoute(
+      loyBuilding.latitude,
+      loyBuilding.longitude,
+      sgwBuilding.latitude,
+      sgwBuilding.longitude,
+      DEFAULT_DEPARTURE_CONFIG,
+      loyBuilding,
+      sgwBuilding,
+    );
+
+    const ids = result!.steps.map((s) => s.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids.every((id) => id.startsWith("shuttle-leg-"))).toBe(true);
+  });
 });

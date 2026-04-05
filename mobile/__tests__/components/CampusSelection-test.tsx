@@ -2,16 +2,15 @@ import { render, screen } from "@testing-library/react-native";
 
 import CampusSelection from "../../src/components/LocationScreen/CampusSelection";
 
-jest.mock("@expo/vector-icons/Entypo", () => "");
-
 test("renders correctly showing Loyola campus", () => {
   const onCampusChange = jest.fn();
   render(
     <CampusSelection activeCampusId="LOYOLA" onCampusChange={onCampusChange} />,
   );
 
-  expect(screen.getByText("Select a Campus")).toBeTruthy();
-  expect(screen.getByText("Loyola Campus")).toBeTruthy();
+  expect(screen.getByText("Campus")).toBeTruthy();
+  expect(screen.getByText("SGW")).toBeTruthy();
+  expect(screen.getByText("Loyola")).toBeTruthy();
 });
 
 test("renders correctly showing SGW campus", () => {
@@ -20,76 +19,101 @@ test("renders correctly showing SGW campus", () => {
     <CampusSelection activeCampusId="SGW" onCampusChange={onCampusChange} />,
   );
 
-  expect(screen.getByText("SGW Campus")).toBeTruthy();
+  expect(screen.getByText("SGW")).toBeTruthy();
+  expect(screen.getByText("Loyola")).toBeTruthy();
 });
 
-test("chevron states are correct on first campus (LOYOLA)", () => {
+test("active campus is marked as selected", () => {
   const onCampusChange = jest.fn();
   render(
     <CampusSelection activeCampusId="LOYOLA" onCampusChange={onCampusChange} />,
   );
 
-  const leftChevron = screen.getByRole("button", { name: "Previous campus" });
-  const rightChevron = screen.getByRole("button", { name: "Next campus" });
+  const sgwOption = screen.getByRole("button", { name: "SGW Campus selector" });
+  const loyolaOption = screen.getByRole("button", {
+    name: "Loyola Campus selector",
+  });
 
-  expect(leftChevron.props.accessibilityState?.disabled).toBe(true);
-  expect(rightChevron.props.accessibilityState?.disabled).toBe(false);
+  expect(sgwOption.props.accessibilityState?.selected).toBe(false);
+  expect(loyolaOption.props.accessibilityState?.selected).toBe(true);
 });
 
-test("chevron states are correct on last campus (SGW)", () => {
-  const onCampusChange = jest.fn();
-  render(
-    <CampusSelection activeCampusId="SGW" onCampusChange={onCampusChange} />,
-  );
-
-  const leftChevron = screen.getByRole("button", { name: "Previous campus" });
-  const rightChevron = screen.getByRole("button", { name: "Next campus" });
-
-  expect(leftChevron.props.accessibilityState?.disabled).toBe(false);
-  expect(rightChevron.props.accessibilityState?.disabled).toBe(true);
-});
-
-test("pressing next chevron calls onCampusChange with next campus", () => {
-  const onCampusChange = jest.fn();
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { fireEvent } = require("@testing-library/react-native");
-
-  render(
-    <CampusSelection activeCampusId="LOYOLA" onCampusChange={onCampusChange} />,
-  );
-
-  const rightChevron = screen.getByRole("button", { name: "Next campus" });
-  fireEvent.press(rightChevron);
-
-  expect(onCampusChange).toHaveBeenCalledWith("SGW");
-});
-
-test("pressing previous chevron calls onCampusChange with previous campus", () => {
-  const onCampusChange = jest.fn();
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { fireEvent } = require("@testing-library/react-native");
-
-  render(
-    <CampusSelection activeCampusId="SGW" onCampusChange={onCampusChange} />,
-  );
-
-  const leftChevron = screen.getByRole("button", { name: "Previous campus" });
-  fireEvent.press(leftChevron);
-
-  expect(onCampusChange).toHaveBeenCalledWith("LOYOLA");
-});
-
-test("rerender with different activeCampusId updates displayed campus", () => {
+test("changing the active campus updates the selected state", () => {
   const onCampusChange = jest.fn();
   const { rerender } = render(
     <CampusSelection activeCampusId="SGW" onCampusChange={onCampusChange} />,
   );
 
-  expect(screen.getByText("SGW Campus")).toBeTruthy();
+  let sgwOption = screen.getByRole("button", { name: "SGW Campus selector" });
+  let loyolaOption = screen.getByRole("button", {
+    name: "Loyola Campus selector",
+  });
+
+  expect(sgwOption.props.accessibilityState?.selected).toBe(true);
+  expect(loyolaOption.props.accessibilityState?.selected).toBe(false);
 
   rerender(
     <CampusSelection activeCampusId="LOYOLA" onCampusChange={onCampusChange} />,
   );
 
-  expect(screen.getByText("Loyola Campus")).toBeTruthy();
+  sgwOption = screen.getByRole("button", { name: "SGW Campus selector" });
+  loyolaOption = screen.getByRole("button", {
+    name: "Loyola Campus selector",
+  });
+
+  expect(sgwOption.props.accessibilityState?.selected).toBe(false);
+  expect(loyolaOption.props.accessibilityState?.selected).toBe(true);
+});
+
+test("pressing SGW calls onCampusChange with SGW", () => {
+  const onCampusChange = jest.fn();
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { fireEvent } = require("@testing-library/react-native");
+
+  render(
+    <CampusSelection activeCampusId="LOYOLA" onCampusChange={onCampusChange} />,
+  );
+
+  const sgwOption = screen.getByRole("button", { name: "SGW Campus selector" });
+  fireEvent.press(sgwOption);
+
+  expect(onCampusChange).toHaveBeenCalledWith("SGW");
+});
+
+test("pressing Loyola calls onCampusChange with LOYOLA", () => {
+  const onCampusChange = jest.fn();
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { fireEvent } = require("@testing-library/react-native");
+
+  render(
+    <CampusSelection activeCampusId="SGW" onCampusChange={onCampusChange} />,
+  );
+
+  const loyolaOption = screen.getByRole("button", {
+    name: "Loyola Campus selector",
+  });
+  fireEvent.press(loyolaOption);
+
+  expect(onCampusChange).toHaveBeenCalledWith("LOYOLA");
+});
+
+test("rerender with different activeCampusId updates selected campus", () => {
+  const onCampusChange = jest.fn();
+  const { rerender } = render(
+    <CampusSelection activeCampusId="SGW" onCampusChange={onCampusChange} />,
+  );
+
+  expect(
+    screen.getByRole("button", { name: "SGW Campus selector" }).props
+      .accessibilityState?.selected,
+  ).toBe(true);
+
+  rerender(
+    <CampusSelection activeCampusId="LOYOLA" onCampusChange={onCampusChange} />,
+  );
+
+  expect(
+    screen.getByRole("button", { name: "Loyola Campus selector" }).props
+      .accessibilityState?.selected,
+  ).toBe(true);
 });

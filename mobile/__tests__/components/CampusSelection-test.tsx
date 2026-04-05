@@ -8,7 +8,7 @@ test("renders correctly showing Loyola campus", () => {
     <CampusSelection activeCampusId="LOYOLA" onCampusChange={onCampusChange} />,
   );
 
-  expect(screen.getByText("Select a Campus")).toBeTruthy();
+  expect(screen.getByText("Campus")).toBeTruthy();
   expect(screen.getByText("SGW")).toBeTruthy();
   expect(screen.getByText("Loyola")).toBeTruthy();
 });

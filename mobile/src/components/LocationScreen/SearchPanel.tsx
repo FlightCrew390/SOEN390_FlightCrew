@@ -15,7 +15,12 @@ import {
   initialSearchPanelState,
   searchPanelReducer,
 } from "../../reducers/searchPanelReducer";
-import { LOCATION_OPTIONS, RADIUS_OPTIONS } from "../../constants/searchPanel";
+import {
+  LOCATION_OPTIONS,
+  PRIMARY_LOCATION_OPTIONS,
+  RADIUS_OPTIONS,
+  SECONDARY_LOCATION_OPTIONS,
+} from "../../constants/searchPanel";
 import {
   LocationType,
   isClassroom,
@@ -55,19 +60,60 @@ interface SearchPanelProps {
   readonly onSelectBuilding: (building: Building) => void;
 }
 
+function FilterExpandToggle({
+  filtersExpanded,
+  onToggle,
+}: Readonly<{
+  filtersExpanded: boolean;
+  onToggle: () => void;
+}>) {
+  return (
+    <>
+      <View style={styles.dropdownDivider} />
+      <Pressable
+        style={styles.dropdownOption}
+        onPress={onToggle}
+        accessibilityLabel={
+          filtersExpanded ? "Show fewer categories" : "Show more categories"
+        }
+        accessibilityRole="button"
+      >
+        <Text style={[styles.dropdownOptionText, { color: "#888" }]}>
+          {filtersExpanded
+            ? "Show fewer"
+            : `Show more (${SECONDARY_LOCATION_OPTIONS.length})`}
+        </Text>
+        <FontAwesome5
+          name={filtersExpanded ? "chevron-up" : "chevron-down"}
+          size={11}
+          color="#888"
+        />
+      </Pressable>
+    </>
+  );
+}
+
 function LocationTypeDropdown({
   selectedLabel,
   isOpen,
   locationType,
+  filtersExpanded,
   onToggle,
   onSelect,
+  onToggleExpanded,
 }: Readonly<{
   selectedLabel: string;
   isOpen: boolean;
   locationType: LocationType;
+  filtersExpanded: boolean;
   onToggle: () => void;
   onSelect: (type: LocationType) => void;
+  onToggleExpanded: () => void;
 }>) {
+  const visibleOptions = filtersExpanded
+    ? LOCATION_OPTIONS
+    : PRIMARY_LOCATION_OPTIONS;
+
   return (
     <View style={styles.dropdownMenuWrapper}>
       <Pressable
@@ -86,7 +132,7 @@ function LocationTypeDropdown({
 
       {isOpen && (
         <View style={styles.dropdownMenu}>
-          {LOCATION_OPTIONS.map((option, idx) => (
+          {visibleOptions.map((option, idx) => (
             <React.Fragment key={option.key}>
               {idx > 0 && <View style={styles.dropdownDivider} />}
               <Pressable
@@ -102,6 +148,10 @@ function LocationTypeDropdown({
               </Pressable>
             </React.Fragment>
           ))}
+          <FilterExpandToggle
+            filtersExpanded={filtersExpanded}
+            onToggle={onToggleExpanded}
+          />
         </View>
       )}
     </View>
@@ -389,10 +439,12 @@ export default function SearchPanel({
         selectedLabel={selectedLabel}
         isOpen={state.dropdownOpen}
         locationType={state.locationType}
+        filtersExpanded={state.filtersExpanded}
         onToggle={() => dispatch({ type: "TOGGLE_DROPDOWN" })}
         onSelect={(type) =>
           dispatch({ type: "SELECT_LOCATION_TYPE", locationType: type })
         }
+        onToggleExpanded={() => dispatch({ type: "TOGGLE_FILTERS_EXPANDED" })}
       />
 
       {/* Classroom: building filter + room name input */}

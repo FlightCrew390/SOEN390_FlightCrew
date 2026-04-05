@@ -1,4 +1,6 @@
 import {
+  AmenitySelectorAction,
+  AmenitySelectorState,
   FloorPlanAssetAction,
   FloorPlanAssetState,
   FloorSelectorAction,
@@ -36,6 +38,25 @@ export function floorSelectorReducer(
       return { floorOpen: !state.floorOpen };
     case "CLOSE":
       return initialFloorSelectorState;
+    default:
+      return state;
+  }
+}
+
+export const initialAmenitySelectorState: AmenitySelectorState = {
+  amenityOpen: false,
+  amenityPanelExpanded: false,
+};
+
+export function amenitySelectorReducer(
+  state: AmenitySelectorState,
+  action: AmenitySelectorAction,
+): AmenitySelectorState {
+  switch (action.type) {
+    case "TOGGLE_OPEN":
+      return { ...state, amenityOpen: !state.amenityOpen };
+    case "TOGGLE_EXPANDED":
+      return { ...state, amenityPanelExpanded: !state.amenityPanelExpanded };
     default:
       return state;
   }

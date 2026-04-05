@@ -9,3 +9,12 @@ export interface FloorSelectorState {
 }
 
 export type FloorSelectorAction = { type: "TOGGLE" } | { type: "CLOSE" };
+
+export interface AmenitySelectorState {
+  amenityOpen: boolean;
+  amenityPanelExpanded: boolean;
+}
+
+export type AmenitySelectorAction =
+  | { type: "TOGGLE_OPEN" }
+  | { type: "TOGGLE_EXPANDED" };

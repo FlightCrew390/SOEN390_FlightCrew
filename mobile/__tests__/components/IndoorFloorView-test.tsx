@@ -470,4 +470,63 @@ describe("IndoorFloorView", () => {
       expect(screen.queryByTestId(/^indoor-poi-pin-/)).toBeNull();
     });
   });
+
+  // ── Amenity panel collapse / expand ──
+
+  describe("amenity panel collapse and expand", () => {
+    it("amenity selector button is rendered", () => {
+      renderView();
+      expect(screen.getByLabelText("Filter amenities")).toBeTruthy();
+    });
+
+    it("shows primary amenities (washroom, fountain) when panel is opened", () => {
+      renderView();
+      fireEvent.press(screen.getByLabelText("Filter amenities"));
+
+      expect(screen.getByLabelText("Toggle washroom")).toBeTruthy();
+      expect(screen.getByLabelText("Toggle fountain")).toBeTruthy();
+    });
+
+    it("hides secondary amenities (stairs, elevator) by default when panel is opened", () => {
+      renderView();
+      fireEvent.press(screen.getByLabelText("Filter amenities"));
+
+      expect(screen.queryByLabelText("Toggle stairs")).toBeNull();
+      expect(screen.queryByLabelText("Toggle elevator")).toBeNull();
+    });
+
+    it("shows expand chevron button when panel is open", () => {
+      renderView();
+      fireEvent.press(screen.getByLabelText("Filter amenities"));
+
+      expect(screen.getByLabelText("Show more amenities")).toBeTruthy();
+    });
+
+    it("reveals secondary amenities after pressing expand", () => {
+      renderView();
+      fireEvent.press(screen.getByLabelText("Filter amenities"));
+      fireEvent.press(screen.getByLabelText("Show more amenities"));
+
+      expect(screen.getByLabelText("Toggle stairs")).toBeTruthy();
+      expect(screen.getByLabelText("Toggle elevator")).toBeTruthy();
+    });
+
+    it("collapse button label changes to 'Show fewer amenities' when expanded", () => {
+      renderView();
+      fireEvent.press(screen.getByLabelText("Filter amenities"));
+      fireEvent.press(screen.getByLabelText("Show more amenities"));
+
+      expect(screen.getByLabelText("Show fewer amenities")).toBeTruthy();
+    });
+
+    it("hides secondary amenities after pressing collapse", () => {
+      renderView();
+      fireEvent.press(screen.getByLabelText("Filter amenities"));
+      fireEvent.press(screen.getByLabelText("Show more amenities"));
+      fireEvent.press(screen.getByLabelText("Show fewer amenities"));
+
+      expect(screen.queryByLabelText("Toggle stairs")).toBeNull();
+      expect(screen.queryByLabelText("Toggle elevator")).toBeNull();
+    });
+  });
 });

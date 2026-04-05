@@ -29,6 +29,8 @@ export interface SearchPanelState {
   // Classroom-specific
   classroomBuildingId: string | null;
   classroomBuildingDropdownOpen: boolean;
+  // Filter visibility
+  filtersExpanded: boolean;
 }
 
 export type SearchPanelAction =
@@ -43,4 +45,5 @@ export type SearchPanelAction =
   | { type: "TOGGLE_RADIUS_DROPDOWN" }
   | { type: "SELECT_RADIUS"; radiusKm: number | null }
   | { type: "TOGGLE_CLASSROOM_BUILDING_DROPDOWN" }
-  | { type: "SELECT_CLASSROOM_BUILDING"; buildingId: string | null };
+  | { type: "SELECT_CLASSROOM_BUILDING"; buildingId: string | null }
+  | { type: "TOGGLE_FILTERS_EXPANDED" };

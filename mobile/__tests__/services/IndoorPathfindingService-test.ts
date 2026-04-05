@@ -1,5 +1,5 @@
-import { IndoorPathfindingService } from "../../src/services/IndoorPathfindingService";
 import { API_CONFIG } from "../../src/constants";
+import { IndoorPathfindingService } from "../../src/services/IndoorPathfindingService";
 
 const mockFetch = jest.fn();
 globalThis.fetch = mockFetch;
@@ -33,17 +33,15 @@ describe("IndoorPathfindingService", () => {
 
     expect(result.distanceMeters).toBe(50);
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining("buildingId=H"),
+      expect.stringContaining("/indoor/directions?"),
+      { signal: undefined },
     );
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining("startNodeId=node1"),
-    );
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining("endNodeId=node2"),
-    );
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining("requireAccessible=true"),
-    );
+
+    const [requestUrl] = mockFetch.mock.calls[0];
+    expect(requestUrl).toContain("buildingId=H");
+    expect(requestUrl).toContain("startNodeId=node1");
+    expect(requestUrl).toContain("endNodeId=node2");
+    expect(requestUrl).toContain("requireAccessible=true");
   });
 
   it("throws when response is not ok", async () => {

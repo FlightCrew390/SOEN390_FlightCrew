@@ -89,6 +89,11 @@ export default function CampusSelection({
               key={campusId}
               onPress={() => onCampusChange(campusId)}
               style={styles.toggleOption}
+              testID={
+                isActive
+                  ? `campus-selector-${campusId.toLowerCase()}-active`
+                  : undefined
+              }
               accessibilityRole="button"
               accessibilityLabel={`${CAMPUSES[campusId].name} selector`}
               accessibilityState={{ selected: isActive }}

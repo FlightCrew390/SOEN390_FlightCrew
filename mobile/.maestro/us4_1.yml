@@ -1,0 +1,66 @@
+appId: com.flightcrew.mobile
+tags:
+  - us4
+---
+- runFlow: flows/open_map.yml
+
+# ═══════════════════════════════════════════════════════════════════
+# US4.1 – Indoor Maps by Building/Floor, Room as Destination,
+#          Invalid Room Rejection
+# ═══════════════════════════════════════════════════════════════════
+
+# ── Test 1a: Rooms Can Be Used as a Destination – search for a classroom ──
+- tapOn: "Search campus buildings"
+
+# Switch to classroom search mode
+- tapOn: "Select location type"
+- tapOn: "Classroom"
+
+# Search for a valid Hall Building room
+- tapOn: "Search classroom name"
+- inputText: "H-244"
+- tapOn: "Search"
+
+# Room results panel appears with the matching classroom
+- extendedWaitUntil:
+    visible:
+      id: "room-results-panel"
+    timeout: 10000
+
+# Tap directions for the room – opens the direction panel
+- tapOn: "Get directions to H-244"
+- assertVisible: "Directions"
+
+# ── Test 1b: Indoor Maps Are Available by Building and Floor ──
+# Select walking mode to trigger route calculation
+- tapOn: "Get directions by Walk"
+- extendedWaitUntil:
+    visible: "View step-by-step directions"
+    timeout: 15000
+
+# Open step-by-step view – indoor map button should be present
+- tapOn: "View step-by-step directions"
+
+# Tap the indoor map button – indoor floor view opens
+- tapOn: "View indoor floor plan"
+
+# Indoor floor plan is displayed with the correct building context
+- assertVisible: "Select floor"
+
+# ── Test 1c: Invalid Rooms Are Rejected ──
+# Return to outdoor map
+- tapOn: "Back to directions"
+- tapOn: "Close direction panel"
+
+# Re-open search and switch to classroom type
+- tapOn: "Search campus buildings"
+- tapOn: "Select location type"
+- tapOn: "Classroom"
+
+# Enter a room that does not exist
+- tapOn: "Search classroom name"
+- inputText: "XYZINVALIDROOM999"
+- tapOn: "Search"
+
+# System shows no results – navigation cannot proceed
+- assertVisible: "No classrooms found."

@@ -20,32 +20,25 @@ tags:
 
 # Close direction panel
 - tapOn: "Close direction panel"
-- waitForAnimationToEnd
 
 # ── Test 6b: Shuttle IS available for inter-campus travel ──
 # Search for a Loyola building to get cross-campus directions
 - tapOn: "Search campus buildings"
-- waitForAnimationToEnd
 - tapOn: "Clear search"
 - tapOn: "Search building name"
 - inputText: "Admin"
-- waitForAnimationToEnd
 - tapOn:
     text: ".*Administration.*"
 - tapOn: "Search"
-- waitForAnimationToEnd
 
 # Tap the callout to open directions to Loyola campus
 - tapOn: "AD Building"
-- waitForAnimationToEnd
 - assertVisible: "Directions"
 
 # Set departure to next weekday at 9:15 AM (shuttle operating hours)
 - tapOn: "Change departure time"
 - tapOn: "Depart at"
-- waitForAnimationToEnd
 - tapOn: "Select next weekday"
-- waitForAnimationToEnd
 
 # Shuttle should be enabled (cross-campus: SGW → Loyola, during shuttle hours)
 - assertVisible:

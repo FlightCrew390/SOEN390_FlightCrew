@@ -10,17 +10,13 @@ tags:
 
 # ── Test 2a: POI Filtering and Display – search for nearby restaurants ──
 - tapOn: "Search campus buildings"
-- waitForAnimationToEnd
 
 # Select Restaurant category
 - tapOn: "Select location type"
-- waitForAnimationToEnd
 - tapOn: "Restaurant"
-- waitForAnimationToEnd
 
 # Submit search with no distance limit
 - tapOn: "Search"
-- waitForAnimationToEnd
 
 # Results panel should appear with POI listings
 - extendedWaitUntil:
@@ -31,7 +27,6 @@ tags:
 # ── Test 2b: POI Detailed Information – select a POI to view on map ──
 # Tap the map-pin icon on the first result to show it on the map
 - tapOn: "Show .* on map"
-- waitForAnimationToEnd
 
 # POI marker should appear on the map
 - assertVisible:
@@ -39,9 +34,8 @@ tags:
 
 # ── Test 2c: Direction Generation – get directions to the selected POI ──
 # Tap the POI marker to open the directions panel
-- tapOn:
-    id: "poi-marker"
-- waitForAnimationToEnd
+- tapOn: "La Belle & La Boeuf"
+- tapOn: "OK"
 
 # Directions panel should open
 - assertVisible: "Directions"
@@ -54,18 +48,13 @@ tags:
 
 # ── Test 2e: Close directions and verify alternative flow via directions button ──
 - tapOn: "Close direction panel"
-- waitForAnimationToEnd
 
 # Re-open search and search for cafes
 - tapOn: "Search campus buildings"
-- waitForAnimationToEnd
 - tapOn: "Select location type"
-- waitForAnimationToEnd
 - tapOn: "Cafe"
-- waitForAnimationToEnd
 
 - tapOn: "Search"
-- waitForAnimationToEnd
 
 - extendedWaitUntil:
     visible:
@@ -74,7 +63,6 @@ tags:
 
 # ── Test 2f: Use the directions button directly from the results list ──
 - tapOn: "Get directions to .*"
-- waitForAnimationToEnd
 
 # Directions panel should open for the selected POI
 - assertVisible: "Directions"

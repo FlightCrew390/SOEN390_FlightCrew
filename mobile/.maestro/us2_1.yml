@@ -10,14 +10,12 @@ tags:
 
 # Test 1a: Dual Selection – Text input is available via Search panel
 - tapOn: "Search campus buildings"
-- waitForAnimationToEnd
 - assertVisible: "Search building name"
 - assertVisible: "Search"
 
 # Test 1b: Autocomplete Suggestions – typing a building name shows suggestions
 - tapOn: "Search building name"
 - inputText: "Hall"
-- waitForAnimationToEnd
 - assertVisible: "Henry F. Hall Building"
 
 # Test 1c: Selecting an autocomplete suggestion populates the search field
@@ -26,7 +24,6 @@ tags:
 
 # Submit search to select building on map
 - tapOn: "Search"
-- waitForAnimationToEnd
 
 # Test 1d: Building is selected – search panel closes, building callout visible
 # SELECT_BUILDING action sets panel to "none" so search panel auto-closes
@@ -34,12 +31,10 @@ tags:
 
 # ── Re-open search to test error handling ──
 - tapOn: "Search campus buildings"
-- waitForAnimationToEnd
 
 # Test 1e: Error Handling – invalid building name shows "No buildings found."
 - tapOn: "Search building name"
 - inputText: "XYZINVALIDBUILDING"
-- waitForAnimationToEnd
 - assertVisible: "No buildings found."
 
 # Test 1f: Search button is disabled when no matching building exists

@@ -12,7 +12,6 @@ tags:
 # Test 4b: Recenter Map Functionality
 # Center map on current location first
 - tapOn: "Recenter map on my location"
-- waitForAnimationToEnd
 
 # Pan map away so current location leaves the viewport
 - swipe:
@@ -27,7 +26,6 @@ tags:
 
 # Tap recenter and verify smooth transition completes
 - tapOn: "Recenter map on my location"
-- waitForAnimationToEnd
 
 # Location is back in view — recenter button remains available
 - assertVisible: "Recenter map on my location"

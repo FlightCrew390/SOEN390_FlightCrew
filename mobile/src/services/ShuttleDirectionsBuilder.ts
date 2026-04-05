@@ -180,17 +180,18 @@ function buildShuttleLeg(
   const destLabel =
     originCampus === "SGW" ? "Loyola Campus" : "SGW (Hall Building)";
 
+  const headingCampus = originCampus === "SGW" ? "Loyola" : "SGW";
   const waitMinutes = Math.round(waitTimeSeconds / 60);
-  const waitText =
+  const instruction =
     waitMinutes > 0
-      ? `Wait approx ${waitMinutes} mins for the shuttle. Then take`
-      : "Take";
+      ? `Shuttle to ${headingCampus}. About ${waitMinutes} min wait at the stop.`
+      : `Shuttle to ${headingCampus}.`;
 
   const step: StepInfo = {
     id: "shuttle-step",
     distanceMeters: SHUTTLE_DISTANCE_METERS,
     durationSeconds: SHUTTLE_DURATION_SECONDS + waitTimeSeconds,
-    instruction: `${waitText} the Concordia Shuttle from ${originLabel} to ${destLabel}`,
+    instruction,
     maneuver: "STRAIGHT",
     coordinates,
     transitDetails: {
@@ -229,11 +230,16 @@ function composeRoute(
     ...(walkFromStop?.coordinates ?? []),
   ];
 
-  const allSteps = [
+  const mergedSteps = [
     ...(walkToStop?.steps ?? []),
     ...shuttleLeg.steps,
     ...(walkFromStop?.steps ?? []),
   ];
+  // Walking legs each use step-0, step-1, … from DirectionsService; re-key for React lists.
+  const allSteps = mergedSteps.map((step, index) => ({
+    ...step,
+    id: `shuttle-leg-${index}-${step.id}`,
+  }));
 
   const totalDistance =
     (walkToStop?.distanceMeters ?? 0) +

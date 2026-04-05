@@ -28,6 +28,33 @@ const styles = StyleSheet.create({
     color: "#1A1A1A",
     letterSpacing: -0.3,
   },
+
+  nextDepartureBanner: {
+    marginHorizontal: 16,
+    marginTop: 12,
+    marginBottom: 2,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    backgroundColor: "rgba(156, 45, 45, 0.09)",
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.concordiaMaroon,
+  },
+  nextDepartureLabel: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: COLORS.concordiaMaroon,
+    letterSpacing: 0.4,
+    textTransform: "uppercase",
+    marginBottom: 6,
+  },
+  nextDepartureValue: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#1A1A1A",
+    letterSpacing: -0.4,
+  },
+
   stepScroll: {
     flex: 1,
     paddingTop: 12,

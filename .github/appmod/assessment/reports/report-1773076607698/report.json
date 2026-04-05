@@ -1,0 +1,5311 @@
+{
+  "version": "1.0.0",
+  "producer": "Java AppCAT CLI",
+  "metadata": {
+    "analysisStartTime": "2026-03-09T17:16:47.6981526Z",
+    "analysisEndTime": "2026-03-09T17:17:26.3812889Z",
+    "status": "completed",
+    "privacyMode": "Protected",
+    "privacyModeHelpUrl": "https://aka.ms/appcat-privacy-mode",
+    "targetIds": [
+      "azure-aks",
+      "azure-appservice",
+      "azure-container-apps"
+    ],
+    "targetDisplayNames": [
+      "Azure Kubernetes Service",
+      "Azure App Service",
+      "Azure Container Apps"
+    ],
+    "capabilities": [],
+    "os": [],
+    "id": "1773076607698",
+    "name": "Report_202603091316",
+    "domains": [
+      "cloud-readiness",
+      "java-upgrade"
+    ],
+    "mode": "issue-only"
+  },
+  "summary": {
+    "totalProjects": 1,
+    "totalIssues": 4,
+    "totalIncidents": 198,
+    "totalEffort": 732,
+    "charts": {
+      "severity": {
+        "mandatory": 91,
+        "optional": 107,
+        "potential": 0,
+        "information": 0
+      },
+      "category": {
+        "containerization": 1,
+        "local-resource-access": 35,
+        "remote-communication": 162
+      }
+    },
+    "security": {}
+  },
+  "projects": [
+    {
+      "path": ".",
+      "issues": 4,
+      "storyPoints": 732,
+      "properties": {
+        "appName": "SOEN390_FlightCrew",
+        "jdkVersion": "Unknown",
+        "frameworks": [
+          "React",
+          "Spring Boot",
+          "Spring"
+        ],
+        "languages": [
+          "TypeScript",
+          "Java"
+        ],
+        "tools": [
+          "NodeJs",
+          "Maven"
+        ]
+      },
+      "incidents": [
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "1c960c81-bafa-4386-a5ba-afb67757e739",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/AuthControllerTest.java",
+          "locationKind": "File",
+          "line": 61,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "b9d22e87-96ca-4a60-9064-806ce7226771",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/AuthControllerTest.java",
+          "locationKind": "File",
+          "line": 77,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "4b21c92c-8f53-48d4-9bff-7bbff603f916",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/AuthControllerTest.java",
+          "locationKind": "File",
+          "line": 87,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "e0cd0760-1533-4718-804e-245312d3ae3b",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/AuthControllerTest.java",
+          "locationKind": "File",
+          "line": 89,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "f923b5e4-27d3-4009-ac5e-964b5a29c910",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/service/GoogleAuthServiceTest.java",
+          "locationKind": "File",
+          "line": 32,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "a76531db-8163-47af-b356-9dd298e9883e",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 87,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "cc7007eb-fd18-45ba-a76c-49ddc6437b93",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 147,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "aaa3102a-57a9-4c85-8870-c09d05d706ef",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 189,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "9ba305e2-7b0a-4078-8147-47594369d10c",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 228,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "e81b9acb-ec30-4610-b1d5-61ebcf5e4d02",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 253,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "0b25d305-a80f-4f7e-8625-4b61eafc87f4",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 276,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "2cae798c-0aae-4203-9918-9a7fd619a498",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 310,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "d3d6ef1e-a02d-4adc-9390-125b8cff5a7e",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 350,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "a8f75b0d-b35e-432e-be43-441c49425c4a",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 388,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "d85e5eed-626c-4969-ac49-2bf9f407b80b",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 449,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "cbbb59a0-6417-4bc6-a988-5cd69d451b0e",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 516,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "81e6e2b3-699e-428a-8987-8d214761dcf3",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 576,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "a1845816-8a22-4eaa-b698-93e30d61d160",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 635,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "91f61d7e-a909-40c2-844e-9902fd1f626c",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 667,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "7493d6ed-cbfb-4883-98f5-a9417d10cf26",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 726,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "d3e56a7f-056e-4c45-aa54-c3f96ad435a8",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 794,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "8f0c5157-edf4-4f39-a3ed-e2f4c0b693d1",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 75,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "d525d884-bc51-43d1-99ff-29dd0b8059b7",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 111,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "db9bcab2-56f4-4510-9e42-91102d1771a0",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 136,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "5bbd5a7c-4253-4855-9fcd-0d49c010bbb8",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 158,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "ccc9657c-a416-46d7-9fea-758774fb76e3",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 186,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "40ab2783-81c3-4f0b-8fe3-daf42e806e0f",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 232,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "ccd3b08d-3353-4c19-82b1-e15bc22899cb",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 267,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "91796356-4e77-46e1-b12d-766f348a095a",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 296,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "3c3efa52-fe49-4ad4-b210-621330b673ce",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 322,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "fe481064-fdbb-4a78-8d41-c259a71e2f22",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 340,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "485ec982-9951-4634-9ad9-ebd40bf72020",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 412,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "82786efe-2001-4346-8612-a1b1204cfeae",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 482,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "50e55dc5-17e4-4e4f-b2f0-7e420d026667",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 514,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "localhost-http-00001",
+          "incidentId": "704f9f31-4836-40db-be53-ad8ceba25df8",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 566,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 7,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 7,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "4553231d-1a8b-4c8c-b773-71c559ff63f7",
+          "location": "Backend/src/main/resources/application.yml",
+          "locationKind": "File",
+          "line": 6,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "aef40d2b-6ffe-4617-b43c-89328d04317a",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/BackendTest.java",
+          "locationKind": "File",
+          "line": 13,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "05a168a8-af4c-4d03-ac1a-de4bcda536b7",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/CalendarControllerTest.java",
+          "locationKind": "File",
+          "line": 29,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "8d539890-7df1-4661-9875-aabf9f7e2422",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/service/GoogleMapsServiceBuildingInfoByAddressTest.java",
+          "locationKind": "File",
+          "line": 81,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "e1d3b948-23b1-4976-bc42-79d95c7e669c",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/AuthControllerTest.java",
+          "locationKind": "File",
+          "line": 29,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "0eb85dbf-dee6-41c5-8df1-145479a033e6",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/AuthControllerTest.java",
+          "locationKind": "File",
+          "line": 61,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "be8a8c5b-d33e-4c6e-bb2f-220988a3bc9f",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/AuthControllerTest.java",
+          "locationKind": "File",
+          "line": 77,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "b3599155-996d-4764-99fc-8f671bbc43c4",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/AuthControllerTest.java",
+          "locationKind": "File",
+          "line": 87,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "a1fec922-32f5-4ff5-973c-7ee1768213d5",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/AuthControllerTest.java",
+          "locationKind": "File",
+          "line": 89,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "9cafc56c-1061-41f9-8d96-15bf06240206",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/service/GoogleRoutesApiLiveTest.java",
+          "locationKind": "File",
+          "line": 50,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "ae59cef4-dfff-4c51-a43c-26e38de24abd",
+          "location": "Backend/src/test/resources/application.yml",
+          "locationKind": "File",
+          "line": 6,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "96035a5c-192c-4b8e-b85b-fdf9ea17ee48",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 33,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "84a3cd3b-46bb-484b-8e40-dff92125feb1",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 69,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "341e387a-e971-4ab3-a763-b2d0ca1fc71a",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 75,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "67ed4faf-762d-4050-af00-e1407bfa8e36",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 111,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "4590c682-86a5-46cc-a82f-e11647840e3c",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 136,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "8d820684-e66b-4b52-8a61-8a8d885beee5",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 158,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "49e4ab64-0cfe-426c-9124-1789c3bb93b7",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 179,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "8dfcd448-18ee-4ce3-b5af-dbd6dec1e32b",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 186,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "f901a703-0716-4a88-b70a-1fa91b00b41e",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 225,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "05ca94b5-8ec5-45bf-a924-71b190272b2e",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 232,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "9ce9d931-3f82-4c33-a9f7-61dbda281d04",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 260,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "50cc09a4-69f4-49e8-92d1-18d9b857f631",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 267,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "1023d264-6ed7-4608-80d0-930c512dcda5",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 289,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "b90e01e4-4685-42c5-8293-a69b2a50b77a",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 296,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "ab26f2c6-3eb3-4f2e-b9ea-5b7b01d122a2",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 322,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "2d47b27d-86f6-417f-add4-fac902546ddc",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 340,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "350e9895-dd9a-4d88-9da7-265eac1e5194",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 400,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "0dba4efd-c8f6-4938-a38d-756a92a827b0",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 405,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "a9e201cd-dea5-4db9-a65e-8b093bce6f82",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 412,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "a60c9c79-c401-4258-b0b8-690fbf207831",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 470,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "afbbfe17-05fd-40ce-9251-9aa9c4f45d9d",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 475,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "16b78fdd-fd2a-43fe-8036-b667d8774e60",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 482,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "393777f8-72eb-4f0d-a4c4-d9d35d5fe1bb",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 507,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "b7e71e6b-7f5c-49af-9724-45a260ca6501",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 514,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "1cd306bd-9f1f-4816-aa41-9886755ace50",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 559,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "24d13b1c-2d66-4021-8ee7-6bca0fd7f837",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 566,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "1a15a6e6-ee21-427f-8f44-fd0fde165e39",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/service/BuildingInfoServiceTests.java",
+          "locationKind": "File",
+          "line": 20,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "8fdd1faf-9415-4add-887e-e82de77685d7",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/service/BuildingInfoServiceTests.java",
+          "locationKind": "File",
+          "line": 41,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "7cefccf3-7910-4916-af5d-8df8bb02ec57",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/service/BuildingInfoServiceTests.java",
+          "locationKind": "File",
+          "line": 88,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "e796fcec-e1c9-49fe-bb3a-491fc89c39ac",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/service/BuildingInfoServiceTests.java",
+          "locationKind": "File",
+          "line": 111,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "9a78f4d4-f71d-4992-90a3-cfcb3f68716d",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/service/BuildingInfoServiceTests.java",
+          "locationKind": "File",
+          "line": 133,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "791bfcf4-6208-49d6-a8f8-3bdfc2879bbf",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/service/BuildingInfoServiceTests.java",
+          "locationKind": "File",
+          "line": 155,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "4550d5cd-1a56-4d11-9f8b-4de928408892",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/service/BuildingInfoServiceTests.java",
+          "locationKind": "File",
+          "line": 173,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "2f552c40-f70f-4303-ad3e-5e5baff36e8b",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/service/GoogleAuthServiceTest.java",
+          "locationKind": "File",
+          "line": 32,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "23cc0675-4007-460c-bc26-de07bc2e4006",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/service/GoogleMapsServiceDirectionsTest.java",
+          "locationKind": "File",
+          "line": 76,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "c1344a77-e527-45c6-b7eb-3c63d7231bfd",
+          "location": "Backend/src/main/java/com/soen390/flightcrew/service/BuildingInfoService.java",
+          "locationKind": "File",
+          "line": 17,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "c68e911a-85bb-426e-84ed-1a50a0e53d00",
+          "location": "Backend/src/main/java/com/soen390/flightcrew/service/GoogleAuthService.java",
+          "locationKind": "File",
+          "line": 30,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "0ec9a440-0761-4d3b-b0ef-eb79ac75342e",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerRealApiTests.java",
+          "locationKind": "File",
+          "line": 20,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "1cc5081f-4764-4ea6-b5cb-090e9916bd79",
+          "location": "Backend/src/main/java/com/soen390/flightcrew/service/GoogleMapsService.java",
+          "locationKind": "File",
+          "line": 29,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "00255b21-e42b-414d-9997-42b67dd0dc07",
+          "location": "Backend/src/main/java/com/soen390/flightcrew/service/GoogleMapsService.java",
+          "locationKind": "File",
+          "line": 30,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "bf9e423c-83c2-438f-869b-ea3b98f05505",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 33,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "329c18c9-33c5-437e-9c21-23522e37d0c8",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 75,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "9f99e9c0-7661-4e5f-a1cf-16c51525c28e",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 80,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "747ccce4-760f-4134-a0fa-8f1605c9c2a3",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 87,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "71888e01-446a-44c2-872b-5d9c7a0bc1ab",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 114,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "bf78a3f6-f1d1-47d9-8061-6126861e5b00",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 135,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "09d2bcd0-83b0-40f7-adc7-c28d7a41ec37",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 140,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "de3369f5-05af-416d-a71c-15ca7c16e679",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 147,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "ccc81538-88fc-4653-b777-7d26fa508d69",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 182,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "4f186f5c-6517-46e6-8440-639de67ffff4",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 189,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "57f7e1e3-37b9-4c6e-add7-a9c0b9fcca47",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 216,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "dd17a46d-3fd6-4369-aacf-4188ce3983e1",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 221,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "b1e2e681-e800-4fc2-a879-bd23e6328d3c",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 228,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "ca9449b8-2088-435f-8853-8019518fd250",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 247,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "ce2972f9-9619-4edd-867a-769b96c294ea",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 253,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "c008bd6a-29a0-4829-8d83-a082a662190f",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 270,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "bd5cf2e7-48c1-49dc-94d3-29cef435db54",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 276,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "be98aadb-ffae-401c-95fe-e1a9e7a261e6",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 296,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "84670978-5096-47f4-ab68-a99019778e8a",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 303,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "7e7e1e8e-9cf1-4c82-98ae-5717209e3ebe",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 310,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "70d473f0-9835-43c2-8252-33162a7d7a86",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 331,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "818a21e4-56e9-4b3b-af99-b7a01bef92c5",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 338,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "21d66644-89a4-4329-8997-e4732486164a",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 343,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "2547bb92-0069-4225-9fb0-1d813dd8d123",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 350,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "dbc1e9d8-47ec-4fcd-9617-00873ee3a66c",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 371,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "e0035a42-eb88-4270-987d-013ed532298e",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 376,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "91248382-b961-4cb9-9eeb-0da2d21e7acb",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 381,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "9cf2087a-1970-4021-a716-93776022d261",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 388,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "86a302c0-b5d2-4fc9-a46e-abadf204bdb6",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 416,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "689004ce-eced-4910-9da5-de948c478499",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 434,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "eab7b8b3-eb50-443d-a265-bb5ac0b0ff3d",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 439,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "e22e6ef1-7832-4a88-b47c-e8aef4b36069",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 443,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "ad75fbf5-2119-44fc-8cfe-8a2b5d6aafb0",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 449,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "ca5df801-9ee6-40dc-9a94-030af9a3ee5c",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 478,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "3286748e-f798-4b03-abd5-1f6b34158dcc",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 504,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "a0f12c01-6844-4226-a926-5a94a0227b0d",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 509,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "c0ca510c-2455-4f8f-874a-73de2270372f",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 516,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "288f681f-cbac-4751-be8e-d8f62d5e29ec",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 540,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "ce150a61-0574-4365-a9e9-ece1708a07eb",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 564,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "03e30097-1961-42dc-b63e-6ef995b1fb0d",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 569,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "3aa4be9b-7b45-4242-8eb3-dfeeb7ecd460",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 576,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "b09e967e-bdc5-4ec7-83ad-c64a356067cd",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 599,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "1adcc394-bc31-4cb3-9502-1bdea7b31f46",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 623,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "86d610ec-2fb0-4468-856f-3acf7ff20c29",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 628,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "c7bccb2e-2721-4545-8a91-5ee07d8b83b7",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 635,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "d90eff6c-0651-41a6-a407-dc7fa93d5fdd",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 656,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "3d0c223e-382a-4bcc-bf7a-5cef0d8fa99e",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 660,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "bf9e6174-ba3e-4f6c-a84b-22a64e3a4f5f",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 667,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "ad0475f8-cb66-4654-9326-2e740d07d70a",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 690,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "a4417db2-3215-4add-9e4c-d852452e3b6c",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 714,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "40e7681a-3d76-47f0-8dc8-b73f13e8f678",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 719,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "f15dbbbe-011b-475a-8f40-2a59fd03b2e1",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 726,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "4593a9bb-57f7-452e-ad5b-a6989eb27845",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 747,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "465f9680-8be0-44a6-a060-9f1996e96d80",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 753,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "979be331-19a4-4466-b7fd-bdebfeab3e86",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 788,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "hardcoded-urls-00001",
+          "incidentId": "e3382916-d2d0-4b96-8a73-4e78deb9d33e",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 794,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "optional"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "optional"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "bf0dc9bf-063a-41a7-b428-59246ab7b877",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/service/GoogleAuthServiceTest.java",
+          "locationKind": "File",
+          "line": 32,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "0c55c192-390c-44f9-bea6-9f008f1a59f7",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 33,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "ac61d2e9-1ec8-432b-b030-4870fa009369",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 75,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "f772e300-985a-457e-8f0d-c8186c00b39f",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 111,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "f8b4c547-8605-45b2-8be7-e5742676448b",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 136,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "3dab8fc8-a51c-4658-aed8-f6859b786761",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 158,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "2afbd12f-dd74-4660-9b42-1780b3c4635a",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 186,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "abb673be-a181-4796-84ad-c698bef58c47",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 232,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "9701db8c-101a-40d7-8f1f-9ce7fe5888a0",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 267,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "f83da4f8-c5c4-45ae-ba05-63e2f7f210a2",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 296,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "1c0b27c1-3c07-4236-afc3-706fbf3379cc",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 322,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "96a579f1-410c-43de-9edb-a5d5374ed6a1",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 340,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "a49ca000-b962-4eda-bdd3-52b68bb0954d",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 412,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "0e297b98-cd16-43c8-950f-a6814c2b033d",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 482,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "ede040de-66d2-4d61-b923-da8f73988ef9",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 514,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "3cd6b7f9-df72-4f40-8f44-1c8874fbc7a7",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/PointOfInterestControllerTests.java",
+          "locationKind": "File",
+          "line": 566,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "9c05aa08-7cc2-4fcd-b1ed-7536ec905638",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/BackendTest.java",
+          "locationKind": "File",
+          "line": 13,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "e9f04881-0a31-400b-bd47-6ce2a246a177",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/AuthControllerTest.java",
+          "locationKind": "File",
+          "line": 29,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "547348f3-7fee-44e6-9292-398802a7f339",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/AuthControllerTest.java",
+          "locationKind": "File",
+          "line": 61,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "02e3ccf6-6eb0-4e95-84d4-0ca7c926c5d5",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/AuthControllerTest.java",
+          "locationKind": "File",
+          "line": 77,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "86fc0f3d-1ab7-4325-9c64-86a0b11b2811",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/AuthControllerTest.java",
+          "locationKind": "File",
+          "line": 87,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "f16346d0-7770-4dd3-aa46-352cd04ac705",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/AuthControllerTest.java",
+          "locationKind": "File",
+          "line": 89,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "72a6bcc5-45f9-431a-9bca-ce40bb17bcbc",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/CalendarControllerTest.java",
+          "locationKind": "File",
+          "line": 29,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "a94ed3da-2218-4bda-ad65-83a97e4a7e5e",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 33,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "01d6116a-058d-4421-9886-32fc892aa8a8",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 75,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "3979777b-ae10-4ce7-80cb-23429e62b62b",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 87,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "d4b26f05-600b-4f45-8fda-7a53c70fff77",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 114,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "d2207929-ab8d-466c-8812-e8c6b91436ba",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 147,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "207541c4-8419-4040-8a33-555ead035b38",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 189,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "9de01e7d-a78b-404c-9c7a-312d1ba23765",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 216,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "996ed8b0-ed63-4c68-8b42-4553a86fe25a",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 228,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "b5365e5e-bc4a-4e41-a746-1624368b90df",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 247,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "6dccb41d-90ae-421c-bb89-1191a9e57906",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 253,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "732a2134-267b-43d1-9e57-15689334bdff",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 270,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "33807650-4833-4770-86de-74aadbed2c8d",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 276,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "4b086b33-61db-491a-99b9-a212264c8280",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 296,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "94461927-7459-40d6-9ed7-ee900f27e63a",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 310,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "e318515b-4fbd-4b47-b004-ea92f7874b82",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 331,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "a28a15df-aa3b-49dc-8545-e05a80ca791c",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 350,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "a7a308f9-9673-40b2-9be9-fe106759ac59",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 371,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "5dea5490-4f81-496c-8930-58d50744f8d6",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 388,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "ca8807ea-9d5d-4530-9eb9-5ac183614037",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 416,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "5cb00649-05c5-4283-b756-033a30eb3750",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 449,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "af9cf03c-47fe-4111-bd2c-0df0b402d4e4",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 478,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "725d67fd-7e7b-4839-a7ff-93b80d3605c0",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 516,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "fd32a9a6-41fb-43df-bd3b-5ee5eb833bd0",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 540,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "18ff15c6-8341-4586-8e23-1d461725db66",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 576,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "db71b860-a8de-405b-ac9e-ffaba120d2fe",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 599,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "d5df9628-2ea8-4f6a-8e09-7eb62b797794",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 635,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "7f1b6227-2d4f-4e0c-a8f3-0daa4964dc3d",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 656,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "754f87ef-d6a5-4e91-8635-78eeb32d34e1",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 667,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "e695a985-a8e7-4884-aae8-b0cb11259138",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 690,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "b9d897bd-cb5d-4cd5-ac1e-a4ba8dbe7555",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 726,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "33c375ff-f64a-4804-b259-0a597c92e91d",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 747,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "unsecure-network-protocol-00000",
+          "incidentId": "10f9a8a7-ca4d-474d-9fe5-a3566662b1b7",
+          "location": "Backend/src/test/java/com/soen390/flightcrew/controller/ConcordiaControllerTests.java",
+          "locationKind": "File",
+          "line": 794,
+          "column": 0,
+          "targets": {
+            "azure-aks": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-appservice": {
+              "effort": 3,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 3,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        },
+        {
+          "ruleId": "dockerfile-00000",
+          "incidentId": "f0aede35-073a-4f3b-a49f-a1be2c677a5c",
+          "location": "",
+          "locationKind": "",
+          "targets": {
+            "azure-aks": {
+              "effort": 1,
+              "severity": "mandatory"
+            },
+            "azure-container-apps": {
+              "effort": 1,
+              "severity": "mandatory"
+            }
+          },
+          "labels": [
+            "type=violation",
+            "ruleset=cloud-readiness"
+          ]
+        }
+      ]
+    }
+  ],
+  "rules": {
+    "dockerfile-00000": {
+      "id": "dockerfile-00000",
+      "description": "No Dockerfile was found in the project. This suggests the application may not yet be containerized. \nConsider creating a Dockerfile to enable container-based replatforming to Azure services such as Azure Container Apps or AKS.",
+      "title": "No Dockerfile found",
+      "severity": "mandatory",
+      "effort": 1,
+      "links": [
+        {
+          "url": "https://www.baeldung.com/java-dockerize-app",
+          "title": "Dockerizing a Java Application"
+        }
+      ],
+      "labels": [
+        "target=azure-aks",
+        "target=azure-container-apps",
+        "capability=containerization",
+        "source",
+        "domain=cloud-readiness",
+        "category=containerization",
+        "containerization",
+        "os=windows",
+        "os=linux"
+      ]
+    },
+    "hardcoded-urls-00001": {
+      "id": "hardcoded-urls-00001",
+      "description": "This patterns verifies in source code and configuration files the presence of hardcoded URLs using the HTTP protocol (HTTP/HTTPS). This URL would need to be replaced by the new resource's URL during the Cloud migration, if any change occured.",
+      "title": "Avoid using hardcoded URLs (HTTP protocol) in source code",
+      "severity": "optional",
+      "effort": 3,
+      "labels": [
+        "target=azure-aks",
+        "target=azure-container-apps",
+        "target=azure-appservice",
+        "source",
+        "domain=cloud-readiness",
+        "category=remote-communication",
+        "os=windows",
+        "os=linux"
+      ]
+    },
+    "localhost-http-00001": {
+      "id": "localhost-http-00001",
+      "description": "The app is trying to access local resource by HTTP, please try to migrate the resource to cloud",
+      "title": "Local HTTP Calls",
+      "severity": "mandatory",
+      "effort": 7,
+      "labels": [
+        "target=azure-aks",
+        "target=azure-container-apps",
+        "target=azure-appservice",
+        "capability=containerization",
+        "source",
+        "domain=cloud-readiness",
+        "category=local-resource-access",
+        "localhost",
+        "containerization",
+        "os=windows",
+        "os=linux"
+      ]
+    },
+    "unsecure-network-protocol-00000": {
+      "id": "unsecure-network-protocol-00000",
+      "description": "Using secured protocols such as HTTPS and SFTP (over HTTP and FTP) should now be the norm as applications are more and more exposed and interconnected. \nThis CloudReady patterns looks for unescured URI in the source code or deprecated URI libraries. \nIdeally, URLs should be replaced in your source code by secured protocols HTTPS and SFTP (and ensure the infrastructure implements these protocols for the resources your application calls, uses or references).",
+      "title": "Use of unsecured network protocols or URI libraries",
+      "severity": "mandatory",
+      "effort": 3,
+      "links": [
+        {
+          "url": "https://developers.google.com/web/fundamentals/security/encrypt-in-transit/why-https",
+          "title": "Why HTTPS matters"
+        },
+        {
+          "url": "https://www.ssh.com/ssh/sftp/",
+          "title": "SSH File Transfer Protocol (SFTP): Get SFTP client & server"
+        }
+      ],
+      "labels": [
+        "target=azure-aks",
+        "target=azure-container-apps",
+        "target=azure-appservice",
+        "capability=containerization",
+        "source",
+        "domain=cloud-readiness",
+        "category=remote-communication",
+        "containerization",
+        "os=windows",
+        "os=linux"
+      ]
+    }
+  },
+  "security": []
+}

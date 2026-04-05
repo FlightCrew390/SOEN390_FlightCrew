@@ -15,11 +15,13 @@ import {
   computeStepTimeline,
   getDepartureDate,
   getManeuverIcon,
+  parseTime,
 } from "../../utils/directionsUtils";
 import {
   formatDateTime,
   formatDistance,
   formatDuration,
+  formatShuttleNextDeparturePhrase,
 } from "../../utils/formatHelper";
 import { getFloorLabel } from "../../utils/indoorFloorUtils";
 import TransitBadge from "./TransitBadge";
@@ -66,6 +68,17 @@ export default function StepsPanel({
   const { visibleSteps, stepTimes, departureDate, arrivalDate } =
     computeStepTimeline(stepsToDisplay, initialDeparture);
   const lastActiveIndex = useRef(activeStepIndex);
+
+  const shuttleStep = visibleSteps.find(
+    (s) => s.transitDetails?.lineName === "Concordia Shuttle",
+  );
+  const shuttleDepartureTime = shuttleStep?.transitDetails?.departureTime
+    ? parseTime(shuttleStep.transitDetails.departureTime)
+    : null;
+  const nextDeparturePhrase =
+    shuttleDepartureTime != null
+      ? formatShuttleNextDeparturePhrase(shuttleDepartureTime, departureConfig)
+      : null;
 
   useEffect(() => {
     // Only scroll if the index actually changed and we are in a valid state
@@ -136,6 +149,16 @@ export default function StepsPanel({
 
         {!isIndoor && <Text style={styles.distanceText}>{distanceText}</Text>}
       </View>
+
+      {!isIndoor && nextDeparturePhrase != null && (
+        <View
+          style={styles.nextDepartureBanner}
+          accessibilityLabel={`Next Departure. ${nextDeparturePhrase}`}
+        >
+          <Text style={styles.nextDepartureLabel}>Next Departure</Text>
+          <Text style={styles.nextDepartureValue}>{nextDeparturePhrase}</Text>
+        </View>
+      )}
 
       {/* Departure & arrival summary - Hide for indoor */}
       {!isIndoor && (

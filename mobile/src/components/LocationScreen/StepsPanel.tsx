@@ -75,10 +75,13 @@ export default function StepsPanel({
   const shuttleDepartureTime = shuttleStep?.transitDetails?.departureTime
     ? parseTime(shuttleStep.transitDetails.departureTime)
     : null;
-  const nextDeparturePhrase =
-    shuttleDepartureTime != null
-      ? formatShuttleNextDeparturePhrase(shuttleDepartureTime, departureConfig)
-      : null;
+  let nextDeparturePhrase: string | null = null;
+  if (shuttleDepartureTime !== null) {
+    nextDeparturePhrase = formatShuttleNextDeparturePhrase(
+      shuttleDepartureTime,
+      departureConfig,
+    );
+  }
 
   useEffect(() => {
     // Only scroll if the index actually changed and we are in a valid state

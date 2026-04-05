@@ -60,8 +60,11 @@ export const testBuildings: Building[] = [
   googlePlaceBuilding,
 ];
 
+let stepCounter = 0;
+
 export function makeStep(overrides: Partial<StepInfo> = {}): StepInfo {
   return {
+    id: `test-step-${stepCounter++}`,
     distanceMeters: 100,
     durationSeconds: 60,
     instruction: "Walk north on Guy Street",

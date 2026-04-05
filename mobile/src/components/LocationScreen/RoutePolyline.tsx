@@ -36,9 +36,9 @@ export default function RoutePolyline({
   // For each step, render a separate polyline segment
   return (
     <>
-      {route.steps.map((step, index) => (
+      {route.steps.map((step) => (
         <Polyline
-          key={`route-step-${index}`}
+          key={step.id}
           coordinates={step.coordinates}
           strokeColor={getStepColor(step)}
           strokeWidth={5}

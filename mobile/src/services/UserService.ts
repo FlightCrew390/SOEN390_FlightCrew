@@ -1,9 +1,7 @@
-import { API_CONFIG } from "../constants";
 import { AuthTokens, User } from "../types/User";
 import { ensureValidTokens } from "./EnsureValidTokens";
 import { userTokenStore } from "./TokenStore";
-
-const API_BASE_URL = API_CONFIG.getBaseUrl();
+import { GoogleAuthBase } from "./GoogleAuthBase";
 
 export class UserService {
   /**
@@ -14,23 +12,11 @@ export class UserService {
     redirectUri: string,
     clientId: string,
   ): Promise<AuthTokens> {
-    const response = await fetch(`${API_BASE_URL}/v1/auth/google`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: authCode, redirectUri, clientId }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Authentication failed: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const tokens: AuthTokens = {
-      accessToken: data.accessToken,
-      refreshToken: data.refreshToken,
-      expiresAt: Date.now() + data.expiresInSeconds * 1000,
+    const tokens = await GoogleAuthBase.exchangeCodeForTokens(
+      authCode,
+      redirectUri,
       clientId,
-    };
+    );
 
     await userTokenStore.saveTokens(tokens);
     return tokens;

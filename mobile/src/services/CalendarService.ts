@@ -3,6 +3,7 @@ import { CalendarEvent, CalendarInfo } from "../types/CalendarEvent";
 import { AuthTokens } from "../types/User";
 import { ensureValidTokens } from "./EnsureValidTokens";
 import { calendarTokenStore } from "./TokenStore";
+import { GoogleAuthBase } from "./GoogleAuthBase";
 
 const API_BASE_URL = API_CONFIG.getBaseUrl();
 
@@ -15,23 +16,12 @@ export class CalendarService {
     redirectUri: string,
     clientId: string,
   ): Promise<AuthTokens> {
-    const response = await fetch(`${API_BASE_URL}/v1/auth/google`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: authCode, redirectUri, clientId }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Calendar connection failed: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const tokens: AuthTokens = {
-      accessToken: data.accessToken,
-      refreshToken: data.refreshToken,
-      expiresAt: Date.now() + data.expiresInSeconds * 1000,
+    const tokens = await GoogleAuthBase.exchangeCodeForTokens(
+      authCode,
+      redirectUri,
       clientId,
-    };
+      "Calendar connection failed",
+    );
 
     await calendarTokenStore.saveTokens(tokens);
     return tokens;

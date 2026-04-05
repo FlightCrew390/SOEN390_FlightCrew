@@ -51,6 +51,7 @@ const mockWalkRoute: RouteInfo = {
   durationSeconds: 180,
   steps: [
     {
+      id: "walk-step",
       distanceMeters: 200,
       durationSeconds: 180,
       instruction: "Walk north",

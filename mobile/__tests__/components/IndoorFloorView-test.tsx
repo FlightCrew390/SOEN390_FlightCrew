@@ -7,8 +7,6 @@ import { Building, StructureType } from "../../src/types/Building";
 import { IndoorRoom } from "../../src/types/IndoorRoom";
 import { RouteInfo } from "../../src/types/Directions";
 
-jest.spyOn(Alert, "alert").mockImplementation(() => {});
-
 jest.mock("@expo/vector-icons/MaterialCommunityIcons", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { Text } = require("react-native");
@@ -149,6 +147,17 @@ function renderView(overrides: Props = {}) {
   };
 }
 
+beforeEach(() => {
+  jest.clearAllMocks();
+  jest.spyOn(console, "error").mockImplementation(() => {});
+  jest.spyOn(console, "warn").mockImplementation(() => {});
+  jest.spyOn(Alert, "alert").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
+});
+
 describe("IndoorFloorView", () => {
   it("renders building title and current floor subtitle", () => {
     renderView();
@@ -246,6 +255,7 @@ describe("IndoorFloorView", () => {
       ],
       indoorStepsOrigin: [
         {
+          id: "step-1",
           instruction: "Walk straight",
           distanceMeters: 10,
           maneuver: "STRAIGHT",
@@ -255,6 +265,7 @@ describe("IndoorFloorView", () => {
           endFloor: 9,
         },
         {
+          id: "step-2",
           instruction: "Go down stairs",
           distanceMeters: 5,
           maneuver: "TURN_RIGHT",
@@ -290,8 +301,14 @@ describe("IndoorFloorView", () => {
         route: {
           ...mockRoute,
           steps: [
-            { instruction: "Step 1", startFloor: 9, endFloor: 9 } as any,
             {
+              id: "s1",
+              instruction: "Step 1",
+              startFloor: 9,
+              endFloor: 9,
+            } as any,
+            {
+              id: "s2",
               instruction: "Go down stairs",
               startFloor: 9,
               endFloor: 8,
@@ -335,6 +352,7 @@ describe("IndoorFloorView", () => {
         distanceMeters: 50,
         steps: [
           {
+            id: "pure-1",
             instruction: "Pure indoor step",
             distanceMeters: 10,
             maneuver: "STRAIGHT",

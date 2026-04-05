@@ -187,6 +187,7 @@ function buildShuttleLeg(
       : "Take";
 
   const step: StepInfo = {
+    id: "shuttle-step",
     distanceMeters: SHUTTLE_DISTANCE_METERS,
     durationSeconds: SHUTTLE_DURATION_SECONDS + waitTimeSeconds,
     instruction: `${waitText} the Concordia Shuttle from ${originLabel} to ${destLabel}`,

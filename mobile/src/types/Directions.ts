@@ -90,6 +90,7 @@ export interface RouteInfo {
 }
 
 export interface StepInfo {
+  id: string;
   distanceMeters: number;
   durationSeconds: number;
   instruction: string;

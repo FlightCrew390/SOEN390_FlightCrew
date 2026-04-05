@@ -74,7 +74,8 @@ async function fetchIndoorDeparturePath(startRoom: IndoorRoom) {
   if (bestPath && bestExitNode) {
     return {
       pathOrigin: bestPath as IndoorRoom[],
-      stepsOrigin: bestSteps.map((s: any) => ({
+      stepsOrigin: bestSteps.map((s: any, idx: number) => ({
+        id: `origin-step-${idx}`,
         distanceMeters: s.distanceMeters,
         durationSeconds: s.durationSeconds,
         instruction: s.instruction,
@@ -143,7 +144,8 @@ async function fetchIndoorArrivalPath(destinationRoom: IndoorRoom) {
   if (bestPath && bestEntryNode) {
     return {
       path: bestPath as IndoorRoom[],
-      steps: bestSteps.map((s: any) => ({
+      steps: bestSteps.map((s: any, idx: number) => ({
+        id: `dest-step-${idx}`,
         distanceMeters: s.distanceMeters,
         durationSeconds: s.durationSeconds,
         instruction: s.instruction,
@@ -258,7 +260,8 @@ export function useDirections({
           durationSeconds:
             indoorRes.durationSeconds ?? indoorRes.distanceMeters * 2,
           coordinates: [],
-          steps: (indoorRes.steps ?? []).map((s) => ({
+          steps: (indoorRes.steps ?? []).map((s, idx) => ({
+            id: `indoor-step-${idx}`,
             distanceMeters: s.distanceMeters,
             durationSeconds: s.durationSeconds,
             instruction: s.instruction,

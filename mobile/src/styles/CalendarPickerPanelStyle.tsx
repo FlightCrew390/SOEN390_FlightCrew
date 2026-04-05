@@ -1,29 +1,14 @@
 import { StyleSheet } from "react-native";
 import { COLORS } from "../constants";
+import { CommonStyles } from "./CommonStyles";
 
 const styles = StyleSheet.create({
   overlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.35)",
-    zIndex: 200,
-    justifyContent: "center",
-    alignItems: "center",
+    ...CommonStyles.overlay,
   },
   panel: {
-    width: "88%",
+    ...CommonStyles.modalPanel,
     maxHeight: "75%",
-    backgroundColor: COLORS.white,
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 10,
-    overflow: "hidden",
   },
 
   /* ── Top section: maroon header ── */

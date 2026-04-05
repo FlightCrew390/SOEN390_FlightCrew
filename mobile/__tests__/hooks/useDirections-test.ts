@@ -69,6 +69,12 @@ const userLocation = { latitude: 45.5, longitude: -73.58 };
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.spyOn(console, "error").mockImplementation(() => {});
+  jest.spyOn(console, "warn").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
 });
 
 describe("useDirections", () => {

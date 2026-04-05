@@ -26,6 +26,7 @@ export class IndoorPathfindingService {
     startNodeId: string,
     endNodeId: string,
     accessible: boolean = false,
+    signal?: AbortSignal,
   ): Promise<IndoorPathResponse> {
     try {
       const url = new URL(`${API_CONFIG.getBaseUrl()}/indoor/directions`);
@@ -34,13 +35,14 @@ export class IndoorPathfindingService {
       url.searchParams.append("endNodeId", endNodeId);
       url.searchParams.append("requireAccessible", String(accessible));
 
-      const response = await fetch(url.toString());
+      const response = await fetch(url.toString(), { signal });
       if (!response.ok) {
         throw new Error(`Indoor routing failed with status ${response.status}`);
       }
 
       return await response.json();
     } catch (e: any) {
+      if (e?.name === "AbortError") throw e;
       if (!e?.message?.includes("status 404")) {
         console.error("Error in IndoorPathfindingService:", e);
       }

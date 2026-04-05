@@ -104,6 +104,7 @@ async function fetchIndoorEdgePath(
   room: IndoorRoom,
   direction: "departure" | "arrival",
   accessible = false,
+  signal?: AbortSignal,
 ): Promise<IndoorEdgePathResult> {
   await IndoorDataService.ensureLoaded();
 
@@ -128,6 +129,7 @@ async function fetchIndoorEdgePath(
         startId,
         endId,
         accessible,
+        signal,
       );
       return { en, res };
     }),
@@ -207,6 +209,7 @@ export function useDirections({
     departureTime: string | undefined;
     arrivalTime: string | undefined;
     departureConfig: DepartureTimeConfig;
+    signal: AbortSignal;
   }): Promise<RouteInfo | null> => {
     const {
       originLat,
@@ -219,6 +222,7 @@ export function useDirections({
       departureTime,
       arrivalTime,
       departureConfig,
+      signal,
     } = options;
 
     // Handle indoor pathfinding if both start and dest are rooms in the same building
@@ -232,6 +236,7 @@ export function useDirections({
           startRoom.id,
           destinationRoom.id,
           accessibilityMode,
+          signal,
         );
 
         return {
@@ -280,6 +285,7 @@ export function useDirections({
 
   const appendIndoorSegmentsIfNeeded = async (
     route: RouteInfo | null,
+    signal: AbortSignal,
   ): Promise<RouteInfo | null> => {
     if (!route) return route;
 
@@ -298,6 +304,7 @@ export function useDirections({
           startRoom,
           "departure",
           accessibilityMode,
+          signal,
         );
         augmented = {
           ...augmented,
@@ -319,6 +326,7 @@ export function useDirections({
           destinationRoom,
           "arrival",
           accessibilityMode,
+          signal,
         );
         augmented = { ...augmented, indoorPath: path, indoorSteps: steps };
       } catch (e) {
@@ -346,7 +354,8 @@ export function useDirections({
 
     if (originLat == null || originLng == null) return;
 
-    let cancelled = false;
+    const controller = new AbortController();
+    const { signal } = controller;
 
     // Derive departure/arrival time strings from config.
     // DRIVE mode does not support future departure/arrival times in the
@@ -374,12 +383,16 @@ export function useDirections({
           departureTime,
           arrivalTime,
           departureConfig,
+          signal,
         });
-        const augmentedRoute = await appendIndoorSegmentsIfNeeded(route);
+        const augmentedRoute = await appendIndoorSegmentsIfNeeded(
+          route,
+          signal,
+        );
 
-        if (!cancelled) onLoaded(augmentedRoute);
+        if (!signal.aborted) onLoaded(augmentedRoute);
       } catch (err) {
-        if (!cancelled) {
+        if (!signal.aborted) {
           onError(
             err instanceof Error ? err.message : "Failed to load directions",
           );
@@ -390,7 +403,7 @@ export function useDirections({
     fetchRoute();
 
     return () => {
-      cancelled = true;
+      controller.abort();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- callbacks are stable dispatch wrappers
   }, [

@@ -229,6 +229,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
+  /* ── Accessibility toggle ── */
+  accessibilityRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 8,
+  },
+  accessibilityLabel: {
+    flex: 1,
+    fontSize: 14,
+    color: COLORS.textPrimary,
+  },
+
   /* ── Divider ── */
   divider: {
     height: StyleSheet.hairlineWidth,

@@ -1,15 +1,41 @@
-import INDOOR_POIS from "../data/indoorPOIs";
+import { API_CONFIG } from "../constants";
 import { IndoorPointOfInterest } from "../types/IndoorPointOfInterest";
 
+const API_BASE_URL = API_CONFIG.getBaseUrl();
+
 /**
- * Returns all indoor points of interest for a given building code.
+ * Fetches indoor points of interest for a given building code from the backend.
  * Building codes must be uppercase (e.g. "H", "MB", "EV").
- * Returns an empty array if the code is empty or has no registered POIs.
+ * Returns an empty array if the code is empty or if the fetch fails.
  */
-export function getIndoorPoisForBuilding(
+export async function getIndoorPoisForBuilding(
   buildingCode: string,
-): IndoorPointOfInterest[] {
+): Promise<IndoorPointOfInterest[]> {
   const code = buildingCode.trim().toUpperCase();
   if (!code) return [];
-  return INDOOR_POIS[code] ?? [];
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/indoor/pois?buildingCode=${code}`,
+    );
+    if (!response.ok) return [];
+    return response.json();
+  } catch (error) {
+    console.error(`Failed to fetch indoor POIs for building ${code}:`, error);
+    return [];
+  }
+}
+
+/**
+ * Fetches all indoor points of interest from all buildings.
+ */
+export async function getAllIndoorPois(): Promise<IndoorPointOfInterest[]> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/indoor/pois`);
+    if (!response.ok) return [];
+    return response.json();
+  } catch (error) {
+    console.error("Failed to fetch all indoor POIs:", error);
+    return [];
+  }
 }

@@ -35,7 +35,10 @@ import indoorFloorViewStyles from "../../styles/IndoorFloorView";
 import { getIndoorPoisForBuilding } from "../../services/IndoorPoiService";
 import { Building } from "../../types/Building";
 import { RouteInfo } from "../../types/Directions";
-import { IndoorPoiCategory } from "../../types/IndoorPointOfInterest";
+import {
+  IndoorPoiCategory,
+  IndoorPointOfInterest,
+} from "../../types/IndoorPointOfInterest";
 import { IndoorRoom } from "../../types/IndoorRoom";
 import { getFloorLabel } from "../../utils/indoorFloorUtils";
 import StepsPanel from "./StepsPanel";
@@ -142,6 +145,7 @@ function ZoomableFloorPlan({
   selectedRoom,
   route,
   selectedAmenities,
+  indoorPois,
   onFloorChange,
 }: Readonly<{
   buildingId: string;
@@ -149,6 +153,7 @@ function ZoomableFloorPlan({
   selectedRoom?: IndoorRoom | null;
   route?: RouteInfo | null;
   selectedAmenities: Set<IndoorPoiCategory>;
+  indoorPois: IndoorPointOfInterest[];
   onFloorChange: (floor: number) => void;
 }>) {
   const activeIndoorPath = useMemo(() => {
@@ -335,20 +340,18 @@ function ZoomableFloorPlan({
     });
   };
 
-  const indoorPois = useMemo(() => {
-    const code = BUILDING_ID_TO_POI_CODE[buildingId];
-    if (!code) return [];
-    return getIndoorPoisForBuilding(code).filter(
+  const filteredIndoorPois = useMemo(() => {
+    return indoorPois.filter(
       (poi) =>
         poi.floor === floor &&
         poi.x != null &&
         poi.y != null &&
         selectedAmenities.has(poi.category),
     );
-  }, [buildingId, floor, selectedAmenities]);
+  }, [indoorPois, floor, selectedAmenities]);
 
   const renderIndoorPois = () =>
-    indoorPois.map((poi) => {
+    filteredIndoorPois.map((poi) => {
       const mapped = getMappedPoint(buildingId, poi.x!, poi.y!);
       const iconName = AMENITY_ICON[poi.category] ?? "map-marker";
       return (
@@ -523,6 +526,28 @@ export default function IndoorFloorView({
   const [selectedAmenities, setSelectedAmenities] = useState<
     Set<IndoorPoiCategory>
   >(new Set(["washroom", "fountain", "stairs", "elevator"]));
+  const [indoorPois, setIndoorPois] = useState<IndoorPointOfInterest[]>([]);
+
+  // Fetch indoor POIs when building or amenities change
+  useEffect(() => {
+    const fetchPois = async () => {
+      const code = BUILDING_ID_TO_POI_CODE[buildingId];
+      if (!code) {
+        setIndoorPois([]);
+        return;
+      }
+
+      try {
+        const pois = await getIndoorPoisForBuilding(code);
+        setIndoorPois(pois);
+      } catch (error) {
+        console.error("Failed to fetch indoor POIs:", error);
+        setIndoorPois([]);
+      }
+    };
+
+    fetchPois();
+  }, [buildingId]);
 
   const toggleAmenity = (category: IndoorPoiCategory) => {
     setSelectedAmenities((prev) => {
@@ -606,6 +631,7 @@ export default function IndoorFloorView({
           selectedRoom={selectedRoom}
           route={route}
           selectedAmenities={selectedAmenities}
+          indoorPois={indoorPois}
           onFloorChange={onFloorChange}
         />
 

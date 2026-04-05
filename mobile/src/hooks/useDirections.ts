@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { DirectionsService } from "../services/DirectionsService";
+import { IndoorDataService } from "../services/IndoorDataService";
 import { IndoorPathfindingService } from "../services/IndoorPathfindingService";
 import { ShuttleDirectionsBuilder } from "../services/ShuttleDirectionsBuilder";
 import { Building } from "../types/Building";
@@ -10,169 +11,148 @@ import {
   TRAVEL_MODE,
   TravelMode,
 } from "../types/Directions";
-import { IndoorRoom } from "../types/IndoorRoom";
+import { IndoorNode, IndoorRoom, IndoorStep } from "../types/IndoorRoom";
 import { getDirectionOriginCoords } from "../utils/directionsUtils";
 
-const getEdgeNodes = (bId: string, IndoorDataService: any) => {
+const mapStep = (s: IndoorStep): StepInfo => ({
+  id: `${s.startNodeId}-${s.endNodeId}`,
+  distanceMeters: s.distanceMeters,
+  durationSeconds: s.durationSeconds,
+  instruction: s.instruction,
+  maneuver: s.maneuver,
+  coordinates: [],
+  startFloor: s.startFloor,
+  endFloor: s.endFloor,
+});
+
+const getEdgeNodes = (bId: string): IndoorNode[] => {
   const nodes = IndoorDataService.getAllNodes();
   let edgeNodes = nodes.filter(
-    (n: any) =>
-      n.buildingId === bId && n.type?.includes("entry_exit") && n.floor === 1,
+    (n) =>
+      n.buildingId === bId && n.type.includes("entry_exit") && n.floor === 1,
   );
   if (edgeNodes.length === 0)
     edgeNodes = nodes.filter(
-      (n: any) => n.buildingId === bId && n.type?.includes("entry_exit"),
+      (n) => n.buildingId === bId && n.type.includes("entry_exit"),
     );
   if (edgeNodes.length === 0)
     edgeNodes = nodes.filter(
-      (n: any) => n.buildingId === bId && n.type === "doorway" && n.floor === 1,
+      (n) => n.buildingId === bId && n.type === "doorway" && n.floor === 1,
     );
   if (edgeNodes.length === 0)
-    edgeNodes = nodes.filter((n: any) => n.buildingId === bId && n.floor === 1);
+    edgeNodes = nodes.filter((n) => n.buildingId === bId && n.floor === 1);
   if (edgeNodes.length === 0)
-    edgeNodes = nodes.filter((n: any) => n.buildingId === bId);
-
+    edgeNodes = nodes.filter((n) => n.buildingId === bId);
   return edgeNodes;
 };
 
-async function fetchIndoorDeparturePath(startRoom: IndoorRoom) {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { IndoorDataService } = require("../services/IndoorDataService");
-  await IndoorDataService.ensureLoaded();
-
-  const bId = startRoom.buildingId;
-  const exitNodes = getEdgeNodes(bId, IndoorDataService);
-
-  let bestPath = null;
-  let bestExitNode = null;
-  let bestSteps: any[] = [];
-  let minDistance = Infinity;
-
-  const promises = exitNodes.map(async (en: any) => {
-    if (en.id === startRoom.id)
-      return { en, res: { path: [en], distanceMeters: 0 } as any };
-    const res = await IndoorPathfindingService.getDirections(
-      bId,
-      startRoom.id,
-      en.id,
-    );
-    return { en, res };
-  });
-
-  const results = await Promise.allSettled(promises);
-  for (const result of results) {
-    if (result.status === "fulfilled") {
-      if (result.value.res.distanceMeters < minDistance) {
-        minDistance = result.value.res.distanceMeters;
-        bestPath = result.value.res.path;
-        bestSteps = result.value.res.steps ?? [];
-        bestExitNode = result.value.en;
-      }
-    }
-  }
-
-  if (bestPath && bestExitNode) {
-    return {
-      pathOrigin: bestPath as IndoorRoom[],
-      stepsOrigin: bestSteps.map((s: any, idx: number) => ({
-        id: `origin-step-${idx}`,
-        distanceMeters: s.distanceMeters,
-        durationSeconds: s.durationSeconds,
-        instruction: s.instruction,
-        maneuver: s.maneuver,
-        coordinates: [],
-        startFloor: s.startFloor,
-        endFloor: s.endFloor,
-      })) as StepInfo[],
-    };
-  } else if (exitNodes.length > 0) {
-    const fallbackNode = exitNodes[0];
-    console.warn(
-      "Backend graph missing path. Using artificial straight line fallback for departure.",
-    );
-    const artificialPath = [startRoom];
-    if (fallbackNode.floor !== startRoom.floor) {
-      artificialPath.push({
-        ...(fallbackNode as IndoorRoom),
-        id: "synth_0",
-        floor: startRoom.floor,
-      });
-    }
-    artificialPath.push(fallbackNode as IndoorRoom);
-    return { pathOrigin: artificialPath, stepsOrigin: undefined };
-  } else {
-    return { pathOrigin: [startRoom], stepsOrigin: undefined };
-  }
+interface IndoorEdgePathResult {
+  path: IndoorRoom[];
+  steps: StepInfo[] | undefined;
 }
 
-async function fetchIndoorArrivalPath(destinationRoom: IndoorRoom) {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { IndoorDataService } = require("../services/IndoorDataService");
-  await IndoorDataService.ensureLoaded();
+interface IndoorEdgePathCandidate {
+  path: IndoorRoom[];
+  distanceMeters: number;
+  steps?: IndoorStep[];
+}
 
-  const bId = destinationRoom.buildingId;
-  const entryNodes = getEdgeNodes(bId, IndoorDataService);
+const isFulfilled = <T>(
+  result: PromiseSettledResult<T>,
+): result is PromiseFulfilledResult<T> => result.status === "fulfilled";
 
-  let bestPath = null;
-  let bestEntryNode = null;
-  let bestSteps: any[] = [];
-  let minDistance = Infinity;
+const getArtificialIndoorEdgePath = (
+  room: IndoorRoom,
+  fallbackNode: IndoorRoom,
+  direction: "departure" | "arrival",
+): IndoorRoom[] => {
+  const syntheticId = direction === "departure" ? "synth_0" : "synth_1";
+  const needsMid = fallbackNode.floor !== room.floor;
+  const midNode: IndoorRoom = {
+    ...fallbackNode,
+    id: syntheticId,
+    floor: room.floor,
+  };
 
-  const promises = entryNodes.map(async (en: any) => {
-    if (en.id === destinationRoom.id)
-      return { en, res: { path: [en], distanceMeters: 0 } as any };
-    const res = await IndoorPathfindingService.getDirections(
-      bId,
-      en.id,
-      destinationRoom.id,
-    );
-    return { en, res };
-  });
+  return direction === "departure"
+    ? [room, ...(needsMid ? [midNode] : []), fallbackNode]
+    : [fallbackNode, ...(needsMid ? [midNode] : []), room];
+};
 
-  const results = await Promise.allSettled(promises);
+const selectBestIndoorEdgePath = (
+  results: PromiseSettledResult<{
+    en: IndoorNode;
+    res: IndoorEdgePathCandidate;
+  }>[],
+): IndoorEdgePathCandidate | null => {
+  let bestPath: IndoorEdgePathCandidate | null = null;
+
   for (const result of results) {
-    if (result.status === "fulfilled") {
-      if (result.value.res.distanceMeters < minDistance) {
-        minDistance = result.value.res.distanceMeters;
-        bestPath = result.value.res.path;
-        bestSteps = result.value.res.steps ?? [];
-        bestEntryNode = result.value.en;
-      }
+    if (!isFulfilled(result)) continue;
+
+    const { res } = result.value;
+    if (!Array.isArray(res.path) || res.path.length === 0) continue;
+    if (!bestPath || res.distanceMeters < bestPath.distanceMeters) {
+      bestPath = res;
     }
   }
 
-  if (bestPath && bestEntryNode) {
-    return {
-      path: bestPath as IndoorRoom[],
-      steps: bestSteps.map((s: any, idx: number) => ({
-        id: `dest-step-${idx}`,
-        distanceMeters: s.distanceMeters,
-        durationSeconds: s.durationSeconds,
-        instruction: s.instruction,
-        maneuver: s.maneuver,
-        coordinates: [],
-        startFloor: s.startFloor,
-        endFloor: s.endFloor,
-      })) as StepInfo[],
-    };
-  } else if (entryNodes.length > 0) {
-    const fallbackNode = entryNodes[0];
+  return bestPath;
+};
+
+async function fetchIndoorEdgePath(
+  room: IndoorRoom,
+  direction: "departure" | "arrival",
+  accessible = false,
+  signal?: AbortSignal,
+): Promise<IndoorEdgePathResult> {
+  await IndoorDataService.ensureLoaded();
+
+  const bId = room.buildingId;
+  const edgeNodes = getEdgeNodes(bId);
+
+  const results = await Promise.allSettled(
+    edgeNodes.map(async (en) => {
+      if (en.id === room.id)
+        return {
+          en,
+          res: {
+            path: [en as IndoorRoom],
+            distanceMeters: 0,
+            steps: [] as IndoorStep[],
+          },
+        };
+      const [startId, endId] =
+        direction === "departure" ? [room.id, en.id] : [en.id, room.id];
+      const res = await IndoorPathfindingService.getDirections(
+        bId,
+        startId,
+        endId,
+        accessible,
+        signal,
+      );
+      return { en, res };
+    }),
+  );
+
+  const bestPath = selectBestIndoorEdgePath(results);
+
+  if (bestPath) {
+    return { path: bestPath.path, steps: (bestPath.steps ?? []).map(mapStep) };
+  }
+
+  if (edgeNodes.length > 0) {
+    const fallbackNode = edgeNodes[0] as IndoorRoom;
     console.warn(
       "Backend graph missing path. Using artificial straight line fallback.",
     );
-    const artificialPath = [fallbackNode as IndoorRoom];
-    if (fallbackNode.floor !== destinationRoom.floor) {
-      artificialPath.push({
-        ...(fallbackNode as IndoorRoom),
-        id: "synth_1",
-        floor: destinationRoom.floor,
-      });
-    }
-    artificialPath.push(destinationRoom);
-    return { path: artificialPath, steps: undefined };
-  } else {
-    return { path: [destinationRoom], steps: undefined };
+    return {
+      path: getArtificialIndoorEdgePath(room, fallbackNode, direction),
+      steps: undefined,
+    };
   }
+
+  return { path: [room], steps: undefined };
 }
 
 interface UseDirectionsParams {
@@ -192,6 +172,8 @@ interface UseDirectionsParams {
   departureConfig: DepartureTimeConfig;
   /** Whether the directions panel is open. */
   active: boolean;
+  /** Whether accessibility mode is enabled. */
+  accessibilityMode: boolean;
   /** Callbacks into the reducer. */
   onLoading: () => void;
   onLoaded: (route: RouteInfo | null) => void;
@@ -211,13 +193,11 @@ export function useDirections({
   travelMode,
   departureConfig,
   active,
+  accessibilityMode,
   onLoading,
   onLoaded,
   onError,
 }: UseDirectionsParams) {
-  // Use a ref for the abort controller so we can cancel in-flight requests
-  const abortRef = useRef<AbortController | null>(null);
-
   const getRoute = async (options: {
     originLat: number;
     originLng: number;
@@ -229,7 +209,8 @@ export function useDirections({
     departureTime: string | undefined;
     arrivalTime: string | undefined;
     departureConfig: DepartureTimeConfig;
-  }) => {
+    signal: AbortSignal;
+  }): Promise<RouteInfo | null> => {
     const {
       originLat,
       originLng,
@@ -241,6 +222,7 @@ export function useDirections({
       departureTime,
       arrivalTime,
       departureConfig,
+      signal,
     } = options;
 
     // Handle indoor pathfinding if both start and dest are rooms in the same building
@@ -253,6 +235,8 @@ export function useDirections({
           startRoom.buildingId,
           startRoom.id,
           destinationRoom.id,
+          accessibilityMode,
+          signal,
         );
 
         return {
@@ -299,25 +283,34 @@ export function useDirections({
     }
   };
 
-  const appendIndoorSegmentsIfNeeded = async (route: RouteInfo | null) => {
-    if (!route) {
-      return route;
-    }
+  const appendIndoorSegmentsIfNeeded = async (
+    route: RouteInfo | null,
+    signal: AbortSignal,
+  ): Promise<RouteInfo | null> => {
+    if (!route) return route;
 
     const isPureIndoorSameBuildingRoute =
       !!startRoom?.buildingId &&
       startRoom.buildingId === destinationRoom?.buildingId;
 
-    if (isPureIndoorSameBuildingRoute) {
-      return route;
-    }
+    if (isPureIndoorSameBuildingRoute) return route;
+
+    let augmented = { ...route };
 
     // If outdoor route was fetched but we have a start room, fetch the indoor departure path
-    if (!route.indoorPathOrigin && startRoom) {
+    if (!augmented.indoorPathOrigin && startRoom) {
       try {
-        const indoorDeparture = await fetchIndoorDeparturePath(startRoom);
-        route.indoorPathOrigin = indoorDeparture.pathOrigin;
-        route.indoorStepsOrigin = indoorDeparture.stepsOrigin;
+        const { path, steps } = await fetchIndoorEdgePath(
+          startRoom,
+          "departure",
+          accessibilityMode,
+          signal,
+        );
+        augmented = {
+          ...augmented,
+          indoorPathOrigin: path,
+          indoorStepsOrigin: steps,
+        };
       } catch (e) {
         console.warn(
           "Could not compute indoor->outdoor departure path segment:",
@@ -327,11 +320,15 @@ export function useDirections({
     }
 
     // If outdoor route was fetched but we have a destination room, fetch the indoor arrival path
-    if (!route.indoorPath && destinationRoom) {
+    if (!augmented.indoorPath && destinationRoom) {
       try {
-        const indoorArrival = await fetchIndoorArrivalPath(destinationRoom);
-        route.indoorPath = indoorArrival.path;
-        route.indoorSteps = indoorArrival.steps;
+        const { path, steps } = await fetchIndoorEdgePath(
+          destinationRoom,
+          "arrival",
+          accessibilityMode,
+          signal,
+        );
+        augmented = { ...augmented, indoorPath: path, indoorSteps: steps };
       } catch (e) {
         console.warn(
           "Could not compute outdoor->indoor arrival path segment:",
@@ -340,7 +337,7 @@ export function useDirections({
       }
     }
 
-    return route;
+    return augmented;
   };
 
   useEffect(() => {
@@ -357,12 +354,8 @@ export function useDirections({
 
     if (originLat == null || originLng == null) return;
 
-    // Cancel any previous in-flight request
-    abortRef.current?.abort();
     const controller = new AbortController();
-    abortRef.current = controller;
-
-    let cancelled = false;
+    const { signal } = controller;
 
     // Derive departure/arrival time strings from config.
     // DRIVE mode does not support future departure/arrival times in the
@@ -390,12 +383,16 @@ export function useDirections({
           departureTime,
           arrivalTime,
           departureConfig,
+          signal,
         });
-        const augmentedRoute = await appendIndoorSegmentsIfNeeded(route);
+        const augmentedRoute = await appendIndoorSegmentsIfNeeded(
+          route,
+          signal,
+        );
 
-        if (!cancelled) onLoaded(augmentedRoute);
+        if (!signal.aborted) onLoaded(augmentedRoute);
       } catch (err) {
-        if (!cancelled) {
+        if (!signal.aborted) {
           onError(
             err instanceof Error ? err.message : "Failed to load directions",
           );
@@ -406,7 +403,6 @@ export function useDirections({
     fetchRoute();
 
     return () => {
-      cancelled = true;
       controller.abort();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- callbacks are stable dispatch wrappers
@@ -421,5 +417,6 @@ export function useDirections({
     travelMode,
     departureConfig.option,
     departureConfig.date,
+    accessibilityMode,
   ]);
 }

@@ -2785,7 +2785,7 @@
       "target": "VL_F1_hallway_stair3",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     },
     {
       "source": "VL_F1_elevator1",
@@ -2799,7 +2799,7 @@
       "target": "VL_F1_stair_1",
       "type": "stair",
       "weight": 0,
-      "accessible": true
+      "accessible": false
     }
   ]
 }

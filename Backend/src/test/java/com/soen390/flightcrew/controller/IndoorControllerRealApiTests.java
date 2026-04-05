@@ -42,7 +42,7 @@ public class IndoorControllerRealApiTests {
 
     @BeforeEach
     public void setup() {
-        controller = new IndoorController(dataService, pathfindingService, stepGeneratorService);
+        controller = new IndoorController(dataService, pathfindingService, stepGeneratorService, null);
     }
 
     @Test

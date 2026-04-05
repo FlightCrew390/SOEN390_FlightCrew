@@ -872,6 +872,24 @@
       "y": 307,
       "label": "",
       "accessible": true
+    },
+    {
+      "id": "VE_F1_elevator_door_1",
+      "type": "elevator_door",
+      "buildingId": "VE",
+      "floor": 1,
+      "x": 1320,
+      "y": 320,
+      "accessible": true
+    },
+    {
+      "id": "VE_F2_elevator_door_1",
+      "type": "elevator_door",
+      "buildingId": "VE",
+      "floor": 2,
+      "x": 1200,
+      "y": 310,
+      "accessible": true
     }
   ],
   "edges": [
@@ -1523,6 +1541,48 @@
       "source": "VE_F1_stair_landing_24",
       "target": "VE_F1_stair_landing_25",
       "type": "stair",
+      "weight": 0,
+      "accessible": false
+    },
+    {
+      "source": "VE_F1_building_entry_exit_6",
+      "target": "VE_F1_elevator_door_1",
+      "type": "hallway",
+      "weight": 50,
+      "accessible": true
+    },
+    {
+      "source": "VE_F1_elevator_door_1",
+      "target": "VE_F1_building_entry_exit_6",
+      "type": "hallway",
+      "weight": 50,
+      "accessible": true
+    },
+    {
+      "source": "VE_F1_doorway_280",
+      "target": "VE_F1_elevator_door_1",
+      "type": "hallway",
+      "weight": 40,
+      "accessible": true
+    },
+    {
+      "source": "VE_F1_elevator_door_1",
+      "target": "VE_F1_doorway_280",
+      "type": "hallway",
+      "weight": 40,
+      "accessible": true
+    },
+    {
+      "source": "VE_F1_elevator_door_1",
+      "target": "VE_F2_elevator_door_1",
+      "type": "elevator",
+      "weight": 0,
+      "accessible": true
+    },
+    {
+      "source": "VE_F2_elevator_door_1",
+      "target": "VE_F1_elevator_door_1",
+      "type": "elevator",
       "weight": 0,
       "accessible": true
     }

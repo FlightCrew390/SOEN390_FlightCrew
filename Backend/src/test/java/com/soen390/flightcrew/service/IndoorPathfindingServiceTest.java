@@ -92,6 +92,49 @@ public class IndoorPathfindingServiceTest {
     }
 
     @Test
+    public void testFindShortestPath_StairEdge_SkippedWhenAccessibleRequired() {
+        // Stair edge (direct, but inaccessible)
+        IndoorEdge stairEdge = new IndoorEdge();
+        stairEdge.setSource("F1_hall");
+        stairEdge.setTarget("F2_hall");
+        stairEdge.setType("stair");
+        stairEdge.setWeight(10);
+        stairEdge.setAccessible(false);
+
+        // Elevator path: F1_hall -> F1_elevator -> F2_elevator -> F2_hall
+        IndoorEdge toElevatorF1 = new IndoorEdge();
+        toElevatorF1.setSource("F1_hall");
+        toElevatorF1.setTarget("F1_elevator");
+        toElevatorF1.setWeight(5);
+        toElevatorF1.setAccessible(true);
+
+        IndoorEdge elevatorEdge = new IndoorEdge();
+        elevatorEdge.setSource("F1_elevator");
+        elevatorEdge.setTarget("F2_elevator");
+        elevatorEdge.setType("elevator");
+        elevatorEdge.setWeight(15);
+        elevatorEdge.setAccessible(true);
+
+        IndoorEdge fromElevatorF2 = new IndoorEdge();
+        fromElevatorF2.setSource("F2_elevator");
+        fromElevatorF2.setTarget("F2_hall");
+        fromElevatorF2.setWeight(5);
+        fromElevatorF2.setAccessible(true);
+
+        when(dataService.getEdgesByBuilding(anyString()))
+                .thenReturn(Arrays.asList(stairEdge, toElevatorF1, elevatorEdge, fromElevatorF2));
+
+        List<String> path = pathfindingService.findShortestPath("building1", "F1_hall", "F2_hall", true);
+
+        assertNotNull(path);
+        assertFalse(path.isEmpty(), "Accessible path should exist via elevator");
+        assertFalse(path.contains("F2_hall") && path.size() == 2,
+                "Path must not be the direct stair route");
+        assertTrue(path.contains("F1_elevator") && path.contains("F2_elevator"),
+                "Accessible path should route through elevator");
+    }
+
+    @Test
     public void testFindShortestPath_TargetUnreachable() {
         IndoorEdge edge1 = new IndoorEdge();
         edge1.setSource("A");

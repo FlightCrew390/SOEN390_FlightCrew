@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import DirectionPanel from "../../src/components/LocationScreen/DirectionPanel";
+import { AccessibilityProvider } from "../../src/contexts/AccessibilityContext";
 import type { RoutePreviews } from "../../src/hooks/useRoutePreviews";
 import { Building, StructureType } from "../../src/types/Building";
 import {
@@ -293,7 +294,14 @@ function renderPanel(overrides: Props = {}) {
     routePreviews: undefined,
     ...overrides,
   };
-  return { ...render(<DirectionPanel {...props} />), props };
+  return {
+    ...render(
+      <AccessibilityProvider>
+        <DirectionPanel {...props} />
+      </AccessibilityProvider>,
+    ),
+    props,
+  };
 }
 
 // ── Tests ──

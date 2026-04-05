@@ -7,11 +7,13 @@ import {
   Image,
   Pressable,
   ScrollView,
+  Switch,
   Text,
   View,
 } from "react-native";
 
 import { COLORS, METRO_ACCESS_BUILDINGS } from "../../constants";
+import { useAccessibility } from "../../contexts/AccessibilityContext";
 import { usePanelAnimation } from "../../hooks/usePanelAnimation";
 import type { RoutePreviews } from "../../hooks/useRoutePreviews";
 import styles from "../../styles/DirectionPanel";
@@ -368,6 +370,7 @@ export default function DirectionPanel({
   onStepPress,
 }: Readonly<DirectionPanelProps>) {
   const { animatedStyle } = usePanelAnimation(visible);
+  const { accessibilityMode, setAccessibilityMode } = useAccessibility();
 
   const destinationBuildingName =
     building?.buildingName ?? building?.buildingCode ?? "";
@@ -497,6 +500,22 @@ export default function DirectionPanel({
                   </Text>
                 </View>
               )}
+
+            <View style={styles.accessibilityRow}>
+              <MaterialCommunityIcons
+                name="wheelchair-accessibility"
+                size={20}
+                color={COLORS.concordiaMaroon}
+              />
+              <Text style={styles.accessibilityLabel}>Accessible route</Text>
+              <Switch
+                value={accessibilityMode}
+                onValueChange={setAccessibilityMode}
+                trackColor={{ true: COLORS.concordiaMaroon }}
+                accessibilityLabel="Toggle accessible route"
+                accessibilityRole="switch"
+              />
+            </View>
 
             <View style={styles.divider} />
 

@@ -1,6 +1,7 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { getIndoorPoisForBuilding } from "../../services/IndoorPoiService";
+import { IndoorPointOfInterest } from "../../types/IndoorPointOfInterest";
 import BuildingAmenityMarker from "./BuildingAmenityMarker";
 
 interface BuildingAmenityLayerProps {
@@ -15,13 +16,24 @@ interface BuildingAmenityLayerProps {
 export default function BuildingAmenityLayer({
   buildingCode,
 }: Readonly<BuildingAmenityLayerProps>) {
-  const pois = useMemo(() => {
-    if (!buildingCode) return [];
-    try {
-      return getIndoorPoisForBuilding(buildingCode);
-    } catch {
-      return [];
+  const [pois, setPois] = useState<IndoorPointOfInterest[]>([]);
+
+  useEffect(() => {
+    if (!buildingCode) {
+      setPois([]);
+      return;
     }
+
+    const fetchPois = async () => {
+      try {
+        const data = await getIndoorPoisForBuilding(buildingCode);
+        setPois(data);
+      } catch {
+        setPois([]);
+      }
+    };
+
+    fetchPois();
   }, [buildingCode]);
 
   if (!buildingCode) return null;

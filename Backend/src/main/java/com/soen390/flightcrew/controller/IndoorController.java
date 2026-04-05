@@ -3,9 +3,11 @@ package com.soen390.flightcrew.controller;
 import com.soen390.flightcrew.model.IndoorAssetFileDTO;
 import com.soen390.flightcrew.model.IndoorEdge;
 import com.soen390.flightcrew.model.IndoorNode;
+import com.soen390.flightcrew.model.IndoorPointOfInterest;
 import com.soen390.flightcrew.model.IndoorStep;
 import com.soen390.flightcrew.service.IndoorNavigationDataService;
 import com.soen390.flightcrew.service.IndoorPathfindingService;
+import com.soen390.flightcrew.service.IndoorPoiService;
 import com.soen390.flightcrew.service.IndoorStepGeneratorService;
 
 import org.springframework.core.io.Resource;
@@ -27,18 +29,32 @@ public class IndoorController {
     private final IndoorNavigationDataService indoorNavigationDataService;
     private final IndoorPathfindingService pathfindingService;
     private final IndoorStepGeneratorService stepGeneratorService;
+    private final IndoorPoiService indoorPoiService;
 
     public IndoorController(IndoorNavigationDataService indoorNavigationDataService,
             IndoorPathfindingService pathfindingService,
-            IndoorStepGeneratorService stepGeneratorService) {
+            IndoorStepGeneratorService stepGeneratorService,
+            IndoorPoiService indoorPoiService) {
         this.indoorNavigationDataService = indoorNavigationDataService;
         this.pathfindingService = pathfindingService;
         this.stepGeneratorService = stepGeneratorService;
+        this.indoorPoiService = indoorPoiService;
     }
 
     @GetMapping("/buildings")
     public ResponseEntity<List<String>> getAvailableBuildings() {
         return ResponseEntity.ok(indoorNavigationDataService.getAvailableBuildings());
+    }
+
+    @GetMapping("/pois")
+    public ResponseEntity<List<IndoorPointOfInterest>> getIndoorPois(
+            @RequestParam(required = false) String buildingCode) {
+        if (buildingCode == null || buildingCode.isEmpty()) {
+            return ResponseEntity.ok(indoorPoiService.getAllIndoorPois().values().stream()
+                    .flatMap(List::stream)
+                    .toList());
+        }
+        return ResponseEntity.ok(indoorPoiService.getIndoorPoisForBuilding(buildingCode));
     }
 
     @GetMapping("/buildings/{buildingId}/floors")

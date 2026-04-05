@@ -1,11 +1,89 @@
-import { fireEvent, render, screen } from "@testing-library/react-native";
-import { Alert, Image } from "react-native";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react-native";
 import React from "react";
+import { Alert, Image } from "react-native";
 
 import IndoorFloorView from "../../src/components/LocationScreen/IndoorFloorView";
 import { Building, StructureType } from "../../src/types/Building";
-import { IndoorRoom } from "../../src/types/IndoorRoom";
 import { RouteInfo } from "../../src/types/Directions";
+import { IndoorRoom } from "../../src/types/IndoorRoom";
+
+jest.spyOn(Alert, "alert").mockImplementation(() => {});
+
+// Mock IndoorPoiService to return test data
+jest.mock("../../src/services/IndoorPoiService", () => ({
+  getIndoorPoisForBuilding: async (buildingCode: string) => {
+    const testData: Record<string, any[]> = {
+      H: [
+        {
+          id: "H-washroom-1",
+          name: "Washroom",
+          category: "washroom",
+          buildingCode: "H",
+          floor: 1,
+          latitude: 45.49704,
+          longitude: -73.57898,
+          description: "Near main entrance lobby",
+          x: 1100,
+          y: 1700,
+        },
+        {
+          id: "H-fountain-1",
+          name: "Water Fountain",
+          category: "fountain",
+          buildingCode: "H",
+          floor: 1,
+          latitude: 45.49698,
+          longitude: -73.57889,
+          description: "By the main corridor",
+          x: 850,
+          y: 1100,
+        },
+        {
+          id: "H-fountain-5",
+          name: "Water Fountain",
+          category: "fountain",
+          buildingCode: "H",
+          floor: 5,
+          latitude: 45.4971,
+          longitude: -73.57882,
+          description: "Near stairwell B",
+        },
+        {
+          id: "H-washroom-8",
+          name: "Washroom",
+          category: "washroom",
+          buildingCode: "H",
+          floor: 8,
+          latitude: 45.49715,
+          longitude: -73.57873,
+          description: "Near elevator bank",
+          x: 800,
+          y: 850,
+        },
+      ],
+      MB: [
+        {
+          id: "MB-washroom-1",
+          name: "Washroom",
+          category: "washroom",
+          buildingCode: "MB",
+          floor: 1,
+          latitude: 45.49569,
+          longitude: -73.57934,
+          description: "Ground floor near atrium",
+          x: 500,
+          y: 500,
+        },
+      ],
+    };
+    return testData[buildingCode] || [];
+  },
+}));
 
 jest.mock("@expo/vector-icons/MaterialCommunityIcons", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -336,7 +414,7 @@ describe("IndoorFloorView", () => {
         indoorSteps: mockRoute.indoorStepsOrigin,
       };
 
-      const { props } = renderView({
+      renderView({
         route: destRoute,
         currentFloor: 8,
         buildingId: "Hall",
@@ -424,13 +502,14 @@ describe("IndoorFloorView", () => {
       expect(screen.getByText("Floor plan failed to load.")).toBeTruthy();
     });
 
-    it("renders indoor POIs and shows Alert on press", () => {
+    it("renders indoor POIs and shows Alert on press", async () => {
       renderView({ currentFloor: 1, buildingId: "Hall" });
 
-      const poiPin = screen.getByTestId("indoor-poi-pin-H-washroom-1");
-      expect(poiPin).toBeTruthy();
+      // Wait for POI pin to render (POIs are fetched asynchronously)
+      const poiPin = await screen.findByTestId("indoor-poi-pin-H-washroom-1");
 
       fireEvent.press(poiPin);
+
       expect(Alert.alert).toHaveBeenCalledWith(
         "Washroom",
         "Near main entrance lobby",
@@ -439,35 +518,47 @@ describe("IndoorFloorView", () => {
   });
 
   describe("indoor POI pins", () => {
-    it("renders washroom pin for Hall floor 1 (has x/y)", () => {
+    it("renders washroom pin for Hall floor 1 (has x/y)", async () => {
       renderView({ buildingId: "Hall", currentFloor: 1 });
-      expect(screen.getByTestId("indoor-poi-pin-H-washroom-1")).toBeTruthy();
+      await waitFor(() => {
+        expect(screen.getByTestId("indoor-poi-pin-H-washroom-1")).toBeTruthy();
+      });
     });
 
-    it("renders fountain pin for Hall floor 1 (has x/y)", () => {
+    it("renders fountain pin for Hall floor 1 (has x/y)", async () => {
       renderView({ buildingId: "Hall", currentFloor: 1 });
-      expect(screen.getByTestId("indoor-poi-pin-H-fountain-1")).toBeTruthy();
+      await waitFor(() => {
+        expect(screen.getByTestId("indoor-poi-pin-H-fountain-1")).toBeTruthy();
+      });
     });
 
-    it("renders washroom pin for Hall floor 8 (has x/y)", () => {
+    it("renders washroom pin for Hall floor 8 (has x/y)", async () => {
       renderView({ buildingId: "Hall", currentFloor: 8 });
-      expect(screen.getByTestId("indoor-poi-pin-H-washroom-8")).toBeTruthy();
+      await waitFor(() => {
+        expect(screen.getByTestId("indoor-poi-pin-H-washroom-8")).toBeTruthy();
+      });
     });
 
-    it("does not render a pin for H-fountain-5 (no x/y defined)", () => {
+    it("does not render a pin for H-fountain-5 (no x/y defined)", async () => {
       renderView({ buildingId: "Hall", currentFloor: 5 });
-      expect(screen.queryByTestId("indoor-poi-pin-H-fountain-5")).toBeNull();
+      await waitFor(() => {
+        expect(screen.queryByTestId("indoor-poi-pin-H-fountain-5")).toBeNull();
+      });
     });
 
-    it("does not render floor 1 pins when viewing floor 8", () => {
+    it("does not render floor 1 pins when viewing floor 8", async () => {
       renderView({ buildingId: "Hall", currentFloor: 8 });
-      expect(screen.queryByTestId("indoor-poi-pin-H-washroom-1")).toBeNull();
-      expect(screen.queryByTestId("indoor-poi-pin-H-fountain-1")).toBeNull();
+      await waitFor(() => {
+        expect(screen.queryByTestId("indoor-poi-pin-H-washroom-1")).toBeNull();
+        expect(screen.queryByTestId("indoor-poi-pin-H-fountain-1")).toBeNull();
+      });
     });
 
-    it("renders no POI pins for a building not in BUILDING_ID_TO_POI_CODE (VL)", () => {
+    it("renders no POI pins for a building not in BUILDING_ID_TO_POI_CODE (VL)", async () => {
       renderView({ buildingId: "VL", currentFloor: 1 });
-      expect(screen.queryByTestId(/^indoor-poi-pin-/)).toBeNull();
+      await waitFor(() => {
+        expect(screen.queryByTestId(/^indoor-poi-pin-/)).toBeNull();
+      });
     });
   });
 

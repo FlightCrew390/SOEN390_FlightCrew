@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useReducer } from "react";
+import { useAccessibility } from "../contexts/AccessibilityContext";
 import { initialMapUIState, mapUIReducer } from "../reducers/mapUIReducer";
 import { IndoorDataService } from "../services/IndoorDataService";
 import { PoiService } from "../services/PoiService";
@@ -31,6 +32,7 @@ export function useMapUI(
   location: LocationObject | null,
 ) {
   const [state, dispatch] = useReducer(mapUIReducer, initialMapUIState);
+  const { accessibilityMode } = useAccessibility();
 
   // ── Direction-fetch callbacks (stable refs into reducer) ──
   const onRouteLoading = useCallback(
@@ -68,6 +70,7 @@ export function useMapUI(
     travelMode: state.travelMode,
     departureConfig: state.departureConfig,
     active: state.panel === "directions" || state.panel === "room-info",
+    accessibilityMode,
     onLoading: onRouteLoading,
     onLoaded: onRouteLoaded,
     onError: onRouteError,

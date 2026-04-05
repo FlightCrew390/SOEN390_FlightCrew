@@ -116,6 +116,41 @@ const transitRoute: RouteInfo = {
   ],
 };
 
+const shuttleRoute: RouteInfo = {
+  coordinates: [],
+  distanceMeters: 9000,
+  durationSeconds: 2400,
+  steps: [
+    {
+      id: "w1",
+      distanceMeters: 200,
+      durationSeconds: 180,
+      instruction: "Walk to the shuttle stop",
+      maneuver: "DEPART",
+      coordinates: [],
+    },
+    {
+      id: "shuttle-step",
+      distanceMeters: 8300,
+      durationSeconds: 1500,
+      instruction: "Shuttle to Loyola.",
+      maneuver: "STRAIGHT",
+      coordinates: [],
+      transitDetails: {
+        departureStopName: "SGW (Hall Building)",
+        arrivalStopName: "Loyola Campus",
+        departureTime: new Date(2026, 2, 2, 10, 8, 0).toISOString(),
+        arrivalTime: new Date(2026, 2, 2, 10, 29, 0).toISOString(),
+        lineName: "Concordia Shuttle",
+        lineShortName: "Shuttle",
+        vehicleType: "BUS",
+        vehicleName: "Concordia Shuttle",
+        stopCount: 1,
+      },
+    },
+  ],
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
   jest.spyOn(console, "error").mockImplementation(() => {});
@@ -199,6 +234,22 @@ describe("StepsPanel", () => {
     );
     fireEvent.press(screen.getByLabelText("Back to directions"));
     expect(onBack).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows Next Departure banner for Concordia Shuttle routes", () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(2026, 2, 2, 10, 0, 0));
+    render(
+      <StepsPanel
+        building={building}
+        route={shuttleRoute}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+      />,
+    );
+    expect(screen.getByText("Next Departure")).toBeTruthy();
+    expect(screen.getByText("Next shuttle departs in 8 minutes")).toBeTruthy();
+    jest.useRealTimers();
   });
 
   it("renders departure and arrival time summary", () => {

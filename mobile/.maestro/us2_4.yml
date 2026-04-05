@@ -12,18 +12,14 @@ tags:
 # User location is set to SGW campus by open_map.yml (45.4954, -73.5739).
 # Search for a Loyola campus building as destination.
 - tapOn: "Search campus buildings"
-- waitForAnimationToEnd
 - tapOn: "Search building name"
 - inputText: "Admin"
-- waitForAnimationToEnd
 - tapOn:
     text: ".*Administration.*"
 - tapOn: "Search"
-- waitForAnimationToEnd
 
 # Tap the callout to open directions to Loyola
 - tapOn: "AD Building"
-- waitForAnimationToEnd
 - assertVisible: "Directions"
 
 # Default start is current location (SGW campus)
@@ -37,10 +33,8 @@ tags:
 
 # Route generated successfully – view steps to verify
 - tapOn: "View step-by-step directions"
-- waitForAnimationToEnd
 - assertVisible:
     text: ".*Arrive.*"
 
 # Go back to directions panel
 - tapOn: "Back to directions"
-- waitForAnimationToEnd

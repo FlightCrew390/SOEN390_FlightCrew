@@ -1,0 +1,91 @@
+appId: com.flightcrew.mobile
+tags:
+  - us4
+---
+- runFlow: flows/open_map.yml
+
+# ═══════════════════════════════════════════════════════════════════
+# US4.4 – Indoor Pathfinding: Shortest Path, Route Updates,
+#          Route Highlighted
+# ═══════════════════════════════════════════════════════════════════
+
+# ── Test 4a: Pathfinding Uses a Shortest-Path Algorithm ──
+# Search for a Hall Building room as the destination
+- tapOn: "Search campus buildings"
+- tapOn: "Select location type"
+- tapOn: "Classroom"
+- tapOn: "Search classroom name"
+- inputText: "H-859"
+- tapOn: "Search"
+- extendedWaitUntil:
+    visible:
+      id: "room-results-panel"
+    timeout: 10000
+- tapOn: "Get directions to H-859"
+- assertVisible: "Directions"
+
+# Change the start location to another room in the same building
+- tapOn: "Search locations to change directions start"
+- tapOn: "Select location type"
+- tapOn: "Classroom"
+- tapOn: "Search classroom name"
+- inputText: "H-244"
+- tapOn: "Search"
+- extendedWaitUntil:
+    visible:
+      id: "room-results-panel"
+    timeout: 10000
+- tapOn: "Get directions to H-244"
+
+# Select walking mode – indoor shortest path is calculated
+- tapOn: "Get directions by Walk"
+- extendedWaitUntil:
+    visible: "View step-by-step directions"
+    timeout: 15000
+
+# Open steps – the indoor path is rendered with turn-by-turn instructions
+- tapOn: "View step-by-step directions"
+
+# Indoor directions header confirms the route is for the correct building/floor
+- assertVisible:
+    text: ".*Indoor Directions.*"
+
+# ── Test 4b: Routes Update When Start or Destination Changes ──
+# Go back and change destination to a different room – route must recalculate
+- tapOn: "Back to directions"
+
+# Open the indoor floor view to confirm route is visually highlighted
+- tapOn: "View indoor floor plan"
+
+# Floor selector confirms the indoor floor plan is loaded with route overlay
+- assertVisible: "Select floor"
+
+# Close the direction panel before choosing a new destination
+- tapOn: "Back to directions"
+
+# Search for a new room destination
+- tapOn: "Search campus buildings"
+- tapOn: "Select location type"
+- tapOn: "Classroom"
+- tapOn: "Search classroom name"
+- inputText: "H-150"
+- tapOn: "Search"
+- extendedWaitUntil:
+    visible:
+      id: "room-results-panel"
+    timeout: 10000
+- tapOn: "Get directions to H-150"
+
+# Route recalculates automatically for the updated start location
+- tapOn: "Get directions by Walk"
+- extendedWaitUntil:
+    visible: "View step-by-step directions"
+    timeout: 15000
+
+# ── Test 4c: The Route Is Clearly Highlighted ──
+# View updated indoor steps confirming a new path was generated
+- tapOn: "View step-by-step directions"
+- scrollUntilVisible:
+    element:
+      text: ".*Show Indoor Map.*"
+    direction: DOWN

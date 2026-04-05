@@ -5,26 +5,16 @@ tags:
 - runFlow: flows/open_map.yml
 
 # Test 1: Dual Campus Availability - starts on SGW campus
-- assertVisible:
-    text: "Next campus"
-    enabled: false
-- assertVisible:
-    text: "Previous campus"
-    enabled: true
-- assertVisible: "SGW Campus"
+- assertVisible: "SGW Campus selector"
+- assertVisible: "Loyola Campus selector"
 
 # Navigate to Loyola campus
-- tapOn: "Previous campus"
-- waitForAnimationToEnd
-- assertVisible: "Loyola Campus"
+- tapOn: "Loyola Campus selector"
+- assertVisible:
+    id: "campus-selector-loyola-active"
 
 # Navigate back to SGW campus
-- tapOn: "Next campus"
-- waitForAnimationToEnd
+- tapOn: "SGW Campus selector"
 - assertVisible:
-    text: "Next campus"
-    enabled: false
-- assertVisible:
-    text: "Previous campus"
-    enabled: true
-- assertVisible: "SGW Campus"
+    id: "campus-selector-sgw-active"
+- assertVisible: "Loyola Campus selector"

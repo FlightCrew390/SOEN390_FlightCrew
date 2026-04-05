@@ -8,16 +8,16 @@ tags:
 # (Google Maps visual distinction cannot be asserted via accessibility labels;
 #  we verify the building data loads for both campuses)
 - assertNotVisible: "Loading buildings..."
-- assertVisible: "SGW Campus"
+- assertVisible: "SGW Campus Selector"
 
 # Navigate to Loyola campus and verify buildings also load
-- tapOn: "Previous campus"
-- waitForAnimationToEnd
-- assertVisible: "Loyola Campus"
+- tapOn: "Loyola Campus selector"
+- assertVisible:
+    id: "campus-selector-loyola-active"
 - assertNotVisible: "Loading buildings..."
 
 # Navigate back to SGW and confirm buildings still rendered
-- tapOn: "Next campus"
-- waitForAnimationToEnd
-- assertVisible: "SGW Campus"
+- tapOn: "SGW Campus selector"
+- assertVisible:
+    id: "campus-selector-sgw-active"
 - assertNotVisible: "Loading buildings..."

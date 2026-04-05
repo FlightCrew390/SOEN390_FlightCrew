@@ -5,20 +5,16 @@ appId: com.flightcrew.mobile
 
 # Open search panel
 - tapOn: "Search campus buildings"
-- waitForAnimationToEnd
 
 # Type building name and select from autocomplete
 - tapOn: "Search building name"
 - inputText: "Hall"
-- waitForAnimationToEnd
 - tapOn: "Henry F. Hall Building"
 - tapOn: "Search"
-- waitForAnimationToEnd
 
 # Search dispatches SELECT_BUILDING which closes the search panel
 # and shows the building callout on the map. Tap the callout to open directions.
 - tapOn: "H Building"
-- waitForAnimationToEnd
 
 # Verify direction panel opened
 - assertVisible: "Directions"

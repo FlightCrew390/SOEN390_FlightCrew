@@ -15,7 +15,6 @@ tags:
 
 # Tap sign-in to trigger Google OAuth redirect
 - tapOn: "Sign in with Google"
-- waitForAnimationToEnd
 
 # ── Test 1b: User Consent – Google sign-in interface appears ──
 # The OAuth flow opens a web view with Google's sign-in page.
@@ -27,7 +26,6 @@ tags:
 # ── Test 1c: Connection Status – return to app and verify state ──
 # Dismiss the OAuth prompt (user cancels or completes externally)
 - tapOn: ".*Close|Cancel|Back.*"
-- waitForAnimationToEnd
 
 # After dismissing, the connection panel should still be visible
 # with the sign-in option (since OAuth was not completed)

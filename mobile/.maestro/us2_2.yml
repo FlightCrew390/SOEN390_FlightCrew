@@ -18,19 +18,16 @@ tags:
     text: "change"
 
 # Test 2b: Override start location – tap "change" to open search for start
-- tapOn: "Search buildings to change directions start"
-- waitForAnimationToEnd
+- tapOn: "Search locations to change directions start"
 - assertVisible: "Search building name"
 
 # Search for a different starting building (EV Building on SGW)
 - tapOn: "Clear search"
 - tapOn: "Search building name"
 - inputText: "EV"
-- waitForAnimationToEnd
 - tapOn:
     text: ".*Engineering.*"
 - tapOn: "Search"
-- waitForAnimationToEnd
 
 # Test 2c: Direction panel returns with the new start building shown
 - assertVisible: "Directions"
@@ -40,5 +37,4 @@ tags:
 # Test 2d: Reset to current location
 - assertVisible: "Use current location"
 - tapOn: "Reset to current location"
-- waitForAnimationToEnd
 - assertVisible: "Starting from your current location"

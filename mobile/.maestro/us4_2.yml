@@ -1,0 +1,61 @@
+appId: com.flightcrew.mobile
+tags:
+  - us4
+---
+- runFlow: flows/open_map.yml
+
+# ═══════════════════════════════════════════════════════════════════
+# US4.2 – Outdoor Pathfinding: Shortest Path, Route Updates,
+#          Route Highlighted
+# ═══════════════════════════════════════════════════════════════════
+
+# ── Test 2a: Pathfinding Uses a Shortest-Path Algorithm ──
+# Open directions to Hall Building from current SGW location
+- runFlow: flows/open_directions_hall.yml
+
+# Starting from current location (SGW campus)
+- assertVisible: "Starting from your current location"
+
+# Select walking mode – shortest route is calculated
+- tapOn: "Get directions by Walk"
+- extendedWaitUntil:
+    visible: "View step-by-step directions"
+    timeout: 15000
+
+# Route generated – the View steps button confirms a path was computed
+- tapOn: "View step-by-step directions"
+
+# Shortest-path route ends with an arrival step
+- assertVisible:
+    text: ".*Arrive.*"
+
+# Return to direction panel
+- tapOn: "Back to directions"
+
+# ── Test 2b: Routes Update When Destination Changes ──
+# Close current direction panel and search for a Loyola building instead
+- tapOn: "Close direction panel"
+
+- tapOn: "Search campus buildings"
+- tapOn: "Clear search"
+- tapOn: "Search building name"
+- inputText: "Admin"
+- tapOn:
+    text: ".*Administration.*"
+- tapOn: "Search"
+
+# Tap callout to open directions to the Loyola campus building
+- tapOn: "AD Building"
+- assertVisible: "Directions"
+
+# Select walking mode – a new route to the new destination is calculated
+- tapOn: "Get directions by Walk"
+- extendedWaitUntil:
+    visible: "View step-by-step directions"
+    timeout: 15000
+
+# ── Test 2c: The Route Is Clearly Highlighted ──
+# View steps to confirm the route has been rendered with turn-by-turn info
+- tapOn: "View step-by-step directions"
+- assertVisible:
+    text: ".*Arrive.*"

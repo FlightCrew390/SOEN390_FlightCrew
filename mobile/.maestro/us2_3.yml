@@ -16,7 +16,6 @@ tags:
 
 # Test 3b: Select Walking mode to generate a route via Google Maps API
 - tapOn: "Get directions by Walk"
-- waitForAnimationToEnd
 
 # Route is being calculated or has been calculated
 # (distance and duration appear in the transport card and panel)
@@ -27,7 +26,6 @@ tags:
 
 # Test 3c: Turn-by-turn steps are available
 - tapOn: "View step-by-step directions"
-- waitForAnimationToEnd
 
 # Steps panel shows building name, distance, and navigation instructions
 - assertVisible:
@@ -39,5 +37,4 @@ tags:
 
 # Test 3d: Navigate back to direction panel from steps
 - tapOn: "Back to directions"
-- waitForAnimationToEnd
 - assertVisible: "Directions"

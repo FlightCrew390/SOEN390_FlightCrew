@@ -7,4 +7,3 @@ appId: com.flightcrew.mobile
 - assertVisible: "My Schedule"
 - tapOn:
     id: "location-tab"
-- waitForAnimationToEnd

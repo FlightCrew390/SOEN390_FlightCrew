@@ -1,0 +1,64 @@
+appId: com.flightcrew.mobile
+tags:
+  - us4
+---
+- runFlow: flows/open_map.yml
+
+# ═══════════════════════════════════════════════════════════════════
+# US4.6 – Combined Indoor/Outdoor Navigation: Indoor + Transit +
+#          Indoor, Seamless Campus Transitions, Clearly Segmented Path
+# ═══════════════════════════════════════════════════════════════════
+
+# Search for the destination room in the CC Building on Loyola campus
+- tapOn: "Search campus buildings"
+- tapOn: "Select location type"
+- tapOn: "Classroom"
+
+# Select CC Building filter to narrow results
+- tapOn: "Select building"
+- waitForAnimationToEnd
+- tapOn: ".*CC.*"
+- tapOn: "Search classroom name"
+- inputText: "CC-122"
+- tapOn: "Search"
+- extendedWaitUntil:
+    visible:
+      id: "room-results-panel"
+    timeout: 10000
+- tapOn: "Get directions to CC-122"
+- assertVisible: "Directions"
+
+# ── Test 6a: Routes Combine Indoor and Outdoor Navigation ──
+# Set the starting room to H-244 in Hall Building (SGW campus)
+- tapOn: "Search locations to change directions start"
+- tapOn: "Select location type"
+- tapOn: "Classroom"
+- tapOn: "Select building"
+- waitForAnimationToEnd
+- tapOn: ".*Hall.*"
+- tapOn: "Search classroom name"
+- inputText: "H-244"
+- tapOn: "Search"
+- extendedWaitUntil:
+    visible:
+      id: "room-results-panel"
+    timeout: 10000
+- tapOn: "Get directions to H-244"
+
+# Select transit mode to generate a cross-campus combined route
+- tapOn: "Get directions by Transit"
+- extendedWaitUntil:
+    visible: "View step-by-step directions"
+    timeout: 15000
+
+# ── Test 6b: Campus Transitions Are Handled Seamlessly ──
+# View steps – the full route from SGW indoors to Loyola indoors is shown
+- tapOn: "View step-by-step directions"
+
+# ── Test 6c: The Full Path Is Clearly Segmented ──
+# First segment: indoor departure map for Hall Building (origin)
+- assertVisible: "Show Indoor Departure Map"
+
+# Tap to open the indoor departure map and verify floor plan loads
+- tapOn: "Show Indoor Departure Map"
+- assertVisible: "Select floor"

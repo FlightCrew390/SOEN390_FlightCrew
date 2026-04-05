@@ -1,4 +1,9 @@
-import { fireEvent, render, screen } from "@testing-library/react-native";
+import {
+  fireEvent,
+  render,
+  screen,
+  within,
+} from "@testing-library/react-native";
 import DailyEventList from "../../src/components/HomeScreen/DailyEventList";
 import { CalendarEvent } from "../../src/types/CalendarEvent";
 
@@ -22,7 +27,7 @@ const mockEvents: CalendarEvent[] = [
     description: "Catch up over lunch",
     location: "Cafe Bistro",
     start: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // Starts in 1 hour
-    end: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // Ends in 2 hours
+    end: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
     allDay: false,
   },
 ];
@@ -70,7 +75,59 @@ describe("DailyEventList", () => {
     expect(screen.getByText("No events scheduled for this day")).toBeTruthy();
   });
 
-  it("renders list of events and highlights upcoming event", () => {
+  it("renders list of events", () => {
+    render(
+      <DailyEventList
+        isConnected={true}
+        loading={false}
+        error={null}
+        events={mockEvents}
+        isToday={true}
+        onEventPress={jest.fn()}
+      />,
+    );
+    expect(screen.getByText("Morning Meeting")).toBeTruthy();
+    expect(screen.getByText("Lunch with Sarah")).toBeTruthy();
+  });
+
+  it("marks the next upcoming event with the next class pill", () => {
+    render(
+      <DailyEventList
+        isConnected={true}
+        loading={false}
+        error={null}
+        events={mockEvents}
+        isToday={true}
+        onEventPress={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Next class")).toBeTruthy();
+
+    // event-1 ends in 30 mins so it is correctly flagged as upcoming
+    const upcomingEvent = screen.getByTestId("event-1");
+    const futureEvent = screen.getByTestId("event-2");
+    expect(within(upcomingEvent).getByText("Next class")).toBeTruthy();
+    expect(within(futureEvent).queryByText("Next class")).toBeNull();
+  });
+
+  it("does not show next class pill on later events", () => {
+    render(
+      <DailyEventList
+        isConnected={true}
+        loading={false}
+        error={null}
+        events={mockEvents}
+        isToday={true}
+        onEventPress={jest.fn()}
+      />,
+    );
+
+    const futureEvent = screen.getByTestId("event-2");
+    expect(within(futureEvent).queryByText("Next class")).toBeNull();
+  });
+
+  it("calls onEventPress when an event is pressed", () => {
     const mockOnPress = jest.fn();
     render(
       <DailyEventList
@@ -82,17 +139,8 @@ describe("DailyEventList", () => {
         onEventPress={mockOnPress}
       />,
     );
-    expect(screen.getByText("Morning Meeting")).toBeTruthy();
-    expect(screen.getByText("Lunch with Sarah")).toBeTruthy();
 
-    // The first event should be highlighted as upcoming
-    const morningMeeting = screen.getByTestId("event-1");
-    expect(morningMeeting.props.style).toContainEqual(
-      expect.objectContaining({ borderColor: "#ff0000" }),
-    );
-
-    // Simulate pressing the event
-    fireEvent.press(morningMeeting);
+    fireEvent.press(screen.getByTestId("event-1"));
     expect(mockOnPress).toHaveBeenCalledWith(mockEvents[0]);
   });
 });

@@ -111,7 +111,7 @@ test("displays actionable callout copy in the description", () => {
   const tree = toJSON();
 
   expect(tree).toBeTruthy();
-  expect(JSON.stringify(tree)).toContain("EV - Details");
+  expect(JSON.stringify(tree)).toContain("EV - Tap for Details");
 });
 
 test("renders highlighted marker when isCurrentBuilding is true", () => {

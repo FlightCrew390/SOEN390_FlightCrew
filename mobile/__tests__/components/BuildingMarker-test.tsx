@@ -94,17 +94,7 @@ test("returns null when both coordinates are missing", () => {
   expect(toJSON()).toBeNull();
 });
 
-test("displays building code as title", () => {
-  const building = createBuilding({ buildingCode: "EV" });
-
-  const { toJSON } = render(<BuildingMarker building={building} />);
-  const tree = toJSON();
-
-  expect(tree).toBeTruthy();
-  expect(JSON.stringify(tree)).toContain("EV");
-});
-
-test("displays building name as description", () => {
+test("displays building name as the callout title", () => {
   const building = createBuilding({ buildingName: "Engineering Building" });
 
   const { toJSON } = render(<BuildingMarker building={building} />);
@@ -112,6 +102,16 @@ test("displays building name as description", () => {
 
   expect(tree).toBeTruthy();
   expect(JSON.stringify(tree)).toContain("Engineering Building");
+});
+
+test("displays actionable callout copy in the description", () => {
+  const building = createBuilding({ buildingCode: "EV" });
+
+  const { toJSON } = render(<BuildingMarker building={building} />);
+  const tree = toJSON();
+
+  expect(tree).toBeTruthy();
+  expect(JSON.stringify(tree)).toContain("EV - Details");
 });
 
 test("renders highlighted marker when isCurrentBuilding is true", () => {

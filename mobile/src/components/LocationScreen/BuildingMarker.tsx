@@ -59,8 +59,8 @@ export default function BuildingMarker({
         latitude: building.latitude,
         longitude: building.longitude,
       }}
-      title={building.buildingCode}
-      description={building.buildingName}
+      title={building.buildingName}
+      description={`${building.buildingCode} - Tap for Details`}
       anchor={{ x: 0.5, y: 1 }}
       onPress={onSelect}
       onCalloutPress={onDirectionPress}

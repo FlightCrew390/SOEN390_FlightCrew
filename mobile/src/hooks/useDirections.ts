@@ -1,118 +1,179 @@
-import { useEffect, useRef } from "react";
-import { SHUTTLE_STOPS } from "../constants/shuttle";
+import { useEffect } from "react";
 import { DirectionsService } from "../services/DirectionsService";
-import { normalizeCampus } from "../services/GoogleDirectionsService";
-import {
-  ShuttleScheduleResponse,
-  ShuttleService,
-} from "../services/ShuttleService";
+import { IndoorDataService } from "../services/IndoorDataService";
+import { IndoorPathfindingService } from "../services/IndoorPathfindingService";
+import { ShuttleDirectionsBuilder } from "../services/ShuttleDirectionsBuilder";
 import { Building } from "../types/Building";
 import {
   DepartureTimeConfig,
   RouteInfo,
+  StepInfo,
+  TRAVEL_MODE,
   TravelMode,
 } from "../types/Directions";
+import { IndoorNode, IndoorRoom, IndoorStep } from "../types/IndoorRoom";
+import { getDirectionOriginCoords } from "../utils/directionsUtils";
 
-/** Parse backend duration string (e.g. "21 mins", "1 hr 5 min") into seconds. No regex to avoid ReDoS. */
-function parseShuttleDurationToSeconds(durationStr: string): number {
-  let seconds = 0;
-  const parts = durationStr.split(" ");
-  for (let i = 0; i < parts.length; i++) {
-    const num = Number.parseInt(parts[i], 10);
-    if (Number.isNaN(num)) continue;
-    const afterNum = parts[i].slice(String(num).length).toLowerCase();
-    const next = (parts[i + 1] ?? "").toLowerCase();
-    if (
-      next === "hr" ||
-      next === "hrs" ||
-      afterNum === "hr" ||
-      afterNum === "hrs"
-    ) {
-      seconds += num * 3600;
-    } else if (
-      next === "min" ||
-      next === "mins" ||
-      afterNum === "min" ||
-      afterNum === "mins"
-    ) {
-      seconds += num * 60;
+const mapStep = (s: IndoorStep): StepInfo => ({
+  id: `${s.startNodeId}-${s.endNodeId}`,
+  distanceMeters: s.distanceMeters,
+  durationSeconds: s.durationSeconds,
+  instruction: s.instruction,
+  maneuver: s.maneuver,
+  coordinates: [],
+  startFloor: s.startFloor,
+  endFloor: s.endFloor,
+});
+
+const getEdgeNodes = (bId: string): IndoorNode[] => {
+  const nodes = IndoorDataService.getAllNodes();
+  let edgeNodes = nodes.filter(
+    (n) =>
+      n.buildingId === bId && n.type.includes("entry_exit") && n.floor === 1,
+  );
+  if (edgeNodes.length === 0)
+    edgeNodes = nodes.filter(
+      (n) => n.buildingId === bId && n.type.includes("entry_exit"),
+    );
+  if (edgeNodes.length === 0)
+    edgeNodes = nodes.filter(
+      (n) => n.buildingId === bId && n.type === "doorway" && n.floor === 1,
+    );
+  if (edgeNodes.length === 0)
+    edgeNodes = nodes.filter((n) => n.buildingId === bId && n.floor === 1);
+  if (edgeNodes.length === 0)
+    edgeNodes = nodes.filter((n) => n.buildingId === bId);
+  return edgeNodes;
+};
+
+interface IndoorEdgePathResult {
+  path: IndoorRoom[];
+  steps: StepInfo[] | undefined;
+}
+
+interface IndoorEdgePathCandidate {
+  path: IndoorRoom[];
+  distanceMeters: number;
+  steps?: IndoorStep[];
+}
+
+const isFulfilled = <T>(
+  result: PromiseSettledResult<T>,
+): result is PromiseFulfilledResult<T> => result.status === "fulfilled";
+
+const getArtificialIndoorEdgePath = (
+  room: IndoorRoom,
+  fallbackNode: IndoorRoom,
+  direction: "departure" | "arrival",
+): IndoorRoom[] => {
+  const syntheticId = direction === "departure" ? "synth_0" : "synth_1";
+  const needsMid = fallbackNode.floor !== room.floor;
+  const midNode: IndoorRoom = {
+    ...fallbackNode,
+    id: syntheticId,
+    floor: room.floor,
+  };
+
+  return direction === "departure"
+    ? [room, ...(needsMid ? [midNode] : []), fallbackNode]
+    : [fallbackNode, ...(needsMid ? [midNode] : []), room];
+};
+
+const selectBestIndoorEdgePath = (
+  results: PromiseSettledResult<{
+    en: IndoorNode;
+    res: IndoorEdgePathCandidate;
+  }>[],
+): IndoorEdgePathCandidate | null => {
+  let bestPath: IndoorEdgePathCandidate | null = null;
+
+  for (const result of results) {
+    if (!isFulfilled(result)) continue;
+
+    const { res } = result.value;
+    if (!Array.isArray(res.path) || res.path.length === 0) continue;
+    if (!bestPath || res.distanceMeters < bestPath.distanceMeters) {
+      bestPath = res;
     }
   }
-  return seconds || 60; // fallback 1 min if unparseable
-}
 
-/** Normalize "H:MM" or "HH:MM" to "HH:MM" for reliable string comparison */
-function toHHMM(timeStr: string | null | undefined): string {
-  if (timeStr == null || timeStr === "") return "";
-  const parts = timeStr.trim().split(":");
-  const h = parts[0]?.replaceAll(/\D/g, "") ?? "0";
-  const m = parts[1]?.replaceAll(/\D/g, "") ?? "0";
-  return `${h.padStart(2, "0")}:${m.padStart(2, "0")}`;
-}
+  return bestPath;
+};
 
-const DAY_NAMES = [
-  "SUNDAY",
-  "MONDAY",
-  "TUESDAY",
-  "WEDNESDAY",
-  "THURSDAY",
-  "FRIDAY",
-  "SATURDAY",
-] as const;
+async function fetchIndoorEdgePath(
+  room: IndoorRoom,
+  direction: "departure" | "arrival",
+  accessible = false,
+  signal?: AbortSignal,
+): Promise<IndoorEdgePathResult> {
+  await IndoorDataService.ensureLoaded();
 
-function getShuttleRefDate(
-  departureConfig: DepartureTimeConfig,
-  rideDurationSeconds: number,
-): Date {
-  if (departureConfig.option === "depart_at") return departureConfig.date;
-  if (departureConfig.option === "arrive_by") {
-    return new Date(
-      departureConfig.date.getTime() - rideDurationSeconds * 1000,
-    );
-  }
-  return new Date();
-}
+  const bId = room.buildingId;
+  const edgeNodes = getEdgeNodes(bId);
 
-type DepartureKey = "sgw_departure" | "loyola_departure";
-
-function getNextDepartures(
-  scheduleData: ShuttleScheduleResponse,
-  departureKey: DepartureKey,
-  refHHMM: string,
-  option: DepartureTimeConfig["option"],
-): string[] {
-  if (scheduleData.no_service) return [];
-  const isArriveBy = option === "arrive_by";
-  const filtered = scheduleData.departures.filter((d) => {
-    const dep = d[departureKey];
-    const depHHMM = toHHMM(dep);
-    if (depHHMM === "") return false;
-    return isArriveBy ? depHHMM <= refHHMM : depHHMM >= refHHMM;
-  });
-  const sliced = filtered.slice(
-    isArriveBy ? -3 : 0,
-    isArriveBy ? undefined : 3,
+  const results = await Promise.allSettled(
+    edgeNodes.map(async (en) => {
+      if (en.id === room.id)
+        return {
+          en,
+          res: {
+            path: [en as IndoorRoom],
+            distanceMeters: 0,
+            steps: [] as IndoorStep[],
+          },
+        };
+      const [startId, endId] =
+        direction === "departure" ? [room.id, en.id] : [en.id, room.id];
+      const res = await IndoorPathfindingService.getDirections(
+        bId,
+        startId,
+        endId,
+        accessible,
+        signal,
+      );
+      return { en, res };
+    }),
   );
-  const times = sliced.map((d) => d[departureKey] as string);
-  if (isArriveBy) times.reverse();
-  return times;
+
+  const bestPath = selectBestIndoorEdgePath(results);
+
+  if (bestPath) {
+    return { path: bestPath.path, steps: (bestPath.steps ?? []).map(mapStep) };
+  }
+
+  if (edgeNodes.length > 0) {
+    const fallbackNode = edgeNodes[0] as IndoorRoom;
+    console.warn(
+      "Backend graph missing path. Using artificial straight line fallback.",
+    );
+    return {
+      path: getArtificialIndoorEdgePath(room, fallbackNode, direction),
+      steps: undefined,
+    };
+  }
+
+  return { path: [room], steps: undefined };
 }
 
 interface UseDirectionsParams {
-  /** The destination building (required for non-shuttle modes). */
+  /** The destination building (required). */
   destination: Building | null;
   /** Optional custom start building; when null the user's live location is used. */
   startBuilding: Building | null;
+  /** The destination room. */
+  destinationRoom: IndoorRoom | null;
+  /** The starting room. */
+  startRoom: IndoorRoom | null;
   /** User's current GPS coordinates, used when startBuilding is null. */
   userLocation: { latitude: number; longitude: number } | null;
-  /** User's campus (SGW or LOYOLA) for shuttle mode. */
-  userCampus: string | null;
   /** Selected travel mode. */
   travelMode: TravelMode | null;
   /** Departure / arrival time configuration. */
   departureConfig: DepartureTimeConfig;
   /** Whether the directions panel is open. */
   active: boolean;
+  /** Whether accessibility mode is enabled. */
+  accessibilityMode: boolean;
   /** Callbacks into the reducer. */
   onLoading: () => void;
   onLoaded: (route: RouteInfo | null) => void;
@@ -126,171 +187,212 @@ interface UseDirectionsParams {
 export function useDirections({
   destination,
   startBuilding,
+  destinationRoom,
+  startRoom,
   userLocation,
-  userCampus,
   travelMode,
   departureConfig,
   active,
+  accessibilityMode,
   onLoading,
   onLoaded,
   onError,
 }: UseDirectionsParams) {
-  const abortRef = useRef<AbortController | null>(null);
+  const getRoute = async (options: {
+    originLat: number;
+    originLng: number;
+    destination: Building;
+    startRoom: IndoorRoom | null;
+    destinationRoom: IndoorRoom | null;
+    startBuilding: Building | null;
+    travelMode: TravelMode;
+    departureTime: string | undefined;
+    arrivalTime: string | undefined;
+    departureConfig: DepartureTimeConfig;
+    signal: AbortSignal;
+  }): Promise<RouteInfo | null> => {
+    const {
+      originLat,
+      originLng,
+      destination,
+      startRoom,
+      destinationRoom,
+      startBuilding,
+      travelMode,
+      departureTime,
+      arrivalTime,
+      departureConfig,
+      signal,
+    } = options;
 
-  useEffect(() => {
-    if (!active || travelMode == null) return;
+    // Handle indoor pathfinding if both start and dest are rooms in the same building
+    if (
+      startRoom?.buildingId &&
+      startRoom.buildingId === destinationRoom?.buildingId
+    ) {
+      try {
+        const indoorRes = await IndoorPathfindingService.getDirections(
+          startRoom.buildingId,
+          startRoom.id,
+          destinationRoom.id,
+          accessibilityMode,
+          signal,
+        );
 
-    if (travelMode === "SHUTTLE") {
-      const campusRaw = startBuilding?.campus ?? userCampus;
-      if (!campusRaw) return;
-      const normalized = normalizeCampus(campusRaw);
-      const other = normalized === "SGW" ? "LOY" : "SGW";
-      const originStop = SHUTTLE_STOPS[normalized];
-      const destStop = SHUTTLE_STOPS[other];
+        return {
+          distanceMeters: indoorRes.distanceMeters,
+          durationSeconds:
+            indoorRes.durationSeconds ?? indoorRes.distanceMeters * 2,
+          coordinates: [],
+          steps: (indoorRes.steps ?? []).map((s, idx) => ({
+            id: `indoor-step-${idx}`,
+            distanceMeters: s.distanceMeters,
+            durationSeconds: s.durationSeconds,
+            instruction: s.instruction,
+            maneuver: s.maneuver,
+            coordinates: [],
+            startFloor: s.startFloor,
+            endFloor: s.endFloor,
+          })),
+          indoorPath: indoorRes.path,
+        } as RouteInfo;
+      } catch (e) {
+        console.error("Indoor pathfinding failed", e);
+        throw new Error("Could not compute indoor path.");
+      }
+    } else if (travelMode === TRAVEL_MODE.SHUTTLE) {
+      return await ShuttleDirectionsBuilder.buildShuttleRoute(
+        originLat,
+        originLng,
+        destination.latitude,
+        destination.longitude,
+        departureConfig,
+        startBuilding,
+        destination,
+      );
+    } else {
+      return await DirectionsService.fetchDirections(
+        originLat,
+        originLng,
+        destination.latitude,
+        destination.longitude,
+        travelMode,
+        departureTime,
+        arrivalTime,
+      );
+    }
+  };
 
-      let cancelled = false;
-      const fetchShuttle = async () => {
-        onLoading();
-        try {
-          const routeData = await ShuttleService.getRoute();
-          if (cancelled) return;
+  const appendIndoorSegmentsIfNeeded = async (
+    route: RouteInfo | null,
+    signal: AbortSignal,
+  ): Promise<RouteInfo | null> => {
+    if (!route) return route;
 
-          const rideDurationSeconds = parseShuttleDurationToSeconds(
-            routeData.duration,
-          );
-          const refDate = getShuttleRefDate(
-            departureConfig,
-            rideDurationSeconds,
-          );
-          const day = DAY_NAMES[refDate.getDay()];
-          const refHHMM = toHHMM(
-            `${refDate.getHours()}:${refDate.getMinutes()}`,
-          );
+    const isPureIndoorSameBuildingRoute =
+      !!startRoom?.buildingId &&
+      startRoom.buildingId === destinationRoom?.buildingId;
 
-          const scheduleData = await ShuttleService.getSchedule(day);
-          if (cancelled) return;
+    if (isPureIndoorSameBuildingRoute) return route;
 
-          const coords =
-            normalized === "SGW"
-              ? routeData.sgw_to_loyola
-              : routeData.loyola_to_sgw;
-          const coordinates = coords.map((c) => ({
-            latitude: c.latitude,
-            longitude: c.longitude,
-          }));
+    let augmented = { ...route };
 
-          const departureKey: DepartureKey =
-            normalized === "SGW" ? "sgw_departure" : "loyola_departure";
-          const nextDepartures = getNextDepartures(
-            scheduleData,
-            departureKey,
-            refHHMM,
-            departureConfig.option,
-          );
-
-          if (nextDepartures.length === 0) {
-            onLoaded(null);
-            onError("No shuttle available");
-            return;
-          }
-
-          const departureInfo = `Next departures: ${nextDepartures.join(", ")}`;
-          const route: RouteInfo = {
-            coordinates,
-            distanceMeters: 0,
-            durationSeconds: rideDurationSeconds,
-            durationText: routeData.duration,
-            distanceText: routeData.distance,
-            steps: [
-              {
-                instruction: `Board at ${originStop.name} (${originStop.address})`,
-                maneuver: "depart",
-                distanceMeters: 0,
-                durationSeconds: 0,
-                coordinates: [coordinates[0]],
-              },
-              {
-                instruction: `Ride Concordia Shuttle to ${destStop.name} (~${routeData.duration})`,
-                maneuver: "straight",
-                distanceMeters: 0,
-                durationSeconds: rideDurationSeconds,
-                coordinates,
-              },
-              {
-                instruction: `Get off at ${destStop.name} (${destStop.address})`,
-                maneuver: "arrive",
-                distanceMeters: 0,
-                durationSeconds: 0,
-                coordinates: [coordinates.at(-1)!],
-              },
-              {
-                instruction: departureInfo,
-                maneuver: "straight",
-                distanceMeters: 0,
-                durationSeconds: 0,
-                coordinates: [coordinates[0]],
-              },
-            ],
-          };
-
-          onLoaded(route);
-        } catch (err) {
-          if (!cancelled) {
-            onError(
-              err instanceof Error
-                ? err.message
-                : "Failed to load shuttle route",
-            );
-          }
-        }
-      };
-      fetchShuttle();
-      return () => {
-        cancelled = true;
-      };
+    // If outdoor route was fetched but we have a start room, fetch the indoor departure path
+    if (!augmented.indoorPathOrigin && startRoom) {
+      try {
+        const { path, steps } = await fetchIndoorEdgePath(
+          startRoom,
+          "departure",
+          accessibilityMode,
+          signal,
+        );
+        augmented = {
+          ...augmented,
+          indoorPathOrigin: path,
+          indoorStepsOrigin: steps,
+        };
+      } catch (e) {
+        console.warn(
+          "Could not compute indoor->outdoor departure path segment:",
+          e,
+        );
+      }
     }
 
-    if (!destination) return;
-    const originLat = startBuilding?.latitude ?? userLocation?.latitude;
-    const originLng = startBuilding?.longitude ?? userLocation?.longitude;
+    // If outdoor route was fetched but we have a destination room, fetch the indoor arrival path
+    if (!augmented.indoorPath && destinationRoom) {
+      try {
+        const { path, steps } = await fetchIndoorEdgePath(
+          destinationRoom,
+          "arrival",
+          accessibilityMode,
+          signal,
+        );
+        augmented = { ...augmented, indoorPath: path, indoorSteps: steps };
+      } catch (e) {
+        console.warn(
+          "Could not compute outdoor->indoor arrival path segment:",
+          e,
+        );
+      }
+    }
+
+    return augmented;
+  };
+
+  useEffect(() => {
+    if (!active || !destination || travelMode == null) return;
+
+    // Determine the origin coordinates
+    const originCoords = getDirectionOriginCoords(
+      startBuilding,
+      startRoom,
+      userLocation,
+    );
+    const originLat = originCoords?.latitude;
+    const originLng = originCoords?.longitude;
+
     if (originLat == null || originLng == null) return;
 
-    abortRef.current?.abort();
     const controller = new AbortController();
-    abortRef.current = controller;
-    let cancelled = false;
+    const { signal } = controller;
 
     // Derive departure/arrival time strings from config.
-    // Only TRANSIT supports departure/arrival timestamps in Google Routes API.
-    // WALK and BICYCLE don't support timestamps; DRIVE needs special handling on the backend.
-    const useTime =
-      (travelMode === "TRANSIT" || travelMode === "DRIVE") &&
-      (departureConfig.option === "depart_at" ||
-        departureConfig.option === "arrive_by");
+    // DRIVE mode does not support future departure/arrival times in the
+    // Google Routes API, so we omit them to avoid errors.
     const departureTime =
-      useTime && departureConfig.option === "depart_at"
+      departureConfig.option === "depart_at" && travelMode !== TRAVEL_MODE.DRIVE
         ? departureConfig.date.toISOString()
         : undefined;
     const arrivalTime =
-      useTime && departureConfig.option === "arrive_by"
+      departureConfig.option === "arrive_by" && travelMode !== TRAVEL_MODE.DRIVE
         ? departureConfig.date.toISOString()
         : undefined;
 
     const fetchRoute = async () => {
       onLoading();
       try {
-        const route = await DirectionsService.fetchDirections(
+        const route = await getRoute({
           originLat,
           originLng,
-          destination.latitude,
-          destination.longitude,
+          destination,
+          startRoom,
+          destinationRoom,
+          startBuilding,
           travelMode,
           departureTime,
           arrivalTime,
+          departureConfig,
+          signal,
+        });
+        const augmentedRoute = await appendIndoorSegmentsIfNeeded(
+          route,
+          signal,
         );
-        if (!cancelled) onLoaded(route);
+
+        if (!signal.aborted) onLoaded(augmentedRoute);
       } catch (err) {
-        if (!cancelled) {
+        if (!signal.aborted) {
           onError(
             err instanceof Error ? err.message : "Failed to load directions",
           );
@@ -301,7 +403,6 @@ export function useDirections({
     fetchRoute();
 
     return () => {
-      cancelled = true;
       controller.abort();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- callbacks are stable dispatch wrappers
@@ -309,11 +410,13 @@ export function useDirections({
     active,
     destination?.buildingCode,
     startBuilding?.buildingCode,
+    destinationRoom?.id,
+    startRoom?.id,
     userLocation?.latitude,
     userLocation?.longitude,
-    userCampus,
     travelMode,
     departureConfig.option,
     departureConfig.date,
+    accessibilityMode,
   ]);
 }

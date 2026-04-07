@@ -15,10 +15,38 @@ import {
   initialSearchPanelState,
   searchPanelReducer,
 } from "../../reducers/searchPanelReducer";
-import { LOCATION_OPTIONS, RADIUS_OPTIONS } from "../../constants/searchPanel";
-import { LocationType, isPoi } from "../../state/SearchPanelState";
+import {
+  LOCATION_OPTIONS,
+  PRIMARY_LOCATION_OPTIONS,
+  RADIUS_OPTIONS,
+  SECONDARY_LOCATION_OPTIONS,
+} from "../../constants/searchPanel";
+import {
+  LocationType,
+  isClassroom,
+  isPoi,
+  SearchPanelState,
+  SearchPanelAction,
+} from "../../state/SearchPanelState";
 import styles from "../../styles/SearchPanel";
 import { Building } from "../../types/Building";
+
+const CLASSROOM_BUILDINGS = [
+  { id: null, label: "All Buildings" },
+  { id: "Hall", label: "Hall" },
+  { id: "CC", label: "CC" },
+  { id: "MB", label: "MB" },
+  { id: "VE", label: "VE" },
+  { id: "VL", label: "VL" },
+];
+
+const BUILDING_NAMES: Record<string, string> = {
+  Hall: "Henry F. Hall (H) Building",
+  CC: "CC Building",
+  MB: "John Molson School of Business",
+  VE: "Vanier Extension (VE)",
+  VL: "Vanier Library (VL)",
+};
 
 interface SearchPanelProps {
   readonly visible: boolean;
@@ -27,23 +55,65 @@ interface SearchPanelProps {
     query: string,
     locationType: LocationType,
     radiusKm: number | null,
+    classroomBuildingId?: string | null,
   ) => void;
   readonly onSelectBuilding: (building: Building) => void;
+}
+
+function FilterExpandToggle({
+  filtersExpanded,
+  onToggle,
+}: Readonly<{
+  filtersExpanded: boolean;
+  onToggle: () => void;
+}>) {
+  return (
+    <>
+      <View style={styles.dropdownDivider} />
+      <Pressable
+        style={styles.dropdownOption}
+        onPress={onToggle}
+        accessibilityLabel={
+          filtersExpanded ? "Show fewer categories" : "Show more categories"
+        }
+        accessibilityRole="button"
+      >
+        <Text style={[styles.dropdownOptionText, { color: "#888" }]}>
+          {filtersExpanded
+            ? "Show fewer"
+            : `Show more (${SECONDARY_LOCATION_OPTIONS.length})`}
+        </Text>
+        <FontAwesome5
+          name={filtersExpanded ? "chevron-up" : "chevron-down"}
+          size={11}
+          color="#888"
+        />
+      </Pressable>
+    </>
+  );
 }
 
 function LocationTypeDropdown({
   selectedLabel,
   isOpen,
   locationType,
+  filtersExpanded,
   onToggle,
   onSelect,
+  onToggleExpanded,
 }: Readonly<{
   selectedLabel: string;
   isOpen: boolean;
   locationType: LocationType;
+  filtersExpanded: boolean;
   onToggle: () => void;
   onSelect: (type: LocationType) => void;
+  onToggleExpanded: () => void;
 }>) {
+  const visibleOptions = filtersExpanded
+    ? LOCATION_OPTIONS
+    : PRIMARY_LOCATION_OPTIONS;
+
   return (
     <View style={styles.dropdownMenuWrapper}>
       <Pressable
@@ -62,7 +132,7 @@ function LocationTypeDropdown({
 
       {isOpen && (
         <View style={styles.dropdownMenu}>
-          {LOCATION_OPTIONS.map((option, idx) => (
+          {visibleOptions.map((option, idx) => (
             <React.Fragment key={option.key}>
               {idx > 0 && <View style={styles.dropdownDivider} />}
               <Pressable
@@ -78,6 +148,10 @@ function LocationTypeDropdown({
               </Pressable>
             </React.Fragment>
           ))}
+          <FilterExpandToggle
+            filtersExpanded={filtersExpanded}
+            onToggle={onToggleExpanded}
+          />
         </View>
       )}
     </View>
@@ -177,6 +251,111 @@ function AutocompleteList({
   );
 }
 
+function ClassroomSearchInputs({
+  state,
+  dispatch,
+  handleSearch,
+  placeholderText,
+}: Readonly<{
+  state: SearchPanelState;
+  dispatch: React.Dispatch<SearchPanelAction>;
+  handleSearch: () => void;
+  placeholderText: string;
+}>) {
+  const getClassroomBuildingLabel = () => {
+    if (!state.classroomBuildingId) return "All Buildings";
+    return (
+      BUILDING_NAMES[state.classroomBuildingId] ?? state.classroomBuildingId
+    );
+  };
+  const classroomBuildingLabel = getClassroomBuildingLabel();
+
+  return (
+    <>
+      <Text style={styles.label}>Building</Text>
+      <View style={styles.dropdownMenuWrapper}>
+        <Pressable
+          style={[
+            styles.dropdownTrigger,
+            state.classroomBuildingDropdownOpen && styles.dropdownTriggerOpen,
+          ]}
+          onPress={() =>
+            dispatch({ type: "TOGGLE_CLASSROOM_BUILDING_DROPDOWN" })
+          }
+          accessibilityLabel="Select building"
+          accessibilityRole="button"
+        >
+          <Text style={styles.dropdownTriggerText}>
+            {classroomBuildingLabel}
+          </Text>
+          <FontAwesome5
+            name={
+              state.classroomBuildingDropdownOpen
+                ? "chevron-up"
+                : "chevron-down"
+            }
+            size={12}
+            color="#666"
+          />
+        </Pressable>
+        {state.classroomBuildingDropdownOpen && (
+          <View style={styles.dropdownMenu}>
+            {CLASSROOM_BUILDINGS.map((b, idx) => (
+              <React.Fragment key={b.label}>
+                {idx > 0 && <View style={styles.dropdownDivider} />}
+                <Pressable
+                  style={[
+                    styles.dropdownOption,
+                    b.id === state.classroomBuildingId &&
+                      styles.dropdownOptionSelected,
+                  ]}
+                  onPress={() =>
+                    dispatch({
+                      type: "SELECT_CLASSROOM_BUILDING",
+                      buildingId: b.id,
+                    })
+                  }
+                  accessibilityLabel={b.label}
+                  accessibilityRole="menuitem"
+                >
+                  <Text style={styles.dropdownOptionText}>
+                    {b.id ? (BUILDING_NAMES[b.id] ?? b.id) : "All Buildings"}
+                  </Text>
+                </Pressable>
+              </React.Fragment>
+            ))}
+          </View>
+        )}
+      </View>
+
+      <View style={styles.textInputWrapper}>
+        <TextInput
+          style={styles.textInputInner}
+          placeholder={placeholderText}
+          placeholderTextColor="#999"
+          value={state.query}
+          onChangeText={(text) => dispatch({ type: "UPDATE_QUERY", text })}
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="search"
+          onSubmitEditing={handleSearch}
+          accessibilityLabel="Search classroom name"
+        />
+        {state.query.length > 0 && (
+          <Pressable
+            onPress={() => dispatch({ type: "CLEAR_QUERY" })}
+            accessibilityLabel="Clear search"
+            accessibilityRole="button"
+            style={styles.clearButton}
+          >
+            <Text style={styles.clearButtonText}>×</Text>
+          </Pressable>
+        )}
+      </View>
+    </>
+  );
+}
+
 export default function SearchPanel({
   visible,
   onClose,
@@ -204,16 +383,28 @@ export default function SearchPanel({
     LOCATION_OPTIONS.find((o) => o.key === state.locationType)?.label ?? "";
 
   const isPoiType = isPoi(state.locationType);
+  const isClassroomType = isClassroom(state.locationType);
 
   const radiusLabel =
     RADIUS_OPTIONS.find((o) => o.value === state.radiusKm)?.label ?? "No limit";
 
-  const placeholderText =
-    state.locationType === "building" ? "Building name" : "Location name";
+  const getPlaceholderText = () => {
+    if (state.locationType === "building") return "Building name";
+    if (isClassroomType) return "Classroom name...";
+    return "Location name";
+  };
+  const placeholderText = getPlaceholderText();
 
   const handleSearch = () => {
     dispatch({ type: "BLUR_INPUT" });
-    if (isPoiType) {
+    if (isClassroomType) {
+      onSearch(
+        state.query.trim(),
+        state.locationType,
+        null,
+        state.classroomBuildingId,
+      );
+    } else if (isPoiType) {
       onSearch("", state.locationType, state.radiusKm);
     } else if (state.selectedResult) {
       onSelectBuilding(state.selectedResult);
@@ -227,12 +418,13 @@ export default function SearchPanel({
     state.locationType === "building" &&
     state.query.trim().length > 0;
 
-  const isSearchDisabled = isPoiType
-    ? false // POI search is always enabled (category is already selected)
-    : state.query.trim().length === 0 ||
-      (state.locationType === "building" &&
-        autocompleteResults.length === 0 &&
-        !state.selectedResult);
+  const isSearchDisabled =
+    isPoiType || isClassroomType
+      ? false
+      : state.query.trim().length === 0 ||
+        (state.locationType === "building" &&
+          autocompleteResults.length === 0 &&
+          !state.selectedResult);
 
   return (
     <Animated.View
@@ -247,14 +439,26 @@ export default function SearchPanel({
         selectedLabel={selectedLabel}
         isOpen={state.dropdownOpen}
         locationType={state.locationType}
+        filtersExpanded={state.filtersExpanded}
         onToggle={() => dispatch({ type: "TOGGLE_DROPDOWN" })}
         onSelect={(type) =>
           dispatch({ type: "SELECT_LOCATION_TYPE", locationType: type })
         }
+        onToggleExpanded={() => dispatch({ type: "TOGGLE_FILTERS_EXPANDED" })}
       />
 
-      {/* POI: show radius dropdown instead of text input */}
-      {isPoiType ? (
+      {/* Classroom: building filter + room name input */}
+      {isClassroomType && (
+        <ClassroomSearchInputs
+          state={state}
+          dispatch={dispatch}
+          handleSearch={handleSearch}
+          placeholderText={placeholderText}
+        />
+      )}
+
+      {/* POI: Distance from location dropdown */}
+      {!isClassroomType && isPoiType && (
         <>
           <Text style={styles.label}>Distance from location</Text>
           <RadiusDropdown
@@ -267,7 +471,10 @@ export default function SearchPanel({
             }
           />
         </>
-      ) : (
+      )}
+
+      {/* Default: Search text input */}
+      {!isClassroomType && !isPoiType && (
         <>
           {/* Search text input */}
           <View

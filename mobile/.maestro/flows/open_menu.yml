@@ -1,0 +1,10 @@
+appId: com.flightcrew.mobile
+---
+# Prerequisite: launches app and navigates to the Menu screen.
+- setLocation:
+    latitude: 45.4954
+    longitude: -73.5739
+- launchApp
+- assertVisible: "My Schedule"
+- tapOn:
+    id: "menu-tab"

@@ -14,6 +14,7 @@ const mockHandleTravelModeChange = jest.fn();
 const mockSelectPoi = jest.fn();
 const mockClearPoi = jest.fn();
 const mockHandleDepartureConfigChange = jest.fn();
+const mockOpenIndoorView = jest.fn();
 
 const defaultMapUIState = {
   panel: "none" as const,
@@ -21,6 +22,9 @@ const defaultMapUIState = {
   currentBuilding: null,
   searchOrigin: "default" as const,
   startBuilding: null,
+  startRoom: null,
+  destinationRoom: null,
+  indoorSelectedRoom: null,
   travelMode: null,
   route: null,
   routeLoading: false,
@@ -35,10 +39,21 @@ type MapUIState = Omit<
   typeof defaultMapUIState,
   "panel" | "searchOrigin" | "poiResults" | "selectedPoi"
 > & {
-  panel: "none" | "directions" | "steps" | "search" | "poi-results";
+  panel:
+    | "none"
+    | "directions"
+    | "steps"
+    | "search"
+    | "poi-results"
+    | "room-results"
+    | "indoor"
+    | "room-info";
   searchOrigin: "default" | "directions";
   poiResults: any[];
   selectedPoi: any;
+  roomResults?: any[];
+  indoorBuildingId?: string | null;
+  indoorFloor?: number | null;
 };
 
 let mockMapUIState: MapUIState = { ...defaultMapUIState };
@@ -51,6 +66,7 @@ jest.mock("../../src/hooks/useMapUI", () => ({
     userCampus: null,
     selectBuilding: mockSelectBuilding,
     openDirections: mockOpenDirections,
+    openIndoorView: mockOpenIndoorView,
     handleSearch: mockHandleSearch,
     handleTravelModeChange: mockHandleTravelModeChange,
     selectPoi: mockSelectPoi,
@@ -160,6 +176,20 @@ jest.mock("../../src/components/LocationScreen/UserLocationMarker", () => {
   };
 });
 
+jest.mock("../../src/components/LocationScreen/BuildingAmenityLayer", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require("react-native");
+  return {
+    __esModule: true,
+    default: (props: any) => (
+      <View
+        testID="building-amenity-layer"
+        {...{ buildingCode: props.buildingCode }}
+      />
+    ),
+  };
+});
+
 // DirectionPanel – expose all props and callbacks
 jest.mock("../../src/components/LocationScreen/DirectionPanel", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -176,11 +206,13 @@ jest.mock("../../src/components/LocationScreen/DirectionPanel", () => {
         <Text testID="dp-start-building">
           {props.startBuilding?.buildingCode ?? "null"}
         </Text>
+        <Text testID="dp-room-label">{props.roomLabel ?? "null"}</Text>
         <Text testID="dp-has-route">{String(props.route != null)}</Text>
         <Text testID="dp-route-loading">{String(props.routeLoading)}</Text>
         <Text testID="dp-route-error">{props.routeError ?? "null"}</Text>
         <Text testID="dp-travel-mode">{props.travelMode ?? "null"}</Text>
         <Pressable testID="dp-close" onPress={props.onClose} />
+        <Pressable testID="dp-open-indoor" onPress={props.onOpenIndoor} />
         <Pressable testID="dp-open-search" onPress={props.onOpenSearch} />
         <Pressable testID="dp-reset-start" onPress={props.onResetStart} />
         <Pressable testID="dp-show-steps-btn" onPress={props.onShowSteps} />
@@ -215,6 +247,10 @@ jest.mock("../../src/components/LocationScreen/SearchPanel", () => {
           testID="sp-search"
           onPress={() => props.onSearch("Hall", "building")}
         />
+        <Pressable
+          testID="sp-search-with-classroom"
+          onPress={() => props.onSearch("H-920", "classroom", 1, "H")}
+        />
       </View>
     ),
   };
@@ -222,6 +258,15 @@ jest.mock("../../src/components/LocationScreen/SearchPanel", () => {
 
 // FontAwesome5 (used by MapControls)
 jest.mock("@expo/vector-icons/FontAwesome5", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require("react-native");
+  return {
+    __esModule: true,
+    default: (props: any) => <View testID={`icon-${props.name}`} />,
+  };
+});
+
+jest.mock("@expo/vector-icons/MaterialCommunityIcons", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View } = require("react-native");
   return {
@@ -262,6 +307,87 @@ jest.mock("react-native-maps", () => {
     Polyline: MockPolyline,
     PROVIDER_GOOGLE: "google",
     PROVIDER_DEFAULT: null,
+  };
+});
+
+const mockGetFloorsByBuilding = jest.fn();
+jest.mock("../../src/services/IndoorDataService", () => ({
+  IndoorDataService: {
+    getBuildingPolygons: () => [],
+    getFloorsByBuilding: (...args: any[]) => mockGetFloorsByBuilding(...args),
+  },
+}));
+
+jest.mock("../../src/components/LocationScreen/IndoorFloorView", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View, Text } = require("react-native");
+  return {
+    __esModule: true,
+    default: (props: any) => (
+      <View testID="mock-indoor-floor-view">
+        <Text>MockIndoorFloorView</Text>
+        <Text>Building: {props.buildingId}</Text>
+        <Text>Floor: {props.currentFloor}</Text>
+      </View>
+    ),
+  };
+});
+
+jest.mock("../../src/components/LocationScreen/PoiMarker", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View, Pressable } = require("react-native");
+  return {
+    __esModule: true,
+    default: (props: any) => (
+      <View testID="poi-marker">
+        <Pressable testID="poi-marker-press" onPress={props.onPress} />
+        <Pressable
+          testID="poi-marker-direction"
+          onPress={props.onDirectionPress}
+        />
+      </View>
+    ),
+  };
+});
+
+jest.mock("../../src/components/LocationScreen/PoiResultsPanel", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View, Pressable } = require("react-native");
+  return {
+    __esModule: true,
+    default: (props: any) => (
+      <View testID="poi-results-panel">
+        <Pressable
+          testID="poi-results-direction"
+          onPress={() => props.onDirectionPress(props.results[0])}
+        />
+        <Pressable
+          testID="poi-results-select"
+          onPress={() => props.onSelectPoi(props.results[0])}
+        />
+      </View>
+    ),
+  };
+});
+
+jest.mock("../../src/components/LocationScreen/RoomResultsPanel", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View, Pressable } = require("react-native");
+  return {
+    __esModule: true,
+    default: (props: any) => (
+      <View testID="room-results-panel">
+        <Pressable testID="room-results-back" onPress={props.onBack} />
+        <Pressable
+          testID="room-results-select"
+          onPress={() => props.onSelectRoom(props.results[0])}
+        />
+        <Pressable
+          testID="room-results-direction"
+          onPress={() => props.onDirectionPress(props.results[0])}
+        />
+      </View>
+    ),
   };
 });
 
@@ -335,6 +461,16 @@ const mockBuildings: Building[] = [
 ];
 
 const mockLocation = { coords: { latitude: 45.4973, longitude: -73.5789 } };
+const mockPoi = {
+  id: "poi-1",
+  name: "Cafe Test",
+  campus: "SGW",
+  address: "1455 De Maisonneuve Blvd. W.",
+  latitude: 45.4978,
+  longitude: -73.5792,
+  description: "Test POI",
+};
+const mockRoom = { label: "H-920", buildingId: "Hall", floor: 9 };
 
 // ── Standalone tests (basic rendering) ──
 
@@ -353,6 +489,7 @@ beforeEach(() => {
     error: null,
   });
   mockFindBuildingByLocation.mockReturnValue(null);
+  mockGetFloorsByBuilding.mockReturnValue([1, 2, 3]);
 });
 
 test("renders map view", () => {
@@ -611,6 +748,27 @@ describe("GoogleMaps", () => {
     } as any;
     render(<GoogleMaps />);
     expect(screen.getByTestId("dp-start-building").children[0]).toBe("EV");
+  });
+
+  it("passes destination room label to DirectionPanel when panel is directions", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "directions",
+      destinationRoom: mockRoom,
+    } as any;
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("dp-room-label").children[0]).toBe("H-920");
+  });
+
+  it("prefers indoor selected room label in room-info mode", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "room-info",
+      destinationRoom: { ...mockRoom, label: "H-920" },
+      indoorSelectedRoom: { ...mockRoom, label: "H-927" },
+    } as any;
+    render(<GoogleMaps />);
+    expect(screen.getByTestId("dp-room-label").children[0]).toBe("H-927");
   });
 
   it("passes route to DirectionPanel", () => {
@@ -888,6 +1046,7 @@ describe("GoogleMaps", () => {
       "Hall",
       "building",
       undefined,
+      undefined,
     );
     expect(mockAnimateToBuilding).toHaveBeenCalledWith(hallBuilding);
     expect(mockSelectBuilding).toHaveBeenCalledWith(hallBuilding);
@@ -899,6 +1058,13 @@ describe("GoogleMaps", () => {
     fireEvent.press(screen.getByTestId("sp-search"));
     expect(mockAnimateToBuilding).not.toHaveBeenCalled();
     expect(mockSelectBuilding).not.toHaveBeenCalled();
+  });
+
+  it("forwards classroom search args including classroomBuildingId", () => {
+    mockHandleSearch.mockReturnValue(null);
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("sp-search-with-classroom"));
+    expect(mockHandleSearch).toHaveBeenCalledWith("H-920", "classroom", 1, "H");
   });
 
   // ── Map tap ──
@@ -994,6 +1160,7 @@ describe("GoogleMaps", () => {
   it("renders route polyline when route has coordinates", () => {
     mockMapUIState = {
       ...defaultMapUIState,
+      panel: "directions",
       route: {
         coordinates: [
           { latitude: 45.4973, longitude: -73.5789 },
@@ -1013,6 +1180,7 @@ describe("GoogleMaps", () => {
   it("renders polyline without dash pattern for non-WALK mode", () => {
     mockMapUIState = {
       ...defaultMapUIState,
+      panel: "directions",
       route: {
         coordinates: [
           { latitude: 45.4973, longitude: -73.5789 },
@@ -1032,6 +1200,7 @@ describe("GoogleMaps", () => {
   it("does not render polyline when route has fewer than 2 coordinates", () => {
     mockMapUIState = {
       ...defaultMapUIState,
+      panel: "directions",
       route: {
         coordinates: [{ latitude: 45.4973, longitude: -73.5789 }],
         duration: 0,
@@ -1040,6 +1209,40 @@ describe("GoogleMaps", () => {
     } as any;
     render(<GoogleMaps />);
     expect(screen.queryByTestId("route-polyline")).toBeNull();
+  });
+
+  it("does not render route polyline when directions panel is closed", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "none",
+      route: {
+        coordinates: [
+          { latitude: 45.4973, longitude: -73.5789 },
+          { latitude: 45.4957, longitude: -73.5773 },
+        ],
+        duration: 300,
+        distance: 500,
+      },
+      travelMode: "WALK",
+    } as any;
+    render(<GoogleMaps />);
+    expect(screen.queryByTestId("route-polyline")).toBeNull();
+  });
+
+  // ── POI callbacks ──
+
+  it("calls poi direction flow from selected marker press", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      selectedPoi: mockPoi,
+    } as any;
+
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("poi-marker-direction"));
+
+    expect(mockSelectPoi).toHaveBeenCalledWith(mockPoi);
+    expect(mockAnimateToBuilding).toHaveBeenCalledTimes(1);
+    expect(mockOpenDirections).toHaveBeenCalledTimes(1);
   });
 
   // ── BuildingLayer integration (real component) ──
@@ -1130,6 +1333,88 @@ describe("GoogleMaps", () => {
     });
   });
 
+  // ── Room results callbacks ──
+
+  it("handles room-results select by animating, selecting, opening indoor, and dispatching room info", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "room-results",
+      roomResults: [mockRoom],
+    } as any;
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("room-results-select"));
+
+    expect(mockAnimateToBuilding).toHaveBeenCalledWith(mockBuildings[0]);
+    expect(mockSelectBuilding).toHaveBeenCalledWith(mockBuildings[0]);
+    expect(mockOpenIndoorView).toHaveBeenCalledWith("Hall", 9);
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: "OPEN_ROOM_INFO",
+      room: mockRoom,
+    });
+  });
+
+  it("handles room-results direction press by animating and opening directions", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "room-results",
+      roomResults: [mockRoom],
+    } as any;
+    mockUseBuildingData.mockReturnValue({
+      buildings: mockBuildings,
+      loading: false,
+      error: null,
+    });
+
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("room-results-direction"));
+
+    expect(mockAnimateToBuilding).toHaveBeenCalledWith(mockBuildings[0]);
+    expect(mockOpenDirections).toHaveBeenCalledWith(mockBuildings[0], mockRoom);
+  });
+
+  // ── Direction panel indoor action ──
+
+  it("opens indoor view from directions panel when destinationRoom exists", () => {
+    const destinationRoom = { label: "H-920", buildingId: "Hall", floor: 9 };
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "directions",
+      destinationRoom,
+    } as any;
+
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByTestId("dp-open-indoor"));
+
+    expect(mockOpenIndoorView).toHaveBeenCalledWith("Hall", 9);
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: "OPEN_ROOM_INFO",
+      room: destinationRoom,
+    });
+  });
+
+  // ── MapControls indoor toggle ──
+
+  it("opens indoor floor plan from map controls when indoor data is available", () => {
+    mockMapUIState = {
+      ...defaultMapUIState,
+      panel: "directions",
+      selectedBuilding: mockBuildings[0],
+    } as any;
+    mockGetFloorsByBuilding.mockReturnValue([5, 7]);
+
+    render(<GoogleMaps />);
+    fireEvent.press(screen.getByLabelText("View indoor floor plan"));
+
+    expect(mockGetFloorsByBuilding).toHaveBeenCalledWith("Hall");
+    expect(mockOpenIndoorView).toHaveBeenCalledWith("Hall", 5);
+  });
+
   // ── Deep-link useEffect (directionsTo param) ──
 
   describe("deep-link from Calendar", () => {
@@ -1194,6 +1479,44 @@ describe("GoogleMaps", () => {
       expect(mockSetParams).toHaveBeenCalledWith({
         directionsTo: undefined,
       });
+    });
+  });
+
+  describe("Indoor and Room handling", () => {
+    it("renders IndoorFloorView when panel is indoor", () => {
+      mockMapUIState.panel = "indoor";
+      mockMapUIState.indoorBuildingId = "Hall";
+      mockMapUIState.indoorFloor = 8;
+      mockMapUIState.selectedBuilding = { buildingCode: "H" } as any;
+
+      render(<GoogleMaps />);
+      expect(screen.getByText("MockIndoorFloorView")).toBeTruthy();
+      expect(screen.getByText("Building: Hall")).toBeTruthy();
+      expect(screen.getByText("Floor: 8")).toBeTruthy();
+    });
+
+    it("renders IndoorFloorView when panel is steps and route is indoor", () => {
+      mockMapUIState = {
+        ...defaultMapUIState,
+        panel: "steps",
+        route: {
+          indoorPath: [{ buildingId: "Hall", floor: 8, x: 0, y: 0 }],
+          coordinates: [],
+        } as any,
+        destinationRoom: { buildingId: "Hall", floor: 8 } as any,
+      };
+
+      render(<GoogleMaps />);
+      expect(screen.getByText("MockIndoorFloorView")).toBeTruthy();
+      expect(screen.getByText("Building: Hall")).toBeTruthy();
+    });
+
+    it("renders RoomResultsPanel when panel is room-results", () => {
+      mockMapUIState.panel = "room-results";
+      mockMapUIState.roomResults = [{ id: "room1" }] as any;
+
+      render(<GoogleMaps />);
+      expect(screen.getByTestId("room-results-panel")).toBeTruthy();
     });
   });
 });

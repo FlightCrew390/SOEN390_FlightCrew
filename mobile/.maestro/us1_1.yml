@@ -1,22 +1,20 @@
-appId: com.yourteam.mobile
+appId: com.flightcrew.mobile
+tags:
+  - us1
 ---
-- launchApp
-- assertVisible: "Home Screen"
-- tapOn: "Location"
-- waitForAnimationToEnd
+- runFlow: flows/open_map.yml
 
-- tapOn: "Next campus"
-- swipe:
-       start: 60%, 50%
-       end: 80%, 60%
-- swipe:
-       start: 80%, 60%
-       end: 40%, 30%
+# Test 1: Dual Campus Availability - starts on SGW campus
+- assertVisible: "SGW Campus selector"
+- assertVisible: "Loyola Campus selector"
 
-- tapOn: "Previous campus"
-- swipe:
-       start: 55%, 55%
-       end: 25%, 70%
-- swipe:
-       start: 25%, 70%
-       end: 50%, 35%
+# Navigate to Loyola campus
+- tapOn: "Loyola Campus selector"
+- assertVisible:
+    id: "campus-selector-loyola-active"
+
+# Navigate back to SGW campus
+- tapOn: "SGW Campus selector"
+- assertVisible:
+    id: "campus-selector-sgw-active"
+- assertVisible: "Loyola Campus selector"

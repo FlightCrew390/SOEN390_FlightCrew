@@ -1,14 +1,22 @@
 import { useCallback, useEffect, useMemo, useReducer } from "react";
+import { useAccessibility } from "../contexts/AccessibilityContext";
 import { initialMapUIState, mapUIReducer } from "../reducers/mapUIReducer";
+import { IndoorDataService } from "../services/IndoorDataService";
 import { PoiService } from "../services/PoiService";
-import { LocationType, isPoi } from "../state/SearchPanelState";
+import { LocationType, isClassroom, isPoi } from "../state/SearchPanelState";
 import { Building } from "../types/Building";
 import { DepartureTimeConfig, TravelMode } from "../types/Directions";
+import { IndoorRoom } from "../types/IndoorRoom";
 import { PointOfInterest } from "../types/PointOfInterest";
 import { findCurrentBuilding } from "../utils/buildingDetection";
-import { getClosestCampusId } from "../utils/campusDetection";
 import { haversineDistance } from "../utils/distanceUtils";
+import {
+  getCampusForBuilding,
+  getCampusForLocation,
+  isShuttleEligible,
+} from "../utils/shuttleUtils";
 import { useDirections } from "./useDirections";
+import { useRoutePreviews } from "./useRoutePreviews";
 
 interface UserCoords {
   latitude: number;
@@ -24,6 +32,7 @@ export function useMapUI(
   location: LocationObject | null,
 ) {
   const [state, dispatch] = useReducer(mapUIReducer, initialMapUIState);
+  const { accessibilityMode } = useAccessibility();
 
   // ── Direction-fetch callbacks (stable refs into reducer) ──
   const onRouteLoading = useCallback(
@@ -52,28 +61,29 @@ export function useMapUI(
     [location?.coords.latitude, location?.coords.longitude],
   );
 
-  const userCampus = useMemo(
-    () =>
-      location
-        ? getClosestCampusId(
-            location.coords.latitude,
-            location.coords.longitude,
-          )
-        : null,
-    [location],
-  );
-
   useDirections({
     destination: state.selectedBuilding,
     startBuilding: state.startBuilding,
+    destinationRoom: state.destinationRoom,
+    startRoom: state.startRoom,
     userLocation: userCoords,
-    userCampus,
     travelMode: state.travelMode,
     departureConfig: state.departureConfig,
-    active: state.panel === "directions",
+    active: state.panel === "directions" || state.panel === "room-info",
+    accessibilityMode,
     onLoading: onRouteLoading,
     onLoaded: onRouteLoaded,
     onError: onRouteError,
+  });
+
+  // ── Pre-fetch route previews for all modes ──
+  const routePreviews = useRoutePreviews({
+    destination: state.selectedBuilding,
+    startBuilding: state.startBuilding,
+    startRoom: state.startRoom,
+    userLocation: userCoords,
+    departureConfig: state.departureConfig,
+    active: state.panel === "directions" || state.panel === "room-info",
   });
 
   // ── Detect current building ──
@@ -92,17 +102,78 @@ export function useMapUI(
     }
   }, [location, buildings]);
 
+  // ── Shuttle eligibility check (pure cross-campus detection, no backend needed) ──
+  useEffect(() => {
+    if (state.panel !== "directions" || !state.selectedBuilding) {
+      dispatch({ type: "SET_SHUTTLE_ELIGIBLE", eligible: false });
+      return;
+    }
+
+    const destCampus = getCampusForBuilding(state.selectedBuilding);
+
+    let originCampus;
+    if (state.startBuilding) {
+      originCampus = getCampusForBuilding(state.startBuilding);
+    } else if (userCoords) {
+      originCampus = getCampusForLocation(
+        userCoords.latitude,
+        userCoords.longitude,
+      );
+    } else {
+      originCampus = null;
+    }
+
+    const eligible = isShuttleEligible(originCampus, destCampus);
+    dispatch({ type: "SET_SHUTTLE_ELIGIBLE", eligible });
+  }, [state.panel, state.selectedBuilding, state.startBuilding, userCoords]);
+
   // ── Handlers ──
   const selectBuilding = useCallback((building: Building) => {
     dispatch({ type: "SELECT_BUILDING", building });
   }, []);
 
-  const openDirections = useCallback((building: Building) => {
-    dispatch({ type: "OPEN_DIRECTIONS", building });
-  }, []);
+  const openDirections = useCallback(
+    (building: Building, room?: IndoorRoom) => {
+      dispatch({ type: "OPEN_DIRECTIONS", building, room });
+    },
+    [],
+  );
 
   const handleSearch = useCallback(
-    (query: string, locationType: LocationType, radiusKm?: number | null) => {
+    (
+      query: string,
+      locationType: LocationType,
+      radiusKm?: number | null,
+      classroomBuildingId?: string | null,
+    ) => {
+      if (isClassroom(locationType)) {
+        IndoorDataService.ensureLoaded()
+          .then(() => {
+            let rooms;
+            const trimmedQuery = query.trim();
+
+            if (classroomBuildingId) {
+              rooms = trimmedQuery
+                ? IndoorDataService.searchRoomsByBuilding(
+                    trimmedQuery,
+                    classroomBuildingId,
+                  )
+                : IndoorDataService.getRoomsByBuilding(classroomBuildingId);
+            } else {
+              rooms = trimmedQuery
+                ? IndoorDataService.searchRooms(trimmedQuery)
+                : IndoorDataService.getRooms();
+            }
+
+            // If we are searching for a start location, wrap these results
+            dispatch({ type: "ROOM_LOADED", results: rooms });
+          })
+          .catch(() => {
+            dispatch({ type: "ROOM_LOADED", results: [] });
+          });
+        return null;
+      }
+
       if (isPoi(locationType)) {
         // POI search — fetch from backend, filter client-side
         dispatch({ type: "POI_LOADING" });
@@ -148,6 +219,10 @@ export function useMapUI(
     [buildings, userCoords],
   );
 
+  const openIndoorView = useCallback((buildingId: string, floor: number) => {
+    dispatch({ type: "OPEN_INDOOR", buildingId, floor });
+  }, []);
+
   const selectPoi = useCallback((poi: PointOfInterest) => {
     dispatch({ type: "SELECT_POI", poi });
   }, []);
@@ -175,9 +250,10 @@ export function useMapUI(
     state,
     dispatch,
     userCoords,
-    userCampus,
+    routePreviews,
     selectBuilding,
     openDirections,
+    openIndoorView,
     handleSearch,
     handleTravelModeChange,
     selectPoi,

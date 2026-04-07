@@ -1,0 +1,40 @@
+appId: com.flightcrew.mobile
+tags:
+  - us2
+---
+- runFlow: flows/open_map.yml
+
+# ═══════════════════════════════════════════════════════════════════
+# US2.4 – Inter-Campus Routes (SGW ↔ Loyola)
+# ═══════════════════════════════════════════════════════════════════
+
+# ── Test 4a: Route from SGW to Loyola ──
+# User location is set to SGW campus by open_map.yml (45.4954, -73.5739).
+# Search for a Loyola campus building as destination.
+- tapOn: "Search campus buildings"
+- tapOn: "Search building name"
+- inputText: "Admin"
+- tapOn:
+    text: ".*Administration.*"
+- tapOn: "Search"
+
+# Tap the callout to open directions to Loyola
+- tapOn: "AD Building"
+- assertVisible: "Directions"
+
+# Default start is current location (SGW campus)
+- assertVisible: "Starting from your current location"
+
+# Select driving mode to generate the inter-campus route
+- tapOn: "Get directions by Drive"
+- extendedWaitUntil:
+    visible: "View step-by-step directions"
+    timeout: 15000
+
+# Route generated successfully – view steps to verify
+- tapOn: "View step-by-step directions"
+- assertVisible:
+    text: ".*Arrive.*"
+
+# Go back to directions panel
+- tapOn: "Back to directions"

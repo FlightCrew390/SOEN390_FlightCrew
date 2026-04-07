@@ -1,4 +1,5 @@
 import { SearchPanelAction, SearchPanelState } from "../state/SearchPanelState";
+import { SECONDARY_LOCATION_OPTIONS } from "../constants/searchPanel";
 
 export const initialSearchPanelState: SearchPanelState = {
   locationType: "building",
@@ -9,6 +10,9 @@ export const initialSearchPanelState: SearchPanelState = {
   selectedResult: null,
   radiusKm: null,
   radiusDropdownOpen: false,
+  classroomBuildingId: null,
+  classroomBuildingDropdownOpen: false,
+  filtersExpanded: false,
 };
 
 export function searchPanelReducer(
@@ -23,17 +27,22 @@ export function searchPanelReducer(
         radiusDropdownOpen: false,
       };
 
-    case "SELECT_LOCATION_TYPE":
+    case "SELECT_LOCATION_TYPE": {
+      const isSecondary = SECONDARY_LOCATION_OPTIONS.some(
+        (o) => o.key === action.locationType,
+      );
       return {
         ...state,
         locationType: action.locationType,
         dropdownOpen: false,
+        filtersExpanded: isSecondary,
         query: "",
         showAutocomplete: false,
         selectedResult: null,
         radiusKm: null,
         radiusDropdownOpen: false,
       };
+    }
 
     case "UPDATE_QUERY":
       return {
@@ -79,6 +88,23 @@ export function searchPanelReducer(
 
     case "SELECT_RADIUS":
       return { ...state, radiusKm: action.radiusKm, radiusDropdownOpen: false };
+
+    case "TOGGLE_CLASSROOM_BUILDING_DROPDOWN":
+      return {
+        ...state,
+        classroomBuildingDropdownOpen: !state.classroomBuildingDropdownOpen,
+        dropdownOpen: false,
+      };
+
+    case "SELECT_CLASSROOM_BUILDING":
+      return {
+        ...state,
+        classroomBuildingId: action.buildingId,
+        classroomBuildingDropdownOpen: false,
+      };
+
+    case "TOGGLE_FILTERS_EXPANDED":
+      return { ...state, filtersExpanded: !state.filtersExpanded };
 
     default:
       return state;

@@ -1,16 +1,31 @@
-appId: com.yourteam.mobile
+appId: com.flightcrew.mobile
+tags:
+  - us1
 ---
-- setLocation:
-       latitude: 45.4582
-       longitude: -73.6405
-- launchApp
-- assertVisible: "Home Screen"
-- tapOn: "Location"
-- waitForAnimationToEnd
+- runFlow: flows/open_map.yml
 
-- tapOn: "Next campus"
+# Test 4a: Location Services Integration
+# Recenter button only renders when location is available — its presence
+# confirms the app has connected to the device GPS provider
+- assertVisible: "Recenter map on my location"
+
+# Test 4b: Recenter Map Functionality
+# Center map on current location first
 - tapOn: "Recenter map on my location"
+
+# Pan map away so current location leaves the viewport
 - swipe:
-       start: 60%, 50%
-       end: 80%, 60%
+    start: 50%, 50%
+    end: 90%, 10%
+- swipe:
+    start: 90%, 10%
+    end: 10%, 90%
+
+# Recenter button must still be anchored to the UI
+- assertVisible: "Recenter map on my location"
+
+# Tap recenter and verify smooth transition completes
 - tapOn: "Recenter map on my location"
+
+# Location is back in view — recenter button remains available
+- assertVisible: "Recenter map on my location"

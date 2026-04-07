@@ -13,6 +13,10 @@ jest.mock("../../src/hooks/useDirections", () => ({
   useDirections: jest.fn(),
 }));
 
+jest.mock("../../src/contexts/AccessibilityContext", () => ({
+  useAccessibility: () => ({ accessibilityMode: false }),
+}));
+
 // Mock findCurrentBuilding and calculateDistance (used by getClosestCampusId)
 const mockFindCurrentBuilding = jest.fn();
 jest.mock("../../src/utils/buildingDetection", () => ({
@@ -60,6 +64,7 @@ const mockLocation = {
 describe("useMapUI", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(console, "error").mockImplementation(() => {});
     mockFindCurrentBuilding.mockReturnValue(null);
     mockFetchPois.mockReset();
     mockFetchPois.mockResolvedValue([]);
@@ -280,6 +285,67 @@ describe("useMapUI", () => {
     expect(result.current.state.startBuilding).toBeNull();
   });
 
+  // ── Route callbacks (onLoading / onLoaded / onError) ──
+
+  describe("route callbacks passed to useDirections", () => {
+    let capturedParams: any;
+
+    beforeEach(() => {
+      (useDirections as jest.Mock).mockImplementation((params: any) => {
+        capturedParams = params;
+      });
+    });
+
+    it("dispatches ROUTE_LOADING when onLoading is called", () => {
+      const { result } = renderHook(() => useMapUI(testBuildings, null));
+      act(() => {
+        capturedParams.onLoading();
+      });
+      expect(result.current.state.routeLoading).toBe(true);
+      expect(result.current.state.routeError).toBeNull();
+    });
+
+    it("dispatches ROUTE_LOADED when onLoaded is called", () => {
+      const route = {
+        coordinates: [],
+        distanceMeters: 500,
+        durationSeconds: 120,
+        steps: [],
+      };
+      const { result } = renderHook(() => useMapUI(testBuildings, null));
+      act(() => {
+        capturedParams.onLoaded(route);
+      });
+      expect(result.current.state.route).toBe(route);
+      expect(result.current.state.routeLoading).toBe(false);
+    });
+
+    it("dispatches ROUTE_ERROR when onError is called", () => {
+      const { result } = renderHook(() => useMapUI(testBuildings, null));
+      act(() => {
+        capturedParams.onError("Network error");
+      });
+      expect(result.current.state.routeError).toBe("Network error");
+      expect(result.current.state.routeLoading).toBe(false);
+      expect(result.current.state.route).toBeNull();
+    });
+  });
+
+  // ── handleDepartureConfigChange ──
+
+  it("handleDepartureConfigChange dispatches SET_DEPARTURE_CONFIG", () => {
+    const { result } = renderHook(() => useMapUI(testBuildings, null));
+    const config = {
+      option: "depart_at" as const,
+      date: new Date("2026-03-03T09:00:00"),
+    };
+    act(() => {
+      result.current.handleDepartureConfigChange(config);
+    });
+    expect(result.current.state.departureConfig).toBe(config);
+    expect(result.current.state.route).toBeNull();
+  });
+
   // ── POI search ──
 
   it("handleSearch with POI type returns null and triggers async fetch", () => {
@@ -447,5 +513,115 @@ describe("useMapUI", () => {
     });
     expect(result.current.state.departureConfig).toBe(config);
     expect(result.current.state.route).toBeNull();
+  });
+
+  // ── Classroom Search ──
+
+  it("handleSearch with classroom type calls IndoorDataService and dispatches ROOM_LOADED", async () => {
+    const { result } = renderHook(() => useMapUI(testBuildings, null));
+    const mockRoom = { id: "room1" };
+
+    jest
+      .spyOn(
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        require("../../src/services/IndoorDataService").IndoorDataService,
+        "ensureLoaded",
+      )
+      .mockResolvedValue(true);
+
+    jest
+      .spyOn(
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        require("../../src/services/IndoorDataService").IndoorDataService,
+        "searchRooms",
+      )
+      .mockReturnValue([mockRoom]);
+
+    let returnValue: any;
+    act(() => {
+      returnValue = result.current.handleSearch("test", "classroom");
+    });
+
+    expect(returnValue).toBeNull();
+    await waitFor(() => {
+      expect(result.current.state.roomResults).toEqual([mockRoom]);
+    });
+  });
+
+  it("handleSearch with classroom type and buildingId filters by building", async () => {
+    const { result } = renderHook(() => useMapUI(testBuildings, null));
+    const mockRoom = { id: "room2" };
+
+    jest
+      .spyOn(
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        require("../../src/services/IndoorDataService").IndoorDataService,
+        "ensureLoaded",
+      )
+      .mockResolvedValue(true);
+
+    jest
+      .spyOn(
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        require("../../src/services/IndoorDataService").IndoorDataService,
+        "searchRoomsByBuilding",
+      )
+      .mockReturnValue([mockRoom]);
+
+    act(() => {
+      result.current.handleSearch("test", "classroom", null, "Hall");
+    });
+
+    await waitFor(() => {
+      expect(result.current.state.roomResults).toEqual([mockRoom]);
+    });
+  });
+
+  it("handleSearch with blank classroom query gets all rooms", async () => {
+    const { result } = renderHook(() => useMapUI(testBuildings, null));
+    const mockRoom = { id: "room_all" };
+
+    jest
+      .spyOn(
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        require("../../src/services/IndoorDataService").IndoorDataService,
+        "ensureLoaded",
+      )
+      .mockResolvedValue(true);
+
+    jest
+      .spyOn(
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        require("../../src/services/IndoorDataService").IndoorDataService,
+        "getRooms",
+      )
+      .mockReturnValue([mockRoom]);
+
+    act(() => {
+      result.current.handleSearch("  ", "classroom");
+    });
+
+    await waitFor(() => {
+      expect(result.current.state.roomResults).toEqual([mockRoom]);
+    });
+  });
+
+  it("openIndoorView dispatches OPEN_INDOOR", () => {
+    const { result } = renderHook(() => useMapUI(testBuildings, null));
+    act(() => {
+      result.current.openIndoorView("Hall", 8);
+    });
+    expect(result.current.state.indoorBuildingId).toBe("Hall");
+    expect(result.current.state.indoorFloor).toBe(8);
+    expect(result.current.state.panel).toBe("indoor");
+  });
+
+  it("openDirections with room dispatches OPEN_DIRECTIONS with room", () => {
+    const { result } = renderHook(() => useMapUI(testBuildings, null));
+    const mockRoom = { id: "room1" } as any;
+    act(() => {
+      result.current.openDirections(testBuildings[0], mockRoom);
+    });
+    expect(result.current.state.destinationRoom).toBe(mockRoom);
   });
 });

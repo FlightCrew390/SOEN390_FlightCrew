@@ -189,6 +189,15 @@ const styles = StyleSheet.create({
     color: COLORS.concordiaMaroon,
     fontWeight: "700",
   },
+  transportCardDisabled: {
+    opacity: 0.45,
+  },
+  transportIconDisabled: {
+    tintColor: "#B0B0B0",
+  },
+  transportTimeDisabled: {
+    color: "#B0B0B0",
+  },
 
   /* ── Loading & error ── */
   loadingRow: {
@@ -209,10 +218,29 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     gap: 8,
   },
+  shuttleUnavailableText: {
+    fontSize: 13,
+    color: "#666",
+    flex: 1,
+  },
   errorText: {
     fontSize: 13,
     color: COLORS.error,
     flex: 1,
+  },
+
+  /* ── Accessibility toggle ── */
+  accessibilityRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 8,
+  },
+  accessibilityLabel: {
+    flex: 1,
+    fontSize: 14,
+    color: COLORS.textPrimary,
   },
 
   /* ── Divider ── */
@@ -303,6 +331,14 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.textSecondary,
     fontWeight: "500",
+  },
+  departurePillTextShortcut: {
+    fontSize: 13,
+    color: COLORS.concordiaMaroon,
+    fontWeight: "500",
+    fontStyle: "italic",
+    opacity: 0.8,
+    textDecorationLine: "underline",
   },
   departurePillTextActive: {
     color: COLORS.white,

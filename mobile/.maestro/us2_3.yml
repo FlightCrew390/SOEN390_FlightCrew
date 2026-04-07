@@ -1,0 +1,40 @@
+appId: com.flightcrew.mobile
+tags:
+  - us2
+---
+- runFlow: flows/open_map.yml
+- runFlow: flows/open_directions_hall.yml
+
+# ═══════════════════════════════════════════════════════════════════
+# US2.3 – Directions Generation, Route Clarity, Turn-by-Turn Steps
+# ═══════════════════════════════════════════════════════════════════
+
+# Test 3a: Direction panel displays building info and distance
+- assertVisible: "Directions"
+- assertVisible: "H Building"
+- assertVisible: "Starting from your current location"
+
+# Test 3b: Select Walking mode to generate a route via Google Maps API
+- tapOn: "Get directions by Walk"
+
+# Route is being calculated or has been calculated
+# (distance and duration appear in the transport card and panel)
+# Wait for route to load (the "View steps" button appears when route has steps)
+- extendedWaitUntil:
+    visible: "View step-by-step directions"
+    timeout: 15000
+
+# Test 3c: Turn-by-turn steps are available
+- tapOn: "View step-by-step directions"
+
+# Steps panel shows building name, distance, and navigation instructions
+- assertVisible:
+    text: ".*H Building.*"
+- assertVisible:
+    text: ".*Depart.*"
+- assertVisible:
+    text: ".*Arrive.*"
+
+# Test 3d: Navigate back to direction panel from steps
+- tapOn: "Back to directions"
+- assertVisible: "Directions"

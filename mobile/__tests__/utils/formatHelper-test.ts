@@ -3,7 +3,10 @@ import {
   formatDateTime,
   formatDistance,
   formatDuration,
+  formatShuttleNextDeparturePhrase,
+  formatTime,
 } from "../../src/utils/formatHelper";
+import { DEFAULT_DEPARTURE_CONFIG } from "../../src/types/Directions";
 
 describe("formatDuration", () => {
   it("returns '-- min' for zero or negative", () => {
@@ -60,7 +63,7 @@ describe("formatDate", () => {
   });
 });
 
-describe("formatTime", () => {
+describe("formatDateTime", () => {
   it("delegates to toLocaleTimeString with the correct options", () => {
     const d = new Date("2026-03-03T10:05:00");
     const spy = jest.spyOn(d, "toLocaleTimeString").mockReturnValue("10:05 AM");
@@ -73,5 +76,90 @@ describe("formatTime", () => {
     });
     expect(result).toBe("10:05 AM");
     spy.mockRestore();
+  });
+});
+
+describe("formatTime", () => {
+  it("formats a morning Date as h:mm AM", () => {
+    const d = new Date("2026-03-03T10:05:00");
+    expect(formatTime(d)).toBe("10:05 AM");
+  });
+
+  it("formats an afternoon Date as h:mm PM", () => {
+    const d = new Date("2026-03-03T14:30:00");
+    expect(formatTime(d)).toBe("2:30 PM");
+  });
+
+  it("formats an ISO string", () => {
+    expect(formatTime("2026-03-03T10:05:00")).toBe("10:05 AM");
+  });
+});
+
+describe("formatShuttleNextDeparturePhrase", () => {
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it("uses relative wording within an hour when leaving now", () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(2026, 2, 2, 10, 0, 0));
+    const dep = new Date(2026, 2, 2, 10, 5, 0);
+    expect(
+      formatShuttleNextDeparturePhrase(dep, DEFAULT_DEPARTURE_CONFIG),
+    ).toBe("Next shuttle departs in 5 minutes");
+  });
+
+  it("uses singular minute", () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(2026, 2, 2, 10, 0, 0));
+    const dep = new Date(2026, 2, 2, 10, 1, 0);
+    expect(
+      formatShuttleNextDeparturePhrase(dep, DEFAULT_DEPARTURE_CONFIG),
+    ).toBe("Next shuttle departs in 1 minute");
+  });
+
+  it("uses soon when under ~30s", () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(2026, 2, 2, 10, 0, 0));
+    const dep = new Date(2026, 2, 2, 10, 0, 15);
+    expect(
+      formatShuttleNextDeparturePhrase(dep, DEFAULT_DEPARTURE_CONFIG),
+    ).toBe("Next shuttle departs soon");
+  });
+
+  it("uses clock time when more than 60 minutes away", () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(2026, 2, 2, 10, 0, 0));
+    const dep = new Date(2026, 2, 2, 12, 15, 0);
+    expect(
+      formatShuttleNextDeparturePhrase(dep, DEFAULT_DEPARTURE_CONFIG),
+    ).toBe("Next shuttle departs at 12:15 PM");
+  });
+
+  it("uses clock time when departure is in the past", () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(2026, 2, 2, 12, 0, 0));
+    const dep = new Date(2026, 2, 2, 10, 0, 0);
+    expect(
+      formatShuttleNextDeparturePhrase(dep, DEFAULT_DEPARTURE_CONFIG),
+    ).toBe("Next shuttle departs at 10:00 AM");
+  });
+
+  it("uses clock time for depart_at and arrive_by", () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(2026, 2, 2, 9, 0, 0));
+    const dep = new Date(2026, 2, 2, 10, 30, 0);
+    expect(
+      formatShuttleNextDeparturePhrase(dep, {
+        option: "depart_at",
+        date: new Date(2026, 2, 2, 9, 0, 0),
+      }),
+    ).toBe("Next shuttle departs at 10:30 AM");
+    expect(
+      formatShuttleNextDeparturePhrase(dep, {
+        option: "arrive_by",
+        date: new Date(2026, 2, 2, 11, 0, 0),
+      }),
+    ).toBe("Next shuttle departs at 10:30 AM");
   });
 });

@@ -39,6 +39,7 @@ const route: RouteInfo = {
   durationSeconds: 600,
   steps: [
     {
+      id: "step-1",
       distanceMeters: 200,
       durationSeconds: 120,
       instruction: "Head north",
@@ -46,6 +47,7 @@ const route: RouteInfo = {
       coordinates: [],
     },
     {
+      id: "step-2",
       distanceMeters: 300,
       durationSeconds: 180,
       instruction: "Turn left",
@@ -53,6 +55,7 @@ const route: RouteInfo = {
       coordinates: [],
     },
     {
+      id: "step-3",
       distanceMeters: 0,
       durationSeconds: 0,
       instruction: "",
@@ -62,12 +65,29 @@ const route: RouteInfo = {
   ],
 };
 
+const sameBuildingStartRoom = {
+  id: "H-899-51",
+  label: "H-899-51",
+  buildingId: "H",
+  nodeType: "room",
+  floor: 8,
+} as any;
+
+const sameBuildingDestinationRoom = {
+  id: "H-920",
+  label: "H-920",
+  buildingId: "H",
+  nodeType: "room",
+  floor: 9,
+} as any;
+
 const transitRoute: RouteInfo = {
   coordinates: [],
   distanceMeters: 5000,
   durationSeconds: 1200,
   steps: [
     {
+      id: "step-1",
       distanceMeters: 200,
       durationSeconds: 120,
       instruction: "Walk to bus stop",
@@ -75,6 +95,7 @@ const transitRoute: RouteInfo = {
       coordinates: [],
     },
     {
+      id: "step-2",
       distanceMeters: 4000,
       durationSeconds: 900,
       instruction: "Take bus",
@@ -94,6 +115,51 @@ const transitRoute: RouteInfo = {
     },
   ],
 };
+
+const shuttleRoute: RouteInfo = {
+  coordinates: [],
+  distanceMeters: 9000,
+  durationSeconds: 2400,
+  steps: [
+    {
+      id: "w1",
+      distanceMeters: 200,
+      durationSeconds: 180,
+      instruction: "Walk to the shuttle stop",
+      maneuver: "DEPART",
+      coordinates: [],
+    },
+    {
+      id: "shuttle-step",
+      distanceMeters: 8300,
+      durationSeconds: 1500,
+      instruction: "Shuttle to Loyola.",
+      maneuver: "STRAIGHT",
+      coordinates: [],
+      transitDetails: {
+        departureStopName: "SGW (Hall Building)",
+        arrivalStopName: "Loyola Campus",
+        departureTime: new Date(2026, 2, 2, 10, 8, 0).toISOString(),
+        arrivalTime: new Date(2026, 2, 2, 10, 29, 0).toISOString(),
+        lineName: "Concordia Shuttle",
+        lineShortName: "Shuttle",
+        vehicleType: "BUS",
+        vehicleName: "Concordia Shuttle",
+        stopCount: 1,
+      },
+    },
+  ],
+};
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  jest.spyOn(console, "error").mockImplementation(() => {});
+  jest.spyOn(console, "warn").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
+});
 
 describe("StepsPanel", () => {
   const onBack = jest.fn();
@@ -141,6 +207,22 @@ describe("StepsPanel", () => {
     ).toBeTruthy();
   });
 
+  it("hides start exit row for same-building room routes", () => {
+    render(
+      <StepsPanel
+        building={building}
+        startBuilding={building}
+        route={route}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+        startRoom={sameBuildingStartRoom}
+        destinationRoom={sameBuildingDestinationRoom}
+      />,
+    );
+
+    expect(screen.queryByText(/Exit H starting from room H-899-51/)).toBeNull();
+  });
+
   it("calls onBack when back button pressed", () => {
     render(
       <StepsPanel
@@ -152,6 +234,22 @@ describe("StepsPanel", () => {
     );
     fireEvent.press(screen.getByLabelText("Back to directions"));
     expect(onBack).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows Next Departure banner for Concordia Shuttle routes", () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(2026, 2, 2, 10, 0, 0));
+    render(
+      <StepsPanel
+        building={building}
+        route={shuttleRoute}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+      />,
+    );
+    expect(screen.getByText("Next Departure")).toBeTruthy();
+    expect(screen.getByText("Next shuttle departs in 8 minutes")).toBeTruthy();
+    jest.useRealTimers();
   });
 
   it("renders departure and arrival time summary", () => {
@@ -238,6 +336,7 @@ describe("StepsPanel", () => {
       durationSeconds: 1200,
       steps: [
         {
+          id: "step-bad",
           distanceMeters: 4000,
           durationSeconds: 900,
           instruction: "Take bus",
@@ -274,7 +373,7 @@ describe("StepsPanel", () => {
     const buildingNoLongName = {
       ...startBuilding,
       buildingLongName: undefined,
-    } as unknown as (typeof startBuilding);
+    } as unknown as typeof startBuilding;
     render(
       <StepsPanel
         building={building}
@@ -307,6 +406,7 @@ describe("StepsPanel", () => {
       "UNKNOWN_MANEUVER",
     ];
     const steps = allManeuvers.map((maneuver, i) => ({
+      id: `maneuver-step-${i}`,
       distanceMeters: 100,
       durationSeconds: 60,
       instruction: `Step ${maneuver}`,
@@ -332,6 +432,7 @@ describe("StepsPanel", () => {
       durationSeconds: 600,
       steps: [
         {
+          id: "metro-step",
           distanceMeters: 2000,
           durationSeconds: 600,
           instruction: "Take metro",
@@ -370,6 +471,7 @@ describe("StepsPanel", () => {
       durationSeconds: 1800,
       steps: [
         {
+          id: "rail-step",
           distanceMeters: 10000,
           durationSeconds: 1800,
           instruction: "Take train",
@@ -424,5 +526,69 @@ describe("StepsPanel", () => {
     );
     // Steps with durationSeconds > 0 show duration with dot separator
     expect(screen.getByText("Head north")).toBeTruthy();
+  });
+
+  it("renders departure indoor map button when startRoom is provided", () => {
+    const onOpenStartIndoor = jest.fn();
+    render(
+      <StepsPanel
+        startBuilding={startBuilding}
+        building={building}
+        route={route}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+        startRoom={
+          { id: "811", label: "811", nodeType: "room", floor: 8 } as any
+        }
+        onOpenStartIndoor={onOpenStartIndoor}
+      />,
+    );
+
+    const btn = screen.getByLabelText("Show Indoor Departure Map");
+    expect(btn).toBeTruthy();
+    fireEvent.press(btn);
+    expect(onOpenStartIndoor).toHaveBeenCalled();
+  });
+
+  it("renders destination indoor map button when destinationRoom is provided", () => {
+    const onOpenIndoor = jest.fn();
+    render(
+      <StepsPanel
+        startBuilding={startBuilding}
+        building={building}
+        route={route}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+        destinationRoom={
+          { id: "911", label: "911", nodeType: "room", floor: 9 } as any
+        }
+        onOpenIndoor={onOpenIndoor}
+      />,
+    );
+
+    const btn = screen.getByLabelText("Show Indoor Map");
+    expect(btn).toBeTruthy();
+    fireEvent.press(btn);
+    expect(onOpenIndoor).toHaveBeenCalled();
+  });
+
+  it("hides arrival row and indoor map button for same-building room routes", () => {
+    const onOpenIndoor = jest.fn();
+
+    render(
+      <StepsPanel
+        startBuilding={building}
+        building={building}
+        route={route}
+        departureConfig={DEFAULT_DEPARTURE_CONFIG}
+        onBack={onBack}
+        startRoom={sameBuildingStartRoom}
+        destinationRoom={sameBuildingDestinationRoom}
+        onOpenIndoor={onOpenIndoor}
+      />,
+    );
+
+    expect(screen.queryByText(/Arrive at Hall Building/)).toBeNull();
+    expect(screen.queryByLabelText("Show Indoor Map")).toBeNull();
   });
 });

@@ -1,0 +1,63 @@
+appId: com.flightcrew.mobile
+tags:
+  - us4
+---
+- runFlow: flows/open_map.yml
+
+# ═══════════════════════════════════════════════════════════════════
+# US4.5 – Floor Transitions: Stairs/Elevators, Clear Indication,
+#          Correct Floor Map Shown Automatically
+# ═══════════════════════════════════════════════════════════════════
+
+# Search for the destination room on the 8th floor of Hall Building
+- tapOn: "Search campus buildings"
+- tapOn: "Select location type"
+- tapOn: "Classroom"
+- tapOn: "Search classroom name"
+- inputText: "H-859"
+- tapOn: "Search"
+- extendedWaitUntil:
+    visible:
+      id: "room-results-panel"
+    timeout: 10000
+- tapOn: "Get directions to H-859"
+- assertVisible: "Directions"
+
+# Set the starting room on the 2nd floor (H-244-1)
+- tapOn: "Search locations to change directions start"
+- tapOn: "Select location type"
+- tapOn: "Classroom"
+- tapOn: "Search classroom name"
+- inputText: "H-244"
+- tapOn: "Search"
+- extendedWaitUntil:
+    visible:
+      id: "room-results-panel"
+    timeout: 10000
+- tapOn: "Get directions to H-244"
+
+# Select walking mode – indoor route with floor transition is calculated
+- tapOn: "Get directions by Walk"
+- extendedWaitUntil:
+    visible: "View step-by-step directions"
+    timeout: 15000
+
+# ── Test 5a: Routes Include Stairs or Elevators ──
+- tapOn: "View step-by-step directions"
+
+# Steps header confirms indoor directions for the 8th-floor destination
+- assertVisible:
+    text: ".*Indoor Directions.*Floor 8F.*"
+
+# ── Test 5b: Floor Transitions Are Clearly Indicated ──
+# At least one step mentions the elevator (floor change from 2F to 8F)
+- assertVisible:
+    text: ".*[Ee]levator.*"
+
+# Indoor floor plan renders with the floor selector present
+- assertVisible: "Select floor"
+
+- tapOn: "Select floor"
+
+# The floor selector reflects the starting floor of the route (2F)
+- assertVisible: "Floor 2"

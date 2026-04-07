@@ -5,6 +5,23 @@ type Coordinate = number[];
 
 const API_BASE_URL = API_CONFIG.getBaseUrl();
 
+function deduplicateBuildings(buildings: Building[]): Building[] {
+  const seen = new Map<string, Building>();
+  for (const building of buildings) {
+    const key = building.buildingLongName;
+    const existing = seen.get(key);
+    if (existing) {
+      seen.set(key, {
+        ...existing,
+        polygons: [...(existing.polygons ?? []), ...(building.polygons ?? [])],
+      });
+    } else {
+      seen.set(key, building);
+    }
+  }
+  return Array.from(seen.values());
+}
+
 export class BuildingDataService {
   static async fetchBuildings(): Promise<Building[]> {
     try {
@@ -16,7 +33,7 @@ export class BuildingDataService {
 
       const data = await response.json();
 
-      return data.map((building: any) => {
+      const buildings = data.map((building: any) => {
         let polygons: { latitude: number; longitude: number }[][] = [];
         const displayPolygon = building.Google_Place_Info?.displayPolygon;
 
@@ -76,6 +93,8 @@ export class BuildingDataService {
           Google_Place_Info: building.Google_Place_Info,
         };
       });
+
+      return deduplicateBuildings(buildings);
     } catch (error) {
       console.error("Error fetching buildings:", error);
       if (

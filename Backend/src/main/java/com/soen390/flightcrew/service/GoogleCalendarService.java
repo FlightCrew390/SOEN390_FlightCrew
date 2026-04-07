@@ -11,6 +11,7 @@ import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 import com.soen390.flightcrew.model.CalendarEventDTO;
 import com.soen390.flightcrew.model.CalendarInfoDTO;
+import com.soen390.flightcrew.testing.E2EMockCalendarData;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -27,6 +28,11 @@ public class GoogleCalendarService {
          * Fetch the list of calendars the authenticated user has access to.
          */
         public List<CalendarInfoDTO> fetchCalendarList(String accessToken) {
+                // Check for E2E mode
+                if (E2EMockCalendarData.isE2EMode(accessToken)) {
+                        return E2EMockCalendarData.getMockCalendars();
+                }
+
                 try {
                         Calendar calendarApi = buildCalendarClient(accessToken);
 
@@ -51,6 +57,11 @@ public class GoogleCalendarService {
          */
         public List<CalendarEventDTO> fetchEvents(
                         String accessToken, String timeMin, String timeMax, String calendarId) {
+
+                // Check for E2E mode
+                if (E2EMockCalendarData.isE2EMode(accessToken)) {
+                        return E2EMockCalendarData.getMockEvents();
+                }
 
                 try {
                         Calendar calendarApi = buildCalendarClient(accessToken);

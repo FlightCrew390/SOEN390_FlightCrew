@@ -1,46 +1,22 @@
 import { StyleSheet } from "react-native";
 import { COLORS } from "../constants";
-
-const NAVBAR_GRAY = "#d0d0d0";
+import { CommonStyles } from "./CommonStyles";
 
 const styles = StyleSheet.create({
   container: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 450,
-    zIndex: 102,
-    elevation: 102,
-    backgroundColor: COLORS.white,
-    borderBottomLeftRadius: 14,
-    borderBottomRightRadius: 14,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    ...CommonStyles.bottomPanelContainer,
   },
   header: {
-    backgroundColor: NAVBAR_GRAY,
-    paddingTop: 72,
-    paddingBottom: 16,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
+    ...CommonStyles.bottomPanelHeader,
   },
   backButton: {
-    marginRight: 12,
-    padding: 4,
+    ...CommonStyles.backButton,
   },
   headerContent: {
-    flex: 1,
-    marginRight: 12,
+    ...CommonStyles.headerContent,
   },
   headerTitle: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: COLORS.textPrimary,
-    marginBottom: 2,
+    ...CommonStyles.headerTitle,
   },
   headerSubtitle: {
     fontSize: 14,
@@ -83,6 +59,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.textSecondary,
     marginTop: 2,
+  },
+  poiDescription: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginTop: 1,
+    fontStyle: "italic",
   },
   iconRow: {
     flexDirection: "row",

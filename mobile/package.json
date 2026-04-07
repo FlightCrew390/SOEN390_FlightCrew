@@ -11,7 +11,8 @@
     "test": "jest --coverage",
     "lint": "expo lint src App.tsx index.ts app.config.ts --fix && npx tsc --noEmit",
     "lint:ci": "expo lint src App.tsx index.ts app.config.ts && npx tsc --noEmit",
-    "prepare": "cd .. && husky mobile/.husky"
+    "prepare": "cd .. && husky mobile/.husky",
+    "e2e:us1": "maestro test --include-tags us1 .maestro/"
   },
   "lint-staged": {
     "*.{ts,tsx}": "eslint --fix"
@@ -40,6 +41,7 @@
     "@react-native-community/datetimepicker": "^8.6.0",
     "@react-navigation/bottom-tabs": "^7.10.1",
     "@react-navigation/native": "^7.1.28",
+    "@react-navigation/stack": "^7.8.4",
     "expo": "~54.0.31",
     "expo-auth-session": "~7.0.10",
     "expo-crypto": "~15.0.8",
@@ -52,12 +54,16 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
+    "react-native-gesture-handler": "^2.30.0",
     "react-native-maps": "1.20.1",
     "react-native-modal-datetime-picker": "^18.0.0",
+    "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
     "react-native-svg": "15.12.1",
-    "react-native-web": "^0.21.0"
+    "react-native-web": "^0.21.0",
+    "react-native-webview": "^13.16.1",
+    "react-native-worklets": "0.5.1"
   },
   "devDependencies": {
     "@jest/globals": "^30.2.0",
@@ -75,6 +81,7 @@
     "jest-expo": "~54.0.17",
     "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
+    "react-native-svg-transformer": "^1.5.3",
     "react-test-renderer": "19.1.0",
     "typescript": "~5.9.2"
   },

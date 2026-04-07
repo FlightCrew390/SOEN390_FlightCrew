@@ -1,25 +1,23 @@
-appId: com.yourteam.mobile
+appId: com.flightcrew.mobile
+tags:
+  - us1
 ---
-- launchApp
-- assertVisible: "Home Screen"
-- tapOn: "Location"
-- waitForAnimationToEnd
+- runFlow: flows/open_map.yml
 
-- tapOn: "Next campus"
-- doubleTapOn: 
-    point: 50%, 50%
-- swipe:
-       start: 60%, 50%
-       end: 80%, 60%
-- swipe:
-       start: 80%, 60%
-       end: 40%, 30%
-- tapOn: "Previous campus"
-- doubleTapOn: 
-    point: 50%, 50%
-- swipe:
-       start: 55%, 55%
-       end: 25%, 70%
-- swipe:
-       start: 25%, 70%
-       end: 50%, 35%
+# Test 2: Building Distinction - verify buildings are rendered on SGW campus
+# (Google Maps visual distinction cannot be asserted via accessibility labels;
+#  we verify the building data loads for both campuses)
+- assertNotVisible: "Loading buildings..."
+- assertVisible: "SGW Campus Selector"
+
+# Navigate to Loyola campus and verify buildings also load
+- tapOn: "Loyola Campus selector"
+- assertVisible:
+    id: "campus-selector-loyola-active"
+- assertNotVisible: "Loading buildings..."
+
+# Navigate back to SGW and confirm buildings still rendered
+- tapOn: "SGW Campus selector"
+- assertVisible:
+    id: "campus-selector-sgw-active"
+- assertNotVisible: "Loading buildings..."

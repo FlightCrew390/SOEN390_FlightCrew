@@ -81,9 +81,11 @@ function parseRoute(data: DirectionsResponse): RouteInfo | null {
     : [];
 
   const steps: StepInfo[] = [];
+  let stepCounter = 0;
   for (const leg of route.legs ?? []) {
     for (const step of leg.steps ?? []) {
       const parsed: StepInfo = {
+        id: `step-${stepCounter++}`,
         distanceMeters: step.distanceMeters ?? 0,
         durationSeconds: parseDuration(step.staticDuration),
         instruction: step.navigationInstruction?.instructions ?? "",
@@ -91,6 +93,7 @@ function parseRoute(data: DirectionsResponse): RouteInfo | null {
         coordinates: step.polyline?.encodedPolyline
           ? decodePolyline(step.polyline.encodedPolyline)
           : [],
+        travelMode: step.travelMode as TravelMode, // Preserve travel mode for step-level coloring
       };
 
       // Parse transit details if present

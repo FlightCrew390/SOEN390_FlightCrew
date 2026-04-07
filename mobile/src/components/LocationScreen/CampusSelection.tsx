@@ -1,5 +1,12 @@
-import Entypo from "@expo/vector-icons/Entypo";
-import { Pressable, Text, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Easing,
+  LayoutChangeEvent,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 import { CAMPUSES, CampusId } from "../../constants/campuses";
 import styles from "../../styles/CampusSelection";
 
@@ -8,59 +15,98 @@ interface CampusSelectionProps {
   onCampusChange: (campus: CampusId) => void;
 }
 
-const campusIds = Object.keys(CAMPUSES) as CampusId[];
+const campusOptions: CampusId[] = ["SGW", "LOYOLA"];
+const TOGGLE_PADDING = 6;
+const ACTIVE_LABEL_COLOR = "#8b2020";
+const INACTIVE_LABEL_COLOR = "rgba(255, 255, 255, 0.88)";
 
 export default function CampusSelection({
   activeCampusId,
   onCampusChange,
 }: Readonly<CampusSelectionProps>) {
-  const campusIndex = campusIds.indexOf(activeCampusId);
-  const isFirst = campusIndex === 0;
-  const isLast = campusIndex === campusIds.length - 1;
+  const selectedIndex = campusOptions.indexOf(activeCampusId);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const sliderPosition = useRef(new Animated.Value(selectedIndex)).current;
 
-  const navigate = (direction: -1 | 1) => {
-    onCampusChange(campusIds[campusIndex + direction]);
+  useEffect(() => {
+    Animated.timing(sliderPosition, {
+      toValue: selectedIndex,
+      duration: 220,
+      easing: Easing.inOut(Easing.ease),
+      useNativeDriver: false,
+    }).start();
+  }, [selectedIndex, sliderPosition]);
+
+  const indicatorWidth = Math.max(
+    (containerWidth - TOGGLE_PADDING * 2) / campusOptions.length,
+    0,
+  );
+
+  const handleContainerLayout = (event: LayoutChangeEvent) => {
+    setContainerWidth(event.nativeEvent.layout.width);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.infoText}>Select a Campus</Text>
-
-      <Pressable
-        onPress={() => navigate(-1)}
-        style={styles.chevronLeft}
-        disabled={isFirst}
-        hitSlop={10}
-        accessibilityRole="button"
-        accessibilityLabel="Previous campus"
+      <View style={styles.infoBadge}>
+        <Text style={styles.infoText}>Campus</Text>
+      </View>
+      <View
+        style={styles.toggleContainer}
+        accessibilityRole="tablist"
+        onLayout={handleContainerLayout}
       >
-        <Entypo
-          name="chevron-left"
-          size={30}
-          color="white"
-          style={[styles.chevron, isFirst && styles.chevronDisabled]}
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.activeIndicator,
+            {
+              width: indicatorWidth,
+              transform: [
+                {
+                  translateX: sliderPosition.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, indicatorWidth],
+                  }),
+                },
+              ],
+            },
+          ]}
         />
-      </Pressable>
+        {campusOptions.map((campusId, index) => {
+          const isActive = campusId === activeCampusId;
+          const label = campusId === "LOYOLA" ? "Loyola" : campusId;
+          const animatedLabelColor = sliderPosition.interpolate({
+            inputRange: [0, 1],
+            outputRange:
+              index === 0
+                ? [ACTIVE_LABEL_COLOR, INACTIVE_LABEL_COLOR]
+                : [INACTIVE_LABEL_COLOR, ACTIVE_LABEL_COLOR],
+          });
 
-      <Text style={styles.campusText}>
-        {CAMPUSES[campusIds[campusIndex]].name}
-      </Text>
-
-      <Pressable
-        onPress={() => navigate(1)}
-        style={styles.chevronRight}
-        disabled={isLast}
-        hitSlop={10}
-        accessibilityRole="button"
-        accessibilityLabel="Next campus"
-      >
-        <Entypo
-          name="chevron-right"
-          size={30}
-          color="white"
-          style={[styles.chevron, isLast && styles.chevronDisabled]}
-        />
-      </Pressable>
+          return (
+            <Pressable
+              key={campusId}
+              onPress={() => onCampusChange(campusId)}
+              style={styles.toggleOption}
+              testID={
+                isActive
+                  ? `campus-selector-${campusId.toLowerCase()}-active`
+                  : undefined
+              }
+              accessibilityRole="button"
+              accessibilityLabel={`${CAMPUSES[campusId].name} selector`}
+              accessibilityState={{ selected: isActive }}
+            >
+              <Animated.Text
+                style={[styles.toggleLabel, { color: animatedLabelColor }]}
+              >
+                {label}
+              </Animated.Text>
+            </Pressable>
+          );
+        })}
+      </View>
     </View>
   );
 }

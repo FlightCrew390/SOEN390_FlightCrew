@@ -15,7 +15,7 @@ export interface ShuttleRouteResponse {
 }
 
 export interface ShuttleDeparture {
-  loyola_departure: string;
+  loyola_departure: string | null;
   sgw_departure: string | null;
   last_bus: boolean;
 }

@@ -1,23 +1,47 @@
 import { renderHook, waitFor } from "@testing-library/react-native";
 import { useDirections } from "../../src/hooks/useDirections";
 import { DirectionsService } from "../../src/services/DirectionsService";
-import { ShuttleService } from "../../src/services/ShuttleService";
+import { IndoorPathfindingService } from "../../src/services/IndoorPathfindingService";
+import { ShuttleDirectionsBuilder } from "../../src/services/ShuttleDirectionsBuilder";
 import { Building, StructureType } from "../../src/types/Building";
-import { DEFAULT_DEPARTURE_CONFIG, RouteInfo } from "../../src/types/Directions";
+import {
+  DEFAULT_DEPARTURE_CONFIG,
+  RouteInfo,
+} from "../../src/types/Directions";
 
 jest.mock("../../src/services/DirectionsService");
-jest.mock("../../src/services/ShuttleService");
+jest.mock("../../src/services/ShuttleDirectionsBuilder");
+jest.mock("../../src/services/IndoorPathfindingService");
+jest.mock("../../src/services/IndoorDataService", () => {
+  return {
+    IndoorDataService: {
+      ensureLoaded: jest.fn().mockResolvedValue(true),
+      getAllNodes: jest.fn().mockReturnValue([
+        {
+          id: "exit1",
+          buildingId: "B1",
+          type: "building_entry_exit",
+          floor: 1,
+        },
+        {
+          id: "entry1",
+          buildingId: "B2",
+          type: "building_entry_exit",
+          floor: 1,
+        },
+        { id: "room1", buildingId: "B1", type: "room", floor: 2 },
+        { id: "synth_0", buildingId: "B1", type: "room", floor: 2 },
+        { id: "room2", buildingId: "B2", type: "room", floor: 2 },
+        { id: "synth_1", buildingId: "B2", type: "room", floor: 2 },
+      ]),
+    },
+  };
+});
 
 const mockFetchDirections =
   DirectionsService.fetchDirections as jest.MockedFunction<
     typeof DirectionsService.fetchDirections
   >;
-const mockGetRoute = ShuttleService.getRoute as jest.MockedFunction<
-  typeof ShuttleService.getRoute
->;
-const mockGetSchedule = ShuttleService.getSchedule as jest.MockedFunction<
-  typeof ShuttleService.getSchedule
->;
 
 const destination: Building = {
   campus: "SGW",
@@ -55,6 +79,12 @@ const userLocation = { latitude: 45.5, longitude: -73.58 };
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.spyOn(console, "error").mockImplementation(() => {});
+  jest.spyOn(console, "warn").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
 });
 
 describe("useDirections", () => {
@@ -67,14 +97,16 @@ describe("useDirections", () => {
       useDirections({
         destination,
         startBuilding: null,
+        destinationRoom: null,
+        startRoom: null,
         userLocation,
-        userCampus: null,
         travelMode: "WALK",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: false,
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -91,14 +123,16 @@ describe("useDirections", () => {
       useDirections({
         destination: null,
         startBuilding: null,
+        destinationRoom: null,
+        startRoom: null,
         userLocation,
-        userCampus: null,
         travelMode: "WALK",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -115,14 +149,16 @@ describe("useDirections", () => {
       useDirections({
         destination,
         startBuilding: null,
+        destinationRoom: null,
+        startRoom: null,
         userLocation: null,
-        userCampus: null,
         travelMode: "WALK",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -140,14 +176,16 @@ describe("useDirections", () => {
       useDirections({
         destination,
         startBuilding: null,
+        destinationRoom: null,
+        startRoom: null,
         userLocation,
-        userCampus: null,
         travelMode: "WALK",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -175,14 +213,16 @@ describe("useDirections", () => {
       useDirections({
         destination,
         startBuilding,
+        destinationRoom: null,
+        startRoom: null,
         userLocation,
-        userCampus: null,
         travelMode: "DRIVE",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -208,14 +248,16 @@ describe("useDirections", () => {
       useDirections({
         destination,
         startBuilding: null,
+        destinationRoom: null,
+        startRoom: null,
         userLocation,
-        userCampus: null,
         travelMode: "WALK",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -233,14 +275,16 @@ describe("useDirections", () => {
       useDirections({
         destination,
         startBuilding: null,
+        destinationRoom: null,
+        startRoom: null,
         userLocation,
-        userCampus: null,
         travelMode: "WALK",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -265,14 +309,16 @@ describe("useDirections", () => {
       useDirections({
         destination,
         startBuilding: null,
+        destinationRoom: null,
+        startRoom: null,
         userLocation,
-        userCampus: null,
         travelMode: "WALK",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
         onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
@@ -281,22 +327,20 @@ describe("useDirections", () => {
     // Unmount to trigger cancellation
     unmount();
 
-    // Resolve after unmount — callbacks should NOT be called
+    // Resolve after unmount ΓÇö callbacks should NOT be called
     resolvePromise!(mockRoute);
 
     // Give the promise callback a tick to settle
     await new Promise((r) => setTimeout(r, 0));
     expect(onLoaded).not.toHaveBeenCalled();
   });
-});
 
-describe("useDirections SHUTTLE", () => {
-  beforeEach(() => {
-    mockGetRoute.mockReset();
-    mockGetSchedule.mockReset();
-  });
-
-  it("does not fetch shuttle when userCampus is null", async () => {
+  it("fetches shuttle directions when travel mode is SHUTTLE", async () => {
+    const mockShuttleRoute: RouteInfo = { ...mockRoute, distanceMeters: 555 };
+    (
+      ShuttleDirectionsBuilder.buildShuttleRoute as jest.Mock
+    ).mockResolvedValueOnce(mockShuttleRoute);
+    const onLoading = jest.fn();
     const onLoaded = jest.fn();
     const onError = jest.fn();
 
@@ -304,170 +348,276 @@ describe("useDirections SHUTTLE", () => {
       useDirections({
         destination,
         startBuilding: null,
+        destinationRoom: null,
+        startRoom: null,
         userLocation,
-        userCampus: null,
         travelMode: "SHUTTLE",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
-        onLoading: jest.fn(),
+        onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
-    await waitFor(() => {});
-    expect(mockGetRoute).not.toHaveBeenCalled();
-    expect(mockGetSchedule).not.toHaveBeenCalled();
+    expect(onLoading).toHaveBeenCalled();
+
+    await waitFor(() =>
+      expect(onLoaded).toHaveBeenCalledWith(mockShuttleRoute),
+    );
+    expect(ShuttleDirectionsBuilder.buildShuttleRoute).toHaveBeenCalledWith(
+      userLocation.latitude,
+      userLocation.longitude,
+      destination.latitude,
+      destination.longitude,
+      DEFAULT_DEPARTURE_CONFIG,
+      null,
+      destination,
+    );
   });
 
-  it("calls onLoaded(null) and onError when no upcoming departures", async () => {
+  it("handles indoor pathfinding failure for outdoor route gracefully (departure fallback)", async () => {
+    const startRoom = { id: "room1", buildingId: "B1", floor: 2 } as any;
+    const destRoom = null;
+    mockFetchDirections.mockResolvedValueOnce(mockRoute);
+    (IndoorPathfindingService.getDirections as jest.Mock).mockRejectedValueOnce(
+      new Error("Graph error"),
+    );
+    const onLoading = jest.fn();
     const onLoaded = jest.fn();
     const onError = jest.fn();
-    mockGetRoute.mockResolvedValueOnce({
-      duration: "21 mins",
-      distance: "8.3 km",
-      sgw_to_loyola: [{ latitude: 45.497, longitude: -73.578 }],
-      loyola_to_sgw: [{ latitude: 45.458, longitude: -73.638 }],
-    });
-    mockGetSchedule.mockResolvedValueOnce({
-      day: "TUESDAY",
-      no_service: true,
-      service_start: null,
-      service_end: null,
-      departures: [],
-    });
 
     renderHook(() =>
       useDirections({
-        destination: startBuilding,
+        destination,
         startBuilding: null,
+        destinationRoom: destRoom,
+        startRoom,
         userLocation,
-        userCampus: "SGW",
-        travelMode: "SHUTTLE",
+        travelMode: "WALK",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
-        onLoading: jest.fn(),
+        onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
-    await waitFor(() => {
-      expect(mockGetRoute).toHaveBeenCalled();
-      expect(mockGetSchedule).toHaveBeenCalled();
-      expect(onLoaded).toHaveBeenCalledWith(null);
-      expect(onError).toHaveBeenCalledWith("No shuttle available");
-    });
+    await waitFor(() => expect(onLoaded).toHaveBeenCalled());
+    const finalRoute = onLoaded.mock.calls[0][0];
+    expect(finalRoute.indoorPathOrigin).toBeDefined();
+    expect(finalRoute.indoorPathOrigin.length).toBeGreaterThan(0);
   });
 
-  it("calls onLoaded(route) when schedule has upcoming departures", async () => {
+  it("handles empty path for outdoor route gracefully (arrival fallback)", async () => {
+    const destRoom = { id: "room2", buildingId: "B2", floor: 2 } as any;
+    mockFetchDirections.mockResolvedValueOnce(mockRoute);
+    (IndoorPathfindingService.getDirections as jest.Mock).mockImplementation(
+      async () => {
+        return { path: [] } as any;
+      },
+    );
+    const onLoading = jest.fn();
     const onLoaded = jest.fn();
     const onError = jest.fn();
-    // Use depart_at 08:00 so mock departures 09:30 and 10:30 count as upcoming
-    const tuesday8am = new Date("2025-02-04T08:00:00");
-    mockGetRoute.mockResolvedValueOnce({
-      duration: "21 mins",
-      distance: "8.3 km",
-      sgw_to_loyola: [
-        { latitude: 45.497, longitude: -73.578 },
-        { latitude: 45.458, longitude: -73.638 },
-      ],
-      loyola_to_sgw: [
-        { latitude: 45.458, longitude: -73.638 },
-        { latitude: 45.497, longitude: -73.578 },
-      ],
-    });
-    mockGetSchedule.mockResolvedValueOnce({
-      day: "TUESDAY",
-      no_service: false,
-      service_start: "09:15",
-      service_end: "18:30",
-      departures: [
+
+    renderHook(() =>
+      useDirections({
+        destination,
+        startBuilding: destination,
+        destinationRoom: destRoom,
+        startRoom: null,
+        userLocation,
+        travelMode: "WALK",
+        departureConfig: DEFAULT_DEPARTURE_CONFIG,
+        active: true,
+        onLoading,
+        onLoaded,
+        onError,
+        accessibilityMode: false,
+      }),
+    );
+
+    await waitFor(() => expect(onLoaded).toHaveBeenCalled());
+    const finalRoute = onLoaded.mock.calls[0][0];
+    expect(finalRoute.indoorPath).toBeDefined();
+    expect(finalRoute.indoorPath.length).toBeGreaterThan(0);
+  });
+
+  it("fetches indoor pathfinding when startRoom and destinationRoom are in the same building", async () => {
+    const startRoom = { id: "room1", buildingId: "B1", floor: 1 } as any;
+    const destRoom = { id: "room2", buildingId: "B1", floor: 1 } as any;
+
+    const mockIndoorRes = {
+      distanceMeters: 100,
+      durationSeconds: 120,
+      steps: [
         {
-          loyola_departure: "09:15",
-          sgw_departure: "09:30",
-          last_bus: false,
-        },
-        {
-          loyola_departure: "10:15",
-          sgw_departure: "10:30",
-          last_bus: false,
+          distanceMeters: 100,
+          durationSeconds: 120,
+          instruction: "Walk",
+          maneuver: "straight",
         },
       ],
-    });
-
-    renderHook(() =>
-      useDirections({
-        destination: startBuilding,
-        startBuilding: null,
-        userLocation,
-        userCampus: "SGW",
-        travelMode: "SHUTTLE",
-        departureConfig: { option: "depart_at", date: tuesday8am },
-        active: true,
-        onLoading: jest.fn(),
-        onLoaded,
-        onError,
-      }),
+      path: [startRoom, destRoom],
+    };
+    (IndoorPathfindingService.getDirections as jest.Mock).mockResolvedValueOnce(
+      mockIndoorRes,
     );
 
-    await waitFor(() => {
-      expect(onLoaded).toHaveBeenCalled();
-      const route = onLoaded.mock.calls[0][0] as RouteInfo;
-      expect(route).not.toBeNull();
-      expect(route.steps.length).toBeGreaterThan(0);
-      expect(route.durationText).toBe("21 mins");
-      expect(route.coordinates.length).toBe(2);
-    });
-  });
-
-  it("calls onError when getRoute fails", async () => {
+    const onLoading = jest.fn();
     const onLoaded = jest.fn();
     const onError = jest.fn();
-    mockGetRoute.mockRejectedValueOnce(new Error("Network error"));
 
     renderHook(() =>
       useDirections({
-        destination: startBuilding,
+        destination,
         startBuilding: null,
+        destinationRoom: destRoom,
+        startRoom,
         userLocation,
-        userCampus: "SGW",
-        travelMode: "SHUTTLE",
+        travelMode: "WALK",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
-        onLoading: jest.fn(),
+        onLoading,
         onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
-    await waitFor(() => {
-      expect(onError).toHaveBeenCalledWith("Network error");
-      expect(onLoaded).not.toHaveBeenCalled();
-    });
+    expect(onLoading).toHaveBeenCalled();
+
+    await waitFor(() => expect(onLoaded).toHaveBeenCalled());
+
+    const finalRoute = onLoaded.mock.calls[0][0];
+    expect(finalRoute).toEqual(
+      expect.objectContaining({
+        distanceMeters: 100,
+        durationSeconds: 120,
+        indoorPath: [startRoom, destRoom],
+      }),
+    );
+    expect(finalRoute.indoorPathOrigin).toBeUndefined();
+    expect(IndoorPathfindingService.getDirections).toHaveBeenCalledTimes(1);
   });
 
-  it("calls onError with generic message when getRoute throws non-Error", async () => {
+  it("calls onError if indoor pathfinding fails", async () => {
+    const startRoom = { id: "room1", buildingId: "B1", floor: 1 } as any;
+    const destRoom = { id: "room2", buildingId: "B1", floor: 1 } as any;
+
+    (IndoorPathfindingService.getDirections as jest.Mock).mockRejectedValueOnce(
+      new Error("Fail"),
+    );
+
+    const onLoading = jest.fn();
+    const onLoaded = jest.fn();
     const onError = jest.fn();
-    mockGetRoute.mockRejectedValueOnce("string error");
 
     renderHook(() =>
       useDirections({
-        destination: startBuilding,
+        destination,
         startBuilding: null,
+        destinationRoom: destRoom,
+        startRoom,
         userLocation,
-        userCampus: "SGW",
-        travelMode: "SHUTTLE",
+        travelMode: "WALK",
         departureConfig: DEFAULT_DEPARTURE_CONFIG,
         active: true,
-        onLoading: jest.fn(),
-        onLoaded: jest.fn(),
+        onLoading,
+        onLoaded,
         onError,
+        accessibilityMode: false,
       }),
     );
 
-    await waitFor(() => {
-      expect(onError).toHaveBeenCalledWith("Failed to load shuttle route");
-    });
+    await waitFor(() =>
+      expect(onError).toHaveBeenCalledWith("Could not compute indoor path."),
+    );
+    expect(onLoaded).not.toHaveBeenCalled();
+  });
+
+  it("handles fallback to building node when no entry/exit nodes found (departure)", async () => {
+    const startRoom = {
+      id: "room1",
+      buildingId: "NO_EXIT_BLDG",
+      floor: 2,
+    } as any;
+
+    mockFetchDirections.mockResolvedValueOnce(mockRoute);
+
+    (IndoorPathfindingService.getDirections as jest.Mock).mockImplementation(
+      async () => {
+        return { distanceMeters: 10, durationSeconds: 10, steps: [], path: [] };
+      },
+    );
+
+    const onLoading = jest.fn();
+    const onLoaded = jest.fn();
+    const onError = jest.fn();
+
+    renderHook(() =>
+      useDirections({
+        destination,
+        startBuilding: null,
+        destinationRoom: null,
+        startRoom,
+        userLocation,
+        travelMode: "WALK",
+        departureConfig: DEFAULT_DEPARTURE_CONFIG,
+        active: true,
+        onLoading,
+        onLoaded,
+        onError,
+        accessibilityMode: false,
+      }),
+    );
+
+    await waitFor(() => expect(onLoaded).toHaveBeenCalled());
+    const finalRoute = onLoaded.mock.calls[0][0];
+    expect(finalRoute.indoorPathOrigin).toBeDefined();
+  });
+
+  it("handles fallback to building node when no entry/exit nodes found (arrival)", async () => {
+    const destRoom = {
+      id: "room2",
+      buildingId: "NO_EXIT_BLDG",
+      floor: 2,
+    } as any;
+
+    mockFetchDirections.mockResolvedValueOnce(mockRoute);
+
+    (IndoorPathfindingService.getDirections as jest.Mock).mockImplementation(
+      async () => {
+        return { distanceMeters: 10, durationSeconds: 10, steps: [], path: [] };
+      },
+    );
+
+    const onLoading = jest.fn();
+    const onLoaded = jest.fn();
+    const onError = jest.fn();
+
+    renderHook(() =>
+      useDirections({
+        destination,
+        startBuilding: destination,
+        destinationRoom: destRoom,
+        startRoom: null,
+        userLocation,
+        travelMode: "WALK",
+        departureConfig: DEFAULT_DEPARTURE_CONFIG,
+        active: true,
+        onLoading,
+        onLoaded,
+        onError,
+        accessibilityMode: false,
+      }),
+    );
+
+    await waitFor(() => expect(onLoaded).toHaveBeenCalled());
+    const finalRoute = onLoaded.mock.calls[0][0];
+    expect(finalRoute.indoorPath).toBeDefined();
   });
 });

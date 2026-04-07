@@ -1,4 +1,22 @@
-export type TravelMode = "WALK" | "DRIVE" | "BICYCLE" | "TRANSIT" | "SHUTTLE";
+import { IndoorRoom } from "./IndoorRoom";
+
+export const TRAVEL_MODE = {
+  WALK: "WALK",
+  DRIVE: "DRIVE",
+  BICYCLE: "BICYCLE",
+  TRANSIT: "TRANSIT",
+  SHUTTLE: "SHUTTLE",
+} as const;
+
+export type TravelMode = (typeof TRAVEL_MODE)[keyof typeof TRAVEL_MODE];
+
+export const PREVIEW_TRAVEL_MODES: readonly TravelMode[] = [
+  TRAVEL_MODE.WALK,
+  TRAVEL_MODE.BICYCLE,
+  TRAVEL_MODE.TRANSIT,
+  TRAVEL_MODE.DRIVE,
+  TRAVEL_MODE.SHUTTLE,
+];
 
 export interface DirectionsResponse {
   routes: Route[];
@@ -61,15 +79,27 @@ export interface RouteInfo {
   /** Optional human-readable distance (e.g. shuttle "8.3 km") */
   distanceText?: string;
   steps: StepInfo[];
+  /** Optional sequence of nodes representing an indoor path */
+  indoorPath?: IndoorRoom[];
+  /** Optional sequence of nodes representing the origin indoor path (from start room to exit) */
+  indoorPathOrigin?: IndoorRoom[];
+  /** Step-by-step indoor instructions for the destination building */
+  indoorSteps?: StepInfo[];
+  /** Step-by-step indoor instructions for the origin building */
+  indoorStepsOrigin?: StepInfo[];
 }
 
 export interface StepInfo {
+  id: string;
   distanceMeters: number;
   durationSeconds: number;
   instruction: string;
   maneuver: string;
   coordinates: { latitude: number; longitude: number }[];
+  travelMode?: TravelMode; // e.g., TRAVEL_MODE.WALK, TRAVEL_MODE.BICYCLE, TRAVEL_MODE.TRANSIT
   transitDetails?: TransitStepDetails;
+  startFloor?: number;
+  endFloor?: number;
 }
 
 /** Parsed transit details for a transit step */

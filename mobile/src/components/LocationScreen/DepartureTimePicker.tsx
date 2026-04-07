@@ -2,8 +2,8 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import { useReducer } from "react";
-import { Platform, Pressable, Text, View } from "react-native";
+import { useEffect, useReducer, useState } from "react";
+import { Platform, Pressable, Text, View, StyleSheet } from "react-native";
 
 import { COLORS } from "../../constants";
 import { DEPARTURE_OPTIONS } from "../../constants/departureOptions";
@@ -14,6 +14,7 @@ import {
 import styles from "../../styles/DirectionPanel";
 import { DepartureOption, DepartureTimeConfig } from "../../types/Directions";
 import { formatDate, formatDateTime } from "../../utils/formatHelper";
+import { getNextShuttleDefault } from "../../utils/shuttleUtils";
 
 interface DepartureTimePickerProps {
   readonly config: DepartureTimeConfig;
@@ -28,35 +29,40 @@ export default function DepartureTimePicker({
     departureTimePickerReducer,
     initialDepartureTimePickerState,
   );
-  const { showDatePicker, showTimePicker, expanded } = state;
+  const { showPicker, expanded } = state;
+  const [tempDate, setTempDate] = useState<Date>(config.date);
+
+  useEffect(() => {
+    setTempDate(config.date);
+  }, [config.date]);
 
   const handleOptionSelect = (option: DepartureOption) => {
     if (option === "now") {
       onConfigChange({ option: "now", date: new Date() });
+      dispatch({ type: "COLLAPSE" });
+      dispatch({ type: "HIDE_PICKER" });
     } else {
+      setTempDate(config.date);
       onConfigChange({ option, date: config.date });
-    }
-    dispatch({ type: "COLLAPSE" });
-  };
-
-  const handleDateChange = (_event: DateTimePickerEvent, date?: Date) => {
-    if (Platform.OS !== "ios") dispatch({ type: "HIDE_DATE_PICKER" });
-    if (date) {
-      const merged = new Date(config.date);
-      merged.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-      onConfigChange({ ...config, date: merged });
-      // Chain: after picking date, show time picker
-      dispatch({ type: "SHOW_TIME_PICKER" });
+      dispatch({ type: "COLLAPSE" });
+      dispatch({ type: "SHOW_PICKER" });
     }
   };
 
-  const handleTimeChange = (_event: DateTimePickerEvent, date?: Date) => {
-    if (Platform.OS !== "ios") dispatch({ type: "HIDE_TIME_PICKER" });
-    if (date) {
-      const merged = new Date(config.date);
-      merged.setHours(date.getHours(), date.getMinutes(), 0, 0);
-      onConfigChange({ ...config, date: merged });
+  const handleDateTimeChange = (event: DateTimePickerEvent, date?: Date) => {
+    if (Platform.OS === "ios" && date) {
+      setTempDate(date);
+    } else if (Platform.OS !== "ios") {
+      dispatch({ type: "HIDE_PICKER" });
+      if (event.type === "set" && date) {
+        onConfigChange({ ...config, date });
+      }
     }
+  };
+
+  const confirmIOSDate = () => {
+    dispatch({ type: "HIDE_PICKER" });
+    onConfigChange({ ...config, date: tempDate });
   };
 
   const isPastTime =
@@ -83,15 +89,9 @@ export default function DepartureTimePicker({
         <FontAwesome5 name="clock" size={13} color={COLORS.concordiaMaroon} />
         <Text style={styles.departureToggleText}>{activeLabel}</Text>
         {config.option !== "now" && (
-          <Pressable
-            onPress={() => dispatch({ type: "SHOW_DATE_PICKER" })}
-            accessibilityLabel="Select date and time"
-            accessibilityRole="button"
-          >
-            <Text style={styles.departureToggleTime}>
-              {formatDate(config.date)}, {formatDateTime(config.date)}
-            </Text>
-          </Pressable>
+          <Text style={styles.departureToggleTime}>
+            {formatDate(config.date)}, {formatDateTime(config.date)}
+          </Text>
         )}
         <FontAwesome5
           name={expanded ? "chevron-up" : "chevron-down"}
@@ -130,6 +130,21 @@ export default function DepartureTimePicker({
         </View>
       )}
 
+      {/* Next weekday shortcut */}
+      {config.option !== "now" && (
+        <Pressable
+          onPress={() =>
+            onConfigChange({ ...config, date: getNextShuttleDefault() })
+          }
+          accessibilityLabel="Select next weekday"
+          accessibilityRole="button"
+        >
+          <Text style={styles.departurePillTextShortcut}>
+            Select next weekday
+          </Text>
+        </Pressable>
+      )}
+
       {/* Past-time warning */}
       {isPastTime && (
         <Text style={styles.departurePastTimeWarning} accessibilityRole="alert">
@@ -137,26 +152,48 @@ export default function DepartureTimePicker({
         </Text>
       )}
 
-      {/* Native date picker */}
-      {showDatePicker && (
-        <DateTimePicker
-          testID="date-picker"
-          value={config.date}
-          mode="date"
-          minimumDate={new Date()}
-          onChange={handleDateChange}
-        />
-      )}
-
-      {/* Native time picker */}
-      {showTimePicker && (
-        <DateTimePicker
-          testID="time-picker"
-          value={config.date}
-          mode="time"
-          onChange={handleTimeChange}
-        />
+      {/* Native date & time picker */}
+      {showPicker && (
+        <View style={localStyles.pickerContainer}>
+          <DateTimePicker
+            testID="datetime-picker"
+            value={tempDate}
+            mode="datetime"
+            minimumDate={new Date()}
+            onChange={handleDateTimeChange}
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+          />
+          {Platform.OS === "ios" && (
+            <Pressable
+              style={localStyles.confirmButton}
+              onPress={confirmIOSDate}
+              accessibilityLabel="Confirm time"
+              accessibilityRole="button"
+            >
+              <Text style={localStyles.confirmButtonText}>Confirm Time</Text>
+            </Pressable>
+          )}
+        </View>
       )}
     </View>
   );
 }
+
+const localStyles = StyleSheet.create({
+  pickerContainer: {
+    alignItems: "center",
+    marginTop: 10,
+  },
+  confirmButton: {
+    marginTop: 10,
+    backgroundColor: COLORS.concordiaMaroon,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  confirmButtonText: {
+    color: "#ffffff",
+    fontSize: 15,
+    fontWeight: "600",
+  },
+});

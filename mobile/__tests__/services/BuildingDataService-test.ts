@@ -7,6 +7,7 @@ globalThis.fetch = mockFetch;
 beforeEach(() => {
   jest.clearAllMocks();
   jest.spyOn(console, "error").mockImplementation(() => {});
+  jest.spyOn(console, "warn").mockImplementation(() => {});
 });
 
 afterEach(() => {
@@ -192,6 +193,87 @@ test("returns empty polygons when no displayPolygon", async () => {
   const result = await BuildingDataService.fetchBuildings();
 
   expect(result[0].polygons).toEqual([]);
+});
+
+test("deduplicates entries with identical buildingLongName", async () => {
+  const wing1 = createApiBuilding({
+    Building: "JM-1",
+    Building_Long_Name: "Journalism Building",
+  });
+  const wing2 = createApiBuilding({
+    Building: "JM-2",
+    Building_Long_Name: "Journalism Building",
+  });
+  mockFetch.mockResolvedValueOnce({
+    ok: true,
+    json: async () => [wing1, wing2],
+  });
+
+  const result = await BuildingDataService.fetchBuildings();
+
+  expect(result).toHaveLength(1);
+  expect(result[0].buildingLongName).toBe("Journalism Building");
+});
+
+test("merges polygons from duplicate long-name entries into one building", async () => {
+  const polygon1 = {
+    type: "Polygon",
+    coordinates: [
+      [
+        [-73.58, 45.49],
+        [-73.57, 45.49],
+        [-73.57, 45.5],
+      ],
+    ],
+  };
+  const polygon2 = {
+    type: "Polygon",
+    coordinates: [
+      [
+        [-73.56, 45.51],
+        [-73.55, 45.51],
+        [-73.55, 45.52],
+      ],
+    ],
+  };
+  const wing1 = createApiBuilding({
+    Building: "JM-1",
+    Building_Long_Name: "Journalism Building",
+    Google_Place_Info: { displayPolygon: polygon1 },
+  });
+  const wing2 = createApiBuilding({
+    Building: "JM-2",
+    Building_Long_Name: "Journalism Building",
+    Google_Place_Info: { displayPolygon: polygon2 },
+  });
+  mockFetch.mockResolvedValueOnce({
+    ok: true,
+    json: async () => [wing1, wing2],
+  });
+
+  const result = await BuildingDataService.fetchBuildings();
+
+  expect(result).toHaveLength(1);
+  expect(result[0].polygons).toHaveLength(2);
+});
+
+test("preserves distinct buildings with different buildingLongName", async () => {
+  const hall = createApiBuilding({
+    Building: "H",
+    Building_Long_Name: "Henry F. Hall Building",
+  });
+  const ev = createApiBuilding({
+    Building: "EV",
+    Building_Long_Name: "Engineering and Visual Arts Building",
+  });
+  mockFetch.mockResolvedValueOnce({
+    ok: true,
+    json: async () => [hall, ev],
+  });
+
+  const result = await BuildingDataService.fetchBuildings();
+
+  expect(result).toHaveLength(2);
 });
 
 test("maps Accessibility_Info field correctly", async () => {

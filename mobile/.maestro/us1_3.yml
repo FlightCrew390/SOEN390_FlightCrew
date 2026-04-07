@@ -1,22 +1,32 @@
-appId: com.yourteam.mobile
+appId: com.flightcrew.mobile
+tags:
+  - us1
 ---
-- launchApp
-- assertVisible: "Home Screen"
-- tapOn: "Location"
+- runFlow: flows/open_map.yml
 
-- tapOn: "Next campus"
-- tapOn: "Previous campus"
+# Test 3a: UI Visibility - toggle is visible before any interaction
+- assertVisible: "SGW Campus selector"
+- assertVisible: "Loyola Campus selector"
+
+# Test 3b: Transition Performance - switch campuses and assert label updates
+- tapOn: "Loyola Campus selector"
+- assertVisible:
+    id: "campus-selector-loyola-active"
+
+# Test 3c: State Persistence - pan map and verify campus label and toggle remain
 - swipe:
-       start: 55%, 55%
-       end: 25%, 70%
+    start: 55%, 55%
+    end: 25%, 70%
+- assertVisible: "Loyola Campus selector"
+- assertVisible: "SGW Campus selector"
+
+# Switch back to SGW
+- tapOn: "SGW Campus selector"
+
+# Pan map on SGW and verify state persists
 - swipe:
-       start: 25%, 70%
-       end: 50%, 35%
-- tapOn: "Next campus"
-- swipe:
-       start: 60%, 50%
-       end: 80%, 60%
-- swipe:
-       start: 80%, 60%
-       end: 40%, 30%
-- tapOn: "Previous campus"
+    start: 60%, 50%
+    end: 80%, 60%
+- assertVisible:
+    id: "campus-selector-sgw-active"
+- assertVisible: "Loyola Campus selector"

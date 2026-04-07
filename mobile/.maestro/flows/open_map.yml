@@ -1,0 +1,9 @@
+appId: com.flightcrew.mobile
+---
+- setLocation:
+    latitude: 45.4954
+    longitude: -73.5739
+- launchApp
+- assertVisible: "My Schedule"
+- tapOn:
+    id: "location-tab"

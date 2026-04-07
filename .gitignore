@@ -13,6 +13,8 @@
 .vscode/
 .expo/
 .idea/
+.clj-kondo/
+.lsp/
 *.swp
 *.swo
 *~

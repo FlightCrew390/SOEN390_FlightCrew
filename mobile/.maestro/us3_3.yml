@@ -1,0 +1,44 @@
+appId: com.flightcrew.mobile
+tags:
+  - us3
+---
+- runFlow: flows/open_map.yml
+
+# ═══════════════════════════════════════════════════════════════════
+# US3.3 – Next Class Detection & Location Extraction
+# (Requires EXPO_PUBLIC_E2E_MODE=true – calendar pre-populated
+#  with mock events including locations like "H 920")
+# ═══════════════════════════════════════════════════════════════════
+
+# Navigate to Home screen to view the calendar
+- tapOn:
+    id: "home-tab"
+
+# ── Test 3a: Upcoming Event Detection – calendar loads with today's events ──
+- assertVisible:
+    id: "calendar-component"
+- tapOn: "Go to today's date"
+
+# ── Test 3b: Upcoming Event Detection – next class is identified ──
+# The first upcoming event (SOEN 390 Lecture) should be visible
+- assertVisible: ".*SOEN 390 Lecture.*"
+
+# ── Test 3c: Location Extraction – event displays location info ──
+# The event shows its extracted location from the calendar
+- assertVisible: ".*H 920.*"
+
+# ── Test 3d: Location Extraction – tap event to see full details ──
+- tapOn:
+    id: "event-e2e-evt-1"
+
+# Event detail panel should show directions button (location is valid)
+- assertVisible: "Get directions to this event"
+
+# Close event details
+- tapOn: "Close event details"
+
+# ── Test 3e: Error Handling – event without location shows warning ──
+# The third mock event ("Study Group") has no location.
+# The error banner is shown inline in the event list item.
+- assertVisible: ".*Study Group.*"
+- assertVisible: ".*Could not find location info.*"

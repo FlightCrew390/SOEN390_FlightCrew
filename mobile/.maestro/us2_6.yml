@@ -1,0 +1,52 @@
+appId: com.flightcrew.mobile
+tags:
+  - us2
+---
+- runFlow: flows/open_map.yml
+
+# ═══════════════════════════════════════════════════════════════════
+# US2.6 – Shuttle Integration
+# ═══════════════════════════════════════════════════════════════════
+
+# ── Test 6a: Shuttle is NOT available for same-campus travel ──
+# Open directions for Hall Building (SGW) while user is at SGW
+- runFlow: flows/open_directions_hall.yml
+- assertVisible: "Directions"
+
+# Shuttle should be disabled (same campus: SGW → SGW)
+- assertVisible:
+    text: "Get directions by Shuttle"
+    enabled: false
+
+# Close direction panel
+- tapOn: "Close direction panel"
+
+# ── Test 6b: Shuttle IS available for inter-campus travel ──
+# Search for a Loyola building to get cross-campus directions
+- tapOn: "Search campus buildings"
+- tapOn: "Clear search"
+- tapOn: "Search building name"
+- inputText: "Admin"
+- tapOn:
+    text: ".*Administration.*"
+- tapOn: "Search"
+
+# Tap the callout to open directions to Loyola campus
+- tapOn: "AD Building"
+- assertVisible: "Directions"
+
+# Set departure to next weekday at 9:15 AM (shuttle operating hours)
+- tapOn: "Change departure time"
+- tapOn: "Depart at"
+- tapOn: "Select next weekday"
+
+# Shuttle should be enabled (cross-campus: SGW → Loyola, during shuttle hours)
+- assertVisible:
+    text: "Get directions by Shuttle"
+    enabled: true
+
+# Test 6c: Select Shuttle mode – route and schedule integration
+- tapOn: "Get directions by Shuttle"
+- extendedWaitUntil:
+    visible: "View step-by-step directions"
+    timeout: 15000

@@ -1,0 +1,20 @@
+appId: com.flightcrew.mobile
+---
+# Prerequisite: open_map.yml must run first.
+# This flow opens the direction panel for Hall Building (SGW campus).
+
+# Open search panel
+- tapOn: "Search campus buildings"
+
+# Type building name and select from autocomplete
+- tapOn: "Search building name"
+- inputText: "Hall"
+- tapOn: "Henry F. Hall Building"
+- tapOn: "Search"
+
+# Search dispatches SELECT_BUILDING which closes the search panel
+# and shows the building callout on the map. Tap the callout to open directions.
+- tapOn: "H Building"
+
+# Verify direction panel opened
+- assertVisible: "Directions"

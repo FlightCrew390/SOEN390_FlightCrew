@@ -1,0 +1,34 @@
+appId: com.flightcrew.mobile
+tags:
+  - us3
+---
+- runFlow: flows/open_menu.yml
+
+# ═══════════════════════════════════════════════════════════════════
+# US3.1 – Google Calendar OAuth & Connection Status
+# ═══════════════════════════════════════════════════════════════════
+
+# ── Test 1a: Google OAuth Support – Sign-in button is available ──
+- assertVisible:
+    id: "connection-panel"
+- assertVisible: "Sign in with Google"
+
+# Tap sign-in to trigger Google OAuth redirect
+- tapOn: "Sign in with Google"
+
+# ── Test 1b: User Consent – Google sign-in interface appears ──
+# The OAuth flow opens a web view with Google's sign-in page.
+# Maestro waits for the browser/web view to appear.
+- extendedWaitUntil:
+    visible: ".*Google.*"
+    timeout: 15000
+
+# ── Test 1c: Connection Status – return to app and verify state ──
+# Dismiss the OAuth prompt (user cancels or completes externally)
+- tapOn: ".*Close|Cancel|Back.*"
+
+# After dismissing, the connection panel should still be visible
+# with the sign-in option (since OAuth was not completed)
+- assertVisible:
+    id: "connection-panel"
+- assertVisible: "Sign in with Google"

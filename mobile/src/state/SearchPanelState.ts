@@ -2,6 +2,7 @@ import { Building } from "../types/Building";
 
 export type LocationType =
   | "building"
+  | "classroom"
   | "restaurant"
   | "cafe"
   | "pharmacy"
@@ -9,7 +10,11 @@ export type LocationType =
   | "grocery";
 
 export function isPoi(type: LocationType): boolean {
-  return type !== "building";
+  return type !== "building" && type !== "classroom";
+}
+
+export function isClassroom(type: LocationType): boolean {
+  return type === "classroom";
 }
 
 export interface SearchPanelState {
@@ -21,6 +26,11 @@ export interface SearchPanelState {
   selectedResult: Building | null;
   radiusKm: number | null;
   radiusDropdownOpen: boolean;
+  // Classroom-specific
+  classroomBuildingId: string | null;
+  classroomBuildingDropdownOpen: boolean;
+  // Filter visibility
+  filtersExpanded: boolean;
 }
 
 export type SearchPanelAction =
@@ -33,4 +43,7 @@ export type SearchPanelAction =
   | { type: "BLUR_INPUT" }
   | { type: "PANEL_CLOSED" }
   | { type: "TOGGLE_RADIUS_DROPDOWN" }
-  | { type: "SELECT_RADIUS"; radiusKm: number | null };
+  | { type: "SELECT_RADIUS"; radiusKm: number | null }
+  | { type: "TOGGLE_CLASSROOM_BUILDING_DROPDOWN" }
+  | { type: "SELECT_CLASSROOM_BUILDING"; buildingId: string | null }
+  | { type: "TOGGLE_FILTERS_EXPANDED" };

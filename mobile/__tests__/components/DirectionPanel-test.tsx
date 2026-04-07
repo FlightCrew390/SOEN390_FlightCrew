@@ -1,11 +1,7 @@
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react-native";
+import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import DirectionPanel from "../../src/components/LocationScreen/DirectionPanel";
+import { AccessibilityProvider } from "../../src/contexts/AccessibilityContext";
+import type { RoutePreviews } from "../../src/hooks/useRoutePreviews";
 import { Building, StructureType } from "../../src/types/Building";
 import {
   DEFAULT_DEPARTURE_CONFIG,
@@ -13,12 +9,8 @@ import {
   RouteInfo,
   TravelMode,
 } from "../../src/types/Directions";
-import {
-  hallBuilding,
-  libraryBuilding,
-  loyolaBuilding,
-  makeRoute,
-} from "../fixtures";
+import { IndoorRoom } from "../../src/types/IndoorRoom";
+import { hallBuilding, libraryBuilding, makeRoute } from "../fixtures";
 
 // ── Mocks ──
 
@@ -250,7 +242,9 @@ jest.mock("../../../assets/car.png", () => 4, { virtual: true });
 interface Props {
   visible?: boolean;
   building?: Building | null;
+  roomLabel?: string | null;
   startBuilding?: Building | null;
+  startRoom?: IndoorRoom | null;
   route?: RouteInfo | null;
   routeLoading?: boolean;
   routeError?: string | null;
@@ -267,13 +261,17 @@ interface Props {
   userLocation?: { latitude: number; longitude: number } | null;
   userCampus?: string | null;
   onRouteReady?: (segments: any[]) => void;
+  shuttleEligible?: boolean;
+  routePreviews?: RoutePreviews;
 }
 
 function renderPanel(overrides: Props = {}) {
   const props = {
     visible: true,
     building: hallBuilding,
+    roomLabel: null,
     startBuilding: null,
+    startRoom: null,
     route: null,
     routeLoading: false,
     routeError: null,
@@ -292,12 +290,31 @@ function renderPanel(overrides: Props = {}) {
       | undefined,
     userCampus: undefined as string | undefined,
     onRouteReady: jest.fn(),
+    shuttleEligible: false,
+    routePreviews: undefined,
     ...overrides,
   };
-  return { ...render(<DirectionPanel {...props} />), props };
+  return {
+    ...render(
+      <AccessibilityProvider>
+        <DirectionPanel {...props} />
+      </AccessibilityProvider>,
+    ),
+    props,
+  };
 }
 
 // ── Tests ──
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  jest.spyOn(console, "error").mockImplementation(() => {});
+  jest.spyOn(console, "warn").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
+});
 
 describe("DirectionPanel", () => {
   // ── Visibility ──
@@ -362,6 +379,11 @@ describe("DirectionPanel", () => {
     expect(screen.getByText("H")).toBeTruthy();
   });
 
+  it("shows room destination and building on one line when roomLabel is provided", () => {
+    renderPanel({ roomLabel: "H-920" });
+    expect(screen.getByText("H-920 (Hall Building)")).toBeTruthy();
+  });
+
   // ── Distance text ──
 
   it("shows -- m when no route", () => {
@@ -369,10 +391,10 @@ describe("DirectionPanel", () => {
     expect(screen.getByText("-- m")).toBeTruthy();
   });
 
-  it("shows formatted distance when route exists", () => {
+  it("keeps birds-eye distance text when route exists", () => {
     const route = makeRoute({ distanceMeters: 350 });
     renderPanel({ route });
-    expect(screen.getByText("350 m")).toBeTruthy();
+    expect(screen.getByText("-- m")).toBeTruthy();
   });
 
   // ── Start location row ──
@@ -389,10 +411,26 @@ describe("DirectionPanel", () => {
     expect(screen.getByText("Starting at Library Building")).toBeTruthy();
   });
 
+  it("shows room label and building name when classroom start is set", () => {
+    const startRoom: IndoorRoom = {
+      id: "room-h920",
+      buildingId: "Hall",
+      floor: 9,
+      label: "H-920",
+      x: 12,
+      y: 28,
+      type: "room",
+      accessible: true,
+    };
+
+    renderPanel({ startBuilding: hallBuilding, startRoom });
+    expect(screen.getByText("Starting at H-920 (Hall Building)")).toBeTruthy();
+  });
+
   it("calls onOpenSearch when change is pressed", () => {
     const { props } = renderPanel();
     fireEvent.press(
-      screen.getByLabelText("Search buildings to change directions start"),
+      screen.getByLabelText("Search locations to change directions start"),
     );
     expect(props.onOpenSearch).toHaveBeenCalledTimes(1);
   });
@@ -477,13 +515,13 @@ describe("DirectionPanel", () => {
   it("shows view steps button when route has steps", () => {
     const route = makeRoute();
     renderPanel({ route });
-    expect(screen.getByLabelText("View route")).toBeTruthy();
+    expect(screen.getByLabelText("View step-by-step directions")).toBeTruthy();
   });
 
   it("calls onShowSteps when view steps is pressed", () => {
     const route = makeRoute();
     const { props } = renderPanel({ route });
-    fireEvent.press(screen.getByLabelText("View route"));
+    fireEvent.press(screen.getByLabelText("View step-by-step directions"));
     expect(props.onShowSteps).toHaveBeenCalledTimes(1);
   });
 
@@ -759,157 +797,31 @@ describe("DirectionPanel", () => {
     expect(screen.queryByText(/Building Code/)).toBeNull();
   });
 
-  // ── useEffect: getAllTravelTimes success ──
+  // ── Shuttle card (current API) ──
 
-  it("fetches travel times and shows walk duration when userLocation and userCampus provided", async () => {
-    mockGetAllTravelTimes.mockResolvedValueOnce({
-      walk: { durationMinutes: 10, distanceMeters: 800, polyline: "abc" },
-      bike: { durationMinutes: 5, distanceMeters: 800, polyline: "def" },
-      transit: { durationMinutes: 8, distanceMeters: 900, polyline: "ghi" },
-      drive: { durationMinutes: 3, distanceMeters: 850, polyline: "jkl" },
-    });
+  it("renders a disabled shuttle card when shuttle is not eligible", () => {
+    renderPanel({ shuttleEligible: false });
+    expect(screen.getByLabelText("Get directions by Shuttle")).toBeTruthy();
+    expect(screen.getByText("N/A")).toBeTruthy();
+  });
 
-    const onRouteReady = jest.fn();
+  it("renders shuttle preview duration when eligible", () => {
     renderPanel({
-      userLocation: { latitude: 45.5, longitude: -73.6 },
-      userCampus: "SGW",
-      onRouteReady,
-    });
-
-    await waitFor(() => {
-      expect(screen.getByText("10 min walk")).toBeTruthy();
-    });
-
-    expect(screen.getByTestId("transport-duration-Walk").children[0]).toBe(
-      "10 min",
-    );
-    expect(screen.getByTestId("transport-duration-Bike").children[0]).toBe(
-      "5 min",
-    );
-    expect(screen.getByTestId("transport-duration-Transit").children[0]).toBe(
-      "8 min",
-    );
-    expect(screen.getByTestId("transport-duration-Drive").children[0]).toBe(
-      "3 min",
-    );
-    expect(onRouteReady).toHaveBeenCalledWith([
-      {
-        coordinates: [
-          { latitude: 45.497, longitude: -73.578 },
-          { latitude: 45.498, longitude: -73.579 },
-        ],
-        mode: "walk",
+      shuttleEligible: true,
+      routePreviews: {
+        WALK: null,
+        BICYCLE: null,
+        TRANSIT: null,
+        DRIVE: null,
+        SHUTTLE: 1260,
       },
-    ]);
+    });
+    expect(screen.getByText("21 min")).toBeTruthy();
   });
 
-  // ── useEffect: getAllTravelTimes failure ──
-
-  it("handles travel times fetch failure gracefully", async () => {
-    mockGetAllTravelTimes.mockRejectedValueOnce(new Error("Network error"));
-
-    const onRouteReady = jest.fn();
-    renderPanel({
-      userLocation: { latitude: 45.5, longitude: -73.6 },
-      userCampus: "SGW",
-      onRouteReady,
-    });
-
-    await waitFor(() => {
-      expect(screen.getByText("-- m")).toBeTruthy();
-    });
-    // onRouteReady called with empty on error
-    expect(onRouteReady).toHaveBeenCalledWith([]);
-  });
-
-  // ── Shuttle transport card for cross-campus ──
-
-  it("shows shuttle option for cross-campus routes", async () => {
-    mockIsCrossCampus.mockReturnValue(true);
-
-    renderPanel({
-      building: loyolaBuilding,
-      startBuilding: hallBuilding,
-    });
-
-    expect(screen.getByTestId("transport-Shuttle")).toBeTruthy();
-    mockIsCrossCampus.mockReturnValue(false);
-  });
-
-  it("shows shuttle option when origin campus is unknown but destination is Concordia", () => {
-    mockIsCrossCampus.mockReturnValue(false);
-    renderPanel({
-      building: hallBuilding,
-      startBuilding: undefined,
-      userCampus: undefined,
-    });
-
-    expect(screen.getByTestId("transport-Shuttle")).toBeTruthy();
-  });
-
-  it("shows shuttle duration from travelTimes", async () => {
-    mockIsCrossCampus.mockReturnValue(true);
-    mockGetAllTravelTimes.mockResolvedValueOnce({
-      walk: { durationMinutes: 10, distanceMeters: 800, polyline: "" },
-      bike: { durationMinutes: 5, distanceMeters: 800, polyline: "" },
-      transit: { durationMinutes: 8, distanceMeters: 900, polyline: "" },
-      drive: { durationMinutes: 3, distanceMeters: 850, polyline: "" },
-    });
-
-    renderPanel({
-      building: loyolaBuilding,
-      startBuilding: hallBuilding,
-      userLocation: { latitude: 45.5, longitude: -73.6 },
-      userCampus: "SGW",
-    });
-
-    await waitFor(() => {
-      expect(screen.getByTestId("transport-duration-Shuttle").children[0]).toBe(
-        "~21 min",
-      );
-    });
-    mockIsCrossCampus.mockReturnValue(false);
-  });
-
-  // ── Route distanceText shortcut ──
-
-  it("uses route.distanceText when available", () => {
+  it("uses birds-eye distance text even when route has distanceText", () => {
     const route = makeRoute({ distanceText: "1.2 km" });
     renderPanel({ route });
-    expect(screen.getByText("1.2 km")).toBeTruthy();
-  });
-
-  // ── Shuttle duration from route when travelTimes not loaded ──
-
-  it("shows shuttle duration from route when active and no travelTimes", () => {
-    mockIsCrossCampus.mockReturnValue(true);
-    const route = makeRoute({ durationSeconds: 1260, durationText: "21 mins" });
-    renderPanel({
-      travelMode: "SHUTTLE",
-      route,
-      building: loyolaBuilding,
-      startBuilding: hallBuilding,
-    });
-
-    expect(screen.getByTestId("transport-duration-Shuttle").children[0]).toBe(
-      "21 mins",
-    );
-    mockIsCrossCampus.mockReturnValue(false);
-  });
-
-  it("uses formatDuration for shuttle when no durationText", () => {
-    mockIsCrossCampus.mockReturnValue(true);
-    const route = makeRoute({ durationSeconds: 1260 });
-    renderPanel({
-      travelMode: "SHUTTLE",
-      route,
-      building: loyolaBuilding,
-      startBuilding: hallBuilding,
-    });
-
-    expect(screen.getByTestId("transport-duration-Shuttle").children[0]).toBe(
-      "21 min",
-    );
-    mockIsCrossCampus.mockReturnValue(false);
+    expect(screen.getByText("-- m")).toBeTruthy();
   });
 });
